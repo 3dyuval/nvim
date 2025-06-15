@@ -5,26 +5,6 @@ local map = vim.keymap.set
 -- Delete on 'q' (next to 'w' where change is)
 map({ "n", "o", "x" }, "x", "d", { desc = "Delete" })
 
-map({ "n" }, "<C-a>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
-map({ "n" }, "<C-e>", "<cmd>bnext<CR>", { desc = "Next buffer" })
--- Smart buffer delete function
-local function smart_buffer_delete()
-  local bufs = vim.tbl_filter(function(buf)
-    return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
-  end, vim.api.nvim_list_bufs())
-
-  if #bufs <= 1 then
-    vim.cmd("bd")
-    require("snacks").dashboard()
-  else
-    vim.cmd("bd")
-  end
-end
-
-map({ "n" }, "<C-w>w", smart_buffer_delete, { desc = "Close buffer" })
-map({ "n" }, "<C-w>o", "<cmd>%bd|e#<CR>", { desc = "Close all buffers but current" })
-map({ "n" }, "<leader>bd", smart_buffer_delete, { desc = "Delete Buffer" })
-
 -- Up/down/left/right
 map({ "n", "o", "x" }, "h", "h", { desc = "Left (h)" })
 map({ "n", "o", "x" }, "e", "k", { desc = "Up (k)" })
@@ -76,17 +56,17 @@ map({ "n", "o", "x" }, "H", "ge", { desc = "End of word back" })
 map({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
 map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 
--- Text objects
+-- Text objects - r and t are reserved for treesitter multi-key objects
+-- Use manual mappings only for simple cases
 -- diw is drw. daw is now dtw.
-map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
-map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 
--- Simple operator-pending mappings for nvim-surround (using treesitter text objects)
-map({ "o" }, "rd", "iw", { desc = "Inner word" })
-map({ "o" }, "td", "aw", { desc = "Around word" })
+-- -- Simple operator-pending mappings for nvim-surround (using treesitter text objects)
+-- map({ "o" }, "rd", "iw", { desc = "Inner word" })
+-- map({ "o" }, "td", "aw", { desc = "Around word" })
+--
 
--- Move visual replac.e from 'r' to 'R'
-map({ "o", "v" }, "R", "r", { desc = "Replace" })
+-- Keep visual replace on a different key
+map({ "v" }, "R", "r", { desc = "Replace selected text" })
 
 -- Folds
 map({ "n", "x" }, "b", "z", { desc = "Fold commands" })
@@ -124,9 +104,9 @@ map({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
 map({ "n" }, "<C-o>", "<C-i>", { desc = "Jumplist forward" })
 
 -- Insert/append
-map({ "n" }, "t", "i", { desc = "Insert before cursor" })
+map({ "n" }, "r", "i", { desc = "Insert before cursor" })
 -- map({ "n" }, "T", "I", { desc = "Insert at start of line" })
-map({ "n" }, "s", "a", { desc = "Insert after cursor" })
+map({ "n" }, "t", "a", { desc = "Insert after cursor" })
 -- map({ "n" }, "S", "A", { desc = "Insert at end of line" })
 
 map({ "v" }, "s", "<Plug>(nvim-surround-visual)", { desc = "Surround visual selection" })
@@ -282,29 +262,47 @@ map({ "n" }, "<C-S-p>", function()
   local line_count = vim.fn.line("$")
   vim.notify(string.format("File copied to clipboard: %s (%d lines)", filename, line_count))
 end, { desc = "Copy file contents to clipboard" })
+-- Visual mode treesitter text objects (explicit mappings)
+map({ "x", "o" }, "rf", function()
+  require("nvim-treesitter.textobjects.select").select_textobject("@function.inner", "textobjects")
+end, { desc = "Select inner function" })
 
-map({ "v" }, "Re", function()
+map({ "x", "o" }, "tf", function()
+  require("nvim-treesitter.textobjects.select").select_textobject("@function.outer", "textobjects")
+end, { desc = "Select outer function" })
+
+map({ "x", "o" }, "rc", function()
+  require("nvim-treesitter.textobjects.select").select_textobject("@class.inner", "textobjects")
+end, { desc = "Select inner class" })
+
+map({ "x", "o" }, "tc", function()
+  require("nvim-treesitter.textobjects.select").select_textobject("@class.outer", "textobjects")
+end, { desc = "Select outer class" })
+
+map({ "x", "o" }, "Re", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@element.inner", "textobjects")
 end, { desc = "Select inner JSX element" })
 
-map({ "v" }, "Te", function()
+map({ "x", "o" }, "Te", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@element.outer", "textobjects")
 end, { desc = "Select around JSX element" })
 
-map({ "v" }, "Rh", function()
+map({ "x", "o" }, "Rh", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@tag.inner", "textobjects")
 end, { desc = "Select inner HTML tag" })
 
-map({ "v" }, "Th", function()
+map({ "x", "o" }, "Th", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@tag.outer", "textobjects")
 end, { desc = "Select around HTML tag" })
+map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
+map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 
+map({ "o", "v" }, "R", "r", { desc = "Replace" })
 -- Operator-pending mode mappings to help with nvim-surround
 -- These allow your r/t mappings to work in operator-pending mode
 map({ "v" }, "rd", "iw", { desc = "Inner word (visual)" })
 map({ "v" }, "td", "aw", { desc = "Around word (visual)" })
-map({ "v" }, "rf", "iw", { desc = "Inner function (visual)" })
-map({ "v" }, "tf", "aw", { desc = "Around function (visual)" })
+-- rf and tf handled by treesitter-textobjects
 map({ "o" }, "r(", "i(", { desc = "Inner parentheses (for nvim-surround)" })
 map({ "o" }, "r)", "i)", { desc = "Inner parentheses (for nvim-surround)" })
 map({ "o" }, "r[", "i[", { desc = "Inner brackets (for nvim-surround)" })
@@ -326,11 +324,6 @@ map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 local snacks_keymaps = require("config.keymaps-snacks")
 map({ "n" }, "<leader>ti", snacks_keymaps.toggle_ignored, { desc = "Toggle snacks picker ignored files" })
 map({ "n" }, "<leader>th", snacks_keymaps.toggle_hidden, { desc = "Toggle snacks picker hidden files" })
-
--- Default bracket and paragraph navigation restored
--- [ and ] are default (previous/next navigation)
--- { and } are default (previous/next paragraph)
-
 -- TypeScript Go to Source Definition with fallback to regular definition
 map("n", "<leader>cc", function()
   local clients = vim.lsp.get_clients({ bufnr = 0 })
@@ -378,3 +371,23 @@ end, { desc = "Go to source definition (fallback to definition)" })
 map({ "n", "x" }, "<leader>sR", function()
   require("grug-far").open({ visualSelectionUsage = "operate-within-range" })
 end, { desc = "Search within range" })
+
+map({ "n" }, "<C-a>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
+map({ "n" }, "<C-e>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+-- Smart buffer delete function
+local function smart_buffer_delete()
+  local bufs = vim.tbl_filter(function(buf)
+    return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
+  end, vim.api.nvim_list_bufs())
+
+  if #bufs <= 1 then
+    vim.cmd("bd")
+    require("snacks").dashboard()
+  else
+    vim.cmd("bd")
+  end
+end
+
+map({ "n" }, "<C-w>w", smart_buffer_delete, { desc = "Close buffer" })
+map({ "n" }, "<C-w>o", "<cmd>%bd|e#<CR>", { desc = "Close all buffers but current" })
+map({ "n" }, "<leader>bd", smart_buffer_delete, { desc = "Delete Buffer" })
