@@ -10,6 +10,13 @@ return {
         ts_ls = false,
         tsserver = false,
       },
+      setup = {
+        vtsls = function()
+          -- Return true to prevent LazyVim from configuring vtsls
+          return true
+        end,
+      },
     },
   },
 }
+

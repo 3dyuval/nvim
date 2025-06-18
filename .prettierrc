@@ -11,9 +11,22 @@
   "endOfLine": "lf",
   "overrides": [
     {
-      "files": "*.html",
+      "files": [
+        "*.vue"
+      ],
       "options": {
-        "parser": "angular"
+        "parser": "vue",
+        "singleAttributePerLine": true,
+        "vueIndentScriptAndStyle": false
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "options": {
+        "parser": "html",
+        "singleAttributePerLine": true
       }
     }
   ]

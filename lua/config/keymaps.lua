@@ -2,6 +2,12 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 local map = vim.keymap.set
+
+-- Helper function to safely override existing keymaps
+local function override_map(mode, lhs, rhs, opts)
+  pcall(vim.keymap.del, mode, lhs)
+  map(mode, lhs, rhs, opts)
+end
 -- Delete on 'q' (next to 'w' where change is)
 map({ "n", "o", "x" }, "x", "d", { desc = "Delete" })
 
@@ -61,9 +67,6 @@ map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 -- diw is drw. daw is now dtw.
 
 -- -- Simple operator-pending mappings for nvim-surround (using treesitter text objects)
--- map({ "o" }, "rd", "iw", { desc = "Inner word" })
--- map({ "o" }, "td", "aw", { desc = "Around word" })
---
 
 -- Keep visual replace on a different key
 map({ "v" }, "R", "r", { desc = "Replace selected text" })
@@ -108,8 +111,6 @@ map({ "n" }, "r", "i", { desc = "Insert before cursor" })
 -- map({ "n" }, "T", "I", { desc = "Insert at start of line" })
 map({ "n" }, "t", "a", { desc = "Insert after cursor" })
 -- map({ "n" }, "S", "A", { desc = "Insert at end of line" })
-
-map({ "v" }, "s", "<Plug>(nvim-surround-visual)", { desc = "Surround visual selection" })
 
 -- Normal mode - Direct commenting with next line
 map("n", "<C-/>", function()
@@ -297,7 +298,10 @@ end, { desc = "Select around HTML tag" })
 map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 
+map({ "v" }, "s", "<Plug>(nvim-surround-visual)", { desc = "Surround visual selection" })
 map({ "o", "v" }, "R", "r", { desc = "Replace" })
+map({ "o", "v" }, "rd", "iw", { desc = "Inner word" })
+map({ "o", "v" }, "td", "aw", { desc = "Around word" })
 -- Operator-pending mode mappings to help with nvim-surround
 -- These allow your r/t mappings to work in operator-pending mode
 map({ "v" }, "rd", "iw", { desc = "Inner word (visual)" })
@@ -320,19 +324,32 @@ map({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
 map({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
 map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 
--- Snacks keymaps
-local snacks_keymaps = require("config.keymaps-snacks")
-map({ "n" }, "<leader>ti", snacks_keymaps.toggle_ignored, { desc = "Toggle snacks picker ignored files" })
-map({ "n" }, "<leader>th", snacks_keymaps.toggle_hidden, { desc = "Toggle snacks picker hidden files" })
 -- TypeScript Go to Source Definition with fallback to regular definition
-map("n", "<leader>cc", function()
+override_map("n", "<leader>cx", function()
+  vim.notify("Go to source definition triggered", vim.log.levels.INFO)
+
   local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients == 0 then
-    vim.notify("No LSP client attached", vim.log.levels.WARN)
+  vim.notify("Found " .. #clients .. " LSP clients", vim.log.levels.INFO)
+
+  local ts_client = nil
+
+  -- Find typescript-tools client specifically
+  for _, client in ipairs(clients) do
+    vim.notify("Client found: " .. client.name, vim.log.levels.INFO)
+    if client.name == "typescript-tools" then
+      ts_client = client
+      break
+    end
+  end
+
+  if not ts_client then
+    vim.notify("TypeScript Tools not attached", vim.log.levels.WARN)
+    vim.lsp.buf.definition()
     return
   end
 
-  local position_params = vim.lsp.util.make_position_params(0, clients[1].offset_encoding)
+  vim.notify("Using typescript-tools client", vim.log.levels.INFO)
+  local position_params = vim.lsp.util.make_position_params(0, ts_client.offset_encoding, 0)
 
   vim.lsp.buf_request(0, "workspace/executeCommand", {
     command = "typescript.goToSourceDefinition",

@@ -17,71 +17,71 @@ M.default_opts = {
   },
   surrounds = {
     -- Functions
-    ["af"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@function.outer", type = "textobjects" } })
-      end,
-    },
-    ["if"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@function.inner", type = "textobjects" } })
-      end,
-    },
-    -- Classes
-    ["Tc"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@class.outer", type = "textobjects" } })
-      end,
-    },
-    ["Rc"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@class.inner", type = "textobjects" } })
-      end,
-    },
-    -- Parameters
-    ["Tp"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@parameter.outer", type = "textobjects" } })
-      end,
-    },
-    ["Rp"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@parameter.inner", type = "textobjects" } })
-      end,
-    },
-    -- Loops
-    ["To"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@loop.outer", type = "textobjects" } })
-      end,
-    },
-    ["Ro"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@loop.inner", type = "textobjects" } })
-      end,
-    },
-    -- Scopes
-    ["Ts"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@scope", type = "textobjects" } })
-      end,
-    },
-    ["Rs"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@scope", type = "textobjects" } })
-      end,
-    },
-    -- JSX/HTML Elements
-    ["Ty"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@element.outer", type = "textobjects" } })
-      end,
-    },
-    ["Ry"] = {
-      find = function()
-        return M.get_selection({ query = { capture = "@element.inner", type = "textobjects" } })
-      end,
-    },
+    -- ["af"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@function.outer", type = "textobjects" } })
+    --   end,
+    -- },
+    -- ["if"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@function.inner", type = "textobjects" } })
+    --   end,
+    -- },
+    -- -- Classes
+    -- ["Tc"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@class.outer", type = "textobjects" } })
+    --   end,
+    -- },
+    -- ["Rc"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@class.inner", type = "textobjects" } })
+    --   end,
+    -- },
+    -- -- Parameters
+    -- ["Tp"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@parameter.outer", type = "textobjects" } })
+    --   end,
+    -- },
+    -- ["Rp"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@parameter.inner", type = "textobjects" } })
+    --   end,
+    -- },
+    -- -- Loops
+    -- ["To"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@loop.outer", type = "textobjects" } })
+    --   end,
+    -- },
+    -- ["Ro"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@loop.inner", type = "textobjects" } })
+    --   end,
+    -- },
+    -- -- Scopes
+    -- ["Ts"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@scope", type = "textobjects" } })
+    --   end,
+    -- },
+    -- ["Rs"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@scope", type = "textobjects" } })
+    --   end,
+    -- },
+    -- -- JSX/HTML Elements
+    -- ["Ty"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@element.outer", type = "textobjects" } })
+    --   end,
+    -- },
+    -- ["Ry"] = {
+    --   find = function()
+    --     return M.get_selection({ query = { capture = "@element.inner", type = "textobjects" } })
+    --   end,
+    -- },
     ["("] = {
       add = { "( ", " )" },
       find = function()
