@@ -1569,3 +1569,279 @@
 [2025-06-18T14:35:55.532Z] ==========================================
 
 [2025-06-18T14:35:55.532Z] File watching is disabled in config
+[2025-06-19T18:37:03.104Z] Starting FileScopeMCP server initialization
+[2025-06-19T18:37:03.109Z] Initial working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-19T18:37:03.109Z] Command line args: /home/yuval/.nvm/versions/node/v20.18.2/bin/node,/home/yuval/mcp-servers/file-scope/dist/mcp-server.js,--base-dir=./
+[2025-06-19T18:37:03.111Z] ========== CONFIG DEBUGGING ==========
+[2025-06-19T18:37:03.111Z] Loaded config: {
+  "baseDirectory": "",
+  "excludePatterns": [],
+  "fileWatching": {
+    "enabled": false,
+    "debounceMs": 300,
+    "ignoreDotFiles": true,
+    "autoRebuildTree": true,
+    "maxWatchedDirectories": 1000,
+    "watchForNewFiles": true,
+    "watchForDeleted": true,
+    "watchForChanged": true
+  },
+  "version": "1.0.0"
+}
+[2025-06-19T18:37:03.111Z] Exclude patterns count: 0
+[2025-06-19T18:37:03.111Z] =====================================
+[2025-06-19T18:37:03.112Z] Using base directory from command line: /home/yuval/Dropbox/config/nvim
+[2025-06-19T18:37:03.114Z] Global state after initialization:
+[2025-06-19T18:37:03.114Z] - Project root: /home/yuval/Dropbox/config/nvim
+[2025-06-19T18:37:03.114Z] - Config loaded: true
+[2025-06-19T18:37:03.115Z] - Exclude patterns count: 0
+[2025-06-19T18:37:03.115Z] Changed working directory to: /home/yuval/Dropbox/config/nvim
+[2025-06-19T18:37:03.115Z] 
+🌲 BUILD FILE TREE STARTED
+[2025-06-19T18:37:03.115Z] ==========================================
+[2025-06-19T18:37:03.115Z] Building file tree with config: {
+  "filename": "FileScopeMCP-tree.json",
+  "baseDirectory": "/home/yuval/Dropbox/config/nvim",
+  "projectRoot": "/home/yuval/Dropbox/config/nvim",
+  "lastUpdated": "2025-06-19T18:37:03.115Z"
+}
+[2025-06-19T18:37:03.115Z] Current working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-19T18:37:03.115Z] Config in global state: ✅ YES
+[2025-06-19T18:37:03.116Z] Global config exclude patterns count: 0
+[2025-06-19T18:37:03.117Z] ✅ Using existing file tree from: FileScopeMCP-tree.json
+[2025-06-19T18:37:03.117Z] Tree root path: /home/yuval/Dropbox/config/nvim
+[2025-06-19T18:37:03.117Z] Tree has children: 9
+[2025-06-19T18:37:03.117Z] 🌲 BUILD FILE TREE COMPLETED (loaded from file)
+[2025-06-19T18:37:03.117Z] ==========================================
+
+[2025-06-19T18:37:03.117Z] File watching is disabled in config
+[2025-06-19T19:14:05.911Z] Starting FileScopeMCP server initialization
+[2025-06-19T19:14:05.915Z] Initial working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-19T19:14:05.915Z] Command line args: /home/yuval/.nvm/versions/node/v20.18.2/bin/node,/home/yuval/mcp-servers/file-scope/dist/mcp-server.js,--base-dir=./
+[2025-06-19T19:14:05.920Z] ========== CONFIG DEBUGGING ==========
+[2025-06-19T19:14:05.920Z] Loaded config: {
+  "baseDirectory": "",
+  "excludePatterns": [],
+  "fileWatching": {
+    "enabled": false,
+    "debounceMs": 300,
+    "ignoreDotFiles": true,
+    "autoRebuildTree": true,
+    "maxWatchedDirectories": 1000,
+    "watchForNewFiles": true,
+    "watchForDeleted": true,
+    "watchForChanged": true
+  },
+  "version": "1.0.0"
+}
+[2025-06-19T19:14:05.920Z] Exclude patterns count: 0
+[2025-06-19T19:14:05.921Z] =====================================
+[2025-06-19T19:14:05.921Z] Using base directory from command line: /home/yuval/Dropbox/config/nvim
+[2025-06-19T19:14:05.923Z] Global state after initialization:
+[2025-06-19T19:14:05.923Z] - Project root: /home/yuval/Dropbox/config/nvim
+[2025-06-19T19:14:05.923Z] - Config loaded: true
+[2025-06-19T19:14:05.923Z] - Exclude patterns count: 0
+[2025-06-19T19:14:05.928Z] Changed working directory to: /home/yuval/Dropbox/config/nvim
+[2025-06-19T19:14:05.928Z] 
+🌲 BUILD FILE TREE STARTED
+[2025-06-19T19:14:05.928Z] ==========================================
+[2025-06-19T19:14:05.928Z] Building file tree with config: {
+  "filename": "FileScopeMCP-tree.json",
+  "baseDirectory": "/home/yuval/Dropbox/config/nvim",
+  "projectRoot": "/home/yuval/Dropbox/config/nvim",
+  "lastUpdated": "2025-06-19T19:14:05.928Z"
+}
+[2025-06-19T19:14:05.928Z] Current working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-19T19:14:05.928Z] Config in global state: ✅ YES
+[2025-06-19T19:14:05.928Z] Global config exclude patterns count: 0
+[2025-06-19T19:14:05.932Z] ✅ Using existing file tree from: FileScopeMCP-tree.json
+[2025-06-19T19:14:05.932Z] Tree root path: /home/yuval/Dropbox/config/nvim
+[2025-06-19T19:14:05.932Z] Tree has children: 9
+[2025-06-19T19:14:05.932Z] 🌲 BUILD FILE TREE COMPLETED (loaded from file)
+[2025-06-19T19:14:05.932Z] ==========================================
+
+[2025-06-19T19:14:05.932Z] File watching is disabled in config
+[2025-06-20T10:56:45.476Z] Starting FileScopeMCP server initialization
+[2025-06-20T10:56:45.481Z] Initial working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-20T10:56:45.481Z] Command line args: /home/yuval/.nvm/versions/node/v20.18.2/bin/node,/home/yuval/mcp-servers/file-scope/dist/mcp-server.js,--base-dir=./
+[2025-06-20T10:56:45.484Z] ========== CONFIG DEBUGGING ==========
+[2025-06-20T10:56:45.486Z] Loaded config: {
+  "baseDirectory": "",
+  "excludePatterns": [],
+  "fileWatching": {
+    "enabled": false,
+    "debounceMs": 300,
+    "ignoreDotFiles": true,
+    "autoRebuildTree": true,
+    "maxWatchedDirectories": 1000,
+    "watchForNewFiles": true,
+    "watchForDeleted": true,
+    "watchForChanged": true
+  },
+  "version": "1.0.0"
+}
+[2025-06-20T10:56:45.486Z] Exclude patterns count: 0
+[2025-06-20T10:56:45.486Z] =====================================
+[2025-06-20T10:56:45.486Z] Using base directory from command line: /home/yuval/Dropbox/config/nvim
+[2025-06-20T10:56:45.488Z] Global state after initialization:
+[2025-06-20T10:56:45.490Z] - Project root: /home/yuval/Dropbox/config/nvim
+[2025-06-20T10:56:45.491Z] - Config loaded: true
+[2025-06-20T10:56:45.492Z] - Exclude patterns count: 0
+[2025-06-20T10:56:45.493Z] Changed working directory to: /home/yuval/Dropbox/config/nvim
+[2025-06-20T10:56:45.493Z] 
+🌲 BUILD FILE TREE STARTED
+[2025-06-20T10:56:45.494Z] ==========================================
+[2025-06-20T10:56:45.494Z] Building file tree with config: {
+  "filename": "FileScopeMCP-tree.json",
+  "baseDirectory": "/home/yuval/Dropbox/config/nvim",
+  "projectRoot": "/home/yuval/Dropbox/config/nvim",
+  "lastUpdated": "2025-06-20T10:56:45.493Z"
+}
+[2025-06-20T10:56:45.495Z] Current working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-20T10:56:45.495Z] Config in global state: ✅ YES
+[2025-06-20T10:56:45.496Z] Global config exclude patterns count: 0
+[2025-06-20T10:56:45.497Z] ✅ Using existing file tree from: FileScopeMCP-tree.json
+[2025-06-20T10:56:45.498Z] Tree root path: /home/yuval/Dropbox/config/nvim
+[2025-06-20T10:56:45.499Z] Tree has children: 9
+[2025-06-20T10:56:45.499Z] 🌲 BUILD FILE TREE COMPLETED (loaded from file)
+[2025-06-20T10:56:45.500Z] ==========================================
+
+[2025-06-20T10:56:45.500Z] File watching is disabled in config
+[2025-06-20T15:52:28.427Z] Starting FileScopeMCP server initialization
+[2025-06-20T15:52:28.430Z] Initial working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-20T15:52:28.430Z] Command line args: /home/yuval/.nvm/versions/node/v20.18.2/bin/node,/home/yuval/mcp-servers/file-scope/dist/mcp-server.js,--base-dir=./
+[2025-06-20T15:52:28.431Z] ========== CONFIG DEBUGGING ==========
+[2025-06-20T15:52:28.431Z] Loaded config: {
+  "baseDirectory": "",
+  "excludePatterns": [],
+  "fileWatching": {
+    "enabled": false,
+    "debounceMs": 300,
+    "ignoreDotFiles": true,
+    "autoRebuildTree": true,
+    "maxWatchedDirectories": 1000,
+    "watchForNewFiles": true,
+    "watchForDeleted": true,
+    "watchForChanged": true
+  },
+  "version": "1.0.0"
+}
+[2025-06-20T15:52:28.431Z] Exclude patterns count: 0
+[2025-06-20T15:52:28.431Z] =====================================
+[2025-06-20T15:52:28.431Z] Using base directory from command line: /home/yuval/Dropbox/config/nvim
+[2025-06-20T15:52:28.432Z] Global state after initialization:
+[2025-06-20T15:52:28.432Z] - Project root: /home/yuval/Dropbox/config/nvim
+[2025-06-20T15:52:28.432Z] - Config loaded: true
+[2025-06-20T15:52:28.432Z] - Exclude patterns count: 0
+[2025-06-20T15:52:28.433Z] Changed working directory to: /home/yuval/Dropbox/config/nvim
+[2025-06-20T15:52:28.433Z] 
+🌲 BUILD FILE TREE STARTED
+[2025-06-20T15:52:28.433Z] ==========================================
+[2025-06-20T15:52:28.433Z] Building file tree with config: {
+  "filename": "FileScopeMCP-tree.json",
+  "baseDirectory": "/home/yuval/Dropbox/config/nvim",
+  "projectRoot": "/home/yuval/Dropbox/config/nvim",
+  "lastUpdated": "2025-06-20T15:52:28.433Z"
+}
+[2025-06-20T15:52:28.433Z] Current working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-20T15:52:28.433Z] Config in global state: ✅ YES
+[2025-06-20T15:52:28.433Z] Global config exclude patterns count: 0
+[2025-06-20T15:52:28.433Z] ✅ Using existing file tree from: FileScopeMCP-tree.json
+[2025-06-20T15:52:28.434Z] Tree root path: /home/yuval/Dropbox/config/nvim
+[2025-06-20T15:52:28.434Z] Tree has children: 9
+[2025-06-20T15:52:28.434Z] 🌲 BUILD FILE TREE COMPLETED (loaded from file)
+[2025-06-20T15:52:28.434Z] ==========================================
+
+[2025-06-20T15:52:28.434Z] File watching is disabled in config
+[2025-06-20T16:39:19.445Z] Starting FileScopeMCP server initialization
+[2025-06-20T16:39:19.448Z] Initial working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-20T16:39:19.448Z] Command line args: /home/yuval/.nvm/versions/node/v20.18.2/bin/node,/home/yuval/mcp-servers/file-scope/dist/mcp-server.js,--base-dir=./
+[2025-06-20T16:39:19.449Z] ========== CONFIG DEBUGGING ==========
+[2025-06-20T16:39:19.449Z] Loaded config: {
+  "baseDirectory": "",
+  "excludePatterns": [],
+  "fileWatching": {
+    "enabled": false,
+    "debounceMs": 300,
+    "ignoreDotFiles": true,
+    "autoRebuildTree": true,
+    "maxWatchedDirectories": 1000,
+    "watchForNewFiles": true,
+    "watchForDeleted": true,
+    "watchForChanged": true
+  },
+  "version": "1.0.0"
+}
+[2025-06-20T16:39:19.449Z] Exclude patterns count: 0
+[2025-06-20T16:39:19.450Z] =====================================
+[2025-06-20T16:39:19.450Z] Using base directory from command line: /home/yuval/Dropbox/config/nvim
+[2025-06-20T16:39:19.451Z] Global state after initialization:
+[2025-06-20T16:39:19.451Z] - Project root: /home/yuval/Dropbox/config/nvim
+[2025-06-20T16:39:19.451Z] - Config loaded: true
+[2025-06-20T16:39:19.451Z] - Exclude patterns count: 0
+[2025-06-20T16:39:19.452Z] Changed working directory to: /home/yuval/Dropbox/config/nvim
+[2025-06-20T16:39:19.452Z] 
+🌲 BUILD FILE TREE STARTED
+[2025-06-20T16:39:19.452Z] ==========================================
+[2025-06-20T16:39:19.452Z] Building file tree with config: {
+  "filename": "FileScopeMCP-tree.json",
+  "baseDirectory": "/home/yuval/Dropbox/config/nvim",
+  "projectRoot": "/home/yuval/Dropbox/config/nvim",
+  "lastUpdated": "2025-06-20T16:39:19.452Z"
+}
+[2025-06-20T16:39:19.452Z] Current working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-20T16:39:19.452Z] Config in global state: ✅ YES
+[2025-06-20T16:39:19.452Z] Global config exclude patterns count: 0
+[2025-06-20T16:39:19.453Z] ✅ Using existing file tree from: FileScopeMCP-tree.json
+[2025-06-20T16:39:19.453Z] Tree root path: /home/yuval/Dropbox/config/nvim
+[2025-06-20T16:39:19.453Z] Tree has children: 9
+[2025-06-20T16:39:19.453Z] 🌲 BUILD FILE TREE COMPLETED (loaded from file)
+[2025-06-20T16:39:19.453Z] ==========================================
+
+[2025-06-20T16:39:19.453Z] File watching is disabled in config
+[2025-06-21T16:57:21.398Z] Starting FileScopeMCP server initialization
+[2025-06-21T16:57:21.401Z] Initial working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-21T16:57:21.401Z] Command line args: /home/yuval/.nvm/versions/node/v20.18.2/bin/node,/home/yuval/mcp-servers/file-scope/dist/mcp-server.js,--base-dir=./
+[2025-06-21T16:57:21.402Z] ========== CONFIG DEBUGGING ==========
+[2025-06-21T16:57:21.402Z] Loaded config: {
+  "baseDirectory": "",
+  "excludePatterns": [],
+  "fileWatching": {
+    "enabled": false,
+    "debounceMs": 300,
+    "ignoreDotFiles": true,
+    "autoRebuildTree": true,
+    "maxWatchedDirectories": 1000,
+    "watchForNewFiles": true,
+    "watchForDeleted": true,
+    "watchForChanged": true
+  },
+  "version": "1.0.0"
+}
+[2025-06-21T16:57:21.402Z] Exclude patterns count: 0
+[2025-06-21T16:57:21.402Z] =====================================
+[2025-06-21T16:57:21.402Z] Using base directory from command line: /home/yuval/Dropbox/config/nvim
+[2025-06-21T16:57:21.403Z] Global state after initialization:
+[2025-06-21T16:57:21.404Z] - Project root: /home/yuval/Dropbox/config/nvim
+[2025-06-21T16:57:21.404Z] - Config loaded: true
+[2025-06-21T16:57:21.404Z] - Exclude patterns count: 0
+[2025-06-21T16:57:21.404Z] Changed working directory to: /home/yuval/Dropbox/config/nvim
+[2025-06-21T16:57:21.404Z] 
+🌲 BUILD FILE TREE STARTED
+[2025-06-21T16:57:21.404Z] ==========================================
+[2025-06-21T16:57:21.404Z] Building file tree with config: {
+  "filename": "FileScopeMCP-tree.json",
+  "baseDirectory": "/home/yuval/Dropbox/config/nvim",
+  "projectRoot": "/home/yuval/Dropbox/config/nvim",
+  "lastUpdated": "2025-06-21T16:57:21.404Z"
+}
+[2025-06-21T16:57:21.404Z] Current working directory: /home/yuval/Dropbox/config/nvim
+[2025-06-21T16:57:21.404Z] Config in global state: ✅ YES
+[2025-06-21T16:57:21.404Z] Global config exclude patterns count: 0
+[2025-06-21T16:57:21.405Z] ✅ Using existing file tree from: FileScopeMCP-tree.json
+[2025-06-21T16:57:21.405Z] Tree root path: /home/yuval/Dropbox/config/nvim
+[2025-06-21T16:57:21.405Z] Tree has children: 9
+[2025-06-21T16:57:21.405Z] 🌲 BUILD FILE TREE COMPLETED (loaded from file)
+[2025-06-21T16:57:21.405Z] ==========================================
+
+[2025-06-21T16:57:21.405Z] File watching is disabled in config

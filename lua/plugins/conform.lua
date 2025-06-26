@@ -1,25 +1,28 @@
 return {
   "stevearc/conform.nvim",
+  dependencies = { "williamboman/mason.nvim" }, -- Ensure Mason loads first
   opts = {
     formatters_by_ft = {
-      typescript = { "biome" },
-      javascript = { "biome" },
-      typescriptreact = { "biome" },
-      javascriptreact = { "biome" },
+      typescript = { "prettier", "biome" },
+      javascript = { "prettier", "biome" },
+      typescriptreact = { "prettier", "biome" },
+      javascriptreact = { "prettier", "biome" },
       json = { "biome" },
       html = { "prettier" },
       htmlangular = { "prettier" },
       vue = { "prettier" },
     },
     formatters = {
-      prettier = {
-        args = { "--config", vim.fn.stdpath("config") .. "/.prettierrc", "--stdin-filepath", "$FILENAME" },
+      biome = {
+        args = {
+          "format",
+          "--config-path",
+          vim.fn.stdpath("config") .. "/biome.json",
+          "--stdin-file-path",
+          "$FILENAME",
+        },
       },
+      -- prettier config would go here if you need to override it
     },
-    -- Enable format on save
-    -- format_on_save = {
-    -- timeout_ms = 500,
-    -- lsp_fallback = true,
-    -- },
   },
 }
