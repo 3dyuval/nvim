@@ -22,13 +22,3 @@ vim.api.nvim_create_autocmd("FileType", {
     -- If it doesn't work well, we'll use the custom keymap approach
   end,
 })
-
--- Fix grug-far current file keymap override issue
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'grug-far',
-  callback = function()
-    vim.keymap.set("n", "<leader>sr", function()
-      require('grug-far').open({ prefills = { paths = vim.fn.expand("%") } })
-    end, { desc = "Search and replace (current file)", buffer = true })
-  end,
-})

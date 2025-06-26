@@ -44,7 +44,7 @@ return {
       },
       keymaps = {
         view = {
-          ["<leader>co"] = false,
+          -- ["<leader>co"] = false,
           ["<leader>ct"] = false,
           ["<leader>cb"] = false,
           ["<leader>ca"] = false,
@@ -59,13 +59,13 @@ return {
           ["gP"] = "<Cmd>%diffput<CR>", -- Put ALL hunks to other buffer
           ["gs"] = function() -- Show diff statistics
             local added, removed, changed = 0, 0, 0
-            for i = 1, vim.fn.line('$') do
+            for i = 1, vim.fn.line("$") do
               local hl = vim.fn.diff_hlID(i, 1)
-              if hl == vim.fn.hlID('DiffAdd') then
+              if hl == vim.fn.hlID("DiffAdd") then
                 added = added + 1
-              elseif hl == vim.fn.hlID('DiffDelete') then
+              elseif hl == vim.fn.hlID("DiffDelete") then
                 removed = removed + 1
-              elseif hl == vim.fn.hlID('DiffChange') then
+              elseif hl == vim.fn.hlID("DiffChange") then
                 changed = changed + 1
               end
             end
@@ -86,3 +86,4 @@ return {
     })
   end,
 }
+
