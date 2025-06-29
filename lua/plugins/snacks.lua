@@ -1,52 +1,5 @@
 -- https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 
--- snacks.win (Window)
----@class snacks.win
----@field id number
----@field buf? number
----@field scratch_buf? number
----@field win? number
----@field opts snacks.win.Config
----@field augroup? number
----@field backdrop? snacks.win
----@field keys snacks.win.Keys[]
----@field events (snacks.win.Event|{event:string|string[]})[]
----@field meta table<string, any>
----@field closed? boolean
-
--- Config (snacks.win.Config):
----@class snacks.win.Config: vim.api.keyset.win_config
----@field style? string
----@field show? boolean
----@field height? number|fun(self:snacks.win):number
----@field width? number|fun(self:snacks.win):number
----@field min_height? number
----@field max_height? number
----@field min_width? number
----@field max_width? number
----@field col? number|fun(self:snacks.win):number
----@field row? number|fun(self:snacks.win):number
----@field minimal? boolean
----@field position? "float"|"bottom"|"top"|"left"|"right"
----@field border? "none"|"top"|"right"|"bottom"|"left"|"hpad"|"vpad"|"rounded"|"single"|"double"|"solid"|"shadow"|string[]|false
----@field buf? number
----@field file? string
----@field enter? boolean
----@field backdrop? number|false|snacks.win.Backdrop
----@field wo? vim.wo|{}
----@field bo? vim.bo|{}
----@field b? table<string, any>
----@field w? table<string, any>
----@field ft? string
----@field scratch_ft? string
----@field keys? table<string, false|string|fun(self: snacks.win)|snacks.win.Keys>
----@field on_buf? fun(self: snacks.win)
----@field on_win? fun(self: snacks.win)
----@field on_close? fun(self: snacks.win)
----@field fixbuf? boolean
----@field text? string|string[]|fun():(string[]|string)
----@field actions? table<string, snacks.win.Action.spec>
----@field resize? boolean
 return {
   "folke/snacks.nvim",
   enabled = true,
@@ -111,6 +64,8 @@ return {
           keys = {
             ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
             ["c"] = "create", -- Remap 'c' to create file/folder
+            ["i"] = "confirm_folder", -- Expand/open directory
+            ["h"] = "explorer_close", -- Collapse/close directory
           },
         },
       },
@@ -127,6 +82,16 @@ return {
             return true
           end,
           actions = {
+            confirm_folder = {
+              action = function(picker, item)
+                item = item or picker:current()
+                if item and item.kind == "dir" then
+                  -- You may want to use the built-in confirm action
+                  return require("snacks.picker.actions").confirm(picker, item)
+                end
+                -- noop
+              end,
+            },
             open_multiple_buffers = {
               action = function(picker)
                 local sel = picker.list.selected or {}
@@ -247,118 +212,24 @@ return {
                 Snacks.notify.info("Select two entries for the diff")
               end,
             },
-            show_git_changes = {
-              action = function(picker)
-                -- Get current working directory
-                local cwd = vim.fn.getcwd()
-
-                -- Get all git changed files
-                local handle = io.popen("cd " .. vim.fn.shellescape(cwd) .. " && git diff --name-only HEAD 2>/dev/null")
-                if not handle then
-                  vim.notify("Not in a git repository", vim.log.levels.WARN)
-                  return
-                end
-
-                local changed_files = {}
-                for line in handle:lines() do
-                  if line ~= "" then
-                    table.insert(changed_files, line)
-                  end
-                end
-                handle:close()
-
-                -- Also get staged files
-                handle = io.popen("cd " .. vim.fn.shellescape(cwd) .. " && git diff --cached --name-only 2>/dev/null")
-                if handle then
-                  for line in handle:lines() do
-                    if line ~= "" then
-                      table.insert(changed_files, line)
-                    end
-                  end
-                  handle:close()
-                end
-
-                -- Also get untracked files
-                handle = io.popen(
-                  "cd " .. vim.fn.shellescape(cwd) .. " && git ls-files --others --exclude-standard 2>/dev/null"
-                )
-                if handle then
-                  for line in handle:lines() do
-                    if line ~= "" then
-                      table.insert(changed_files, line)
-                    end
-                  end
-                  handle:close()
-                end
-
-                if #changed_files == 0 then
-                  vim.notify("No git changes found", vim.log.levels.INFO)
-                  return
-                end
-
-                -- Create a set of changed file paths for quick lookup
-                local changed_set = {}
-                local changed_dirs = {}
-                for _, file in ipairs(changed_files) do
-                  local full_path = vim.fn.fnamemodify(cwd .. "/" .. file, ":p")
-                  changed_set[full_path] = true
-
-                  -- Also track directories containing changed files
-                  local dir = vim.fn.fnamemodify(full_path, ":h")
-                  while dir and dir ~= "/" and dir ~= cwd do
-                    changed_dirs[dir] = true
-                    dir = vim.fn.fnamemodify(dir, ":h")
-                  end
-                end
-
-                -- Close current picker and open new one with filter
-                picker:close()
-
-                LazyVim.pick("explorer", {
-                  root = false,
-                  auto_close = picker.opts.auto_close,
-                  layout = picker.opts.layout,
-                  filter = function(item)
-                    if not item.file then
-                      return false
-                    end
-                    local item_path = vim.fn.fnamemodify(item.file, ":p")
-
-                    -- Show if it's a changed file
-                    if changed_set[item_path] then
-                      return true
-                    end
-
-                    -- Show if it's a directory containing changed files
-                    if item.kind == "dir" and changed_dirs[item_path] then
-                      return true
-                    end
-
-                    return false
-                  end,
-                })()
-              end,
-            },
           },
           win = {
-            input = {
-              keys = {
-                ["<C-c>"] = "focus_list",
-              },
-            },
             list = {
               keys = {
-                ["<Esc>"] = { "close", mode = { "n", "i" } },
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
+                ["/"] = "toggle_focus",
+                ["<Esc>"] = { "close", mode = { "n", "i" } },
+                ["<C-c>"] = "focus_input",
                 ["p"] = "copy_file_path",
-                ["s"] = "search_in_directory",
+                ["g"] = "search_in_directory", -- Opens a grep snacks
+                ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
+                ["i"] = "confirm_folder", -- Expand/open directory
+                ["h"] = "explorer_close", -- Collapse/close directory
                 ["D"] = "diff",
                 ["r"] = "explorer_add", -- Create file/folder
                 ["x"] = false, -- Disable default x binding
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
-                ["<C-f>"] = "toggle_float", -- Toggle between floating and docked
-                ["<C-g>"] = "show_git_changes", -- Show only files/dirs with git changes
               },
             },
           },
@@ -454,6 +325,14 @@ return {
         LazyVim.pick("explorer", {
           root = false,
           auto_close = false,
+          win = {
+            list = {
+              keys = {
+                ["<C-c>"] = { "close", mode = { "n", "i" } },
+                ["<Esc>"] = false,
+              },
+            },
+          },
           layout = {
             preset = "left",
             preview = false,

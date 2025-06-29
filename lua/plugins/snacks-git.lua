@@ -86,15 +86,8 @@ return {
             end,
           },
           win = {
-            input = {
-              keys = {
-                ["<C-c>"] = "focus_list",
-              },
-            },
             list = {
               keys = {
-                ["/"] = "focus_input",
-                ["i"] = "focus_input",
                 ["p"] = "branch_actions_menu",
               },
             },
@@ -104,4 +97,3 @@ return {
     },
   },
 }
-

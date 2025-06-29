@@ -3,12 +3,7 @@ return {
   ft = "markdown", -- Lazy loads for Markdown files matching patterns in 'files',
   opts = {
     files = {
-      "todo",
-      "TODO",
-      "todo.md",
-      "TODO.md",
-      "*.todo",
-      "*.todo.md",
+      "*.md",
     },
     keys = {
       -- ["<leader>tc"] = "check", -- Set todo item as checked (done)

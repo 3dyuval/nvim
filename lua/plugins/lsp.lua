@@ -1,156 +1,123 @@
 return {
-  -- LSP Configuration & Plugins
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      "mason.nvim",
-      "mason-lspconfig.nvim",
-    },
-  },
+  "neovim/nvim-lspconfig",
+  opts = {
+    servers = {
+      -- Disable other TypeScript servers
+      tsserver = { enabled = false },
+      ts_ls = { enabled = false },
 
-  -- Mason for managing LSP servers
-  {
-    "williamboman/mason.nvim",
-    cmd = "Mason",
-    keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
-    opts = {
-      ensure_installed = {
-        "stylua",
-        "shfmt",
-        "prettier",
-        "typescript-language-server",
-        "angular-language-server",
-      },
-    },
-  },
-
-  -- Bridge between Mason and lspconfig
-  {
-    "williamboman/mason-lspconfig.nvim",
-    opts = {
-      ensure_installed = {
-        "lua_ls",
-        "ts_ls",
-        "angularls",
-      },
-      automatic_installation = true,
-      handlers = {
-        -- Default setup for all servers
-        function(server_name)
-          local ok, lspconfig = pcall(require, "lspconfig")
-          if not ok then
-            vim.notify("LSPConfig not found", vim.log.levels.ERROR)
-            return
-          end
-
-          lspconfig[server_name].setup({})
-        end,
-
-        -- Enhanced TypeScript Language Server configuration
-        ["ts_ls"] = function()
-          require("lspconfig").ts_ls.setup({
-            filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-            settings = {
-              typescript = {
-                inlayHints = {
-                  includeInlayParameterNameHints = "all",
-                  includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                  includeInlayFunctionParameterTypeHints = true,
-                  includeInlayVariableTypeHints = true,
-                  includeInlayPropertyDeclarationTypeHints = true,
-                  includeInlayFunctionLikeReturnTypeHints = true,
-                  includeInlayEnumMemberValueHints = true,
-                },
-                preferences = {
-                  importModuleSpecifier = "non-relative",
-                  organizeImports = true,
-                },
-              },
-              javascript = {
-                inlayHints = {
-                  includeInlayParameterNameHints = "all",
-                  includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                  includeInlayFunctionParameterTypeHints = true,
-                  includeInlayVariableTypeHints = true,
-                  includeInlayPropertyDeclarationTypeHints = true,
-                  includeInlayFunctionLikeReturnTypeHints = true,
-                  includeInlayEnumMemberValueHints = true,
-                },
+      -- Enable vtsls for JS/TS
+      vtsls = {
+        filetypes = {
+          "javascript",
+          "javascriptreact",
+          "javascript.jsx",
+          "typescript",
+          "typescriptreact",
+          "typescript.tsx",
+        },
+        settings = {
+          complete_function_calls = true,
+          vtsls = {
+            enableMoveToFileCodeAction = true,
+            autoUseWorkspaceTsdk = true,
+            experimental = {
+              maxInlayHintLength = 30,
+              completion = {
+                enableServerSideFuzzyMatch = true,
               },
             },
-            on_attach = function(client, bufnr)
-              -- Enable inlay hints
-              if client.supports_method("textDocument/inlayHint") then
-                vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-              end
-
-              -- Enable code lens
-              if client.supports_method("textDocument/codeLens") then
-                vim.lsp.codelens.refresh({ bufnr = bufnr })
-
-                -- Auto refresh code lens on text changes
-                vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-                  buffer = bufnr,
-                  callback = function()
-                    vim.lsp.codelens.refresh({ bufnr = bufnr })
-                  end,
-                })
-              end
+          },
+          typescript = {
+            updateImportsOnFileMove = { enabled = "always" },
+            suggest = {
+              completeFunctionCalls = false,
+            },
+            preferences = {
+              importModuleSpecifier = "non-relative",
+            },
+            inlayHints = {
+              enumMemberValues = { enabled = true },
+              functionLikeReturnTypes = { enabled = true },
+              parameterNames = { enabled = "literals" },
+              parameterTypes = { enabled = true },
+              propertyDeclarationTypes = { enabled = true },
+              variableTypes = { enabled = false },
+            },
+            referencesCodeLens = {
+              enabled = true,
+              showOnAllFunctions = true,
+            },
+            implementationsCodeLens = {
+              enabled = true,
+              showOnInterfaceMethods = true,
+            },
+          },
+        },
+        keys = {
+          {
+            "gD",
+            function()
+              local params = vim.lsp.util.make_position_params()
+              LazyVim.lsp.execute({
+                command = "typescript.goToSourceDefinition",
+                arguments = { params.textDocument.uri, params.position },
+                open = true,
+              })
             end,
-          })
-        end,
-
-        -- Enhanced Angular Language Server configuration
-        ["angularls"] = function()
-          require("lspconfig").angularls.setup({
-            filetypes = {
-              "typescript",
-              "html",
-              "typescriptreact",
-              "typescript.tsx",
-            },
-            root_dir = require("lspconfig.util").root_pattern("angular.json", "project.json"),
-            settings = {
-              angular = {
-                analytics = false,
-                trace = { server = "off" },
-                suggest = {
-                  includeCompletionsForModuleExports = true,
-                },
-                experimental = {
-                  lazyTemplates = true,
-                },
-              },
-            },
-          })
-        end,
+            desc = "Goto Source Definition",
+          },
+          {
+            "gR",
+            function()
+              LazyVim.lsp.execute({
+                command = "typescript.findAllFileReferences",
+                arguments = { vim.uri_from_bufnr(0) },
+                open = true,
+              })
+            end,
+            desc = "File References",
+          },
+          {
+            "<leader>co",
+            LazyVim.lsp.action["source.organizeImports"],
+            desc = "Organize Imports",
+          },
+          {
+            "<leader>cM",
+            LazyVim.lsp.action["source.addMissingImports.ts"],
+            desc = "Add missing imports",
+          },
+          {
+            "<leader>cu",
+            LazyVim.lsp.action["source.removeUnused.ts"],
+            desc = "Remove unused imports",
+          },
+          {
+            "<leader>cD",
+            LazyVim.lsp.action["source.fixAll.ts"],
+            desc = "Fix all diagnostics",
+          },
+          {
+            "<leader>cV",
+            function()
+              LazyVim.lsp.execute({ command = "typescript.selectTypeScriptVersion" })
+            end,
+            desc = "Select TS workspace version",
+          },
+        },
       },
-    },
-  },
 
-  -- TypeScript type information display
-  {
-    "marilari88/twoslash-queries.nvim",
-    ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-    opts = {
-      multi_line = true,
-      is_enabled = true,
-    },
-  },
-
-  -- Vue.js support
-  {
-    "neovim/nvim-lspconfig",
-    config = function()
-      require("lspconfig").volar.setup({
-        filetypes = { "vue", "typescript", "javascript" },
+      -- Enable Volar for Vue
+      volar = {
+        filetypes = { "vue" },
         init_options = {
           vue = {
             hybridMode = false,
           },
           typescript = {
-            tsdk = require("mason-registry").get_package("typescript-language-server"):get_install_path()
-              .. "/node_modules/typescript/lib",
+            -- You may want to set the tsdk path, or leave it default
+            -- tsdk = "/path/to/typescript/lib",
           },
         },
         settings = {
@@ -163,7 +130,101 @@ return {
             },
           },
         },
-      })
-    end,
+      },
+    },
+    setup = {
+      tsserver = function()
+        return true
+      end,
+      ts_ls = function()
+        return true
+      end,
+      vtsls = function(_, opts)
+        LazyVim.lsp.on_attach(function(client, buffer)
+          if client.supports_method("textDocument/codeLens") then
+            -- Initial refresh
+            vim.lsp.codelens.refresh()
+
+            -- Create a debounced refresh function
+            local timer = nil
+            local function debounced_refresh()
+              if timer then
+                timer:stop()
+              end
+              timer = vim.defer_fn(function()
+                vim.lsp.codelens.refresh()
+                timer = nil
+              end, 500) -- 500ms debounce
+            end
+
+            -- Only refresh on meaningful events, with debouncing
+            vim.api.nvim_create_autocmd({ "BufWritePost", "TextChanged" }, {
+              buffer = buffer,
+              callback = debounced_refresh,
+            })
+
+            -- Refresh when entering buffer (but only once)
+            vim.api.nvim_create_autocmd("BufEnter", {
+              buffer = buffer,
+              once = true,
+              callback = function()
+                vim.lsp.codelens.refresh()
+              end,
+            })
+          end
+
+          client.commands["_typescript.moveToFileRefactoring"] = function(command, ctx)
+            local action, uri, range = unpack(command.arguments)
+            local function move(newf)
+              client.request("workspace/executeCommand", {
+                command = command.command,
+                arguments = { action, uri, range, newf },
+              })
+            end
+            local fname = vim.uri_to_fname(uri)
+            client.request("workspace/executeCommand", {
+              command = "typescript.tsserverRequest",
+              arguments = {
+                "getMoveToRefactoringFileSuggestions",
+                {
+                  file = fname,
+                  startLine = range.start.line + 1,
+                  startOffset = range.start.character + 1,
+                  endLine = range["end"].line + 1,
+                  endOffset = range["end"].character + 1,
+                },
+              },
+            }, function(_, result)
+              local files = result.body.files
+              table.insert(files, 1, "Enter new path...")
+              vim.ui.select(files, {
+                prompt = "Select move destination:",
+                format_item = function(f)
+                  return vim.fn.fnamemodify(f, ":~:.")
+                end,
+              }, function(f)
+                if f and f:find("^Enter new path") then
+                  vim.ui.input({
+                    prompt = "Enter move destination:",
+                    default = vim.fn.fnamemodify(fname, ":h") .. "/",
+                    completion = "file",
+                  }, function(newf)
+                    return newf and move(newf)
+                  end)
+                elseif f then
+                  move(f)
+                end
+              end)
+            end)
+          end
+        end, "vtsls")
+        -- copy typescript settings to javascript
+        opts.settings.javascript =
+          vim.tbl_deep_extend("force", {}, opts.settings.typescript, opts.settings.javascript or {})
+      end,
+      volar = function(_, opts)
+        -- Add any additional volar setup here if needed
+      end,
+    },
   },
 }

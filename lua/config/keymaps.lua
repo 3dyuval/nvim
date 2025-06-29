@@ -3,19 +3,12 @@
 -- Add any additional keymaps here
 local map = vim.keymap.set
 
-map("n", "<leader>sl", function()
-  require("snacks").picker.lsp_symbols({
-    filter = function(symbol)
-      return symbol.parent == nil
-    end,
-  })
-end, { desc = "Top-level LSP Symbols" })
-
 -- Helper function to safely override existing keymaps
 local function override_map(mode, lhs, rhs, opts)
   pcall(vim.keymap.del, mode, lhs)
   map(mode, lhs, rhs, opts)
 end
+
 -- Delete on 'q' (next to 'w' where change is)
 map({ "n", "o", "x" }, "x", "d", { desc = "Delete" })
 
@@ -25,6 +18,13 @@ map({ "n", "o", "x" }, "e", "k", { desc = "Up (k)" })
 map({ "n", "o", "x" }, "a", "j", { desc = "Down (j)" })
 map({ "n", "o", "x" }, "i", "l", { desc = "Right (l)" })
 
+-- Override HAEI navigation in visual modes (including visual line mode)
+-- Use noremap to fully override default vim behavior including text objects
+map("x", "e", "k", { noremap = true, desc = "Up in visual modes" })
+map("x", "a", "j", { noremap = true, desc = "Down in visual modes" })
+map("x", "h", "h", { noremap = true, desc = "Left in visual modes" })
+map("x", "i", "l", { noremap = true, desc = "Right in visual modes" })
+
 -- Line operations and find
 map({ "n" }, "j", "o", { desc = "Open line below" })
 map({ "n" }, "J", "O", { desc = "Open line above" })
@@ -32,19 +32,24 @@ map({ "n" }, "J", "O", { desc = "Open line above" })
 -- F is default (find character backward)
 
 -- Beginning/end of line
-
 map({ "n", "o", "x" }, "0", "0", { desc = "Beginning of line" })
 map({ "n", "o", "x" }, "p", "^", { desc = "First non-blank character" })
 map({ "n", "o", "x" }, ".", "$", { desc = "End of line" })
 
+-- Insert/append
+-- map({ "v" }, "S", "I", { desc = "Insert at start of selection" })
+map({ "n" }, "r", "i", { desc = "Insert before cursor" })
+map({ "n" }, "T", "I", { desc = "Insert at start of line" })
+map({ "n" }, "t", "a", { desc = "Insert after cursor" })
+map({ "n" }, "S", "A", { desc = "Insert at end of line" })
+
+-- Jumplist navigation
+map({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
+map({ "n" }, "O", "<C-i>", { desc = "Jumplist forward" })
+
 -- PageUp/PageDown
 map({ "n", "x" }, "<C-.>", "<PageUp>", { desc = "Page Up" })
 map({ "n", "x" }, "<C-p>", "<PageDown>", { desc = "Page Down" })
-
--- Jumplist navigation
--- map({ "n" }, "<C-e>", "<C-i>", { desc = "Jumplist forward" })
--- map({ "n" }, "<C-a>", "<C-o>", { desc = "Jumplist backward" })
-
 -- Word left/right
 map({ "n", "o", "x" }, "l", "b", { desc = "Word back" })
 map({ "n", "o", "x" }, "d", "w", { desc = "Word forward" })
@@ -62,19 +67,12 @@ map({ "n", "o", "x" }, "<C-S>", "N", { desc = "Previous search match" })
 -- Repeat find
 map({ "n", "o", "x" }, ";", ";", { desc = "Repeat find forward" })
 map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
-
 map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
 -- End of word left/right
 map({ "n", "o", "x" }, "H", "ge", { desc = "End of word back" })
 map({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
 map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
-
--- Text objects - r and t are reserved for treesitter multi-key objects
--- Use manual mappings only for simple cases
--- diw is drw. daw is now dtw.
-
--- -- Simple operator-pending mappings for nvim-surround (using treesitter text objects)
 
 -- Keep visual replace on a different key
 map({ "v" }, "R", "r", { desc = "Replace selected text" })
@@ -94,65 +92,10 @@ map({ "x" }, "C", "y", { desc = "Yank selection" })
 map({ "n", "x" }, "V", "P", { desc = "Paste before" })
 map({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
--- Inline paste (avoids creating new lines)
-local function paste_inline()
-  local reg_type = vim.fn.getregtype('"')
-  if reg_type == "V" then -- line-wise register
-    vim.cmd("normal! gp")
-  else
-    vim.cmd("normal! p")
-  end
-end
-
-map({ "n", "x" }, "-", paste_inline, { desc = "Paste inline" })
-
 -- Undo/redo
 map({ "n" }, "z", "u", { desc = "Undo" })
 map({ "n" }, "<S-u>", "U", { desc = "Undo line" })
 map({ "n" }, "<C-u>", "<C-r>", { desc = "Redo" })
-
--- Jumplist navigation
-map({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
-map({ "n" }, "<C-o>", "<C-i>", { desc = "Jumplist forward" })
-
--- Insert/append
-map({ "n" }, "r", "i", { desc = "Insert before cursor" })
--- map({ "n" }, "T", "I", { desc = "Insert at start of line" })
-map({ "n" }, "t", "a", { desc = "Insert after cursor" })
--- map({ "n" }, "S", "A", { desc = "Insert at end of line" })
-
--- Normal mode - Direct commenting with next line
-map("n", "<C-/>", function()
-  -- Call vim's native comment function directly
-  vim.cmd("normal! " .. vim.api.nvim_replace_termcodes("gcc", true, false, true))
-  vim.cmd("normal! j")
-end, { desc = "Toggle comment and go to next line" })
-
-map("n", "<C-_>", function()
-  -- Call vim's native comment function directly
-  vim.cmd("normal! " .. vim.api.nvim_replace_termcodes("gcc", true, false, true))
-  vim.cmd("normal! j")
-end, { desc = "Toggle comment and go to next line" })
-
--- Visual mode - Robust block commenting
-map("v", "<C-/>", function()
-  local ok, comment_api = pcall(require, "Comment.api")
-  if ok then
-    comment_api.toggle.linewise(vim.fn.visualmode())
-  else
-    vim.cmd("'<,'>normal! gcc")
-  end
-end, { desc = "Toggle comment (visual)" })
-
-map("v", "<C-_>", function()
-  local ok, comment_api = pcall(require, "Comment.api")
-  if ok then
-    comment_api.toggle.linewise(vim.fn.visualmode())
-  else
-    vim.cmd("'<,'>normal! gcc")
-  end
-end, { desc = "Toggle comment (visual)" })
-
 -- Change
 map({ "n", "o", "x" }, "w", "c", { desc = "Change" })
 map({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
@@ -162,16 +105,6 @@ map({ "n", "x" }, "n", "v", { desc = "Visual mode" })
 map({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
 -- Add Visual block mode
 map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
-
--- Override HAEI navigation in visual modes (including visual line mode)
--- Use noremap to fully override default vim behavior including text objects
-vim.keymap.set("x", "e", "k", { noremap = true, desc = "Up in visual modes" })
-vim.keymap.set("x", "a", "j", { noremap = true, desc = "Down in visual modes" })
-vim.keymap.set("x", "h", "h", { noremap = true, desc = "Left in visual modes" })
-vim.keymap.set("x", "i", "l", { noremap = true, desc = "Right in visual modes" })
-
--- Insert in Visual mode
-map({ "v" }, "S", "I", { desc = "Insert at start of selection" })
 
 map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
@@ -261,22 +194,17 @@ map({ "n", "o", "x" }, "<C-/>", function()
   Snacks.terminal()
 end, { desc = "Toggle Terminal" })
 
--- Copy entire file contents to clipboard
-map({ "n" }, "<C-S-p>", function()
-  -- Save current cursor position
-  local cursor_pos = vim.fn.getpos(".")
+-- Inline paste (avoids creating new lines)
+local function paste_inline()
+  local reg_type = vim.fn.getregtype('"')
+  if reg_type == "V" then -- line-wise register
+    vim.cmd("normal! gp")
+  else
+    vim.cmd("normal! p")
+  end
+end
 
-  -- Select all content and yank to clipboard
-  vim.cmd('normal! ggVG"+y')
-
-  -- Restore cursor position
-  vim.fn.setpos(".", cursor_pos)
-
-  -- Get file info for notification
-  local filename = vim.fn.expand("%:t")
-  local line_count = vim.fn.line("$")
-  vim.notify(string.format("File copied to clipboard: %s (%d lines)", filename, line_count))
-end, { desc = "Copy file contents to clipboard" })
+map({ "n", "x" }, "-", paste_inline, { desc = "Paste inline" })
 -- Visual mode treesitter text objects (explicit mappings)
 map({ "x", "o" }, "rf", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@function.inner", "textobjects")
@@ -341,66 +269,6 @@ map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 map("n", "<leader>gD", function()
   vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
 end, { desc = "Diffview this file" })
-
--- TypeScript Go to Source Definition with fallback to regular definition
-override_map("n", "<leader>cx", function()
-  vim.notify("Go to source definition triggered", vim.log.levels.INFO)
-
-  local clients = vim.lsp.get_clients({ bufnr = 0 })
-  vim.notify("Found " .. #clients .. " LSP clients", vim.log.levels.INFO)
-
-  local ts_client = nil
-
-  -- Find typescript-tools client specifically
-  for _, client in ipairs(clients) do
-    vim.notify("Client found: " .. client.name, vim.log.levels.INFO)
-    if client.name == "typescript-tools" then
-      ts_client = client
-      break
-    end
-  end
-
-  if not ts_client then
-    vim.notify("TypeScript Tools not attached", vim.log.levels.WARN)
-    vim.lsp.buf.definition()
-    return
-  end
-
-  vim.notify("Using typescript-tools client", vim.log.levels.INFO)
-  local position_params = vim.lsp.util.make_position_params(0, ts_client.offset_encoding, 0)
-
-  vim.lsp.buf_request(0, "workspace/executeCommand", {
-    command = "typescript.goToSourceDefinition",
-    arguments = { position_params.textDocument.uri, position_params.position },
-  }, function(err, result, ctx, config)
-    if err then
-      vim.notify("Error: " .. tostring(err), vim.log.levels.ERROR)
-      return
-    end
-
-    if not result or (type(result) == "table" and #result == 0) then
-      vim.notify("No source definition found, trying regular definition", vim.log.levels.INFO)
-      -- First try gd (floating window), then fall back to opening in new buffer
-      vim.lsp.buf.definition({
-        on_list = function(options)
-          if options.items and #options.items > 0 then
-            local item = options.items[1]
-            vim.cmd("edit " .. item.filename)
-            vim.api.nvim_win_set_cursor(0, { item.lnum, item.col - 1 })
-          end
-        end,
-      })
-      return
-    end
-
-    local location = result
-    if type(result) == "table" and result[1] then
-      location = result[1]
-    end
-
-    vim.lsp.util.jump_to_location(location, "utf-8")
-  end)
-end, { desc = "Go to source definition (fallback to definition)" })
 
 -- Grug-far search within range
 map({ "n", "x" }, "<leader>sR", function()

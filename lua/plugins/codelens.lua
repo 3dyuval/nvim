@@ -1,8 +1,13 @@
 return {
   "neovim/nvim-lspconfig",
-  opts = function()
+  opts = function(_, opts)
+    -- Ensure opts has the required structure
+    opts = opts or {}
+    opts.inlay_hints = opts.inlay_hints or { enabled = true }
+    opts.codelens = opts.codelens or { enabled = true }
+
     local keys = require("lazyvim.plugins.lsp.keymaps").get()
-    
+
     -- Custom function to show references in Snacks picker
     local function show_references_picker()
       local params = vim.lsp.util.make_position_params()
@@ -18,18 +23,19 @@ return {
           local filename = vim.fn.fnamemodify(vim.uri_to_fname(ref.uri), ":~:.")
           local line_num = ref.range.start.line + 1
           local col_num = ref.range.start.character + 1
-          
+
           -- Get the line content
           local line_content = ""
           local bufnr = vim.uri_to_bufnr(ref.uri)
           if vim.api.nvim_buf_is_loaded(bufnr) then
-            line_content = vim.api.nvim_buf_get_lines(bufnr, ref.range.start.line, ref.range.start.line + 1, false)[1] or ""
+            line_content = vim.api.nvim_buf_get_lines(bufnr, ref.range.start.line, ref.range.start.line + 1, false)[1]
+              or ""
           end
-          
+
           table.insert(items, {
             file = vim.uri_to_fname(ref.uri),
             text = string.format("%s:%d:%d %s", filename, line_num, col_num, line_content:gsub("^%s+", "")),
-            pos = { line_num, col_num }, -- Use pos instead of separate line/col
+            pos = { line_num, col_num },
             idx = i,
             score = 1,
           })
@@ -55,14 +61,239 @@ return {
       end)
     end
 
+    -- Function to find containing function/class using Tree-sitter
+    local function find_containing_declaration()
+      local bufnr = vim.api.nvim_get_current_buf()
+      local cursor = vim.api.nvim_win_get_cursor(0)
+      local row, col = cursor[1] - 1, cursor[2] -- Convert to 0-indexed
+
+      -- Get Tree-sitter parser
+      local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+      if not ok or not parser then
+        return nil
+      end
+
+      local tree = parser:parse()[1]
+      if not tree then
+        return nil
+      end
+
+      -- Query for function/class/method declarations
+      local query_strings = {
+        -- TypeScript/JavaScript queries
+        [[
+        (function_declaration name: (identifier) @name) @declaration
+        ]],
+        [[
+        (method_definition key: (property_identifier) @name) @declaration
+        ]],
+        [[
+        (arrow_function) @declaration
+        ]],
+        [[
+        (function_expression) @declaration
+        ]],
+        [[
+        (class_declaration name: (type_identifier) @name) @declaration
+        ]],
+        [[
+        (interface_declaration name: (type_identifier) @name) @declaration
+        ]],
+        [[
+        (type_alias_declaration name: (type_identifier) @name) @declaration
+        ]],
+        [[
+        (variable_declarator
+          name: (identifier) @name
+          value: (arrow_function)) @declaration
+        ]],
+        [[
+        (variable_declarator
+          name: (identifier) @name
+          value: (function_expression)) @declaration
+        ]],
+      }
+
+      local lang = vim.treesitter.language.get_lang(vim.bo[bufnr].filetype)
+      if not lang then
+        return nil
+      end
+
+      local containing_nodes = {}
+
+      -- Try each query
+      for _, query_string in ipairs(query_strings) do
+        local ok_query, query = pcall(vim.treesitter.query.parse, lang, query_string)
+        if ok_query then
+          for _, match, _ in query:iter_matches(tree:root(), bufnr) do
+            for capture_id, node in pairs(match) do
+              local capture_name = query.captures[capture_id]
+              if capture_name == "declaration" then
+                local start_row, start_col, end_row, end_col = node:range()
+                -- Check if cursor is within this node
+                if start_row <= row and row <= end_row then
+                  if start_row == row then
+                    -- Same line, check column
+                    if start_col <= col and col <= end_col then
+                      table.insert(
+                        containing_nodes,
+                        { node = node, start_row = start_row, priority = end_row - start_row }
+                      )
+                    end
+                  else
+                    -- Different line, we're inside
+                    table.insert(
+                      containing_nodes,
+                      { node = node, start_row = start_row, priority = end_row - start_row }
+                    )
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      -- Sort by smallest range (most specific)
+      table.sort(containing_nodes, function(a, b)
+        return a.priority < b.priority
+      end)
+
+      return containing_nodes[1] and containing_nodes[1].start_row or nil
+    end
+
+    -- Enhanced function to run code lens action
+    local function run_codelens_action()
+      local current_line = vim.api.nvim_win_get_cursor(0)[1] - 1
+      local lenses = vim.lsp.codelens.get(0)
+
+      if not lenses or #lenses == 0 then
+        vim.notify("No code lenses available", vim.log.levels.INFO)
+        return
+      end
+
+      -- First, try to find lens at current line
+      local lens_at_line = nil
+      for _, lens in ipairs(lenses) do
+        if lens.range.start.line <= current_line and current_line <= lens.range["end"].line then
+          lens_at_line = lens
+          break
+        end
+      end
+
+      -- If no lens at current line, try to find containing function using Tree-sitter
+      if not lens_at_line then
+        local declaration_line = find_containing_declaration()
+        if declaration_line then
+          -- Look for lenses near the declaration line (usually above or at the declaration)
+          for _, lens in ipairs(lenses) do
+            local lens_line = lens.range.start.line
+            -- Check if lens is within a few lines of the declaration (usually right above)
+            if math.abs(lens_line - declaration_line) <= 2 then
+              lens_at_line = lens
+              break
+            end
+          end
+        end
+      end
+
+      if lens_at_line and lens_at_line.command then
+        -- Execute the command
+        if lens_at_line.command.command then
+          vim.lsp.buf.execute_command(lens_at_line.command)
+        else
+          vim.notify("Code lens has no executable command", vim.log.levels.WARN)
+        end
+      else
+        -- If still no lens found, show all available lenses for user to choose
+        local lens_items = {}
+        for i, lens in ipairs(lenses) do
+          local line_num = lens.range.start.line + 1
+          local line_content = vim.api.nvim_buf_get_lines(0, lens.range.start.line, lens.range.start.line + 1, false)[1]
+            or ""
+          local title = lens.command and lens.command.title or "Unknown"
+
+          table.insert(lens_items, {
+            text = string.format("Line %d: %s - %s", line_num, title, line_content:gsub("^%s+", "")),
+            lens = lens,
+            line = line_num,
+          })
+        end
+
+        if #lens_items > 0 then
+          vim.ui.select(lens_items, {
+            prompt = "Select Code Lens:",
+            format_item = function(item)
+              return item.text
+            end,
+          }, function(selected)
+            if selected and selected.lens.command then
+              vim.lsp.buf.execute_command(selected.lens.command)
+            end
+          end)
+        else
+          vim.notify("No executable code lenses found", vim.log.levels.INFO)
+        end
+      end
+    end
+
     -- Add codelens and reference keymaps
-    keys[#keys + 1] = { "<leader>cl", show_references_picker, desc = "Show References (Snacks)", mode = { "n" } }
+    keys[#keys + 1] = { "<leader>cx", show_references_picker, desc = "Show References (Snacks)", mode = { "n" } }
     keys[#keys + 1] = { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh Codelens" }
+    keys[#keys + 1] = { "<leader>cr", run_codelens_action, desc = "Run Codelens Action" }
     keys[#keys + 1] = { "<leader>cR", vim.lsp.buf.references, desc = "Show References (LSP)", mode = { "n" } }
     keys[#keys + 1] = { "<leader>cC", "<cmd>LspInfo<cr>", desc = "LSP Info" }
+
+    return opts
   end,
   init = function()
-    -- Code lens refresh is handled by typescript-tools with debouncing
-    -- No additional refresh logic needed here
+    -- Set up code lens auto-refresh for vtsls with proper debouncing
+    vim.api.nvim_create_autocmd("LspAttach", {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        local buffer = args.buf
+
+        -- Only set up for vtsls
+        if client and client.name == "vtsls" and client.supports_method("textDocument/codeLens") then
+          -- Initial refresh
+          vim.defer_fn(function()
+            vim.lsp.codelens.refresh({ bufnr = buffer })
+          end, 100)
+
+          -- Create a debounced refresh function
+          local timer = nil
+          local function debounced_refresh()
+            if timer then
+              timer:stop()
+            end
+            timer = vim.defer_fn(function()
+              if vim.api.nvim_buf_is_valid(buffer) then
+                vim.lsp.codelens.refresh({ bufnr = buffer })
+              end
+              timer = nil
+            end, 500) -- 500ms debounce
+          end
+
+          -- Only refresh on meaningful events
+          vim.api.nvim_create_autocmd({ "BufWritePost", "TextChanged" }, {
+            buffer = buffer,
+            callback = debounced_refresh,
+          })
+
+          -- Custom command handler for code lens references
+          if not client.commands["editor.action.showReferences"] then
+            client.commands["editor.action.showReferences"] = function(command, ctx)
+              local locations = command.arguments[3]
+              if locations and #locations > 0 then
+                local items = vim.lsp.util.locations_to_items(locations, client.offset_encoding)
+                vim.fn.setqflist({}, " ", { title = "References", items = items, context = ctx })
+                vim.cmd("copen")
+              end
+            end
+          end
+        end
+      end,
+    })
   end,
 }
+
