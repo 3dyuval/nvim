@@ -2,22 +2,22 @@ return {
   "NeogitOrg/neogit",
   opts = {
     kind = "vsplit",
-    -- floating = {
-    -- relative = "editor",
-    -- width = 0.95,
-    -- height = 0.90,
-    -- style = "minimal",
-    -- border = "rounded",
-    -- },
+    graph_style = "kitty",
     integrations = {
       diffview = true,
+    },
+    merge_editor = {
+      kind = "auto",
+    },
+    commit_view = {
+      kind = "vsplit",
     },
     keymaps = {},
     autoinstall = true,
   },
   dependencies = {
-    "nvim-lua/plenary.nvim", -- required
-    "sindrets/diffview.nvim", -- optional - Diff integration
-    "folke/snacks.nvim", -- optional
+    "nvim-lua/plenary.nvim",
+    "sindrets/diffview.nvim",
+    "folke/snacks.nvim",
   },
 }

@@ -58,7 +58,7 @@ return {
           {
             "gD",
             function()
-              local params = vim.lsp.util.make_position_params()
+              local params = vim.lsp.util.make_position_params(0, "utf-8")
               LazyVim.lsp.execute({
                 command = "typescript.goToSourceDefinition",
                 arguments = { params.textDocument.uri, params.position },
@@ -67,6 +67,7 @@ return {
             end,
             desc = "Goto Source Definition",
           },
+          { "<leader>cD", vim.lsp.codelens.run, desc = "Run Codelens Action" },
           {
             "gR",
             function()
@@ -84,7 +85,7 @@ return {
             desc = "Organize Imports",
           },
           {
-            "<leader>cM",
+            "<leader>cI",
             LazyVim.lsp.action["source.addMissingImports.ts"],
             desc = "Add missing imports",
           },
@@ -131,6 +132,11 @@ return {
           },
         },
       },
+
+      -- Enable Angular Language Server
+      angularls = {
+        filetypes = { "typescript", "html", "typescriptreact", "typescript.tsx" },
+      },
     },
     setup = {
       tsserver = function()
@@ -141,6 +147,12 @@ return {
       end,
       vtsls = function(_, opts)
         LazyVim.lsp.on_attach(function(client, buffer)
+          vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
+
+          if client.server_capabilities.documentSymbolProvider then
+            require("nvim-navic").attach(client, buffer)
+          end
+
           if client.supports_method("textDocument/codeLens") then
             -- Initial refresh
             vim.lsp.codelens.refresh()
@@ -223,7 +235,20 @@ return {
           vim.tbl_deep_extend("force", {}, opts.settings.typescript, opts.settings.javascript or {})
       end,
       volar = function(_, opts)
-        -- Add any additional volar setup here if needed
+        LazyVim.lsp.on_attach(function(client, buffer)
+          vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
+          if client.server_capabilities.documentSymbolProvider then
+            require("nvim-navic").attach(client, buffer)
+          end
+        end, "volar")
+      end,
+      angularls = function(_, opts)
+        LazyVim.lsp.on_attach(function(client, buffer)
+          vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
+          if client.server_capabilities.documentSymbolProvider then
+            require("nvim-navic").attach(client, buffer)
+          end
+        end, "angularls")
       end,
     },
   },

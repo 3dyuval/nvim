@@ -80,9 +80,11 @@ map({ "v" }, "R", "r", { desc = "Replace selected text" })
 -- Folds
 map({ "n", "x" }, "b", "z", { desc = "Fold commands" })
 map({ "n", "x" }, "bb", "zb", { desc = "Scroll line and cursor to bottom" })
-map({ "n", "x" }, "ba", "zj", { desc = "Move down to fold" })
 map({ "n", "x" }, "be", "zk", { desc = "Move up to fold" })
+map({ "n", "x" }, "ba", "zj", { desc = "Move down to fold" })
 map({ "n", "x" }, "bf", "zc", { desc = "Close fold" })
+map({ "n", "x" }, "bF", "zM", { desc = "Fold entire buffer" })
+map({ "n", "x" }, "bO", "zR", { desc = "Open all folds" })
 
 -- Copy/paste
 map({ "n", "o", "x" }, "c", "y", { desc = "Yank (copy)" })
@@ -271,51 +273,3 @@ map("n", "<leader>gD", function()
 end, { desc = "Diffview this file" })
 
 -- Grug-far search within range
-map({ "n", "x" }, "<leader>sR", function()
-  require("grug-far").open({ visualSelectionUsage = "operate-within-range" })
-end, { desc = "Search within range" })
-
-map({ "n" }, "<C-a>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
-map({ "n" }, "<C-e>", "<cmd>bnext<CR>", { desc = "Next buffer" })
--- Smart buffer delete function
-local function smart_buffer_delete()
-  local bufs = vim.tbl_filter(function(buf)
-    return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
-  end, vim.api.nvim_list_bufs())
-
-  if #bufs <= 1 then
-    vim.cmd("bd")
-    require("snacks").dashboard()
-  else
-    vim.cmd("bd")
-  end
-end
-
-map({ "n" }, "<C-w>w", smart_buffer_delete, { desc = "Close buffer" })
-map({ "n" }, "<C-w>o", "<cmd>%bd|e#<CR>", { desc = "Close all buffers but current" })
-map({ "n" }, "<leader>bd", smart_buffer_delete, { desc = "Delete Buffer" })
-
-map("n", "<leader>co", function()
-  local clients = vim.lsp.get_clients({ bufnr = 0 })
-  local filetype = vim.bo.filetype
-
-  if filetype == "vue" then
-    -- For Vue files, try specific organize imports first
-    vim.lsp.buf.code_action({
-      context = {
-        only = { "source.organizeImports" },
-        diagnostics = {},
-      },
-      apply = true, -- This should apply without prompting
-    })
-  else
-    -- For TS/JS files
-    vim.lsp.buf.code_action({
-      context = {
-        only = { "source.organizeImports" },
-        diagnostics = {},
-      },
-      apply = true,
-    })
-  end
-end, { desc = "Organize Imports" })

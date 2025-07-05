@@ -1,17 +1,15 @@
 return {
   "bngarren/checkmate.nvim",
-  ft = "markdown", -- Lazy loads for Markdown files matching patterns in 'files',
+  ft = "markdown",
   opts = {
     files = {
       "*.md",
+      "*.ts",
     },
     keys = {
-      -- ["<leader>tc"] = "check", -- Set todo item as checked (done)
-      -- ["<leader>tu"] = "uncheck", -- Set todo item as unchecked (not done)
-      ["<leader>tr"] = "toggle", -- Toggle todo item
-      ["<leader>tn"] = "create", -- Create todo item
-      ["<leader>tR"] = "remove_all_metadata", -- Remove all metadata from a todo item
-      ["<leader>ta"] = "archive", -- Archive checked/completed todo items (move to bottom section)
+      ["<leader>tr"] = { rhs = "<cmd>Checkmate toggle<CR>" },
+      ["<leader>tn"] = { rhs = "<cmd>Checkmate create<CR>" },
+      ["<leader>ta"] = { rhs = "<cmd>Checkmate archive<CR>" },
     },
   },
 }

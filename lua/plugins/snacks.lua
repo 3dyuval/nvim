@@ -3,8 +3,53 @@
 return {
   "folke/snacks.nvim",
   enabled = true,
+  priority = 1000,
+  lazy = false,
+  config = function()
+    -- Add compatibility for string.buffer module
+    if not package.loaded["string.buffer"] then
+      package.loaded["string.buffer"] = {
+        new = function()
+          local t = {}
+          return setmetatable(t, {
+            __index = {
+              put = function(self, ...)
+                for _, v in ipairs({...}) do
+                  table.insert(self, tostring(v))
+                end
+                return self
+              end,
+              get = function(self)
+                return table.concat(self)
+              end,
+            }
+          })
+        end
+      }
+    end
+    local opts = require("lazy.core.plugin").values(require("lazy.core.config").plugins["snacks.nvim"], "opts")
+    require("snacks").setup(opts)
+  end,
   ---@type snacks.Config
   opts = {
+    indent = {
+      enabled = function()
+        local bufname = vim.api.nvim_buf_get_name(0)
+        return not bufname:match("^diffview://")
+      end,
+      scope = {
+        enabled = function()
+          local bufname = vim.api.nvim_buf_get_name(0)
+          return not bufname:match("^diffview://")
+        end,
+      },
+    },
+    scope = {
+      enabled = function()
+        local bufname = vim.api.nvim_buf_get_name(0)
+        return not bufname:match("^diffview://")
+      end,
+    },
     dashboard = {
       enabled = true,
       sections = {
@@ -64,7 +109,14 @@ return {
           keys = {
             ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
             ["c"] = "create", -- Remap 'c' to create file/folder
-            ["i"] = "confirm_folder", -- Expand/open directory
+            ["i"] = function(picker)
+              local item = picker:current()
+              if item and item.dir then
+                -- For directories, use the default confirm behavior
+                picker:confirm()
+              end
+              -- For files, do nothing
+            end, -- Expand/collapse directory
             ["h"] = "explorer_close", -- Collapse/close directory
           },
         },
@@ -82,16 +134,6 @@ return {
             return true
           end,
           actions = {
-            confirm_folder = {
-              action = function(picker, item)
-                item = item or picker:current()
-                if item and item.kind == "dir" then
-                  -- You may want to use the built-in confirm action
-                  return require("snacks.picker.actions").confirm(picker, item)
-                end
-                -- noop
-              end,
-            },
             open_multiple_buffers = {
               action = function(picker)
                 local sel = picker.list.selected or {}
@@ -223,7 +265,14 @@ return {
                 ["p"] = "copy_file_path",
                 ["g"] = "search_in_directory", -- Opens a grep snacks
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
-                ["i"] = "confirm_folder", -- Expand/open directory
+                ["i"] = function(picker)
+              local item = picker:current()
+              if item and item.dir then
+                -- For directories, use the default confirm behavior
+                picker:confirm()
+              end
+              -- For files, do nothing
+            end, -- Expand/collapse directory
                 ["h"] = "explorer_close", -- Collapse/close directory
                 ["D"] = "diff",
                 ["r"] = "explorer_add", -- Create file/folder
