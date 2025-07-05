@@ -28,7 +28,11 @@ local function safe_picker_call(picker, method, ...)
     return nil, "Method " .. method .. " not available"
   end
   
-  local success, result = pcall(picker[method], picker, ...)
+  -- Use colon notation for picker methods (they expect self as first argument)
+  local success, result = pcall(function(...)
+    return picker[method](picker, ...)
+  end, ...)
+  
   if success then
     return result, nil
   else
@@ -246,30 +250,78 @@ end
 
 -- Context detection system
 local contexts = {
+  sidebar_explorer = {
+    detect = function(picker)
+      if not validate_picker(picker) then return false end
+      
+      -- Detect sidebar explorer by minimal action set
+      local has_minimal_explorer = picker.opts and picker.opts.actions and (
+        picker.opts.actions.explorer_add and
+        picker.opts.actions.list_down
+      )
+      
+      if has_minimal_explorer then
+        local action_count = 0
+        for _ in pairs(picker.opts.actions) do
+          action_count = action_count + 1
+        end
+  
+        -- Sidebar explorers have very few actions (< 10)
+        -- Your popup explorer has 50+ actions
+        return action_count < 10
+      end
+      
+      return false
+    end,
+    get_items = function(picker)
+      vim.notify("Sidebar explorer detected - context menu not yet supported", vim.log.levels.INFO)
+      return {}
+    end,
+  },
+  
   explorer = {
     detect = function(picker)
       if not validate_picker(picker) then return false end
       
-      local source = picker.source or 
-                    (picker.opts and picker.opts.source) or
-                    (picker.opts and picker.opts.finder) or
-                    (picker.config and picker.config.source) or
-                    (picker.config and picker.config.finder)
+      -- Check if the picker has explorer-specific actions (most reliable method)
+      local has_explorer_actions = picker.opts and picker.opts.actions and (
+        picker.opts.actions.explorer_add or
+        picker.opts.actions.explorer_del or
+        picker.opts.actions.explorer_open or
+        picker.opts.actions.explorer_rename or
+        picker.opts.actions.explorer_close or
+        picker.opts.actions.explorer_up or
+        picker.opts.actions.explorer_focus
+      )
       
-      return source == "explorer"
+      -- Exclude sidebar explorers (they have minimal actions and different structure)
+      if has_explorer_actions then
+        local action_count = 0
+        for _ in pairs(picker.opts.actions) do
+          action_count = action_count + 1
+        end
+        -- Sidebar explorers typically have very few actions (< 5)
+        -- Popup explorers have many actions (> 10)
+        if action_count < 5 then
+          return false -- This is likely a sidebar explorer
+        end
+        
+        -- This IS an explorer picker - return true regardless of item properties
+        return true
+      end
+      
+      return false
     end,
     get_items = function(picker)
       local items = {}
       
       if not validate_picker(picker) then return items end
       
-      -- Try to get selected items first
       local selected, err = safe_picker_call(picker, "selected")
       if not err and selected and #selected > 0 then
         items = selected
       end
       
-      -- If no selection, get current item
       if #items == 0 then
         local current, err = safe_picker_call(picker, "current")
         if not err and current then 
@@ -277,7 +329,6 @@ local contexts = {
         end
       end
       
-      -- Fallback: try list.selected (internal API)
       if #items == 0 and picker.list and picker.list.selected and type(picker.list.selected) == "table" and #picker.list.selected > 0 then
         items = picker.list.selected
       end
@@ -290,13 +341,32 @@ local contexts = {
     detect = function(picker)
       if not validate_picker(picker) then return false end
       
-      local source = picker.source or 
-                    (picker.opts and picker.opts.source) or
-                    (picker.opts and picker.opts.finder) or
-                    (picker.config and picker.config.source) or
-                    (picker.config and picker.config.finder)
+      -- Check source first (if available) - this is the most reliable
+      local source = picker.opts and picker.opts.source
+      if source == "git_status" then
+        return true
+      end
       
-      return source == "git_status"
+      -- Only fallback to item checking if we're NOT in an explorer
+      -- (explorer items can have status but aren't git status items)
+      local has_explorer_actions = picker.opts and picker.opts.actions and (
+        picker.opts.actions.explorer_add or
+        picker.opts.actions.explorer_del or
+        picker.opts.actions.explorer_open
+      )
+      
+      if not has_explorer_actions then
+        -- Fallback: check if current item has git status properties
+        local current, err = safe_picker_call(picker, "current")
+        if not err and current and current.status and current.file and not current.dir then
+          -- Check if status looks like git status (M, A, D, ??, etc.)
+          if current.status:match("^[MADRCU?!]") then
+            return true
+          end
+        end
+      end
+      
+      return false
     end,
     get_items = function(picker)
       local items = {}
@@ -327,13 +397,27 @@ local contexts = {
     detect = function(picker)
       if not validate_picker(picker) then return false end
       
-      local source = picker.source or 
-                    (picker.opts and picker.opts.source) or
-                    (picker.opts and picker.opts.finder) or
-                    (picker.config and picker.config.source) or
-                    (picker.config and picker.config.finder)
+      -- Check source first (if available)
+      local source = picker.opts and picker.opts.source
+      if source == "files" or source == "git_files" then
+        return true
+      end
       
-      return source == "files" or source == "git_files"
+      -- Fallback: check if it has file-specific characteristics but NOT explorer actions
+      local has_explorer_actions = picker.opts and picker.opts.actions and (
+        picker.opts.actions.explorer_add or
+        picker.opts.actions.explorer_del
+      )
+      
+      -- If no explorer actions and has file-like items, assume it's a files picker
+      if not has_explorer_actions then
+        local current, err = safe_picker_call(picker, "current")
+        if not err and current and current.file and not current.dir then
+          return true
+        end
+      end
+      
+      return false
     end,
     get_items = function(picker)
       local items = {}
@@ -364,13 +448,19 @@ local contexts = {
     detect = function(picker)
       if not validate_picker(picker) then return false end
       
-      local source = picker.source or 
-                    (picker.opts and picker.opts.source) or
-                    (picker.opts and picker.opts.finder) or
-                    (picker.config and picker.config.source) or
-                    (picker.config and picker.config.finder)
+      -- Check source first (if available)
+      local source = picker.opts and picker.opts.source
+      if source == "buffers" then
+        return true
+      end
       
-      return source == "buffers"
+      -- Fallback: check if current item has bufnr
+      local current, err = safe_picker_call(picker, "current")
+      if not err and current and current.bufnr then
+        return true
+      end
+      
+      return false
     end,
     get_items = function(picker)
       local items = {}
@@ -810,11 +900,30 @@ local function detect_context(picker)
     return "unknown", nil
   end
   
-  for context_name, context in pairs(contexts) do
-    if context.detect(picker) then
+  -- Check contexts in specific order (most specific first)
+  local context_order = { "sidebar_explorer", "explorer", "git_status", "buffers", "files" }
+  
+  for _, context_name in ipairs(context_order) do
+    local context = contexts[context_name]
+    if context and context.detect(picker) then
       return context_name, context
     end
   end
+  
+  -- Fallback: try to detect based on current item structure
+  local current, err = safe_picker_call(picker, "current")
+  if not err and current then
+    -- If current item has bufnr, it's likely a buffer picker
+    if current.bufnr then
+      return "buffers", contexts.buffers
+    end
+    
+    -- If current item has file property, it's likely a file-based picker
+    if current.file then
+      return "files", contexts.files
+    end
+  end
+  
   return "unknown", nil
 end
 
@@ -835,11 +944,7 @@ local function get_actions(picker)
   local action_list = {}
   
   -- Context-specific actions
-  if context_name == "git_status" then
-    vim.list_extend(action_list, actions.git_status_actions)
-  elseif context_name == "buffers" then
-    vim.list_extend(action_list, actions.buffer_actions)
-  elseif context_name == "explorer" or context_name == "files" then
+  if context_name == "explorer" or context_name == "files" then
     if #items == 1 then
       local item = items[1]
       if item.dir then
@@ -850,6 +955,10 @@ local function get_actions(picker)
     else
       vim.list_extend(action_list, actions.multiple_items)
     end
+  elseif context_name == "git_status" then
+    vim.list_extend(action_list, actions.git_status_actions)
+  elseif context_name == "buffers" then
+    vim.list_extend(action_list, actions.buffer_actions)
   end
   
   -- Add git actions if in git repo (for file-based pickers)
@@ -879,66 +988,42 @@ M.show_context_menu = function(picker)
     end
     
     if #action_list == 0 then
-      vim.notify("No actions available. Context: " .. (context_name or "unknown") .. ", Items: " .. #items, vim.log.levels.WARN)
-      return
+      error("No actions available. Context: " .. (context_name or "unknown") .. ", Items: " .. #items .. 
+            "\nPicker state: " .. vim.inspect({
+              source = picker.opts and picker.opts.source,
+              has_actions = picker.opts and picker.opts.actions and vim.tbl_keys(picker.opts.actions) or {},
+              current_item = safe_picker_call(picker, "current"),
+              selected_items = safe_picker_call(picker, "selected")
+            }))
     end
   end
   
-  -- Create menu items
-  local menu_items = {}
-  for _, action in ipairs(action_list) do
-    table.insert(menu_items, {
-      text = string.format("[%s] %s", action.key, action.desc),
-      key = action.key,
-      action = action.action,
-    })
+  -- Create menu items for vim.ui.select
+  local menu_options = {}
+  local action_map = {}
+  
+  for i, action in ipairs(action_list) do
+    local option_text = string.format("[%s] %s", action.key, action.desc)
+    table.insert(menu_options, option_text)
+    action_map[i] = action
   end
   
-  -- Show picker menu
-  if not Snacks or not Snacks.picker then
-    vim.notify("Snacks.picker not available", vim.log.levels.ERROR)
-    return
-  end
-  
-  Snacks.picker({
-    source = {
-      name = "context_menu",
-      get = function()
-        return menu_items
-      end,
-    },
-    format = function(item)
-      return item.text
+  -- Show menu using vim.ui.select
+  vim.ui.select(menu_options, {
+    prompt = "Choose action:",
+    format_item = function(item)
+      return item
     end,
-    win = {
-      input = {
-        keys = vim.tbl_extend("force", {
-          ["<Esc>"] = "close",
-          ["q"] = "close",
-        }, vim.tbl_map(function(action)
-          return function(menu_picker)
-            menu_picker:close()
-            if #items == 1 then
-              action.action(picker, items[1])
-            else
-              action.action(picker, items)
-            end
-          end
-        end, vim.tbl_map(function(item) return { action = item.action } end, menu_items))),
-      },
-    },
-    confirm = function(menu_picker)
-      local selected = menu_picker:current()
-      if selected then
-        menu_picker:close()
-        if #items == 1 then
-          selected.action(picker, items[1])
-        else
-          selected.action(picker, items)
-        end
+  }, function(choice, idx)
+    if choice and idx and action_map[idx] then
+      local action = action_map[idx]
+      if #items == 1 then
+        action.action(picker, items[1])
+      else
+        action.action(picker, items)
       end
-    end,
-  })
+    end
+  end)
 end
 
 -- ============================================================================

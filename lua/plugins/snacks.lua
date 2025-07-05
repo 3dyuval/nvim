@@ -68,10 +68,10 @@ return {
               local old_shortmess = vim.o.shortmess
               vim.o.shortmess = vim.o.shortmess .. "A"
 
-              LazyVim.pick("explorer", {
+              Snacks.picker.explorer({
                 root = false,
                 auto_close = true,
-              })()
+              })
 
               -- Restore shortmess
               vim.o.shortmess = old_shortmess
@@ -155,6 +155,11 @@ return {
                 require("utils.picker-extensions").actions.diff_selected(picker)
               end,
             },
+            show_context_menu = {
+              action = function(picker)
+                require("utils.picker-extensions").show_menu(picker)
+              end,
+            },
           },
           win = {
             list = {
@@ -175,9 +180,7 @@ return {
                 ["x"] = false, -- Disable default x binding
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
-                ["b"] = function(picker)
-                  require("utils.picker-extensions").show_menu(picker)
-                end, -- Open context menu
+                ["b"] = "show_context_menu"
               },
             },
           },
@@ -200,9 +203,7 @@ return {
           win = {
             list = {
               keys = {
-                ["b"] = function(picker)
-                  require("utils.picker-extensions").show_menu(picker)
-                end, -- Open context menu
+                ["b"] = "show_context_menu"
               },
             },
           },
@@ -227,9 +228,7 @@ return {
           win = {
             list = {
               keys = {
-                ["b"] = function(picker)
-                  require("utils.picker-extensions").show_menu(picker)
-                end, -- Open context menu
+                ["b"] = "show_context_menu"
               },
             },
           },
@@ -238,9 +237,7 @@ return {
           win = {
             list = {
               keys = {
-                ["b"] = function(picker)
-                  require("utils.picker-extensions").show_menu(picker)
-                end, -- Open context menu
+                ["b"] = "show_context_menu"
               },
             },
           },
@@ -284,10 +281,10 @@ return {
         local old_shortmess = vim.o.shortmess
         vim.o.shortmess = vim.o.shortmess .. "A"
 
-        LazyVim.pick("explorer", {
+        Snacks.picker.explorer({
           root = false,
           auto_close = true,
-        })()
+        })
 
         -- Restore shortmess
         vim.o.shortmess = old_shortmess
@@ -301,7 +298,7 @@ return {
         local old_shortmess = vim.o.shortmess
         vim.o.shortmess = vim.o.shortmess .. "A"
 
-        LazyVim.pick("explorer", {
+        Snacks.picker.explorer({
           root = false,
           auto_close = false,
           win = {
@@ -316,7 +313,7 @@ return {
             preset = "left",
             preview = false,
           },
-        })()
+        })
 
         -- Restore shortmess
         vim.o.shortmess = old_shortmess
