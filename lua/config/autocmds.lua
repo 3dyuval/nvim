@@ -38,23 +38,8 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
   end,
 })
 
--- Organize imports on save for TypeScript/JavaScript files
-vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
-  callback = function()
-    -- Use TypeScript organize imports command
-    local ok, _ = pcall(vim.cmd, "TypescriptOrganizeImports")
-    if not ok then
-      -- Fallback to LSP organize imports if TypeScript command fails
-      if LazyVim and LazyVim.lsp and LazyVim.lsp.action then
-        local organize_imports = LazyVim.lsp.action["source.organizeImports"]
-        if organize_imports and type(organize_imports) == "function" then
-          pcall(organize_imports)
-        end
-      end
-    end
-  end,
-})
+-- Setup save patterns system
+require("utils.save-patterns").setup_autocmd()
 
 
 

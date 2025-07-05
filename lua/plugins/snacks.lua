@@ -118,6 +118,7 @@ return {
               -- For files, do nothing
             end, -- Expand/collapse directory
             ["h"] = "explorer_close", -- Collapse/close directory
+            -- Remove global "b" keymap - it will be defined per-source
           },
         },
       },
@@ -279,6 +280,9 @@ return {
                 ["x"] = false, -- Disable default x binding
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
+                ["b"] = function(picker)
+                  require("utils.explorer-menu").show_menu(picker)
+                end, -- Open context menu
               },
             },
           },
@@ -298,6 +302,15 @@ return {
             "--exclude",
             "node_modules",
           },
+          win = {
+            list = {
+              keys = {
+                ["b"] = function(picker)
+                  require("utils.explorer-menu").show_menu(picker)
+                end, -- Open context menu
+              },
+            },
+          },
         },
         grep = {
           cmd = "rg",
@@ -313,6 +326,28 @@ return {
             "!.git/*",
             "--glob",
             "!node_modules/*",
+          },
+        },
+        buffers = {
+          win = {
+            list = {
+              keys = {
+                ["b"] = function(picker)
+                  require("utils.explorer-menu").show_menu(picker)
+                end, -- Open context menu
+              },
+            },
+          },
+        },
+        git_status = {
+          win = {
+            list = {
+              keys = {
+                ["b"] = function(picker)
+                  require("utils.explorer-menu").show_menu(picker)
+                end, -- Open context menu
+              },
+            },
           },
         },
       },

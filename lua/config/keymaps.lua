@@ -189,6 +189,15 @@ map({ "n" }, "<leader>ct", function()
   vim.cmd("split | terminal tsc --noEmit")
 end, { desc = "TypeScript type check" })
 
+-- Save patterns
+map({ "n" }, "<leader>cS", function()
+  require("utils.save-patterns").run_for_current_buffer()
+end, { desc = "Run save patterns on current file" })
+
+map({ "n" }, "<leader>cM", function()
+  require("utils.save-patterns").run_on_multiple_files()
+end, { desc = "Run save patterns on multiple files" })
+
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 

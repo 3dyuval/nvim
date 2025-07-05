@@ -1,0 +1,35 @@
+return {
+  "folke/snacks.nvim",
+  opts = function(_, opts)
+    -- Ensure picker configs exist
+    opts.picker = opts.picker or {}
+    opts.picker.sources = opts.picker.sources or {}
+    
+    -- Helper function to add menu to picker
+    local function add_menu_to_picker(picker_name)
+      opts.picker.sources[picker_name] = opts.picker.sources[picker_name] or {}
+      local config = opts.picker.sources[picker_name]
+      config.win = config.win or {}
+      config.win.list = config.win.list or {}
+      config.win.list.keys = config.win.list.keys or {}
+      
+      -- Add 'b' key for context menu
+      config.win.list.keys["b"] = function(picker)
+        require("utils.explorer-menu").show_menu(picker)
+      end
+    end
+    
+    -- Add menu to multiple pickers
+    add_menu_to_picker("explorer")
+    add_menu_to_picker("files")
+    add_menu_to_picker("git_files")
+    add_menu_to_picker("buffers")
+    
+    -- Add git_status with menu and prevent auto-close
+    opts.picker.sources.git_status = opts.picker.sources.git_status or {}
+    opts.picker.sources.git_status.auto_close = false
+    add_menu_to_picker("git_status")
+    
+    return opts
+  end,
+}
