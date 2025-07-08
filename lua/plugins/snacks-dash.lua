@@ -1,11 +1,11 @@
 return {
-  dir = "/home/yuval/snacks-dash",
+  dir = vim.fn.expand("~/snacks-dash"),
   name = "snacks-dash",
   dev = true,
   dependencies = { "snacks.nvim", "octo.nvim" },
   init = function()
     -- Add plugin directory to runtimepath before requiring
-    vim.opt.runtimepath:prepend("/home/yuval")
+    vim.opt.runtimepath:prepend(vim.fn.expand("~"))
   end,
   config = function()
     local m = require("snacks-dash")

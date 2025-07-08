@@ -168,15 +168,9 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
--- Window navigation - left and right windows
-map({ "n" }, "<C-h>", "<C-w>h", { desc = "Left window" })
-map({ "n" }, "<C-i>", "<C-w>l", { desc = "Right window" })
--- Cycle through windows with Alt+Tab
-map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
-
--- Buffer navigation - left and right buffers
-map({ "n" }, "<C-a>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
-map({ "n" }, "<C-e>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+-- Window navigation - cycle through windows
+map({ "n" }, "<C-h>", "<C-w>w", { desc = "Previous window" })
+map({ "n" }, "<C-i>", "<C-w>W", { desc = "Next window" })
 -- Directional window navigation (commented out due to buffer nav conflicts)
 -- map({ "n" }, "<C-a>", "<C-w>j", { desc = "Window down" })
 -- map({ "n" }, "<C-e>", "<C-w>k", { desc = "Window up" })
@@ -194,6 +188,15 @@ map({ "n" }, "<leader>rl", "<cmd>Lazy sync<cr>", { desc = "Lazy sync plugins" })
 map({ "n" }, "<leader>ct", function()
   vim.cmd("split | terminal tsc --noEmit")
 end, { desc = "TypeScript type check" })
+
+-- Save patterns
+map({ "n" }, "<leader>cS", function()
+  require("utils.save-patterns").run_for_current_buffer()
+end, { desc = "Run save patterns on current file" })
+
+map({ "n" }, "<leader>cM", function()
+  require("utils.save-patterns").run_on_multiple_files()
+end, { desc = "Run save patterns on multiple files" })
 
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
