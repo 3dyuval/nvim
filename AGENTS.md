@@ -12,7 +12,10 @@ You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue li
 - **Lua formatting**: `stylua .` (2 spaces, 120 column width)
 - **JS/TS formatting**: `biome format --write .` or `prettier --write .`
 - **Headless testing**: `nvim --headless -u NONE -c 'source test.lua'`
-- **Keymap conflict check**: `lua utils/test_keymaps.lua < keymap_table.lua`
+- **Keymap conflict check**: 
+  - `echo 'keymap_table' | lua utils/test_keymaps.lua` (direct table input)
+  - `echo '{ { mode = "n", lhs = "cs", rhs = "test", desc = "Test" } }' | lua utils/test_keymaps.lua` (example)
+  - If lua not found: `echo 'keymap_table' | nvim --headless -c 'luafile utils/test_keymaps.lua' -c 'qa'`
 - **Plugin sync**: `nvim +Lazy sync +qa` or `<leader>rl` keymap
 - **Config reload**: `:source $MYVIMRC` or `<leader>rr` keymap
 - **Health check**: `:checkhealth` for plugin verification
