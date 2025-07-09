@@ -9,14 +9,20 @@ local function override_map(mode, lhs, rhs, opts)
   map(mode, lhs, rhs, opts)
 end
 
--- Delete on 'q' (next to 'w' where change is)
-map({ "n", "o", "x" }, "x", "d", { desc = "Delete" })
+-- Delete on 'x' (Graphite layout) - but allow surround plugin to handle 'xs'
+-- Note: surround plugin will handle 'xs' directly, this handles other 'x' operations
+map({ "n", "x" }, "x", "d", { desc = "Delete" })
+-- Skip operator-pending mode to let surround plugin handle 'xs' directly
 
 -- Up/down/left/right
 map({ "n", "o", "x" }, "h", "h", { desc = "Left (h)" })
 map({ "n", "o", "x" }, "e", "k", { desc = "Up (k)" })
 map({ "n", "o", "x" }, "a", "j", { desc = "Down (j)" })
 map({ "n", "o", "x" }, "i", "l", { desc = "Right (l)" })
+
+-- E/A for End of WORD forward/backward
+map({ "n", "o", "x" }, "E", "E", { desc = "End of WORD forward" })
+map({ "n", "o", "x" }, "A", "gE", { desc = "End of WORD back (reverse of E)" })
 
 -- Override HAEI navigation in visual modes (including visual line mode)
 -- Use noremap to fully override default vim behavior including text objects
@@ -69,13 +75,17 @@ map({ "n", "o", "x" }, ";", ";", { desc = "Repeat find forward" })
 map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
--- End of word left/right
-map({ "n", "o", "x" }, "H", "ge", { desc = "End of word back" })
+-- Screen navigation - top/bottom
+map({ "n", "o", "x" }, "H", "H", { desc = "Top of screen" })
+map({ "n", "o", "x" }, "I", "L", { desc = "Bottom of screen" })
+
+-- End of word left/right (moved to different keys)
+map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
 map({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
 map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 
 -- Keep visual replace on a different key
-map({ "v" }, "R", "r", { desc = "Replace selected text" })
+map({ "v" }, "X", "r", { desc = "Replace selected text" })
 
 -- Folds
 map({ "n", "x" }, "b", "z", { desc = "Fold commands" })
@@ -138,11 +148,8 @@ map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 -- Force override any plugin mappings for Q
 vim.keymap.set("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
 
--- Cursor to bottom of screen
--- H and M haven't been remapped, only L needs to be mapped
-map({ "n" }, "B", "L", { desc = "Move to bottom of screen" })
-map({ "v" }, "B", "L", { desc = "Move to bottom of screen" })
-map({ "n", "v" }, "H", "H", { desc = "Move to top of screen" })
+-- Screen navigation - H/I for top/bottom (replaces B mapping)
+map({ "n", "o", "x" }, "I", "L", { desc = "Bottom of screen" })
 
 -- Misc overridden keys must be prefixed with g
 map({ "n", "x" }, "gX", "X", { desc = "Delete before cursor" })
@@ -248,14 +255,18 @@ end, { desc = "Select around HTML tag" })
 map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 
-map({ "v" }, "s", "<Plug>(nvim-surround-visual)", { desc = "Surround visual selection" })
-map({ "o", "v" }, "R", "r", { desc = "Replace" })
+-- Removed redundant visual surround mapping - handled by plugin config
+map({ "o", "v" }, "X", "r", { desc = "Replace" })
 map({ "o", "v" }, "rd", "iw", { desc = "Inner word" })
 map({ "o", "v" }, "td", "aw", { desc = "Around word" })
+map({ "o", "v" }, "rD", "iW", { desc = "Inner WORD" })
+map({ "o", "v" }, "tD", "aW", { desc = "Around WORD" })
 -- Operator-pending mode mappings to help with nvim-surround
 -- These allow your r/t mappings to work in operator-pending mode
 map({ "v" }, "rd", "iw", { desc = "Inner word (visual)" })
 map({ "v" }, "td", "aw", { desc = "Around word (visual)" })
+map({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })
+map({ "v" }, "tD", "aW", { desc = "Around WORD (visual)" })
 -- rf and tf handled by treesitter-textobjects
 map({ "o" }, "r(", "i(", { desc = "Inner parentheses (for nvim-surround)" })
 map({ "o" }, "r)", "i)", { desc = "Inner parentheses (for nvim-surround)" })
