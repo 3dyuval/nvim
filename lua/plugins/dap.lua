@@ -31,9 +31,6 @@ return {
       local json5_ok, json5 = pcall(require, "json5")
       if json5_ok then
         require("dap.ext.vscode").json_decode = json5.parse
-        vim.notify("DAP: Using json5 parser for better launch.json support", vim.log.levels.INFO)
-      else
-        vim.notify("DAP: json5 not available, using fallback JSON parser", vim.log.levels.WARN)
       end
 
       -- Dap Virtual Text - shows variable values inline in editor

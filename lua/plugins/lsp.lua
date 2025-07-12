@@ -5,6 +5,9 @@ return {
       -- Disable other TypeScript servers
       tsserver = { enabled = false },
       ts_ls = { enabled = false },
+      -- Suppress LazyVim typescript extra's typescript-language-server
+      -- See issue #1 - LazyVim extra conflicts with vtsls configuration
+      ["typescript-language-server"] = { enabled = false },
 
       -- Enable vtsls for JS/TS
       vtsls = {
