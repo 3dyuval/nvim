@@ -32,6 +32,11 @@ You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue li
 - **save-patterns.lua**: Auto-format/organize on save for TS/JS/Lua files
 - Update these tools for specific implementation shortcuts and testing utilities
 
+## Test Structure
+- **Test directories**: `/lua/plugins/tests/` and `/lua/config/tests/`
+- **Test directive**: Save all tests in appropriate test folders, reuse utils from `/utils` and `/lua/utils`
+- **Test utilities**: Import and reuse existing tools from utils for consistent testing patterns
+
 ## Custom Layout (Graphite)
 - **HAEI navigation**: h=left, a=down, e=up, i=right (NOT hjkl)
 - **Text objects**: r=inner, t=around (NOT ia) - "inneR"/"exTernal"
