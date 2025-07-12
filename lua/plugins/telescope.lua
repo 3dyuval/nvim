@@ -53,7 +53,9 @@ return {
       telescope.setup(opts)
       telescope.load_extension("fzf")
       -- Enable noice.nvim integration if available
-      pcall(function() telescope.load_extension("noice") end)
+      pcall(function()
+        telescope.load_extension("noice")
+      end)
     end,
   },
 }

@@ -57,7 +57,7 @@ local keymaps_to_test = {
 
 -- Get all current keymaps
 local all_keymaps = {}
-for _, mode in ipairs({"n", "v", "x", "i", "c", "t"}) do
+for _, mode in ipairs({ "n", "v", "x", "i", "c", "t" }) do
   local mode_keymaps = vim.api.nvim_get_keymap(mode)
   for _, keymap in ipairs(mode_keymaps) do
     all_keymaps[mode .. ":" .. keymap.lhs] = keymap

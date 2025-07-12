@@ -39,11 +39,11 @@ return {
   },
   config = function(_, opts)
     require("ufo").setup(opts)
-    
+
     -- Ensure foldlevel is respected
     vim.o.foldlevel = 99
     vim.o.foldlevelstart = 99
-    
+
     -- Simple import folding for TS files only
     vim.api.nvim_create_autocmd("FileType", {
       pattern = { "typescript", "typescriptreact" },
@@ -52,16 +52,18 @@ return {
           -- Only fold consecutive import lines at the start of file
           local lines = vim.api.nvim_buf_get_lines(0, 0, 20, false)
           local import_start, import_end = nil, nil
-          
+
           for i, line in ipairs(lines) do
             if line:match("^import ") then
-              if not import_start then import_start = i end
+              if not import_start then
+                import_start = i
+              end
               import_end = i
             elseif import_start and not line:match("^%s*$") then
               break -- Stop at first non-import, non-empty line
             end
           end
-          
+
           if import_start and import_end and (import_end - import_start) >= 2 then
             -- Use UFO's API instead of vim's fold command to avoid foldmethod conflicts
             pcall(function()

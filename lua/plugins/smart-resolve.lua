@@ -8,7 +8,10 @@ return {
       -- Install git-resolve-conflict if not present
       local function install_git_resolve_conflict()
         local handle = io.popen("which git-resolve-conflict 2>/dev/null")
-        local result = handle:read("*a")
+        if not handle then
+          return false
+        end
+        local result = handle:read("*a") or ""
         handle:close()
 
         if result == "" then
@@ -56,11 +59,12 @@ return {
 
         -- Get git root directory from file's directory first
         local file_dir = vim.fn.fnamemodify(file, ":h")
-        local git_root = vim.fn.system("cd " .. vim.fn.shellescape(file_dir) .. " && git rev-parse --show-toplevel"):gsub("\n", "")
-        
+        local git_root =
+          vim.fn.system("cd " .. vim.fn.shellescape(file_dir) .. " && git rev-parse --show-toplevel"):gsub("\n", "")
+
         -- Convert absolute path to relative path from git root
         local relative_file = file:gsub("^" .. vim.pesc(git_root) .. "/", "")
-        
+
         -- Check if file is in conflicted state using git
         local git_unmerged_cmd = string.format(
           "cd %s && git diff --name-only --diff-filter=U | grep -Fxq %s",
@@ -69,7 +73,7 @@ return {
         )
         local is_conflicted = vim.fn.system(git_unmerged_cmd)
         local exit_code = vim.v.shell_error
-        
+
         if exit_code ~= 0 then
           vim.notify("File is not in conflicted state: " .. relative_file, vim.log.levels.INFO)
           return
@@ -92,9 +96,6 @@ return {
 
           local strategies = { "union", "ours", "theirs" }
           local strategy = strategies[idx]
-          
-
-
 
           -- Run git-resolve-conflict with relative path
           local cmd = string.format(

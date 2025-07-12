@@ -30,13 +30,13 @@ vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 -- Set filetype to lua and configure folding
 vim.bo.filetype = "lua"
 vim.wo.foldmethod = "indent"
-vim.wo.foldlevel = 0  -- Start with folds closed
+vim.wo.foldlevel = 0 -- Start with folds closed
 
 -- Wait for folding to initialize
 vim.wait(200)
 
 -- Move to a line that should have a fold
-vim.api.nvim_win_set_cursor(0, {2, 0}) -- Line 2 (inside first function)
+vim.api.nvim_win_set_cursor(0, { 2, 0 }) -- Line 2 (inside first function)
 
 print("Current fold method: " .. vim.wo.foldmethod)
 print("Current fold level: " .. vim.wo.foldlevel)
@@ -46,19 +46,19 @@ print("\n1. Testing bb (reset folds)...")
 local success, err = pcall(function()
   local ft = vim.bo.filetype
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
-  
+
   -- Temporarily disable folding to reset
   vim.wo.foldmethod = "manual"
   vim.cmd("normal! zE") -- Delete all folds
-  
+
   -- Reapply filetype-specific fold method
   if ft == "lua" then
     vim.wo.foldmethod = "indent"
   end
-  
+
   vim.api.nvim_win_set_cursor(0, cursor_pos)
   vim.wo.foldlevel = 1
-  
+
   print("✓ bb (reset folds) - SUCCESS")
 end)
 
@@ -78,7 +78,7 @@ print("✓ bO (open all) - SUCCESS")
 -- Create some folds manually for testing individual fold operations
 print("\n4. Creating manual folds for testing...")
 vim.wo.foldmethod = "manual"
-vim.api.nvim_win_set_cursor(0, {2, 0})
+vim.api.nvim_win_set_cursor(0, { 2, 0 })
 vim.cmd("normal! V5jzf") -- Create a fold from line 2-7
 print("✓ Manual fold created")
 

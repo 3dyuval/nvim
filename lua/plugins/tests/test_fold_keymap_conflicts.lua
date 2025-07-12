@@ -12,12 +12,12 @@ local fold_keymaps = {
   { mode = "n", lhs = "bf", rhs = "zc", desc = "Close fold" },
   { mode = "n", lhs = "bF", rhs = "zM", desc = "Fold entire buffer" },
   { mode = "n", lhs = "bO", rhs = "zR", desc = "Open all folds" },
-  
+
   -- Missing keymaps to add for issue #4
   { mode = "n", lhs = "bo", rhs = "zo", desc = "Open fold" },
   { mode = "n", lhs = "bt", rhs = "za", desc = "Toggle fold" },
   { mode = "n", lhs = "bv", rhs = "zv", desc = "View cursor" },
-  
+
   -- Additional fold level keymaps (optional)
   { mode = "n", lhs = "b1", rhs = "z1", desc = "Fold level 1" },
   { mode = "n", lhs = "b2", rhs = "z2", desc = "Fold level 2" },
@@ -27,10 +27,5 @@ local fold_keymaps = {
 -- Output the keymap table for piping to test_keymaps.lua
 -- Format: mode|lhs|rhs|desc with proper escaping
 for _, keymap in ipairs(fold_keymaps) do
-  io.write(string.format("%s|%s|%s|%s\n", 
-    keymap.mode, 
-    keymap.lhs, 
-    keymap.rhs, 
-    keymap.desc or ""
-  ))
+  io.write(string.format("%s|%s|%s|%s\n", keymap.mode, keymap.lhs, keymap.rhs, keymap.desc or ""))
 end

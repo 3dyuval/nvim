@@ -41,19 +41,19 @@ local success, err = pcall(function()
   -- Simulate the bb keymap
   local cursor_pos = vim.api.nvim_win_get_cursor(0)
   local ft = vim.bo.filetype
-  
+
   -- Reset folds
   vim.wo.foldmethod = "manual"
   vim.cmd("normal! zE")
-  
+
   -- Reapply filetype-specific fold method
   if ft == "lua" then
     vim.wo.foldmethod = "indent"
   end
-  
+
   vim.api.nvim_win_set_cursor(0, cursor_pos)
   vim.wo.foldlevel = 1
-  
+
   print("✓ bb (reset folds) - SUCCESS")
 end)
 
@@ -63,19 +63,19 @@ end
 
 -- Test basic fold operations
 local fold_tests = {
-  {key = "bF", cmd = "zM", desc = "Fold all"},
-  {key = "bO", cmd = "zR", desc = "Open all folds"},
-  {key = "bf", cmd = "zc", desc = "Close fold"},
-  {key = "bo", cmd = "zo", desc = "Open fold"},
-  {key = "bt", cmd = "za", desc = "Toggle fold"},
-  {key = "bv", cmd = "zv", desc = "View cursor"},
+  { key = "bF", cmd = "zM", desc = "Fold all" },
+  { key = "bO", cmd = "zR", desc = "Open all folds" },
+  { key = "bf", cmd = "zc", desc = "Close fold" },
+  { key = "bo", cmd = "zo", desc = "Open fold" },
+  { key = "bt", cmd = "za", desc = "Toggle fold" },
+  { key = "bv", cmd = "zv", desc = "View cursor" },
 }
 
 for _, test in ipairs(fold_tests) do
   local success, err = pcall(function()
     vim.cmd("normal! " .. test.cmd)
   end)
-  
+
   if success then
     print("✓ " .. test.key .. " (" .. test.desc .. ") - SUCCESS")
   else

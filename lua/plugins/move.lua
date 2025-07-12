@@ -17,17 +17,17 @@ return {
   opts = {
     line = {
       enable = true,
-      indent = true
+      indent = true,
     },
     block = {
       enable = true,
-      indent = true
+      indent = true,
     },
     word = {
       enable = true,
     },
     char = {
-      enable = true
-    }
-  }
+      enable = true,
+    },
+  },
 }

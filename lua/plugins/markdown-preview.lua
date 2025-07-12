@@ -4,7 +4,9 @@ return {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     ft = { "markdown" },
-    build = function() vim.fn["mkdp#util#install"]() end,
+    build = function()
+      vim.fn["mkdp#util#install"]()
+    end,
     keys = {
       { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Markdown Preview Toggle" },
     },
@@ -30,7 +32,7 @@ return {
         flowchart_diagrams = {},
         content_editable = false,
         disable_filename = 0,
-        toc = {}
+        toc = {},
       }
       vim.g.mkdp_markdown_css = ""
       vim.g.mkdp_highlight_css = ""
@@ -40,7 +42,7 @@ return {
       vim.g.mkdp_theme = "dark"
     end,
   },
-  
+
   -- Enhanced in-buffer markdown rendering
   {
     "MeanderingProgrammer/render-markdown.nvim",

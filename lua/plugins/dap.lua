@@ -61,7 +61,7 @@ return {
 
       -- Use js-debug (now with RPC fix)
       local js_debug_path = "/home/lab/.local/share/js-debug/src/dapDebugServer.js"
-      
+
       if vim.fn.filereadable(js_debug_path) == 0 then
         vim.notify("DAP: js-debug not found", vim.log.levels.ERROR)
         return
@@ -70,7 +70,7 @@ return {
       -- Configure js-debug adapter
       dap.adapters["pwa-node"] = {
         type = "server",
-        host = "localhost", 
+        host = "localhost",
         port = "${port}",
         executable = {
           command = "node",
@@ -131,7 +131,7 @@ return {
           cwd = "${workspaceFolder}",
         },
       }
-      
+
       -- JavaScript configurations (same as TypeScript)
       dap.configurations.javascript = dap.configurations.typescript
 

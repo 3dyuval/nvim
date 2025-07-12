@@ -14,7 +14,7 @@ return {
           return setmetatable(t, {
             __index = {
               put = function(self, ...)
-                for _, v in ipairs({...}) do
+                for _, v in ipairs({ ... }) do
                   table.insert(self, tostring(v))
                 end
                 return self
@@ -22,9 +22,9 @@ return {
               get = function(self)
                 return table.concat(self)
               end,
-            }
+            },
           })
-        end
+        end,
       }
     end
     local opts = require("lazy.core.plugin").values(require("lazy.core.config").plugins["snacks.nvim"], "opts")
@@ -126,6 +126,9 @@ return {
         explorer = {
           auto_close = false,
           hidden = true,
+          git = {
+            enabled = true, -- Enable git status display (enabled by default in 2.18.0+)
+          },
           layout = {
             preset = "default",
             preview = false,
@@ -180,7 +183,7 @@ return {
                 ["x"] = false, -- Disable default x binding
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
-                ["b"] = "show_context_menu"
+                ["b"] = "show_context_menu",
               },
             },
           },
@@ -203,7 +206,7 @@ return {
           win = {
             list = {
               keys = {
-                ["b"] = "show_context_menu"
+                ["b"] = "show_context_menu",
               },
             },
           },
@@ -228,7 +231,7 @@ return {
           win = {
             list = {
               keys = {
-                ["b"] = "show_context_menu"
+                ["b"] = "show_context_menu",
               },
             },
           },
@@ -237,7 +240,7 @@ return {
           win = {
             list = {
               keys = {
-                ["b"] = "show_context_menu"
+                ["b"] = "show_context_menu",
               },
             },
           },

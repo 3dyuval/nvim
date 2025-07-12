@@ -5,17 +5,17 @@ return {
     opts.ensure_installed = opts.ensure_installed or {}
     vim.list_extend(opts.ensure_installed, {
       "javascript",
-      "typescript", 
+      "typescript",
       "tsx",
       "html",
-      "css"
+      "css",
     })
-    
+
     -- Enable autotag integration (Takuya's way)
     opts.autotag = {
       enable = true,
     }
-    
+
     -- Add error handling for highlighting
     opts.highlight = opts.highlight or {}
     opts.highlight.additional_vim_regex_highlighting = false
@@ -26,11 +26,11 @@ return {
       if ok and stats and stats.size > max_filesize then
         return true
       end
-      
+
       -- Check if buffer is valid
       return not vim.api.nvim_buf_is_valid(buf)
     end
-    
+
     return opts
   end,
 }

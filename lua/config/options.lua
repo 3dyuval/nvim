@@ -3,13 +3,13 @@
 -- Add any additional options here
 
 -- Folding settings (prevent everything from folding)
-vim.opt.foldlevel = 99        -- High fold level = most folds open
-vim.opt.foldlevelstart = 99   -- Start with most folds open  
-vim.opt.foldenable = true     -- Enable folding
-vim.opt.foldcolumn = "1"      -- Show fold column
+vim.opt.foldlevel = 99 -- High fold level = most folds open
+vim.opt.foldlevelstart = 99 -- Start with most folds open
+vim.opt.foldenable = true -- Enable folding
+vim.opt.foldcolumn = "1" -- Show fold column
 vim.opt.fillchars = {
   foldopen = "▼",
-  foldclose = "▶", 
+  foldclose = "▶",
   fold = " ",
   foldsep = " ",
   diff = "╱",

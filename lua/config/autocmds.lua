@@ -31,7 +31,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.opt.shortmess:append("F")
 
 -- Enable syntax highlighting for log files
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = "*.log",
   callback = function()
     vim.bo.filetype = "log"
@@ -40,6 +40,3 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
 
 -- Setup save patterns system
 require("utils.save-patterns").setup_autocmd()
-
-
-

@@ -6,7 +6,7 @@ return {
       colorscheme = "catppuccin-macchiato",
     },
   },
-  
+
   -- Override the colorscheme picker to persist changes
   {
     "nvim-telescope/telescope.nvim",
@@ -45,7 +45,7 @@ return {
       },
     },
   },
-  
+
   -- Auto-apply colorscheme changes across all sessions
   {
     "folke/lazy.nvim",

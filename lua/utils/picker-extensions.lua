@@ -23,16 +23,16 @@ local function safe_picker_call(picker, method, ...)
   if not validate_picker(picker) then
     return nil, "Invalid picker"
   end
-  
+
   if type(picker[method]) ~= "function" then
     return nil, "Method " .. method .. " not available"
   end
-  
+
   -- Use colon notation for picker methods (they expect self as first argument)
   local success, result = pcall(function(...)
     return picker[method](picker, ...)
   end, ...)
-  
+
   if success then
     return result, nil
   else
@@ -46,14 +46,16 @@ end
 
 -- Explorer: Open multiple buffers action
 M.open_multiple_buffers = function(picker)
-  if not validate_picker(picker) then return end
-  
+  if not validate_picker(picker) then
+    return
+  end
+
   local sel, err = safe_picker_call(picker, "selected")
   if err then
     vim.notify("Could not get selected items: " .. err, vim.log.levels.WARN)
     return
   end
-  
+
   sel = sel or {}
   if #sel == 0 then
     vim.notify("No files selected", vim.log.levels.WARN)
@@ -77,7 +79,7 @@ M.copy_file_path = function(picker, item)
     vim.notify("No item provided", vim.log.levels.WARN)
     return
   end
-  
+
   local vals = {
     ["PATH"] = item.file,
     ["FILE CONTENT"] = "file_content",
@@ -88,16 +90,16 @@ M.copy_file_path = function(picker, item)
     ["FILENAME"] = vim.fn.fnamemodify(item.file, ":t"),
     ["URI"] = vim.uri_from_fname(item.file),
   }
-  
+
   local options = vim.tbl_filter(function(val)
     return vals[val] ~= ""
   end, vim.tbl_keys(vals))
-  
+
   if vim.tbl_isempty(options) then
     vim.notify("No values to copy", vim.log.levels.WARN)
     return
   end
-  
+
   vim.ui.select(options, {
     prompt = "Choose to copy to clipboard:",
     format_item = function(list_item)
@@ -116,9 +118,7 @@ M.copy_file_path = function(picker, item)
         vim.fn.setreg("+", content_str)
         local filename = vim.fn.fnamemodify(item.file, ":t")
         local line_count = #content
-        Snacks.notify.info(
-          string.format("File content copied to clipboard: %s (%d lines)", filename, line_count)
-        )
+        Snacks.notify.info(string.format("File content copied to clipboard: %s (%d lines)", filename, line_count))
       else
         vim.fn.setreg("+", result)
         Snacks.notify.info("Yanked `" .. result .. "`")
@@ -133,20 +133,28 @@ M.search_in_directory = function(picker, item)
     vim.notify("No item provided", vim.log.levels.WARN)
     return
   end
-  
+
   local dir = vim.fn.fnamemodify(item.file, ":p:h")
   Snacks.picker.grep({
     cwd = dir,
     cmd = "rg",
     args = {
-      "-g", "!.git",
-      "-g", "!node_modules",
-      "-g", "!dist",
-      "-g", "!build",
-      "-g", "!coverage",
-      "-g", "!.DS_Store",
-      "-g", "!.docusaurus",
-      "-g", "!.dart_tool",
+      "-g",
+      "!.git",
+      "-g",
+      "!node_modules",
+      "-g",
+      "!dist",
+      "-g",
+      "!build",
+      "-g",
+      "!coverage",
+      "-g",
+      "!.DS_Store",
+      "-g",
+      "!.docusaurus",
+      "-g",
+      "!.dart_tool",
     },
     show_empty = true,
     hidden = true,
@@ -158,15 +166,17 @@ end
 
 -- Explorer: Diff two selected files
 M.diff_selected = function(picker)
-  if not validate_picker(picker) then return end
-  
+  if not validate_picker(picker) then
+    return
+  end
+
   picker:close()
   local sel, err = safe_picker_call(picker, "selected")
   if err then
     vim.notify("Could not get selected items: " .. err, vim.log.levels.WARN)
     return
   end
-  
+
   sel = sel or {}
   if #sel >= 2 then
     Snacks.notify.info(sel[1].file)
@@ -180,14 +190,16 @@ end
 
 -- Directory expansion handler
 M.handle_directory_expansion = function(picker)
-  if not validate_picker(picker) then return end
-  
+  if not validate_picker(picker) then
+    return
+  end
+
   local item, err = safe_picker_call(picker, "current")
   if err then
     vim.notify("Could not get current item: " .. err, vim.log.levels.WARN)
     return
   end
-  
+
   if item and item.dir then
     -- For directories, use the default confirm behavior
     picker:confirm()
@@ -204,28 +216,29 @@ local function run_save_patterns_action(picker, items)
   local save_patterns = require("utils.save-patterns")
   local processed = 0
   local errors = 0
-  
+
   -- Handle single item vs multiple items
   if type(items.file) == "string" then
     items = { items }
   end
-  
+
   for _, item in ipairs(items) do
     if not item.dir and vim.fn.filereadable(item.file) == 1 then
       local success, err = pcall(function()
         local bufnr = vim.fn.bufnr(item.file, true)
         vim.fn.bufload(bufnr)
-        
+
         vim.bo[bufnr].modifiable = true
         vim.bo[bufnr].readonly = false
-        
+
         local filetype = vim.filetype.match({ filename = item.file }) or ""
-        local patterns = save_patterns.get_patterns_for_filetype(filetype) or save_patterns.get_patterns_for_file(item.file)
-        
+        local patterns = save_patterns.get_patterns_for_filetype(filetype)
+          or save_patterns.get_patterns_for_file(item.file)
+
         if patterns then
           save_patterns.run_patterns(bufnr, patterns)
           processed = processed + 1
-          
+
           if vim.bo[bufnr].modified then
             vim.api.nvim_buf_call(bufnr, function()
               vim.cmd("silent! write")
@@ -233,16 +246,25 @@ local function run_save_patterns_action(picker, items)
           end
         end
       end)
-      
+
       if not success then
         errors = errors + 1
-        vim.notify("Error processing " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"), vim.log.levels.WARN)
+        vim.notify(
+          "Error processing " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
+          vim.log.levels.WARN
+        )
       end
     end
   end
-  
+
   if processed > 0 then
-    vim.notify(string.format("Processed save patterns on %d files%s", processed, errors > 0 and " (" .. errors .. " errors)" or ""))
+    vim.notify(
+      string.format(
+        "Processed save patterns on %d files%s",
+        processed,
+        errors > 0 and " (" .. errors .. " errors)" or ""
+      )
+    )
   else
     vim.notify("No files processed - no matching patterns found", vim.log.levels.WARN)
   end
@@ -252,25 +274,26 @@ end
 local contexts = {
   sidebar_explorer = {
     detect = function(picker)
-      if not validate_picker(picker) then return false end
-      
+      if not validate_picker(picker) then
+        return false
+      end
+
       -- Detect sidebar explorer by minimal action set
-      local has_minimal_explorer = picker.opts and picker.opts.actions and (
-        picker.opts.actions.explorer_add and
-        picker.opts.actions.list_down
-      )
-      
+      local has_minimal_explorer = picker.opts
+        and picker.opts.actions
+        and (picker.opts.actions.explorer_add and picker.opts.actions.list_down)
+
       if has_minimal_explorer then
         local action_count = 0
         for _ in pairs(picker.opts.actions) do
           action_count = action_count + 1
         end
-  
+
         -- Sidebar explorers have very few actions (< 10)
         -- Your popup explorer has 50+ actions
         return action_count < 10
       end
-      
+
       return false
     end,
     get_items = function(picker)
@@ -278,22 +301,26 @@ local contexts = {
       return {}
     end,
   },
-  
+
   explorer = {
     detect = function(picker)
-      if not validate_picker(picker) then return false end
-      
+      if not validate_picker(picker) then
+        return false
+      end
+
       -- Check if the picker has explorer-specific actions (most reliable method)
-      local has_explorer_actions = picker.opts and picker.opts.actions and (
-        picker.opts.actions.explorer_add or
-        picker.opts.actions.explorer_del or
-        picker.opts.actions.explorer_open or
-        picker.opts.actions.explorer_rename or
-        picker.opts.actions.explorer_close or
-        picker.opts.actions.explorer_up or
-        picker.opts.actions.explorer_focus
-      )
-      
+      local has_explorer_actions = picker.opts
+        and picker.opts.actions
+        and (
+          picker.opts.actions.explorer_add
+          or picker.opts.actions.explorer_del
+          or picker.opts.actions.explorer_open
+          or picker.opts.actions.explorer_rename
+          or picker.opts.actions.explorer_close
+          or picker.opts.actions.explorer_up
+          or picker.opts.actions.explorer_focus
+        )
+
       -- Exclude sidebar explorers (they have minimal actions and different structure)
       if has_explorer_actions then
         local action_count = 0
@@ -305,56 +332,64 @@ local contexts = {
         if action_count < 5 then
           return false -- This is likely a sidebar explorer
         end
-        
+
         -- This IS an explorer picker - return true regardless of item properties
         return true
       end
-      
+
       return false
     end,
     get_items = function(picker)
       local items = {}
-      
-      if not validate_picker(picker) then return items end
-      
+
+      if not validate_picker(picker) then
+        return items
+      end
+
       local selected, err = safe_picker_call(picker, "selected")
       if not err and selected and #selected > 0 then
         items = selected
       end
-      
+
       if #items == 0 then
         local current, err = safe_picker_call(picker, "current")
-        if not err and current then 
+        if not err and current then
           items = { current }
         end
       end
-      
-      if #items == 0 and picker.list and picker.list.selected and type(picker.list.selected) == "table" and #picker.list.selected > 0 then
+
+      if
+        #items == 0
+        and picker.list
+        and picker.list.selected
+        and type(picker.list.selected) == "table"
+        and #picker.list.selected > 0
+      then
         items = picker.list.selected
       end
-      
+
       return items
     end,
   },
-  
+
   git_status = {
     detect = function(picker)
-      if not validate_picker(picker) then return false end
-      
+      if not validate_picker(picker) then
+        return false
+      end
+
       -- Check source first (if available) - this is the most reliable
       local source = picker.opts and picker.opts.source
       if source == "git_status" then
         return true
       end
-      
+
       -- Only fallback to item checking if we're NOT in an explorer
       -- (explorer items can have status but aren't git status items)
-      local has_explorer_actions = picker.opts and picker.opts.actions and (
-        picker.opts.actions.explorer_add or
-        picker.opts.actions.explorer_del or
-        picker.opts.actions.explorer_open
-      )
-      
+      local has_explorer_actions = picker.opts
+        and picker.opts.actions
+        and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del or picker.opts.actions.explorer_open)
+
       if not has_explorer_actions then
         -- Fallback: check if current item has git status properties
         local current, err = safe_picker_call(picker, "current")
@@ -365,50 +400,59 @@ local contexts = {
           end
         end
       end
-      
+
       return false
     end,
     get_items = function(picker)
       local items = {}
-      
-      if not validate_picker(picker) then return items end
-      
+
+      if not validate_picker(picker) then
+        return items
+      end
+
       local selected, err = safe_picker_call(picker, "selected")
       if not err and selected and #selected > 0 then
         items = selected
       end
-      
+
       if #items == 0 then
         local current, err = safe_picker_call(picker, "current")
-        if not err and current then 
+        if not err and current then
           items = { current }
         end
       end
-      
-      if #items == 0 and picker.list and picker.list.selected and type(picker.list.selected) == "table" and #picker.list.selected > 0 then
+
+      if
+        #items == 0
+        and picker.list
+        and picker.list.selected
+        and type(picker.list.selected) == "table"
+        and #picker.list.selected > 0
+      then
         items = picker.list.selected
       end
-      
+
       return items
     end,
   },
-  
+
   files = {
     detect = function(picker)
-      if not validate_picker(picker) then return false end
-      
+      if not validate_picker(picker) then
+        return false
+      end
+
       -- Check source first (if available)
       local source = picker.opts and picker.opts.source
       if source == "files" or source == "git_files" then
         return true
       end
-      
+
       -- Fallback: check if it has file-specific characteristics but NOT explorer actions
-      local has_explorer_actions = picker.opts and picker.opts.actions and (
-        picker.opts.actions.explorer_add or
-        picker.opts.actions.explorer_del
-      )
-      
+      local has_explorer_actions = picker.opts
+        and picker.opts.actions
+        and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del)
+
       -- If no explorer actions and has file-like items, assume it's a files picker
       if not has_explorer_actions then
         local current, err = safe_picker_call(picker, "current")
@@ -416,73 +460,91 @@ local contexts = {
           return true
         end
       end
-      
+
       return false
     end,
     get_items = function(picker)
       local items = {}
-      
-      if not validate_picker(picker) then return items end
-      
+
+      if not validate_picker(picker) then
+        return items
+      end
+
       local selected, err = safe_picker_call(picker, "selected")
       if not err and selected and #selected > 0 then
         items = selected
       end
-      
+
       if #items == 0 then
         local current, err = safe_picker_call(picker, "current")
-        if not err and current then 
+        if not err and current then
           items = { current }
         end
       end
-      
-      if #items == 0 and picker.list and picker.list.selected and type(picker.list.selected) == "table" and #picker.list.selected > 0 then
+
+      if
+        #items == 0
+        and picker.list
+        and picker.list.selected
+        and type(picker.list.selected) == "table"
+        and #picker.list.selected > 0
+      then
         items = picker.list.selected
       end
-      
+
       return items
     end,
   },
-  
+
   buffers = {
     detect = function(picker)
-      if not validate_picker(picker) then return false end
-      
+      if not validate_picker(picker) then
+        return false
+      end
+
       -- Check source first (if available)
       local source = picker.opts and picker.opts.source
       if source == "buffers" then
         return true
       end
-      
+
       -- Fallback: check if current item has bufnr
       local current, err = safe_picker_call(picker, "current")
       if not err and current and current.bufnr then
         return true
       end
-      
+
       return false
     end,
     get_items = function(picker)
       local items = {}
-      
-      if not validate_picker(picker) then return items end
-      
+
+      if not validate_picker(picker) then
+        return items
+      end
+
       local selected, err = safe_picker_call(picker, "selected")
       if not err and selected and #selected > 0 then
         items = selected
       end
-      
+
       if #items == 0 then
         local current, err = safe_picker_call(picker, "current")
-        if not err and current then 
+        if not err and current then
           items = { current }
         end
       end
-      
-      if #items == 0 and picker.list and picker.list.selected and type(picker.list.selected) == "table" and #picker.list.selected > 0 then
+
+      if
+        #items == 0
+        and picker.list
+        and picker.list.selected
+        and type(picker.list.selected) == "table"
+        and #picker.list.selected > 0
+      then
         items = picker.list.selected
       end
-      
+
       return items
     end,
   },
@@ -534,7 +596,9 @@ local actions = {
           local ok, err = os.rename(item.file, new_path)
           if ok then
             vim.notify("Renamed to " .. new_name)
-            if picker.refresh then picker:refresh() end
+            if picker.refresh then
+              picker:refresh()
+            end
           else
             vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
           end
@@ -550,7 +614,9 @@ local actions = {
           local ok, err = os.remove(item.file)
           if ok then
             vim.notify("Deleted " .. vim.fn.fnamemodify(item.file, ":t"))
-            if picker.refresh then picker:refresh() end
+            if picker.refresh then
+              picker:refresh()
+            end
           else
             vim.notify("Failed to delete: " .. (err or "unknown error"), vim.log.levels.ERROR)
           end
@@ -617,7 +683,9 @@ local actions = {
           local ok, err = os.rename(item.file, new_path)
           if ok then
             vim.notify("Renamed to " .. new_name)
-            if picker.refresh then picker:refresh() end
+            if picker.refresh then
+              picker:refresh()
+            end
           else
             vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
           end
@@ -628,11 +696,14 @@ local actions = {
       key = "d",
       desc = "Delete directory",
       action = function(picker, item)
-        local confirm = vim.fn.confirm("Delete directory " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
+        local confirm =
+          vim.fn.confirm("Delete directory " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
         if confirm == 1 then
           vim.fn.delete(item.file, "rf")
           vim.notify("Deleted directory " .. vim.fn.fnamemodify(item.file, ":t"))
-          if picker.refresh then picker:refresh() end
+          if picker.refresh then
+            picker:refresh()
+          end
         end
       end,
     },
@@ -665,7 +736,9 @@ local actions = {
           local dirpath = item.file .. "/" .. dirname
           vim.fn.mkdir(dirpath, "p")
           vim.notify("Created directory: " .. dirname)
-          if picker.refresh then picker:refresh() end
+          if picker.refresh then
+            picker:refresh()
+          end
         end
       end,
     },
@@ -690,7 +763,9 @@ local actions = {
             deleted = deleted + 1
           end
           vim.notify("Deleted " .. deleted .. " items")
-          if picker.refresh then picker:refresh() end
+          if picker.refresh then
+            picker:refresh()
+          end
         end
       end,
     },
@@ -740,7 +815,9 @@ local actions = {
         if #files > 0 then
           vim.system({ "git", "add", unpack(files) })
           vim.notify("Added " .. #files .. " files to git")
-          if picker.refresh then picker:refresh() end
+          if picker.refresh then
+            picker:refresh()
+          end
         end
       end,
     },
@@ -759,7 +836,9 @@ local actions = {
           if confirm == 1 then
             vim.system({ "git", "restore", unpack(files) })
             vim.notify("Restored " .. #files .. " files")
-            if picker.refresh then picker:refresh() end
+            if picker.refresh then
+              picker:refresh()
+            end
           end
         end
       end,
@@ -783,7 +862,9 @@ local actions = {
           end
         end
         vim.notify("Toggled stage status for " .. #items .. " files")
-        if picker.refresh then picker:refresh() end
+        if picker.refresh then
+          picker:refresh()
+        end
       end,
     },
     {
@@ -791,7 +872,9 @@ local actions = {
       desc = "Run Save Patterns",
       action = function(picker, items)
         run_save_patterns_action(picker, items)
-        if picker.refresh then picker:refresh() end
+        if picker.refresh then
+          picker:refresh()
+        end
       end,
     },
     {
@@ -815,7 +898,9 @@ local actions = {
         if confirm == 1 then
           vim.system({ "git", "restore", unpack(files) })
           vim.notify("Restored " .. #files .. " files")
-          if picker.refresh then picker:refresh() end
+          if picker.refresh then
+            picker:refresh()
+          end
         end
       end,
     },
@@ -833,7 +918,9 @@ local actions = {
           end
         end
         vim.notify("Deleted " .. #items .. " buffers")
-        if picker.refresh then picker:refresh() end
+        if picker.refresh then
+          picker:refresh()
+        end
       end,
     },
     {
@@ -846,7 +933,9 @@ local actions = {
           end
         end
         vim.notify("Wiped " .. #items .. " buffers")
-        if picker.refresh then picker:refresh() end
+        if picker.refresh then
+          picker:refresh()
+        end
       end,
     },
     {
@@ -883,7 +972,7 @@ local actions = {
             end
           end
         end
-        
+
         if #file_items > 0 then
           run_save_patterns_action(picker, file_items)
         else
@@ -899,17 +988,17 @@ local function detect_context(picker)
   if not validate_picker(picker) then
     return "unknown", nil
   end
-  
+
   -- Check contexts in specific order (most specific first)
   local context_order = { "sidebar_explorer", "explorer", "git_status", "buffers", "files" }
-  
+
   for _, context_name in ipairs(context_order) do
     local context = contexts[context_name]
     if context and context.detect(picker) then
       return context_name, context
     end
   end
-  
+
   -- Fallback: try to detect based on current item structure
   local current, err = safe_picker_call(picker, "current")
   if not err and current then
@@ -917,32 +1006,32 @@ local function detect_context(picker)
     if current.bufnr then
       return "buffers", contexts.buffers
     end
-    
+
     -- If current item has file property, it's likely a file-based picker
     if current.file then
       return "files", contexts.files
     end
   end
-  
+
   return "unknown", nil
 end
 
 -- Get context-appropriate actions
 local function get_actions(picker)
   local context_name, context = detect_context(picker)
-  
+
   if not context then
     return {}, {}
   end
-  
+
   local items = context.get_items(picker)
-  
+
   if #items == 0 then
     return {}, {}
   end
-  
+
   local action_list = {}
-  
+
   -- Context-specific actions
   if context_name == "explorer" or context_name == "files" then
     if #items == 1 then
@@ -960,23 +1049,27 @@ local function get_actions(picker)
   elseif context_name == "buffers" then
     vim.list_extend(action_list, actions.buffer_actions)
   end
-  
+
   -- Add git actions if in git repo (for file-based pickers)
-  if (context_name == "explorer" or context_name == "files") and 
-     (vim.fn.isdirectory(".git") == 1 or vim.fn.finddir(".git", ".;") ~= "") then
+  if
+    (context_name == "explorer" or context_name == "files")
+    and (vim.fn.isdirectory(".git") == 1 or vim.fn.finddir(".git", ".;") ~= "")
+  then
     vim.list_extend(action_list, actions.git_actions)
   end
-  
+
   return action_list, items
 end
 
 -- Show context menu
 M.show_context_menu = function(picker)
-  if not validate_picker(picker) then return end
-  
+  if not validate_picker(picker) then
+    return
+  end
+
   local action_list, items = get_actions(picker)
   local context_name, context = detect_context(picker)
-  
+
   if #action_list == 0 then
     -- For unknown contexts, provide basic file actions if we can get current item
     if context_name == "unknown" then
@@ -986,28 +1079,34 @@ M.show_context_menu = function(picker)
         items = { current }
       end
     end
-    
+
     if #action_list == 0 then
-      error("No actions available. Context: " .. (context_name or "unknown") .. ", Items: " .. #items .. 
-            "\nPicker state: " .. vim.inspect({
-              source = picker.opts and picker.opts.source,
-              has_actions = picker.opts and picker.opts.actions and vim.tbl_keys(picker.opts.actions) or {},
-              current_item = safe_picker_call(picker, "current"),
-              selected_items = safe_picker_call(picker, "selected")
-            }))
+      error(
+        "No actions available. Context: "
+          .. (context_name or "unknown")
+          .. ", Items: "
+          .. #items
+          .. "\nPicker state: "
+          .. vim.inspect({
+            source = picker.opts and picker.opts.source,
+            has_actions = picker.opts and picker.opts.actions and vim.tbl_keys(picker.opts.actions) or {},
+            current_item = safe_picker_call(picker, "current"),
+            selected_items = safe_picker_call(picker, "selected"),
+          })
+      )
     end
   end
-  
+
   -- Create menu items for vim.ui.select
   local menu_options = {}
   local action_map = {}
-  
+
   for i, action in ipairs(action_list) do
     local option_text = string.format("[%s] %s", action.key, action.desc)
     table.insert(menu_options, option_text)
     action_map[i] = action
   end
-  
+
   -- Show menu using vim.ui.select
   vim.ui.select(menu_options, {
     prompt = "Choose action:",

@@ -14,4 +14,3 @@ return {
     { "<leader>so", "<cmd>Octo<cr>", desc = "Octo" },
   },
 }
-

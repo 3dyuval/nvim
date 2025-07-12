@@ -20,13 +20,13 @@ return {
               vim.keymap.set("n", "<leader>co", function()
                 vim.cmd("TypescriptOrganizeImports")
               end, { buffer = buffer, desc = "Organize Imports" })
-              
+
               vim.keymap.set("n", "<leader>cR", function()
                 vim.cmd("TypescriptRenameFile")
               end, { buffer = buffer, desc = "Rename File" })
             end
           end, "vtsls")
-          
+
           -- Setup typescript.nvim
           require("typescript").setup({
             server = opts,
