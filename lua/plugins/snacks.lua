@@ -2,34 +2,8 @@
 
 return {
   "folke/snacks.nvim",
-  enabled = true,
   priority = 1000,
   lazy = false,
-  config = function()
-    -- Add compatibility for string.buffer module
-    if not package.loaded["string.buffer"] then
-      package.loaded["string.buffer"] = {
-        new = function()
-          local t = {}
-          return setmetatable(t, {
-            __index = {
-              put = function(self, ...)
-                for _, v in ipairs({ ... }) do
-                  table.insert(self, tostring(v))
-                end
-                return self
-              end,
-              get = function(self)
-                return table.concat(self)
-              end,
-            },
-          })
-        end,
-      }
-    end
-    local opts = require("lazy.core.plugin").values(require("lazy.core.config").plugins["snacks.nvim"], "opts")
-    require("snacks").setup(opts)
-  end,
   ---@type snacks.Config
   opts = {
     indent = {
