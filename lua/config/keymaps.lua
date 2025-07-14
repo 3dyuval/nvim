@@ -62,9 +62,9 @@ map({ "n", "o", "x" }, "d", "w", { desc = "Word forward" })
 map({ "n", "o", "x" }, "L", "B", { desc = "WORD back" })
 map({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 
--- Move lines with Alt+A/E
-map({ "n" }, "<M-C-a>", "<cmd>move .+1<cr>==", { desc = "Move line down" })
-map({ "n" }, "<M-C-e>", "<cmd>move .-2<cr>==", { desc = "Move line up" })
+-- Move lines with Alt+A/E (COMMENTED OUT - conflicts with treewalker swap)
+-- map({ "n" }, "<M-C-a>", "<cmd>move .+1<cr>==", { desc = "Move line down" })
+-- map({ "n" }, "<M-C-e>", "<cmd>move .-2<cr>==", { desc = "Move line up" })
 
 -- Search navigation (moved from <C-f> due to jumplist conflict)
 map({ "n", "o", "x" }, "<C-s>", "n", { desc = "Next search match" })
@@ -175,15 +175,17 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
--- Window navigation - left and right windows
-map({ "n" }, "<C-h>", "<C-w>h", { desc = "Left window" })
-map({ "n" }, "<C-i>", "<C-w>l", { desc = "Right window" })
+-- Window navigation - using leader+w prefix
+map({ "n" }, "<leader>wh", "<C-w>h", { desc = "Left window" })
+map({ "n" }, "<leader>wi", "<C-w>l", { desc = "Right window" })
+map({ "n" }, "<leader>wa", "<C-w>j", { desc = "Window down" })
+map({ "n" }, "<leader>we", "<C-w>k", { desc = "Window up" })
 -- Cycle through windows with Alt+Tab
 map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
 
--- Buffer navigation - left and right buffers
-map({ "n" }, "<C-a>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
-map({ "n" }, "<C-e>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+-- Buffer navigation - using Tab keys
+map({ "n" }, "<S-Tab>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+map({ "n" }, "<Tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
 -- Directional window navigation (commented out due to buffer nav conflicts)
 -- map({ "n" }, "<C-a>", "<C-w>j", { desc = "Window down" })
 -- map({ "n" }, "<C-e>", "<C-w>k", { desc = "Window up" })
@@ -288,5 +290,26 @@ map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 map("n", "<leader>gD", function()
   vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
 end, { desc = "Diffview this file" })
+
+-- Treewalker keymaps (will override LazyVim defaults)
+-- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl
+vim.keymap.set({ "n", "v" }, "<C-e>", "<cmd>Treewalker Up<cr>", { silent = true, desc = "Treewalker Up" })
+vim.keymap.set({ "n", "v" }, "<C-a>", "<cmd>Treewalker Down<cr>", { silent = true, desc = "Treewalker Down" })
+vim.keymap.set({ "n", "v" }, "<C-i>", "<cmd>Treewalker Right<cr>", { silent = true, desc = "Treewalker Right" })
+-- Use C-h for parent (move left then parent)
+vim.keymap.set("n", "<C-h>", function()
+  vim.cmd("normal! h")
+  vim.cmd("Treewalker Parent")
+end, { desc = "Move left then Treewalker Parent", silent = true })
+vim.keymap.set("v", "<C-h>", function()
+  vim.cmd("normal! h")
+  vim.cmd("Treewalker Parent")
+end, { desc = "Move left then Treewalker Parent", silent = true })
+
+-- Swapping keymaps using Alt+HAEI - "swap" with alt
+vim.keymap.set("n", "<M-e>", "<cmd>Treewalker SwapUp<cr>", { silent = true, desc = "Treewalker SwapUp" })
+vim.keymap.set("n", "<M-a>", "<cmd>Treewalker SwapDown<cr>", { silent = true, desc = "Treewalker SwapDown" })
+vim.keymap.set("n", "<M-h>", "<cmd>Treewalker SwapLeft<cr>", { silent = true, desc = "Treewalker SwapLeft" })
+vim.keymap.set("n", "<M-i>", "<cmd>Treewalker SwapRight<cr>", { silent = true, desc = "Treewalker SwapRight" })
 
 -- Grug-far search within range

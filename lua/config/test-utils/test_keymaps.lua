@@ -43,6 +43,86 @@ local function test_keymaps(keymaps)
 local conflicts = {}
 local existing_keymaps = {}
 
+-- Built-in Vim commands database
+local builtin_commands = {
+    n = {
+        ['<C-a>'] = { desc = 'Increment number under cursor', severity = 'WARNING' },
+        ['<C-x>'] = { desc = 'Decrement number under cursor', severity = 'WARNING' },
+        ['<C-i>'] = { desc = 'Jump forward in jumplist (same as Tab)', severity = 'INFO' },
+        ['<C-o>'] = { desc = 'Jump backward in jumplist', severity = 'WARNING' },
+        ['<C-u>'] = { desc = 'Scroll up half page', severity = 'INFO' },
+        ['<C-d>'] = { desc = 'Scroll down half page', severity = 'INFO' },
+        ['<C-f>'] = { desc = 'Scroll forward full page', severity = 'INFO' },
+        ['<C-b>'] = { desc = 'Scroll backward full page', severity = 'INFO' },
+        ['<C-e>'] = { desc = 'Scroll window down one line', severity = 'INFO' },
+        ['<C-y>'] = { desc = 'Scroll window up one line', severity = 'INFO' },
+        ['<C-h>'] = { desc = 'Move cursor left / backspace', severity = 'INFO' },
+        ['<C-j>'] = { desc = 'Move cursor down / line feed', severity = 'INFO' },
+        ['<C-k>'] = { desc = 'Move cursor up / kill line', severity = 'INFO' },
+        ['<C-l>'] = { desc = 'Move cursor right / clear screen', severity = 'INFO' },
+        ['<C-w>'] = { desc = 'Window commands prefix', severity = 'WARNING' },
+        ['<C-r>'] = { desc = 'Redo', severity = 'WARNING' },
+        ['<C-z>'] = { desc = 'Suspend vim', severity = 'INFO' },
+        ['<C-c>'] = { desc = 'Cancel/interrupt', severity = 'WARNING' },
+        ['<C-v>'] = { desc = 'Visual block mode', severity = 'WARNING' },
+        ['<C-n>'] = { desc = 'Next match in completion', severity = 'INFO' },
+        ['<C-p>'] = { desc = 'Previous match in completion', severity = 'INFO' },
+        ['<Tab>'] = { desc = 'Jump forward in jumplist / indent', severity = 'INFO' },
+        ['<S-Tab>'] = { desc = 'Previous match in completion', severity = 'INFO' },
+    },
+    i = {
+        ['<C-a>'] = { desc = 'Insert previously inserted text', severity = 'INFO' },
+        ['<C-x>'] = { desc = 'Completion mode prefix', severity = 'WARNING' },
+        ['<C-h>'] = { desc = 'Backspace', severity = 'WARNING' },
+        ['<C-w>'] = { desc = 'Delete word before cursor', severity = 'WARNING' },
+        ['<C-u>'] = { desc = 'Delete line before cursor', severity = 'WARNING' },
+        ['<C-t>'] = { desc = 'Insert one shiftwidth of indent', severity = 'INFO' },
+        ['<C-d>'] = { desc = 'Delete one shiftwidth of indent', severity = 'INFO' },
+        ['<C-n>'] = { desc = 'Next match in completion', severity = 'WARNING' },
+        ['<C-p>'] = { desc = 'Previous match in completion', severity = 'WARNING' },
+        ['<C-y>'] = { desc = 'Accept selected completion', severity = 'INFO' },
+        ['<C-e>'] = { desc = 'Cancel completion', severity = 'INFO' },
+        ['<C-r>'] = { desc = 'Insert register contents', severity = 'WARNING' },
+        ['<C-o>'] = { desc = 'Execute normal mode command', severity = 'INFO' },
+        ['<C-v>'] = { desc = 'Insert literal character', severity = 'INFO' },
+        ['<Tab>'] = { desc = 'Insert tab / trigger completion', severity = 'WARNING' },
+        ['<S-Tab>'] = { desc = 'Previous match in completion', severity = 'INFO' },
+    },
+    v = {
+        ['<C-a>'] = { desc = 'Increment numbers in selection', severity = 'WARNING' },
+        ['<C-x>'] = { desc = 'Decrement numbers in selection', severity = 'WARNING' },
+        ['<C-h>'] = { desc = 'Move cursor left', severity = 'INFO' },
+        ['<C-j>'] = { desc = 'Move cursor down', severity = 'INFO' },
+        ['<C-k>'] = { desc = 'Move cursor up', severity = 'INFO' },
+        ['<C-l>'] = { desc = 'Move cursor right', severity = 'INFO' },
+        ['<C-v>'] = { desc = 'Switch to visual block mode', severity = 'WARNING' },
+        ['<C-c>'] = { desc = 'Cancel selection', severity = 'WARNING' },
+    },
+    x = {
+        ['<C-a>'] = { desc = 'Increment numbers in selection', severity = 'WARNING' },
+        ['<C-x>'] = { desc = 'Decrement numbers in selection', severity = 'WARNING' },
+    },
+    o = {
+        ['<C-c>'] = { desc = 'Cancel operator', severity = 'WARNING' },
+    },
+    c = {
+        ['<C-a>'] = { desc = 'Insert all matches', severity = 'INFO' },
+        ['<C-h>'] = { desc = 'Backspace', severity = 'WARNING' },
+        ['<C-w>'] = { desc = 'Delete word before cursor', severity = 'WARNING' },
+        ['<C-u>'] = { desc = 'Delete line before cursor', severity = 'WARNING' },
+        ['<C-r>'] = { desc = 'Insert register contents', severity = 'WARNING' },
+        ['<C-n>'] = { desc = 'Next match in history', severity = 'INFO' },
+        ['<C-p>'] = { desc = 'Previous match in history', severity = 'INFO' },
+        ['<C-f>'] = { desc = 'Open command-line window', severity = 'INFO' },
+        ['<Tab>'] = { desc = 'Command completion', severity = 'WARNING' },
+    },
+    t = {
+        ['<C-\\><C-n>'] = { desc = 'Exit terminal mode', severity = 'WARNING' },
+        ['<C-h>'] = { desc = 'Send backspace to terminal', severity = 'INFO' },
+        ['<C-w>'] = { desc = 'Window commands in terminal', severity = 'WARNING' },
+    }
+}
+
 -- Capture existing keymaps
 local function capture_existing_keymaps()
     for _, mode in ipairs({'n', 'i', 'v', 'x', 'o', 'c', 't'}) do
@@ -52,7 +132,8 @@ local function capture_existing_keymaps()
             existing_keymaps[mode][map.lhs] = {
                 rhs = map.rhs or '',
                 desc = map.desc or '',
-                buffer = map.buffer or false
+                buffer = map.buffer or false,
+                type = 'explicit'
             }
         end
     end
@@ -66,6 +147,7 @@ local function test_keymap_conflicts(new_keymaps)
         local rhs = keymap.rhs
         local desc = keymap.desc or ''
         
+        -- Check for explicit keymap conflicts
         if existing_keymaps[mode] and existing_keymaps[mode][lhs] then
             table.insert(conflicts, {
                 mode = mode,
@@ -73,7 +155,23 @@ local function test_keymap_conflicts(new_keymaps)
                 existing_rhs = existing_keymaps[mode][lhs].rhs,
                 existing_desc = existing_keymaps[mode][lhs].desc,
                 new_rhs = rhs,
-                new_desc = desc
+                new_desc = desc,
+                conflict_type = 'explicit',
+                severity = 'ERROR'
+            })
+        end
+        
+        -- Check for built-in command conflicts
+        if builtin_commands[mode] and builtin_commands[mode][lhs] then
+            table.insert(conflicts, {
+                mode = mode,
+                key = lhs,
+                existing_rhs = 'Built-in Vim command',
+                existing_desc = builtin_commands[mode][lhs].desc,
+                new_rhs = rhs,
+                new_desc = desc,
+                conflict_type = 'builtin',
+                severity = builtin_commands[mode][lhs].severity
             })
         end
     end
@@ -87,14 +185,60 @@ local test_keymaps = ]] .. serialize_table(keymaps) .. [[
 
 test_keymap_conflicts(test_keymaps)
 
+-- Sort conflicts by severity (ERROR > WARNING > INFO)
+local severity_order = { ERROR = 1, WARNING = 2, INFO = 3 }
+table.sort(conflicts, function(a, b) 
+    return severity_order[a.severity] < severity_order[b.severity] 
+end)
+
 -- Output results to stdout
 if #conflicts > 0 then
     print("CONFLICTS FOUND:")
+    print("")
+    
+    -- Group by severity
+    local current_severity = nil
     for _, conflict in ipairs(conflicts) do
-        print(string.format("Mode: %s, Key: %s", conflict.mode, conflict.key))
+        if conflict.severity ~= current_severity then
+            current_severity = conflict.severity
+            print(string.format("=== %s LEVEL ===", current_severity))
+        end
+        
+        print(string.format("Mode: %s, Key: %s [%s]", conflict.mode, conflict.key, conflict.conflict_type))
         print(string.format("  Existing: %s (%s)", conflict.existing_rhs, conflict.existing_desc))
         print(string.format("  New: %s (%s)", conflict.new_rhs, conflict.new_desc))
+        
+        if conflict.conflict_type == 'builtin' then
+            print("  ⚠️  This will override built-in Vim functionality!")
+        end
         print("---")
+    end
+    
+    -- Summary
+    local error_count = 0
+    local warning_count = 0
+    local info_count = 0
+    
+    for _, conflict in ipairs(conflicts) do
+        if conflict.severity == 'ERROR' then
+            error_count = error_count + 1
+        elseif conflict.severity == 'WARNING' then
+            warning_count = warning_count + 1
+        elseif conflict.severity == 'INFO' then
+            info_count = info_count + 1
+        end
+    end
+    
+    print("")
+    print("SUMMARY:")
+    if error_count > 0 then
+        print(string.format("  🚨 %d ERROR(s) - Explicit keymap conflicts", error_count))
+    end
+    if warning_count > 0 then
+        print(string.format("  ⚠️  %d WARNING(s) - Important built-in overrides", warning_count))
+    end
+    if info_count > 0 then
+        print(string.format("  ℹ️  %d INFO - Less critical built-in overrides", info_count))
     end
 else
     print("NO CONFLICTS FOUND")
