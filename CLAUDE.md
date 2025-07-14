@@ -1,51 +1,45 @@
-You are the expert of this neovim/lua configuration.
-Your task is to implement basec IDE features and key bindings. Your implemetations must be free of key bindings conficts and to allow optimized, smooth workflow and harmony with this config.
+# AGENTS.md - Neovim Configuration Manager
 
-1. Analysis Phase:
-   Review the chat history in your context window.
+## Role & Workflow
+You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue list`, `gh pr list`). Main focus: keymaps and plugins. **CRITICAL**: Before marking any task complete, test solutions in headless Neovim (`nvim --headless`) or request user acceptance.
 
-Then, examine the current Claude instructions:
-<claude_instructions>
-u/CLAUDE.md
-</claude_instructions>
+**MANDATORY**: Before making ANY implementation changes, you MUST:
+1. Test the existing state/functionality 
+2. Ask for explicit permission to proceed with changes
+3. Only make changes when explicitly authorized
 
-Analyze the chat history and instructions to identify areas that could be improved. Look for:
+## Build/Lint/Test Commands
+- **Lua formatting**: `stylua .` (2 spaces, 120 column width)
+- **JS/TS formatting**: `biome format --write .` or `prettier --write .`
+- **Headless testing**: `nvim --headless -u NONE -c 'source test.lua'`
+- **Keymap conflict check**: 
+  - `echo 'keymap_table' | lua utils/test_keymaps.lua` (direct table input)
+  - `echo '{ { mode = "n", lhs = "cs", rhs = "test", desc = "Test" } }' | lua utils/test_keymaps.lua` (example)
+  - If lua not found: `echo 'keymap_table' | nvim --headless -c 'luafile utils/test_keymaps.lua' -c 'qa'`
+- **Plugin sync**: `nvim +Lazy sync +qa` or `<leader>rl` keymap
+- **Config reload**: `:source $MYVIMRC` or `<leader>rr` keymap
+- **Health check**: `:checkhealth` for plugin verification
 
-- Inconsistencies in Claude's responses
-- Misunderstandings of user requests
-- Areas where Claude could provide more detailed or accurate information
-- Opportunities to enhance Claude's ability to handle specific types of queries or tasks
+## Code Style & Standards
+- **Lua**: 2-space indent, snake_case vars/funcs, PascalCase modules, `local` scope, `pcall()` errors
+- **JS/TS**: Single quotes, no semicolons, biome formatting, organize imports on save
+- **Keymaps**: Use `vim.keymap.set()`, descriptive `desc`, check conflicts before adding
+- **Plugins**: LazyVim base + overrides in `lua/plugins/`, lazy loading, proper dependencies
 
-2. Interaction Phase:
-   Present your findings and improvement ideas to the human. For each suggestion:
-   a) Explain the current issue you've identified
-   b) Propose a specific change or addition to the instructions
-   c) Describe how this change would improve Claude's performance
+## Utils Tooling (`/utils` & `/lua/utils`)
+- **test_keymaps.lua**: Headless keymap conflict detection with stdin input
+- **picker-extensions.lua**: Snacks.nvim picker actions, context menus, file operations
+- **save-patterns.lua**: Auto-format/organize on save for TS/JS/Lua files
+- Update these tools for specific implementation shortcuts and testing utilities
 
-Wait for feedback from the human on each suggestion before proceeding. If the human approves a change, move it to the implementation phase. If not, refine your suggestion or move on to the next idea.
+## Test Structure
+- **Test directories**: `/lua/plugins/tests/` and `/lua/config/tests/`
+- **Test directive**: Save all tests in appropriate test folders, reuse utils from `/utils` and `/lua/utils`
+- **Test utilities**: Import and reuse existing tools from utils for consistent testing patterns
 
-3. Implementation Phase:
-   For each approved change:
-   a) Clearly state the section of the instructions you're modifying
-   b) Present the new or modified text for that section
-   c) Explain how this change addresses the issue identified in the analysis phase
-
-4. Output Format:
-   Present your final output in the following structure:
-
-<analysis>
-[List the issues identified and potential improvements]
-</analysis>
-
-<improvements>
-[For each approved improvement:
-1. Section being modified
-2. New or modified instruction text
-3. Explanation of how this addresses the identified issue]
-</improvements>
-
-<final_instructions>
-[Present the complete, updated set of instructions for Claude, incorporating all approved changes]
-</final_instructions>
-
-Your current goal is to enhance Claude's performance and consistency while maintaining the core functionality and purpose of the AI assistant. Be thorough in your analysis, clear in your explanations, and precise in your implementations.
+## Custom Layout (Graphite)
+- **HAEI navigation**: h=left, a=down, e=up, i=right (NOT hjkl)
+- **Text objects**: r=inner, t=around (NOT ia) - "inneR"/"exTernal"
+- **Operations**: x=delete, w=change, c=yank, v=paste, n=visual, z=undo
+- **Tree-sitter**: rf/Tf=function, rc/Tc=class, ry/Ty=element
+- **NEVER** use standard Vim keys (hjkl, ia) - always use Graphite equivalents
