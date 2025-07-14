@@ -49,6 +49,9 @@ return {
         -- described below
         tsserver_format_options = {},
         tsserver_file_preferences = {
+          -- Import preferences
+          importModuleSpecifier = "non-relative",
+          -- Inlay hints
           includeInlayParameterNameHints = "all",
           includeInlayParameterNameHintsWhenArgumentMatchesName = false,
           includeInlayFunctionParameterTypeHints = true,

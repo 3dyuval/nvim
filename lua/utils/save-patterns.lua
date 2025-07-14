@@ -10,7 +10,8 @@ M.patterns = {
         name = "organize_imports",
         desc = "Organize imports",
         fn = function(bufnr)
-          local ok, _ = pcall(vim.cmd, "TypescriptOrganizeImports")
+          -- Try typescript-tools command first
+          local ok, _ = pcall(vim.cmd, "TSToolsOrganizeImports")
           if not ok then
             -- Fallback to LSP organize imports
             if LazyVim and LazyVim.lsp and LazyVim.lsp.action then
