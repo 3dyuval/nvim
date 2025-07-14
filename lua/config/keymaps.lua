@@ -138,6 +138,53 @@ end, { desc = "Lazygit (cwd)" })
 map({ "n" }, "<leader>gb", function()
   Snacks.picker.git_branches()
 end, { desc = "Git branches" })
+
+-- History keymap root
+map({ "n" }, "<leader>hf", function()
+  vim.cmd("DiffviewFileHistory")
+end, { desc = "Git file history" })
+
+map({ "n" }, "<leader>hl", function()
+  Snacks.picker.git_log()
+end, { desc = "Git log" })
+
+map({ "n" }, "<leader>hL", function()
+  Snacks.picker.git_log_line()
+end, { desc = "Git log for current line" })
+
+map({ "n" }, "<leader>hb", function()
+  Snacks.picker.git_log_file()
+end, { desc = "Git log for current file" })
+
+-- Firefox history keymaps
+map({ "n" }, "<leader>hF", function()
+  Snacks.picker.firefox_search()
+end, { desc = "Firefox search (all visited places)" })
+
+map({ "n" }, "<leader>hB", function()
+  Snacks.picker.firefox_bookmarks()
+end, { desc = "Firefox bookmarks" })
+
+map({ "n" }, "<leader>hH", function()
+  Snacks.picker.firefox_history()
+end, { desc = "Firefox history" })
+
+-- File history keymaps
+map({ "n" }, "<leader>ht", function()
+  require("file_history").history()
+end, { desc = "Current file history" })
+
+map({ "n" }, "<leader>hT", function()
+  require("file_history").files()
+end, { desc = "All files in backup repository" })
+
+map({ "n" }, "<leader>hq", function()
+  require("file_history").query()
+end, { desc = "Query file history by time range" })
+
+map({ "n" }, "<leader>hs", function()
+  require("file_history").backup()
+end, { desc = "Manual backup with tag" })
 -- 'til
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })

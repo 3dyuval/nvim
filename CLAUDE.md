@@ -13,9 +13,18 @@ You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue li
 - **JS/TS formatting**: `biome format --write .` or `prettier --write .`
 - **Headless testing**: `nvim --headless -u NONE -c 'source test.lua'`
 - **Keymap conflict check**: 
-  - `echo 'keymap_table' | lua utils/test_keymaps.lua` (direct table input)
-  - `echo '{ { mode = "n", lhs = "cs", rhs = "test", desc = "Test" } }' | lua utils/test_keymaps.lua` (example)
-  - If lua not found: `echo 'keymap_table' | nvim --headless -c 'luafile utils/test_keymaps.lua' -c 'qa'`
+  - Location: `lua/config/test-utils/test_keymaps.lua`
+  - Usage: `echo 'lua_table' | lua lua/config/test-utils/test_keymaps.lua`
+  - Format: Lua table with mode, lhs, rhs, desc fields
+  - Example:
+    ```bash
+    echo '{
+      { mode = "n", lhs = "<leader>hf", rhs = "function() vim.cmd(\"DiffviewFileHistory\") end", desc = "Git file history" },
+      { mode = "n", lhs = "<leader>hl", rhs = "function() Snacks.picker.git_log() end", desc = "Git log" }
+    }' | lua lua/config/test-utils/test_keymaps.lua
+    ```
+  - Output: "NO CONFLICTS FOUND" or detailed conflict list
+  - Tests against actual loaded Neovim keymaps in headless mode
 - **Plugin sync**: `nvim +Lazy sync +qa` or `<leader>rl` keymap
 - **Config reload**: `:source $MYVIMRC` or `<leader>rr` keymap
 - **Health check**: `:checkhealth` for plugin verification

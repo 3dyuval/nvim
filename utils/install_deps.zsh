@@ -3,7 +3,6 @@
 # This script installs git-resolve-conflict and js-debug for the shared nvim config
 
 set -e  # Exit on error
-
 echo "🔧 Installing Neovim configuration dependencies..."
 
 # Colors for output
@@ -43,6 +42,13 @@ if npm install -g git-resolve-conflict; then
 else
     print_error "Failed to install git-resolve-conflict"
     exit 1
+fi
+
+echo "📦 Installing git-filter-repo (for file-history.nvim purge functionality)..."
+if sudo apt update && sudo apt install -y git-filter-repo; then
+    print_status "git-filter-repo installed successfully"
+else
+    print_warning "Failed to install git-filter-repo. File history purge functionality will be limited."
 fi
 
 echo "📦 Installing js-debug (JavaScript debugger)..."
@@ -89,6 +95,7 @@ echo "🎉 All dependencies installed successfully!"
 echo ""
 echo "Installed components:"
 echo "  • git-resolve-conflict: $(which git-resolve-conflict > /dev/null && echo '✅ Available' || echo '❌ Not found')"
+echo "  • git-filter-repo: $(which git-filter-repo > /dev/null && echo '✅ Available' || echo '❌ Not found')"
 echo "  • js-debug: $([ -f ~/.local/share/js-debug/src/dapDebugServer.js ] && echo '✅ Available' || echo '❌ Not found')"
 echo ""
 echo "ℹ️  Restart Neovim to use the new dependencies."
