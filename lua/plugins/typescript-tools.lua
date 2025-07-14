@@ -51,14 +51,14 @@ return {
         tsserver_file_preferences = {
           -- Import preferences
           importModuleSpecifier = "non-relative",
-          -- Inlay hints
-          includeInlayParameterNameHints = "all",
+          -- Conservative inlay hints (reduced verbosity)
+          includeInlayParameterNameHints = "literals", -- Only for literal values, not "all"
           includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-          includeInlayFunctionParameterTypeHints = true,
-          includeInlayVariableTypeHints = true,
-          includeInlayPropertyDeclarationTypeHints = true,
-          includeInlayFunctionLikeReturnTypeHints = true,
-          includeInlayEnumMemberValueHints = true,
+          includeInlayFunctionParameterTypeHints = false, -- Disable verbose function parameter types
+          includeInlayVariableTypeHints = false, -- Disable verbose variable types
+          includeInlayPropertyDeclarationTypeHints = true, -- Keep useful property types
+          includeInlayFunctionLikeReturnTypeHints = false, -- Disable verbose return types
+          includeInlayEnumMemberValueHints = true, -- Keep concise enum values
         },
         -- locale of all tsserver messages, supported locales you can find here:
         -- https://github.com/microsoft/TypeScript/blob/3c221fc086be52b19801f6e8d82596d04607ede6/src/compiler/utilitiesPublic.ts#L620

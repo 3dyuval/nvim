@@ -32,6 +32,12 @@
         "parser": "html",
         "singleAttributePerLine": true
       }
+    },
+    {
+      "files": ["*.jsx", "*.tsx", "*.js", "*.ts"],
+      "options": {
+        "singleAttributePerLine": true
+      }
     }
   ]
 }
