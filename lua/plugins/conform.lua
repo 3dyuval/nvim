@@ -3,10 +3,10 @@ return {
   dependencies = { "williamboman/mason.nvim" }, -- Ensure Mason loads first
   opts = {
     formatters_by_ft = {
-      typescript = { "biome" },
-      javascript = { "biome" },
-      typescriptreact = { "biome" },
-      javascriptreact = { "biome" },
+      typescript = { "prettier" },
+      javascript = { "prettier" }, 
+      typescriptreact = { "prettier" },
+      javascriptreact = { "prettier" },
       json = { "biome" },
       html = { "prettier" },
       htmlangular = { "prettier" },

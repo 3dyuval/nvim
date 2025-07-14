@@ -27,21 +27,7 @@
     }
   },
   "organizeImports": {
-    "enabled": true,
-    "groups": [
-      {
-        "type": false,
-        "source": ["react", "react-*", "react/**"]
-      },
-      {
-        "type": false,
-        "source": ["@?[a-z]*", "**"]
-      },
-      {
-        "type": false,
-        "source": ["@/**"]
-      }
-    ]
+    "enabled": true
   },
   "linter": {
     "enabled": true,
