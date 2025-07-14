@@ -26,8 +26,23 @@
       "trailingCommas": "none"
     }
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "information",
+          "options": {
+            "groups": [
+              "react",
+              "react-*",
+              ":PACKAGE:",
+              ":ALIAS:",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
   },
   "linter": {
     "enabled": true,
