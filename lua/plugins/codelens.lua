@@ -4,7 +4,7 @@ return {
     -- Ensure opts has the required structure
     opts = opts or {}
     opts.inlay_hints = opts.inlay_hints or { enabled = true }
-    opts.codelens = opts.codelens or { enabled = true }
+    opts.codelens = opts.codelens or { enabled = false } -- Disabled to prevent LazyVim's auto-refresh
 
     local keys = require("lazyvim.plugins.lsp.keymaps").get()
 
@@ -246,53 +246,6 @@ return {
 
     return opts
   end,
-  init = function()
-    -- Set up code lens auto-refresh for vtsls with proper debouncing
-    vim.api.nvim_create_autocmd("LspAttach", {
-      callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        local buffer = args.buf
-
-        -- Only set up for vtsls
-        if client and client.name == "vtsls" and client.supports_method("textDocument/codeLens") then
-          -- Initial refresh
-          vim.defer_fn(function()
-            vim.lsp.codelens.refresh({ bufnr = buffer })
-          end, 100)
-
-          -- Create a debounced refresh function
-          local timer = nil
-          local function debounced_refresh()
-            if timer then
-              timer:stop()
-            end
-            timer = vim.defer_fn(function()
-              if vim.api.nvim_buf_is_valid(buffer) then
-                vim.lsp.codelens.refresh({ bufnr = buffer })
-              end
-              timer = nil
-            end, 500) -- 500ms debounce
-          end
-
-          -- Only refresh on meaningful events
-          vim.api.nvim_create_autocmd({ "BufWritePost", "TextChanged" }, {
-            buffer = buffer,
-            callback = debounced_refresh,
-          })
-
-          -- Custom command handler for code lens references
-          if not client.commands["editor.action.showReferences"] then
-            client.commands["editor.action.showReferences"] = function(command, ctx)
-              local locations = command.arguments[3]
-              if locations and #locations > 0 then
-                local items = vim.lsp.util.locations_to_items(locations, client.offset_encoding)
-                vim.fn.setqflist({}, " ", { title = "References", items = items, context = ctx })
-                vim.cmd("copen")
-              end
-            end
-          end
-        end
-      end,
-    })
-  end,
+  -- Removed vtsls-specific init function to prevent conflicts with typescript-tools
+  -- Codelens refresh is now handled by typescript-tools.lua
 }

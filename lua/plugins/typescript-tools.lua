@@ -48,7 +48,15 @@ return {
         tsserver_max_memory = "auto",
         -- described below
         tsserver_format_options = {},
-        tsserver_file_preferences = {},
+        tsserver_file_preferences = {
+          includeInlayParameterNameHints = "all",
+          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+          includeInlayFunctionParameterTypeHints = true,
+          includeInlayVariableTypeHints = true,
+          includeInlayPropertyDeclarationTypeHints = true,
+          includeInlayFunctionLikeReturnTypeHints = true,
+          includeInlayEnumMemberValueHints = true,
+        },
         -- locale of all tsserver messages, supported locales you can find here:
         -- https://github.com/microsoft/TypeScript/blob/3c221fc086be52b19801f6e8d82596d04607ede6/src/compiler/utilitiesPublic.ts#L620
         tsserver_locale = "en",
@@ -81,6 +89,19 @@ return {
     },
     config = function(_, opts)
       require("typescript-tools").setup(opts)
+      
+      -- Enable inlay hints and codelens for TypeScript files
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(event)
+          local client = vim.lsp.get_client_by_id(event.data.client_id)
+          if client and client.name == "typescript-tools" then
+            -- Enable inlay hints (new syntax for Neovim 0.10+)
+            vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+            
+            -- Codelens disabled at server level (code_lens = "off") to prevent performance issues
+          end
+        end,
+      })
     end,
     keys = {
       {
