@@ -9,8 +9,11 @@ return {
       -- See issue #1 - LazyVim extra conflicts with vtsls configuration
       ["typescript-language-server"] = { enabled = false },
 
-      -- Enable vtsls for JS/TS
-      vtsls = {
+      -- Disable vtsls (replaced with typescript-tools.nvim)
+      vtsls = { enabled = false },
+      
+      -- Original vtsls config preserved for reference
+      --[[vtsls = {
         filetypes = {
           "javascript",
           "javascriptreact",
@@ -110,7 +113,7 @@ return {
             desc = "Select TS workspace version",
           },
         },
-      },
+      },--]]
 
       -- Enable Volar for Vue
       volar = {
@@ -136,19 +139,13 @@ return {
         },
       },
 
-      -- Enable Angular Language Server
-      angularls = {
-        filetypes = { "typescript", "html", "typescriptreact", "typescript.tsx" },
-      },
+      -- Disable Angular Language Server (conflicts with typescript-tools)
+      angularls = { enabled = false },
     },
     setup = {
-      tsserver = function()
-        return true
-      end,
-      ts_ls = function()
-        return true
-      end,
-      vtsls = function(_, opts)
+      -- Don't define setup functions for disabled servers
+      -- tsserver, ts_ls, vtsls, and typescript-language-server are disabled via enabled = false
+      --[[vtsls_old = function(_, opts)
         LazyVim.lsp.on_attach(function(client, buffer)
           vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
 
@@ -236,7 +233,7 @@ return {
         -- copy typescript settings to javascript
         opts.settings.javascript =
           vim.tbl_deep_extend("force", {}, opts.settings.typescript, opts.settings.javascript or {})
-      end,
+      end,--]]
       volar = function(_, opts)
         LazyVim.lsp.on_attach(function(client, buffer)
           vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
@@ -245,14 +242,7 @@ return {
           end
         end, "volar")
       end,
-      angularls = function(_, opts)
-        LazyVim.lsp.on_attach(function(client, buffer)
-          vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
-          if client.server_capabilities.documentSymbolProvider then
-            require("nvim-navic").attach(client, buffer)
-          end
-        end, "angularls")
-      end,
+      -- angularls setup function removed since server is disabled
     },
   },
 }

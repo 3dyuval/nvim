@@ -17,7 +17,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    { import = "lazyvim.plugins.extras.lang.typescript" },
+    -- { import = "lazyvim.plugins.extras.lang.typescript" }, -- Disabled to prevent conflicts with custom vtsls config
     { import = "lazyvim.plugins.extras.lang.vue" },
     { import = "plugins" },
   },

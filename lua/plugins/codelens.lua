@@ -240,7 +240,7 @@ return {
     -- Add codelens and reference keymaps
     keys[#keys + 1] = { "<leader>cx", show_references_picker, desc = "Show References (Snacks)", mode = { "n" } }
     keys[#keys + 1] = { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh Codelens" }
-    keys[#keys + 1] = { "<leader>cr", run_codelens_action, desc = "Run Codelens Action" }
+    -- keys[#keys + 1] = { "<leader>cr", run_codelens_action, desc = "Run Codelens Action" } -- Disabled: conflicts with references binding
     keys[#keys + 1] = { "<leader>cR", vim.lsp.buf.references, desc = "Show References (LSP)", mode = { "n" } }
     keys[#keys + 1] = { "<leader>cC", "<cmd>LspInfo<cr>", desc = "LSP Info" }
 

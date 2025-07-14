@@ -56,8 +56,8 @@ return {
         virt_text_win_col = nil,
       })
 
-      -- Use js-debug (now with RPC fix)
-      local js_debug_path = "/home/lab/.local/share/js-debug/src/dapDebugServer.js"
+      -- Use js-debug (now with RPC fix) - portable path for shared config
+      local js_debug_path = vim.fn.expand("~/.local/share/js-debug/src/dapDebugServer.js")
 
       if vim.fn.filereadable(js_debug_path) == 0 then
         vim.notify("DAP: js-debug not found", vim.log.levels.ERROR)
@@ -136,7 +136,7 @@ return {
       local function load_launch_json()
         local launch_json_path = vim.fn.getcwd() .. "/.vscode/launch.json"
         if vim.fn.filereadable(launch_json_path) == 0 then
-          vim.notify("DAP: No .vscode/launch.json found in " .. vim.fn.getcwd(), vim.log.levels.INFO)
+          -- Silently return if no launch.json found (common case)
           return
         end
 
