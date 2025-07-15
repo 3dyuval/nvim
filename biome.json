@@ -1,4 +1,5 @@
 {
+  "$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
@@ -11,14 +12,14 @@
   },
   "javascript": {
     "formatter": {
-      "arrowParentheses": "always",
+      "arrowParentheses": "asNeeded",
       "bracketSameLine": false,
       "bracketSpacing": true,
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
       "quoteStyle": "single",
-      "semicolons": "asNeeded",
-      "trailingCommas": "none"
+      "semicolons": "always",
+      "trailingCommas": "es5"
     }
   },
   "json": {
@@ -30,14 +31,12 @@
     "actions": {
       "source": {
         "organizeImports": {
-          "level": "information",
+          "level": "on",
           "options": {
             "groups": [
               "react",
-              "react-*",
               ":PACKAGE:",
-              ":ALIAS:",
-              ":PATH:"
+              ":ALIAS:"
             ]
           }
         }
@@ -48,7 +47,7 @@
     "enabled": true,
     "rules": {
       "style": {
-        "useImportType": "error"
+        "useImportType": "info"
       },
       "nursery": {
         "useSortedClasses": "error"
