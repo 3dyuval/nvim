@@ -359,4 +359,7 @@ vim.keymap.set("n", "<M-a>", "<cmd>Treewalker SwapDown<cr>", { silent = true, de
 vim.keymap.set("n", "<M-h>", "<cmd>Treewalker SwapLeft<cr>", { silent = true, desc = "Treewalker SwapLeft" })
 vim.keymap.set("n", "<M-i>", "<cmd>Treewalker SwapRight<cr>", { silent = true, desc = "Treewalker SwapRight" })
 
+-- Project-wide diagnostics keymap
+override_map("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
+
 -- Grug-far search within range
