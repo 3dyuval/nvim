@@ -146,7 +146,7 @@ local function test_keymap_conflicts(new_keymaps)
         local lhs = keymap.lhs
         local rhs = keymap.rhs
         local desc = keymap.desc or ''
-        
+
         -- Check for explicit keymap conflicts
         if existing_keymaps[mode] and existing_keymaps[mode][lhs] then
             table.insert(conflicts, {
@@ -160,7 +160,7 @@ local function test_keymap_conflicts(new_keymaps)
                 severity = 'ERROR'
             })
         end
-        
+
         -- Check for built-in command conflicts
         if builtin_commands[mode] and builtin_commands[mode][lhs] then
             table.insert(conflicts, {
@@ -187,15 +187,15 @@ test_keymap_conflicts(test_keymaps)
 
 -- Sort conflicts by severity (ERROR > WARNING > INFO)
 local severity_order = { ERROR = 1, WARNING = 2, INFO = 3 }
-table.sort(conflicts, function(a, b) 
-    return severity_order[a.severity] < severity_order[b.severity] 
+table.sort(conflicts, function(a, b)
+    return severity_order[a.severity] < severity_order[b.severity]
 end)
 
 -- Output results to stdout
 if #conflicts > 0 then
     print("CONFLICTS FOUND:")
     print("")
-    
+
     -- Group by severity
     local current_severity = nil
     for _, conflict in ipairs(conflicts) do
@@ -203,22 +203,22 @@ if #conflicts > 0 then
             current_severity = conflict.severity
             print(string.format("=== %s LEVEL ===", current_severity))
         end
-        
+
         print(string.format("Mode: %s, Key: %s [%s]", conflict.mode, conflict.key, conflict.conflict_type))
         print(string.format("  Existing: %s (%s)", conflict.existing_rhs, conflict.existing_desc))
         print(string.format("  New: %s (%s)", conflict.new_rhs, conflict.new_desc))
-        
+
         if conflict.conflict_type == 'builtin' then
             print("  ⚠️  This will override built-in Vim functionality!")
         end
         print("---")
     end
-    
+
     -- Summary
     local error_count = 0
     local warning_count = 0
     local info_count = 0
-    
+
     for _, conflict in ipairs(conflicts) do
         if conflict.severity == 'ERROR' then
             error_count = error_count + 1
@@ -228,7 +228,7 @@ if #conflicts > 0 then
             info_count = info_count + 1
         end
     end
-    
+
     print("")
     print("SUMMARY:")
     if error_count > 0 then
@@ -268,7 +268,7 @@ vim.cmd('qall!')
 end
 
 -- Read from stdin
-local function read_stdin()
+local function _read_stdin() -- Reserved for future stdin input
   local input = ""
   for line in io.lines() do
     input = input .. line .. "\n"
@@ -284,7 +284,7 @@ local input_available = false
 local stdin_content = ""
 
 -- Check if we can read from stdin immediately
-local success, result = pcall(function()
+local _success, _result = pcall(function()
   local line = io.read("*line")
   if line then
     stdin_content = line .. "\n"

@@ -163,7 +163,7 @@ return {
     end
 
     -- Enhanced function to run code lens action
-    local function run_codelens_action()
+    local function _run_codelens_action() -- Reserved for future use
       local current_line = vim.api.nvim_win_get_cursor(0)[1] - 1
       local lenses = vim.lsp.codelens.get(0)
 

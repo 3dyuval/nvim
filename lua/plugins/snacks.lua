@@ -147,7 +147,6 @@ return {
                 ["<C-c>"] = "focus_input",
                 ["p"] = "copy_file_path",
                 ["g"] = "search_in_directory", -- Opens a grep snacks
-                ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
                 ["i"] = function(picker)
                   require("utils.picker-extensions").actions.handle_directory_expansion(picker)
                 end, -- Expand/collapse directory

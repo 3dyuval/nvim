@@ -22,7 +22,7 @@ return {
       "javascript",
       "javascriptreact",
       "javascript.jsx",
-      "typescript", 
+      "typescript",
       "typescriptreact",
       "typescript.tsx",
     },
@@ -83,7 +83,7 @@ return {
       },
       filetypes = {
         "javascript",
-        "javascriptreact", 
+        "javascriptreact",
         "javascript.jsx",
         "typescript",
         "typescriptreact",
@@ -92,7 +92,7 @@ return {
     },
     config = function(_, opts)
       require("typescript-tools").setup(opts)
-      
+
       -- Enable inlay hints and codelens for TypeScript files
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(event)
@@ -100,7 +100,7 @@ return {
           if client and client.name == "typescript-tools" then
             -- Enable inlay hints (new syntax for Neovim 0.10+)
             vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
-            
+
             -- Codelens disabled at server level (code_lens = "off") to prevent performance issues
           end
         end,

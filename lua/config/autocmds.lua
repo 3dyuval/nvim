@@ -21,9 +21,8 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "javascript", "typescript", "json", "lua", "python", "css", "scss" },
   callback = function()
-    local pairs = require("mini.pairs")
-    -- This should handle the {} expansion automatically
-    -- If it doesn't work well, we'll use the custom keymap approach
+    -- Auto-pair configuration for specific filetypes
+    -- The mini.pairs plugin handles {} expansion automatically
   end,
 })
 

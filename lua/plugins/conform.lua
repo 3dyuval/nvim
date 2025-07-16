@@ -4,7 +4,7 @@ return {
   opts = {
     formatters_by_ft = {
       typescript = { "biome" },
-      javascript = { "biome" }, 
+      javascript = { "biome" },
       typescriptreact = { "biome" },
       javascriptreact = { "biome" },
       json = { "biome" },

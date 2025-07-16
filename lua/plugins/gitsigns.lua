@@ -32,6 +32,7 @@ return {
         -- Diff operations
         map("n", "<leader>gd", function()
           Snacks.picker.git_branches({
+            all = true,
             prompt = "Select branch to diff against:",
             confirm = function(picker, item)
               if item then

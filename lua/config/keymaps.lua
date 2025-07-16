@@ -136,8 +136,8 @@ end, { desc = "Lazygit (cwd)" })
 
 -- Git branches picker
 map({ "n" }, "<leader>gb", function()
-  Snacks.picker.git_branches()
-end, { desc = "Git branches" })
+  Snacks.picker.git_branches({ all = true })
+end, { desc = "Git branches (all)" })
 
 -- History keymap root
 map({ "n" }, "<leader>hf", function()

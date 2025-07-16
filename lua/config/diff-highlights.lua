@@ -10,7 +10,7 @@ local function setup_diff_highlights()
   local green = get_hl_color("String", "fg") or get_hl_color("GitSignsAdd", "fg") or "#a3d977"
   local red = get_hl_color("Error", "fg") or get_hl_color("GitSignsDelete", "fg") or "#ff6b6b"
   local yellow = get_hl_color("Warning", "fg") or get_hl_color("GitSignsChange", "fg") or "#ffeb3b"
-  local bg_normal = get_hl_color("Normal", "bg") or "#1e1e1e"
+  -- local bg_normal = get_hl_color("Normal", "bg") or "#1e1e1e" -- Reserved for future use
   local comment = get_hl_color("Comment", "fg") or "#666666"
 
   -- Create darker variants for backgrounds
