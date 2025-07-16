@@ -91,7 +91,7 @@ M.get_branch_name = function(item)
     }
 
     for p, pattern in ipairs(patterns) do
-      local status, branch, commit, msg = item.text:match(pattern)
+      local status, branch, _commit, _msg = item.text:match(pattern)
       if status and branch then
         local detached = p == 1
         if not detached then
@@ -1093,7 +1093,7 @@ local actions = {
         local saved = 0
         for _, item in ipairs(items) do
           if item.bufnr and vim.api.nvim_buf_is_loaded(item.bufnr) then
-            local success, err = pcall(function()
+            local success, _err = pcall(function()
               vim.api.nvim_buf_call(item.bufnr, function()
                 vim.cmd("write")
               end)
@@ -1414,7 +1414,7 @@ M.show_context_menu = function(picker)
   end
 
   local action_list, items = get_actions(picker)
-  local context_name, context = detect_context(picker)
+  local context_name, _context = detect_context(picker)
 
   if #action_list == 0 then
     -- For unknown contexts, provide basic file actions if we can get current item

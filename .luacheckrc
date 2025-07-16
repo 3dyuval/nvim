@@ -20,6 +20,7 @@ ignore = {
   "421", -- Shadowing definition
   "431", -- Shadowing upvalue
   "113", -- Accessing undefined variable
+  "211/_.*", -- Unused variable starting with underscore
 }
 
 -- Files to exclude from checking

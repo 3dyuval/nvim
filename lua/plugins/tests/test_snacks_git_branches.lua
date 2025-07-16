@@ -3,8 +3,8 @@
 
 local M = {}
 
--- Mock git command outputs for testing
-local mock_git_outputs = {
+-- Mock git command outputs for testing (reserved for future use)
+local _mock_git_outputs = {
   branches_local = "  main\n* fix/snacks-git-branch-detection-issue-24\n  feature/test-branch\n  develop",
   branches_remote = "  origin/main\n  origin/develop\n  origin/feature/remote-branch",
   branches_all = "  main\n* fix/snacks-git-branch-detection-issue-24\n  feature/test-branch\n  develop\n  remotes/origin/main\n  remotes/origin/develop\n  remotes/origin/feature/remote-branch",

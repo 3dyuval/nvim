@@ -6,7 +6,7 @@ return {
     local workspace_diagnostics = require("workspace-diagnostics")
     local Job = require("plenary.job")
     local async = require("plenary.async")
-    
+
     -- Async function to get workspace files
     local function get_workspace_files_async()
       return async.wrap(function(callback)
@@ -18,7 +18,7 @@ return {
               callback({})
               return
             end
-            
+
             local raw_files = job:result()
             -- Process files on main thread to avoid fast event context issues
             vim.schedule(function()
@@ -35,7 +35,7 @@ return {
         }):start()
       end, 1)
     end
-    
+
     -- Setup workspace diagnostics with async git file discovery
     workspace_diagnostics.setup({
       workspace_files = function()
@@ -44,31 +44,31 @@ return {
         if not handle then
           return {}
         end
-        
+
         local result = handle:read("*a")
         handle:close()
-        
+
         if result == "" then
           return {}
         end
-        
+
         local files = {}
         for file in result:gmatch("[^\r\n]+") do
           local abs_path = vim.fn.fnamemodify(file, ":p")
           table.insert(files, abs_path)
         end
-        
+
         return files
       end,
     })
-    
+
     -- Async function to collect and display diagnostics
     local function collect_and_display_diagnostics()
       async.run(function()
         -- Get all diagnostics from all buffers
         local all_diagnostics = {}
         local buffers = vim.api.nvim_list_bufs()
-        
+
         for _, buf in ipairs(buffers) do
           if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_is_valid(buf) then
             local diagnostics = vim.diagnostic.get(buf)
@@ -89,12 +89,12 @@ return {
             end
           end
         end
-        
+
         -- Format items for picker
         local items = {}
         for _, item in ipairs(all_diagnostics) do
           local filename = vim.fn.fnamemodify(item.filename, ":~:.")
-          local icon = item.type == "error" and "󰅚 " 
+          local icon = item.type == "error" and "󰅚 "
                     or item.type == "warning" and "󰀪 "
                     or item.type == "info" and "󰋽 "
                     or "󰌶 "
@@ -104,7 +104,7 @@ return {
             pos = { item.lnum, item.col },
           })
         end
-        
+
         -- Open snacks picker on main thread
         vim.schedule(function()
           Snacks.picker.pick("diagnostics", {
@@ -116,7 +116,7 @@ return {
                 keys = {
                   ["a"] = "list_down", -- HAEI navigation
                   ["e"] = "list_up",
-                  ["i"] = "list_right", 
+                  ["i"] = "list_right",
                   ["h"] = "list_left",
                 },
               },
@@ -125,12 +125,12 @@ return {
         end)
       end)
     end
-    
+
     -- Async function to populate workspace diagnostics
     local function populate_workspace_diagnostics_async()
       async.run(function()
         local clients = vim.lsp.get_clients()
-        
+
         if #clients == 0 then
           vim.schedule(function()
             vim.cmd("LspStart")
@@ -145,19 +145,19 @@ return {
           end)
           return
         end
-        
+
         -- Get workspace files asynchronously
         local workspace_files = get_workspace_files_async()()
-        
+
         -- Populate diagnostics for all clients
         local file_count = 0
         for _, client in pairs(clients) do
           vim.schedule(function()
             vim.notify("Scanning workspace for " .. client.name .. " diagnostics...", vim.log.levels.INFO)
           end)
-          
+
           pcall(workspace_diagnostics.populate_workspace_diagnostics, client)
-          
+
           -- Count files that would be processed
           local client_files = 0
           for _, file in ipairs(workspace_files) do
@@ -168,26 +168,26 @@ return {
           end
           file_count = file_count + client_files
         end
-        
+
         if file_count > 0 then
           vim.schedule(function()
             vim.notify(string.format("Processing diagnostics for %d files...", file_count), vim.log.levels.INFO)
           end)
         end
-        
+
         -- Wait for diagnostics to populate
         async.util.sleep(2000)
-        
+
         -- Collect and display diagnostics
         collect_and_display_diagnostics()
       end)
     end
-    
+
     -- Create custom user command
     vim.api.nvim_create_user_command("ProjectDiagnostics", function()
       populate_workspace_diagnostics_async()
     end, { desc = "Show project-wide diagnostics" })
-    
+
     -- Auto-populate diagnostics when LSP attaches (with error handling)
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("ProjectDiagnostics", { clear = true }),

@@ -76,7 +76,7 @@ return {
       }
 
       -- Chrome debugging configurations (WORKING - restore these)
-      local chrome_configs = {
+      local _chrome_configs = { -- Prefixed with _ to indicate intentionally unused
         {
           type = "pwa-chrome",
           request = "launch",

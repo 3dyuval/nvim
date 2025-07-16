@@ -167,7 +167,7 @@ function M.test_git_branches_context()
   -- Add the config path to package.path for testing
   local config_path = vim.fn.expand("~/.config/nvim/lua")
   package.path = package.path .. ";" .. config_path .. "/?.lua"
-  local picker_extensions = require("utils.picker-extensions")
+  local _picker_extensions = require("utils.picker-extensions")
   
   -- Test 1: Source-based detection
   local picker1 = create_mock_picker({
@@ -175,7 +175,7 @@ function M.test_git_branches_context()
   })
   
   -- Access the contexts table (this is internal but needed for testing)
-  local contexts = {}
+  local _contexts = {}
   local picker_ext_content = vim.fn.readfile(vim.fn.expand("~/.config/nvim/lua/utils/picker-extensions.lua"))
   local in_contexts = false
   local context_code = {}
@@ -209,7 +209,7 @@ function M.test_git_branches_context()
   end
   
   -- Test 2: Item-based detection
-  local picker2 = create_mock_picker({
+  local _picker2 = create_mock_picker({
     current_fn = function()
       return create_git_branch_item("main", true)
     end

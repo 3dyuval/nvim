@@ -71,7 +71,7 @@ return {
           vim.fn.shellescape(git_root),
           vim.fn.shellescape(relative_file)
         )
-        local is_conflicted = vim.fn.system(git_unmerged_cmd)
+        local _is_conflicted = vim.fn.system(git_unmerged_cmd) -- Check conflict status
         local exit_code = vim.v.shell_error
 
         if exit_code ~= 0 then
@@ -125,7 +125,7 @@ return {
           -- Check if we're in diffview merge mode
           local bufname = vim.api.nvim_buf_get_name(0)
           local is_diffview = bufname:match("diffview://") ~= nil
-          local is_merge_mode = vim.fn.exists("*diffview#get_current_view") == 1
+          local _is_merge_mode = vim.fn.exists("*diffview#get_current_view") == 1 -- Check merge mode
 
           if is_diffview or vim.wo.diff then
             -- Add diffview-specific keymap (silently)
