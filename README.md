@@ -1,5 +1,7 @@
 # Becoming Proficient in Neovim
 
+![Test Status](https://github.com/3dyuval/nvim/actions/workflows/test.yml/badge.svg)
+
 ## Core Components
 - [x] Package Manager: lazy.nvim
 - [x] LSP Support: nvim-lspconfig, Mason
@@ -41,3 +43,28 @@
 - VS Code + Vim extension
 - JetBrains IDEs + IdeaVim
 - Sublime Text + Vintage mode
+
+## Development & Testing
+
+This configuration includes automated testing via GitHub Actions:
+
+### Local Testing
+```bash
+# Run all tests locally
+make test
+
+# Check code quality
+make check
+
+# Format code
+make format
+
+# Run local CI simulation
+./scripts/test-ci.sh
+```
+
+### CI Pipeline
+- **Triggers**: Push to any branch, PRs to main
+- **Tests**: Configuration loading, picker extensions, git functionality, keymap conflicts
+- **Quality**: Lua linting with luacheck
+- **Dependencies**: Neovim (stable), Plenary, Snacks.nvim

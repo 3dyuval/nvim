@@ -2,6 +2,19 @@
 
 ## Role & Workflow
 You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue list`, `gh pr list`). Main focus: keymaps and plugins. **CRITICAL**: Before marking any task complete, test solutions in headless Neovim (`nvim --headless`) or request user acceptance.
+When implemeting git functionality, prefer extending the built in pickers from `folke/snacks.nvim` sources such 
+```lua
+{
+  "folke/snacks.nvim",
+  opts = {
+    picker = {
+      sources = {
+        git_branches = {
+	...
+```
+
+When implementing custom Github functionality use `pwntester/octo.nvim`.
+
 
 **MANDATORY**: Before making ANY implementation changes, you MUST:
 1. Test the existing state/functionality 

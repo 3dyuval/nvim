@@ -40,6 +40,89 @@ local function safe_picker_call(picker, method, ...)
   end
 end
 
+-- Get current focused item from picker (follows folke's architecture)
+M.get_current_item = function(picker)
+  if not validate_picker(picker) then
+    return nil, "Invalid picker"
+  end
+
+  -- Use folke's standard method: picker:current()
+  if type(picker.current) == "function" then
+    local success, item = pcall(picker.current, picker)
+    if success and item then
+      return item, nil
+    end
+  end
+
+  -- Fallback to list:current() if picker:current() fails
+  if picker.list and type(picker.list.current) == "function" then
+    local success, item = pcall(picker.list.current, picker.list)
+    if success and item then
+      return item, nil
+    end
+  end
+
+  return nil, "No current item found"
+end
+
+-- Extract branch name from picker item (follows folke's git.lua patterns)
+M.get_branch_name = function(item)
+  if not item then
+    return nil
+  end
+
+  -- If item has a branch field (folke's standard), use it
+  if type(item) == "table" and item.branch then
+    return item.branch
+  end
+
+  -- If item has text field, try to parse it using folke's patterns
+  if type(item) == "table" and item.text then
+    local commit_pat = ("[a-z0-9]"):rep(7)
+    local patterns = {
+      -- e.g. "* (HEAD detached at f65a2c8) f65a2c8 chore(build): auto-generate docs"
+      "^(.)%s(%b())%s+("
+        .. commit_pat
+        .. ")%s*(.*)$",
+      -- e.g. "  main                       d2b2b7b [origin/main: behind 276] chore(build): auto-generate docs"
+      "^(.)%s(%S+)%s+("
+        .. commit_pat
+        .. ")%s*(.*)$",
+    }
+
+    for p, pattern in ipairs(patterns) do
+      local status, branch, commit, msg = item.text:match(pattern)
+      if status and branch then
+        local detached = p == 1
+        if not detached then
+          return branch
+        end
+      end
+    end
+
+    -- Fallback: simple cleanup for basic branch names
+    local cleaned = item.text:gsub("^%s*%*?%s*", ""):gsub("%s+$", "")
+    -- Handle remotes/ prefix properly
+    if cleaned:match("^remotes/") then
+      cleaned = cleaned:gsub("^remotes/", "")
+    end
+    -- Extract just the branch name (before any whitespace/commit info)
+    local branch_only = cleaned:match("^(%S+)")
+    if branch_only and branch_only ~= "" then
+      return branch_only
+    end
+  end
+
+  -- Handle string items (simple branch names)
+  if type(item) == "string" then
+    local cleaned = item:gsub("^%s*%*?%s*", ""):gsub("%s+$", "")
+    cleaned = cleaned:gsub("^remotes/", "")
+    return cleaned ~= "" and cleaned or nil
+  end
+
+  return nil
+end
+
 -- ============================================================================
 -- PICKER ACTIONS
 -- ============================================================================
@@ -548,6 +631,71 @@ local contexts = {
       return items
     end,
   },
+
+  git_branches = {
+    detect = function(picker)
+      if not validate_picker(picker) then
+        return false
+      end
+
+      -- Check source first (most reliable method, follows folke's pattern)
+      local source = picker.opts and picker.opts.source
+      if source == "git_branches" then
+        return true
+      end
+
+      -- Check if picker has git branch-specific properties
+      local current, err = M.get_current_item(picker)
+      if not err and current then
+        -- Check for folke's git branch item structure
+        if type(current) == "table" then
+          -- Look for git branch specific fields (from folke's git.lua)
+          if current.branch or current.commit or current.current ~= nil or current.detached ~= nil then
+            return true
+          end
+
+          -- Check if text field matches git branch patterns
+          if current.text then
+            local commit_pat = ("[a-z0-9]"):rep(7)
+            local patterns = {
+              "^(.)%s(%b())%s+(" .. commit_pat .. ")%s*(.*)$",
+              "^(.)%s(%S+)%s+(" .. commit_pat .. ")%s*(.*)$",
+            }
+            for _, pattern in ipairs(patterns) do
+              if current.text:match(pattern) then
+                return true
+              end
+            end
+          end
+        end
+      end
+
+      return false
+    end,
+    get_items = function(picker)
+      local items = {}
+
+      if not validate_picker(picker) then
+        return items
+      end
+
+      -- Try to get selected items first
+      local selected, err = safe_picker_call(picker, "selected")
+      if not err and selected and #selected > 0 then
+        items = selected
+      end
+
+      -- Fallback to current item
+      if #items == 0 then
+        local current, err = M.get_current_item(picker)
+        if not err and current then
+          items = { current }
+        end
+      end
+
+      return items
+    end,
+  },
 }
 
 -- Menu actions for different contexts
@@ -981,6 +1129,205 @@ local actions = {
       end,
     },
   },
+
+  -- Git branch-specific actions
+  git_branch_actions = {
+    {
+      key = "c",
+      desc = "Checkout branch",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        picker:close()
+        vim.system({ "git", "checkout", branch }, {
+          text = true,
+        }, function(result)
+          if result.code == 0 then
+            vim.notify("Checked out branch: " .. branch)
+          else
+            vim.notify("Failed to checkout branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+          end
+        end)
+      end,
+    },
+    {
+      key = "d",
+      desc = "Delete branch",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        local confirm = vim.fn.confirm("Delete branch '" .. branch .. "'?", "&Yes\n&No", 2)
+        if confirm == 1 then
+          vim.system({ "git", "branch", "-d", branch }, {
+            text = true,
+          }, function(result)
+            if result.code == 0 then
+              vim.notify("Deleted branch: " .. branch)
+              if picker.refresh then
+                picker:refresh()
+              end
+            else
+              vim.notify("Failed to delete branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+            end
+          end)
+        end
+      end,
+    },
+    {
+      key = "D",
+      desc = "Force delete branch",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        local confirm = vim.fn.confirm("Force delete branch '" .. branch .. "'?", "&Yes\n&No", 2)
+        if confirm == 1 then
+          vim.system({ "git", "branch", "-D", branch }, {
+            text = true,
+          }, function(result)
+            if result.code == 0 then
+              vim.notify("Force deleted branch: " .. branch)
+              if picker.refresh then
+                picker:refresh()
+              end
+            else
+              vim.notify("Failed to force delete branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+            end
+          end)
+        end
+      end,
+    },
+    {
+      key = "r",
+      desc = "Rename branch",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        vim.ui.input({ prompt = "Rename '" .. branch .. "' to: " }, function(new_name)
+          if new_name and new_name ~= "" and new_name ~= branch then
+            vim.system({ "git", "branch", "-m", branch, new_name }, {
+              text = true,
+            }, function(result)
+              if result.code == 0 then
+                vim.notify("Renamed branch: " .. branch .. " -> " .. new_name)
+                if picker.refresh then
+                  picker:refresh()
+                end
+              else
+                vim.notify("Failed to rename branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+              end
+            end)
+          end
+        end)
+      end,
+    },
+    {
+      key = "n",
+      desc = "Create new branch from this",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        vim.ui.input({ prompt = "New branch name: " }, function(new_name)
+          if new_name and new_name ~= "" then
+            vim.system({ "git", "checkout", "-b", new_name, branch }, {
+              text = true,
+            }, function(result)
+              if result.code == 0 then
+                vim.notify("Created and checked out new branch: " .. new_name)
+                picker:close()
+              else
+                vim.notify("Failed to create branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+              end
+            end)
+          end
+        end)
+      end,
+    },
+    {
+      key = "m",
+      desc = "Merge into current",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        local confirm = vim.fn.confirm("Merge '" .. branch .. "' into current branch?", "&Yes\n&No", 2)
+        if confirm == 1 then
+          vim.system({ "git", "merge", branch }, {
+            text = true,
+          }, function(result)
+            if result.code == 0 then
+              vim.notify("Merged branch: " .. branch)
+            else
+              vim.notify("Failed to merge branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+            end
+          end)
+        end
+      end,
+    },
+    {
+      key = "R",
+      desc = "Rebase current onto this",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        local confirm = vim.fn.confirm("Rebase current branch onto '" .. branch .. "'?", "&Yes\n&No", 2)
+        if confirm == 1 then
+          vim.system({ "git", "rebase", branch }, {
+            text = true,
+          }, function(result)
+            if result.code == 0 then
+              vim.notify("Rebased onto branch: " .. branch)
+            else
+              vim.notify("Failed to rebase onto branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+            end
+          end)
+        end
+      end,
+    },
+    {
+      key = "l",
+      desc = "Show log",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        Snacks.picker.git_log({ branch = branch })
+      end,
+    },
+    {
+      key = "f",
+      desc = "Show diff vs current",
+      action = function(picker, item)
+        local branch = M.get_branch_name(item)
+        if not branch then
+          vim.notify("No branch selected", vim.log.levels.WARN)
+          return
+        end
+        vim.cmd("DiffviewOpen HEAD.." .. branch)
+      end,
+    },
+  },
 }
 
 -- Detect picker context
@@ -990,7 +1337,7 @@ local function detect_context(picker)
   end
 
   -- Check contexts in specific order (most specific first)
-  local context_order = { "sidebar_explorer", "explorer", "git_status", "buffers", "files" }
+  local context_order = { "sidebar_explorer", "explorer", "git_branches", "git_status", "buffers", "files" }
 
   for _, context_name in ipairs(context_order) do
     local context = contexts[context_name]
@@ -1016,7 +1363,7 @@ local function detect_context(picker)
   return "unknown", nil
 end
 
--- Get context-appropriate actions
+-- Get context-appropriate actions (follows folke's action pattern)
 local function get_actions(picker)
   local context_name, context = detect_context(picker)
 
@@ -1032,8 +1379,14 @@ local function get_actions(picker)
 
   local action_list = {}
 
-  -- Context-specific actions
-  if context_name == "explorer" or context_name == "files" then
+  -- Context-specific actions (prioritize git contexts like folke does)
+  if context_name == "git_branches" then
+    vim.list_extend(action_list, actions.git_branch_actions)
+  elseif context_name == "git_status" then
+    vim.list_extend(action_list, actions.git_status_actions)
+  elseif context_name == "buffers" then
+    vim.list_extend(action_list, actions.buffer_actions)
+  elseif context_name == "explorer" or context_name == "files" then
     if #items == 1 then
       local item = items[1]
       if item.dir then
@@ -1044,18 +1397,11 @@ local function get_actions(picker)
     else
       vim.list_extend(action_list, actions.multiple_items)
     end
-  elseif context_name == "git_status" then
-    vim.list_extend(action_list, actions.git_status_actions)
-  elseif context_name == "buffers" then
-    vim.list_extend(action_list, actions.buffer_actions)
-  end
 
-  -- Add git actions if in git repo (for file-based pickers)
-  if
-    (context_name == "explorer" or context_name == "files")
-    and (vim.fn.isdirectory(".git") == 1 or vim.fn.finddir(".git", ".;") ~= "")
-  then
-    vim.list_extend(action_list, actions.git_actions)
+    -- Add git actions if in git repo (for file-based pickers)
+    if vim.fn.isdirectory(".git") == 1 or vim.fn.finddir(".git", ".;") ~= "" then
+      vim.list_extend(action_list, actions.git_actions)
+    end
   end
 
   return action_list, items

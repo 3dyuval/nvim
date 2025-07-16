@@ -1,0 +1,41 @@
+name: Tests
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Neovim
+      run: sudo snap install nvim --classic
+
+    - name: Install Plenary
+      run: |
+        mkdir -p $HOME/.local/share/nvim/lazy/
+        git clone https://github.com/nvim-lua/plenary.nvim.git
+        mv plenary.nvim $HOME/.local/share/nvim/lazy/
+
+    - name: Install Snacks.nvim
+      run: |
+        mkdir -p $HOME/.local/share/nvim/lazy/
+        git clone https://github.com/folke/snacks.nvim.git
+        mv snacks.nvim $HOME/.local/share/nvim/lazy/
+
+    - name: Run luacheck type check / linter
+      run: |
+        sudo apt-get install lua-check -y --no-install-recommends
+        make check
+
+    - name: Check for errant util calls
+      run: make no-utils
+
+    - name: Run Tests
+      run: make test
