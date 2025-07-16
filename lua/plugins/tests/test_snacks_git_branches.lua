@@ -138,7 +138,26 @@ function M.test_all_branches_listing()
   end
   
   print("✓ Found " .. local_count .. " local and " .. remote_count .. " remote branches")
-  return (local_count > 0 and remote_count >= 0)
+  
+  -- Verify that all branches shows more than local only
+  local local_only = get_local_branches()
+  local local_only_count = 0
+  if local_only then
+    for line in local_only:gmatch("[^\r\n]+") do
+      if line:match("%S") then
+        local_only_count = local_only_count + 1
+      end
+    end
+  end
+  
+  local total_all = local_count + remote_count
+  if total_all > local_only_count then
+    print("✓ All branches (" .. total_all .. ") > local only (" .. local_only_count .. ") - Fix verified!")
+    return true
+  else
+    print("✗ ERROR: All branches should show more than local only")
+    return false
+  end
 end
 
 function M.test_branch_name_parsing()
