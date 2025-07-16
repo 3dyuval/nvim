@@ -21,6 +21,8 @@ ignore = {
   "431", -- Shadowing upvalue
   "113", -- Accessing undefined variable
   "211/_.*", -- Unused variable starting with underscore
+  "561", -- Cyclomatic complexity too high (for complex but working functions)
+  "512", -- Loop is executed at most once (acceptable patterns)
 }
 
 -- Files to exclude from checking

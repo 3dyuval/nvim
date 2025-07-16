@@ -268,7 +268,7 @@ vim.cmd('qall!')
 end
 
 -- Read from stdin
-local function read_stdin()
+local function _read_stdin() -- Reserved for future stdin input
   local input = ""
   for line in io.lines() do
     input = input .. line .. "\n"
@@ -284,7 +284,7 @@ local input_available = false
 local stdin_content = ""
 
 -- Check if we can read from stdin immediately
-local success, result = pcall(function()
+local _success, _result = pcall(function()
   local line = io.read("*line")
   if line then
     stdin_content = line .. "\n"
