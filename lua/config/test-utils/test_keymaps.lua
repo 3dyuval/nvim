@@ -276,6 +276,46 @@ local function _read_stdin() -- Reserved for future stdin input
   return input:gsub("\n$", "") -- Remove trailing newline
 end
 
+-- Health check integration functions
+local function get_health_check_results(conflicts)
+  local results = {
+    total_conflicts = #conflicts,
+    error_count = 0,
+    warning_count = 0,
+    info_count = 0,
+    conflicts_by_severity = { ERROR = {}, WARNING = {}, INFO = {} },
+  }
+
+  for _, conflict in ipairs(conflicts) do
+    if conflict.severity == "ERROR" then
+      results.error_count = results.error_count + 1
+      table.insert(results.conflicts_by_severity.ERROR, conflict)
+    elseif conflict.severity == "WARNING" then
+      results.warning_count = results.warning_count + 1
+      table.insert(results.conflicts_by_severity.WARNING, conflict)
+    elseif conflict.severity == "INFO" then
+      results.info_count = results.info_count + 1
+      table.insert(results.conflicts_by_severity.INFO, conflict)
+    end
+  end
+
+  return results
+end
+
+-- Export function for health check integration
+local function export_for_health_check()
+  return {
+    test_keymaps = test_keymaps,
+    get_health_check_results = get_health_check_results,
+    serialize_table = serialize_table,
+  }
+end
+
+-- Check if we're being required as a module
+if package.loaded[...] then
+  return export_for_health_check()
+end
+
 -- Main logic
 local keymaps = nil
 

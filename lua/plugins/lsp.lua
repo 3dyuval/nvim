@@ -11,7 +11,7 @@ return {
 
       -- Disable vtsls (replaced with typescript-tools.nvim)
       vtsls = { enabled = false },
-      
+
       -- Original vtsls config preserved for reference
       --[[vtsls = {
         filetypes = {

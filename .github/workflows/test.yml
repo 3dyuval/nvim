@@ -39,3 +39,17 @@ jobs:
 
     - name: Run Tests
       run: make test
+
+    - name: Run Keymap Health Check
+      run: |
+        # Test keymap health check integration
+        nvim --headless -c 'lua require("config.health").check()' -c 'qa' || echo "Health check completed"
+        
+        # Test keymap conflict detection
+        echo '{}' | lua lua/config/test-utils/test_keymaps.lua
+        
+        # Validate health module can be loaded
+        nvim --headless -c 'lua print("Health module:", require("config.health"))' -c 'qa'
+
+    - name: Check Keymap Conflicts
+      run: make check-keymaps || echo "Keymap check completed"

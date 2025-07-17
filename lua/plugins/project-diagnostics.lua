@@ -11,8 +11,8 @@ return {
     local function get_workspace_files_async()
       return async.wrap(function(callback)
         Job:new({
-          command = 'git',
-          args = { 'ls-files' },
+          command = "git",
+          args = { "ls-files" },
           on_exit = function(job, return_val)
             if return_val ~= 0 then
               callback({})
@@ -81,9 +81,9 @@ return {
                   col = diag.col + 1,
                   text = diag.message,
                   type = diag.severity == vim.diagnostic.severity.ERROR and "error"
-                       or diag.severity == vim.diagnostic.severity.WARN and "warning"
-                       or diag.severity == vim.diagnostic.severity.INFO and "info"
-                       or "hint",
+                    or diag.severity == vim.diagnostic.severity.WARN and "warning"
+                    or diag.severity == vim.diagnostic.severity.INFO and "info"
+                    or "hint",
                 })
               end
             end
@@ -95,9 +95,9 @@ return {
         for _, item in ipairs(all_diagnostics) do
           local filename = vim.fn.fnamemodify(item.filename, ":~:.")
           local icon = item.type == "error" and "󰅚 "
-                    or item.type == "warning" and "󰀪 "
-                    or item.type == "info" and "󰋽 "
-                    or "󰌶 "
+            or item.type == "warning" and "󰀪 "
+            or item.type == "info" and "󰋽 "
+            or "󰌶 "
           table.insert(items, {
             text = string.format("%s%s:%d:%d: %s", icon, filename, item.lnum, item.col, item.text),
             file = item.filename,
