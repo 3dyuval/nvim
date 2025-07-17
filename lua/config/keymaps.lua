@@ -141,7 +141,7 @@ end, { desc = "Git branches (all)" })
 
 -- History keymap root
 map({ "n" }, "<leader>hf", function()
-  vim.cmd("DiffviewFileHistory")
+  vim.cmd("DiffviewFileHistory %")
 end, { desc = "Git file history" })
 
 map({ "n" }, "<leader>hl", function()
