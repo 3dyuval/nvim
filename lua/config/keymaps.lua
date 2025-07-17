@@ -362,4 +362,53 @@ vim.keymap.set("n", "<M-i>", "<cmd>Treewalker SwapRight<cr>", { silent = true, d
 -- Project-wide diagnostics keymap
 override_map("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
 
+-- Biome diagnostics and formatting keymaps
+override_map("n", "<leader>cb", function()
+  local filename = vim.fn.expand("%:p")
+  if filename == "" then
+    vim.notify("No file to check", vim.log.levels.WARN)
+    return
+  end
+  
+  local biome_config = vim.fn.stdpath("config") .. "/biome.json"
+  local cmd = string.format("biome check --config-path %s %s", biome_config, vim.fn.shellescape(filename))
+  
+  vim.fn.system(cmd)
+  local output = vim.fn.system(cmd)
+  
+  if vim.v.shell_error == 0 then
+    vim.notify("Biome check passed", vim.log.levels.INFO)
+  else
+    -- Show errors in a split window
+    vim.cmd("split")
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(output, "\n"))
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.bo[buf].filetype = "text"
+    vim.bo[buf].buftype = "nofile"
+    vim.bo[buf].modifiable = false
+    vim.api.nvim_buf_set_name(buf, "Biome Errors")
+  end
+end, { desc = "Biome Check Current File" })
+
+override_map("n", "<leader>cB", function()
+  local filename = vim.fn.expand("%:p")
+  if filename == "" then
+    vim.notify("No file to format", vim.log.levels.WARN)
+    return
+  end
+  
+  local biome_config = vim.fn.stdpath("config") .. "/biome.json"
+  local cmd = string.format("biome format --config-path %s --write %s", biome_config, vim.fn.shellescape(filename))
+  
+  local output = vim.fn.system(cmd)
+  
+  if vim.v.shell_error == 0 then
+    vim.notify("Biome format successful", vim.log.levels.INFO)
+    vim.cmd("checktime") -- Reload file if changed
+  else
+    vim.notify("Biome format failed: " .. output, vim.log.levels.ERROR)
+  end
+end, { desc = "Biome Format Current File" })
+
 -- Grug-far search within range

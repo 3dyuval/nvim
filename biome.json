@@ -1,8 +1,8 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
 	"formatter": {
 		"enabled": true,
-		"formatWithErrors": true,
+		"formatWithErrors": false,
 		"attributePosition": "multiline",
 		"indentStyle": "tab",
 		"indentWidth": 2,
@@ -18,9 +18,28 @@
 			"quoteProperties": "asNeeded",
 			"quoteStyle": "single",
 			"semicolons": "always",
-			"trailingCommas": "es5"
+			"trailingCommas": "es5",
+			"attributePosition": "auto"
 		}
 	},
+	"overrides": [
+		{
+			"includes": ["*.tsx", "*.jsx"],
+			"formatter": {
+				"lineWidth": 100,
+				"indentWidth": 4,
+				"formatWithErrors": false
+			},
+			"javascript": {
+				"formatter": {
+					"bracketSameLine": false,
+					"bracketSpacing": true,
+					"jsxQuoteStyle": "double",
+					"attributePosition": "auto"
+				}
+			}
+		}
+	],
 	"json": {
 		"formatter": {
 			"trailingCommas": "none"
@@ -30,10 +49,7 @@
 		"actions": {
 			"source": {
 				"organizeImports": {
-					"level": "on",
-					"options": {
-						"groups": ["react", ":PACKAGE:", ":ALIAS:"]
-					}
+					"level": "on"
 				}
 			}
 		}

@@ -8,19 +8,16 @@ M.patterns = {
     actions = {
       {
         name = "organize_imports",
-        desc = "Organize imports",
+        desc = "Organize imports with Biome LSP",
         fn = function(bufnr)
-          -- Try typescript-tools command first
-          local ok, _ = pcall(vim.cmd, "TSToolsOrganizeImports")
-          if not ok then
-            -- Fallback to LSP organize imports
-            if LazyVim and LazyVim.lsp and LazyVim.lsp.action then
-              local organize_imports = LazyVim.lsp.action["source.organizeImports"]
-              if organize_imports and type(organize_imports) == "function" then
-                pcall(organize_imports)
-              end
-            end
-          end
+          -- Use Biome LSP's organize imports action
+          vim.lsp.buf.code_action({
+            context = {
+              only = { "source.organizeImports" },
+              diagnostics = {},
+            },
+            apply = true,
+          })
         end,
       },
       {

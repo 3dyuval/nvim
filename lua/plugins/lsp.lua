@@ -12,6 +12,29 @@ return {
       -- Disable vtsls (replaced with typescript-tools.nvim)
       vtsls = { enabled = false },
       
+      -- Enable Biome LSP for real-time diagnostics
+      biome = {
+        cmd = { "biome", "lsp-proxy" },
+        filetypes = {
+          "javascript",
+          "javascriptreact", 
+          "json",
+          "jsonc",
+          "typescript",
+          "typescriptreact"
+        },
+        root_dir = function(fname)
+          return require("lspconfig.util").root_pattern("biome.json", "biome.jsonc")(fname)
+            or require("lspconfig.util").find_git_ancestor(fname)
+        end,
+        single_file_support = true,
+        settings = {
+          biome = {
+            config_path = vim.fn.stdpath("config") .. "/biome.json",
+          },
+        },
+      },
+      
       -- Original vtsls config preserved for reference
       --[[vtsls = {
         filetypes = {

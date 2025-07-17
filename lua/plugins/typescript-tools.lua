@@ -121,11 +121,12 @@ return {
         "<cmd>TSToolsFileReferences<cr>",
         desc = "File References",
       },
-      {
-        "<leader>co",
-        "<cmd>TSToolsOrganizeImports<cr>",
-        desc = "Organize Imports",
-      },
+      -- Disabled: conflicts with Biome LSP organize imports
+      -- {
+      --   "<leader>co",
+      --   "<cmd>TSToolsOrganizeImports<cr>",
+      --   desc = "Organize Imports",
+      -- },
       {
         "<leader>cI",
         "<cmd>TSToolsAddMissingImports<cr>",
