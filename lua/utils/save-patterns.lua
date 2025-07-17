@@ -23,14 +23,10 @@ M.patterns = {
           end
         end,
       },
-      {
-        name = "format",
-        desc = "Format with conform",
-        fn = function(bufnr)
-          local conform = require("conform")
-          conform.format({ bufnr = bufnr, async = false })
-        end,
-      },
+      -- {
+      --   name = "format",
+      --   desc = "Format with conform",
+      --   (deleted- already being handled by lazy)
     },
   },
   lua = {
