@@ -39,11 +39,11 @@ test:
 	@echo "=== Testing configuration loading ==="
 	@nvim --headless -c "lua print('✅ Neovim config loaded successfully')" -c "qa"
 	
-	@echo "=== Running picker extensions tests ==="
-	@if [ -f "lua/utils/tests/test_picker_extensions.lua" ]; then \
-		nvim --headless -c "lua require('utils.tests.test_picker_extensions').run_all_tests()" -c "qa"; \
+	@echo "=== Running utils tests ==="
+	@if [ -f "lua/utils/tests/run_all.lua" ]; then \
+		nvim --headless -c "lua require('utils.tests.run_all').run_all_tests()" -c "qa"; \
 	else \
-		echo "⚠️  Picker extensions tests not found"; \
+		echo "⚠️  Utils test runner not found"; \
 	fi
 	
 	@echo "=== Running git branch tests ==="
@@ -65,6 +65,13 @@ test:
 		nvim --headless -c "lua require('plugins.tests.test_fold_functionality')" -c "qa"; \
 	else \
 		echo "⚠️  Fold tests not found"; \
+	fi
+	
+	@echo "=== Running batch formatter tests ==="
+	@if [ -f "lua/scripts/tests/test_batch_formatter.lua" ]; then \
+		nvim --headless -c "lua require('scripts.tests.test_batch_formatter').run_all_tests()" -c "qa"; \
+	else \
+		echo "⚠️  Batch formatter tests not found"; \
 	fi
 	
 	@echo "✅ All tests completed"

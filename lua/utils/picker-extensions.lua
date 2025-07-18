@@ -170,7 +170,11 @@ local function format_action(picker, item_or_items)
   -- Format all collected files
   if #files_to_format > 0 then
     for _, file in ipairs(files_to_format) do
-      vim.cmd("FormatAndOrganize " .. vim.fn.fnameescape(file))
+      -- Use conform directly since it now handles import organization
+      local conform = require("conform")
+      local bufnr = vim.fn.bufnr(file, true)
+      vim.fn.bufload(bufnr)
+      conform.format({ bufnr = bufnr, timeout_ms = 5000 })
     end
 
     -- Refresh picker if possible
@@ -347,9 +351,9 @@ end
 -- CONTEXT MENU SYSTEM
 -- ============================================================================
 
--- Reusable save patterns action
-local function run_save_patterns_action(picker, items)
-  local save_patterns = require("utils.save-patterns")
+-- Format files using conform.nvim
+local function format_files_action(picker, items)
+  local conform = require("conform")
   local processed = 0
   local errors = 0
 
@@ -367,26 +371,21 @@ local function run_save_patterns_action(picker, items)
         vim.bo[bufnr].modifiable = true
         vim.bo[bufnr].readonly = false
 
-        local filetype = vim.filetype.match({ filename = item.file }) or ""
-        local patterns = save_patterns.get_patterns_for_filetype(filetype)
-          or save_patterns.get_patterns_for_file(item.file)
+        -- Use conform directly since it now handles import organization
+        conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+        processed = processed + 1
 
-        if patterns then
-          save_patterns.run_patterns(bufnr, patterns)
-          processed = processed + 1
-
-          if vim.bo[bufnr].modified then
-            vim.api.nvim_buf_call(bufnr, function()
-              vim.cmd("silent! write")
-            end)
-          end
+        if vim.bo[bufnr].modified then
+          vim.api.nvim_buf_call(bufnr, function()
+            vim.cmd("silent! write")
+          end)
         end
       end)
 
       if not success then
         errors = errors + 1
         vim.notify(
-          "Error processing " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
+          "Error formatting " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
           vim.log.levels.WARN
         )
       end
@@ -394,15 +393,9 @@ local function run_save_patterns_action(picker, items)
   end
 
   if processed > 0 then
-    vim.notify(
-      string.format(
-        "Processed save patterns on %d files%s",
-        processed,
-        errors > 0 and " (" .. errors .. " errors)" or ""
-      )
-    )
+    vim.notify(string.format("Formatted %d files%s", processed, errors > 0 and " (" .. errors .. " errors)" or ""))
   else
-    vim.notify("No files processed - no matching patterns found", vim.log.levels.WARN)
+    vim.notify("No files formatted", vim.log.levels.WARN)
   end
 end
 
@@ -847,9 +840,9 @@ local actions = {
       action = format_action,
     },
     {
-      key = "p",
-      desc = "Run Save Patterns",
-      action = run_save_patterns_action,
+      key = "f",
+      desc = "Format files",
+      action = format_files_action,
     },
   },
 
@@ -1010,9 +1003,9 @@ local actions = {
       action = format_action,
     },
     {
-      key = "p",
-      desc = "Run Save Patterns",
-      action = run_save_patterns_action,
+      key = "f",
+      desc = "Format files",
+      action = format_files_action,
     },
   },
 
@@ -1087,7 +1080,7 @@ local actions = {
       key = "p",
       desc = "Run Save Patterns",
       action = function(picker, items)
-        run_save_patterns_action(picker, items)
+        format_files_action(picker, items)
         if picker.refresh then
           picker:refresh()
         end
@@ -1190,7 +1183,7 @@ local actions = {
         end
 
         if #file_items > 0 then
-          run_save_patterns_action(picker, file_items)
+          format_files_action(picker, file_items)
         else
           vim.notify("No valid files found in selected buffers", vim.log.levels.WARN)
         end
