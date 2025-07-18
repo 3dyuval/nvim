@@ -711,6 +711,34 @@ local actions = {
       end,
     },
     {
+      key = "f",
+      desc = "󰉋 Format file",
+      action = function(picker, item)
+        local formatter = require("utils.formatter")
+        if item.dir then
+          -- Format directory recursively
+          formatter.format_batch({ item.file }, {
+            verbose = true,
+            on_complete = function(status)
+              if picker.refresh then
+                picker:refresh()
+              end
+            end,
+          })
+        else
+          -- Format single file
+          formatter.format_file(item.file, {
+            verbose = true,
+            on_complete = function(status)
+              if picker.refresh then
+                picker:refresh()
+              end
+            end,
+          })
+        end
+      end,
+    },
+    {
       key = "s",
       desc = "Split open",
       action = function(picker, item)
@@ -890,6 +918,21 @@ local actions = {
         end
       end,
     },
+    {
+      key = "f",
+      desc = "󰈔 Format directory",
+      action = function(picker, item)
+        local formatter = require("utils.formatter")
+        formatter.format_batch({ item.file }, {
+          verbose = true,
+          on_complete = function(status)
+            if picker.refresh then
+              picker:refresh()
+            end
+          end,
+        })
+      end,
+    },
   },
 
   -- Multiple files/directories actions
@@ -945,6 +988,30 @@ local actions = {
       key = "p",
       desc = "Run Save Patterns",
       action = run_save_patterns_action,
+    },
+    {
+      key = "f",
+      desc = "󰉋 Format selected items",
+      action = function(picker, items)
+        local formatter = require("utils.formatter")
+        local paths = {}
+        for _, item in ipairs(items) do
+          if item.file then
+            table.insert(paths, item.file)
+          end
+        end
+
+        if #paths > 0 then
+          formatter.format_batch(paths, {
+            verbose = true,
+            on_complete = function(status)
+              if picker.refresh then
+                picker:refresh()
+              end
+            end,
+          })
+        end
+      end,
     },
   },
 
@@ -1404,7 +1471,425 @@ local function get_actions(picker)
     end
   end
 
+  -- Dynamically update descriptions based on selection state
+  local selected_items = {}
+  local current_item = nil
+
+  -- Check if we have selected items
+  local selected, err = safe_picker_call(picker, "selected")
+  if not err and selected and #selected > 0 then
+    selected_items = selected
+  end
+
+  -- Get current item
+  local current, err = safe_picker_call(picker, "current")
+  if not err and current then
+    current_item = current
+  end
+
+  -- Update format action descriptions with icons
+  for _, action in ipairs(action_list) do
+    if action.key == "f" then
+      if #selected_items > 0 then
+        if #selected_items == 1 then
+          local item = selected_items[1]
+          if item.dir then
+            action.desc = "󰈔 Format selected directory (recursive)"
+          else
+            -- Get file icon if possible
+            local icon = "󰈙" -- default file icon
+            if item.file then
+              local ok, devicons = pcall(require, "nvim-web-devicons")
+              if ok then
+                local file_icon = devicons.get_icon(vim.fn.fnamemodify(item.file, ":t"))
+                if file_icon then
+                  icon = file_icon
+                end
+              end
+            end
+            action.desc = icon .. " Format selected file"
+          end
+        else
+          action.desc = "󰈔 Format selected items (" .. #selected_items .. ")"
+        end
+      else
+        -- No selection, use hovered item
+        if current_item then
+          if current_item.dir then
+            action.desc = "󰈔 Format hovered directory (recursive)"
+          else
+            -- Get file icon if possible
+            local icon = "󰈙" -- default file icon
+            if current_item.file then
+              local ok, devicons = pcall(require, "nvim-web-devicons")
+              if ok then
+                local file_icon = devicons.get_icon(vim.fn.fnamemodify(current_item.file, ":t"))
+                if file_icon then
+                  icon = file_icon
+                end
+              end
+            end
+            action.desc = icon .. " Format hovered file"
+          end
+        else
+          action.desc = "󰈙 Format item"
+        end
+      end
+    end
+  end
+
   return action_list, items
+end
+
+-- Context menu action that shows a vim.ui.select menu
+M.context_menu = function(picker, item)
+  local formatter = require("utils.formatter")
+
+  -- Determine what we're working with
+  local target_items = {}
+  local menu_title = ""
+
+  if item then
+    target_items = { item }
+    if item.dir then
+      menu_title = "󰈔 " .. vim.fn.fnamemodify(item.file, ":t") .. " (Directory)"
+    else
+      menu_title = "󰈙 " .. vim.fn.fnamemodify(item.file, ":t")
+    end
+  else
+    vim.notify("No item available", vim.log.levels.WARN)
+    return
+  end
+
+  -- Create menu options
+  local options = {}
+  local actions = {}
+
+  -- Format action
+  table.insert(options, "󰉋 Format")
+  table.insert(actions, function()
+    local paths = {}
+    for _, target_item in ipairs(target_items) do
+      if target_item.file then
+        table.insert(paths, target_item.file)
+      end
+    end
+
+    if #paths > 0 then
+      if #paths == 1 and not target_items[1].dir then
+        formatter.format_file(paths[1], {
+          verbose = true,
+          on_complete = function(status)
+            if picker.refresh then
+              picker:refresh()
+            end
+          end,
+        })
+      else
+        formatter.format_batch(paths, {
+          verbose = true,
+          on_complete = function(status)
+            if picker.refresh then
+              picker:refresh()
+            end
+          end,
+        })
+      end
+    end
+  end)
+
+  -- Save patterns action
+  table.insert(options, "󰒓 Save Patterns")
+  table.insert(actions, function()
+    local save_patterns = require("utils.save-patterns")
+    local processed = 0
+
+    for _, target_item in ipairs(target_items) do
+      if not target_item.dir and vim.fn.filereadable(target_item.file) == 1 then
+        local success, err = pcall(function()
+          local bufnr = vim.fn.bufnr(target_item.file, true)
+          vim.fn.bufload(bufnr)
+
+          local filetype = vim.filetype.match({ filename = target_item.file }) or ""
+          local patterns = save_patterns.get_patterns_for_filetype(filetype)
+            or save_patterns.get_patterns_for_file(target_item.file)
+
+          if patterns then
+            save_patterns.run_patterns(bufnr, patterns)
+            processed = processed + 1
+
+            if vim.bo[bufnr].modified then
+              vim.api.nvim_buf_call(bufnr, function()
+                vim.cmd("silent! write")
+              end)
+            end
+          end
+        end)
+
+        if not success then
+          vim.notify("Error processing " .. vim.fn.fnamemodify(target_item.file, ":t"), vim.log.levels.WARN)
+        end
+      end
+    end
+
+    if processed > 0 then
+      vim.notify("Processed save patterns on " .. processed .. " files")
+      if picker.refresh then
+        picker:refresh()
+      end
+    end
+  end)
+
+  -- Rename action
+  table.insert(options, "󰑕 Rename")
+  table.insert(actions, function()
+    if #target_items == 1 then
+      local target_item = target_items[1]
+      local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(target_item.file, ":t"))
+      if new_name and new_name ~= "" then
+        local new_path = vim.fn.fnamemodify(target_item.file, ":h") .. "/" .. new_name
+        local ok, err = os.rename(target_item.file, new_path)
+        if ok then
+          vim.notify("Renamed to " .. new_name)
+          if picker.refresh then
+            picker:refresh()
+          end
+        else
+          vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
+        end
+      end
+    end
+  end)
+
+  -- Delete action
+  table.insert(options, "󰆴 Delete")
+  table.insert(actions, function()
+    local count = #target_items
+    local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 2)
+    if confirm == 1 then
+      for _, target_item in ipairs(target_items) do
+        if target_item.dir then
+          vim.fn.delete(target_item.file, "rf")
+        else
+          os.remove(target_item.file)
+        end
+      end
+      vim.notify("Deleted " .. count .. " items")
+      if picker.refresh then
+        picker:refresh()
+      end
+    end
+  end)
+
+  -- Copy path action
+  table.insert(options, "󰆏 Copy Path")
+  table.insert(actions, function()
+    local paths = {}
+    for _, target_item in ipairs(target_items) do
+      table.insert(paths, target_item.file)
+    end
+    vim.fn.setreg("+", table.concat(paths, "\n"))
+    vim.notify("Copied " .. #paths .. " paths")
+  end)
+
+  -- Show the menu
+  vim.ui.select(options, {
+    prompt = menu_title .. " - Choose action:",
+    format_item = function(item)
+      return item
+    end,
+  }, function(choice, idx)
+    if choice and idx and actions[idx] then
+      actions[idx]()
+    end
+  end)
+end
+
+-- Git-specific context menu for git_status picker
+M.git_context_menu = function(picker, item)
+  local formatter = require("utils.formatter")
+
+  if not item then
+    vim.notify("No item available", vim.log.levels.WARN)
+    return
+  end
+
+  local target_items = { item }
+  local menu_title = "󰈙 " .. vim.fn.fnamemodify(item.file, ":t") .. " (Git)"
+
+  -- Create menu options
+  local options = {}
+  local actions = {}
+
+  -- Format action
+  table.insert(options, "󰉋 Format")
+  table.insert(actions, function()
+    local paths = {}
+    for _, target_item in ipairs(target_items) do
+      if target_item.file then
+        table.insert(paths, target_item.file)
+      end
+    end
+
+    if #paths > 0 then
+      formatter.format_file(paths[1], {
+        verbose = true,
+        on_complete = function(status)
+          if picker.refresh then
+            picker:refresh()
+          end
+        end,
+      })
+    end
+  end)
+
+  -- Stage/unstage action
+  table.insert(options, "󰊢 Stage/Unstage")
+  table.insert(actions, function()
+    for _, target_item in ipairs(target_items) do
+      local file = target_item.file
+      if
+        target_item.status
+        and (target_item.status:match("^M") or target_item.status:match("^A") or target_item.status:match("^D"))
+      then
+        -- File is staged, unstage it
+        vim.system({ "git", "restore", "--staged", file })
+      else
+        -- File is unstaged, stage it
+        vim.system({ "git", "add", file })
+      end
+    end
+    vim.notify("Toggled stage status for " .. #target_items .. " files")
+    if picker.refresh then
+      picker:refresh()
+    end
+  end)
+
+  -- Copy path action
+  table.insert(options, "󰆏 Copy Path")
+  table.insert(actions, function()
+    local paths = {}
+    for _, target_item in ipairs(target_items) do
+      table.insert(paths, target_item.file)
+    end
+    vim.fn.setreg("+", table.concat(paths, "\n"))
+    vim.notify("Copied " .. #paths .. " paths")
+  end)
+
+  -- Show the menu
+  vim.ui.select(options, {
+    prompt = menu_title .. " - Choose action:",
+    format_item = function(item)
+      return item
+    end,
+  }, function(choice, idx)
+    if choice and idx and actions[idx] then
+      actions[idx]()
+    end
+  end)
+end
+
+-- Buffer-specific context menu for buffer picker
+M.buffer_context_menu = function(picker, item)
+  local formatter = require("utils.formatter")
+
+  if not item then
+    vim.notify("No item available", vim.log.levels.WARN)
+    return
+  end
+
+  local target_items = { item }
+  local menu_title = "󰈙 " .. (item.name or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(item.bufnr or 0), ":t"))
+
+  -- Create menu options
+  local options = {}
+  local actions = {}
+
+  -- Format action
+  table.insert(options, "󰉋 Format")
+  table.insert(actions, function()
+    local paths = {}
+    for _, target_item in ipairs(target_items) do
+      if target_item.bufnr and vim.api.nvim_buf_is_loaded(target_item.bufnr) then
+        local filepath = vim.api.nvim_buf_get_name(target_item.bufnr)
+        if filepath and filepath ~= "" then
+          table.insert(paths, filepath)
+        end
+      end
+    end
+
+    if #paths > 0 then
+      formatter.format_file(paths[1], {
+        verbose = true,
+        on_complete = function(status)
+          if picker.refresh then
+            picker:refresh()
+          end
+        end,
+      })
+    end
+  end)
+
+  -- Copy path action
+  table.insert(options, "󰆏 Copy Path")
+  table.insert(actions, function()
+    local paths = {}
+    for _, target_item in ipairs(target_items) do
+      if target_item.bufnr and vim.api.nvim_buf_is_loaded(target_item.bufnr) then
+        local filepath = vim.api.nvim_buf_get_name(target_item.bufnr)
+        if filepath and filepath ~= "" then
+          table.insert(paths, filepath)
+        end
+      end
+    end
+    vim.fn.setreg("+", table.concat(paths, "\n"))
+    vim.notify("Copied " .. #paths .. " paths")
+  end)
+
+  -- Delete buffer action
+  table.insert(options, "󰖭 Delete Buffer")
+  table.insert(actions, function()
+    for _, target_item in ipairs(target_items) do
+      if target_item.bufnr then
+        vim.api.nvim_buf_delete(target_item.bufnr, { force = false })
+      end
+    end
+    vim.notify("Deleted " .. #target_items .. " buffers")
+    if picker.refresh then
+      picker:refresh()
+    end
+  end)
+
+  -- Save buffer action
+  table.insert(options, "󰆓 Save Buffer")
+  table.insert(actions, function()
+    local saved = 0
+    for _, target_item in ipairs(target_items) do
+      if target_item.bufnr and vim.api.nvim_buf_is_loaded(target_item.bufnr) then
+        local success, _err = pcall(function()
+          vim.api.nvim_buf_call(target_item.bufnr, function()
+            vim.cmd("write")
+          end)
+        end)
+        if success then
+          saved = saved + 1
+        end
+      end
+    end
+    vim.notify("Saved " .. saved .. "/" .. #target_items .. " buffers")
+  end)
+
+  -- Show the menu
+  vim.ui.select(options, {
+    prompt = menu_title .. " - Choose action:",
+    format_item = function(item)
+      return item
+    end,
+  }, function(choice, idx)
+    if choice and idx and actions[idx] then
+      actions[idx]()
+    end
+  end)
 end
 
 -- Show context menu
@@ -1416,30 +1901,55 @@ M.show_context_menu = function(picker)
   local action_list, items = get_actions(picker)
   local context_name, _context = detect_context(picker)
 
+  -- If no actions from context detection, try to get current item for basic actions
   if #action_list == 0 then
-    -- For unknown contexts, provide basic file actions if we can get current item
-    if context_name == "unknown" then
-      local current, err = safe_picker_call(picker, "current")
-      if not err and current and current.file then
+    local current, err = safe_picker_call(picker, "current")
+    if not err and current and current.file then
+      if current.dir then
+        action_list = actions.single_dir
+      else
         action_list = actions.single_file
-        items = { current }
+      end
+      items = { current }
+
+      -- Update format action description for the current item with icons
+      for _, action in ipairs(action_list) do
+        if action.key == "f" then
+          if current.dir then
+            action.desc = "󰈔 Format hovered directory (recursive)"
+          else
+            -- Get file icon if possible
+            local icon = "󰈙" -- default file icon
+            if current.file then
+              local ok, devicons = pcall(require, "nvim-web-devicons")
+              if ok then
+                local file_icon = devicons.get_icon(vim.fn.fnamemodify(current.file, ":t"))
+                if file_icon then
+                  icon = file_icon
+                end
+              end
+            end
+            action.desc = icon .. " Format hovered file"
+          end
+        end
       end
     end
+  end
 
-    if #action_list == 0 then
-      error(
-        "No actions available. Context: "
-          .. (context_name or "unknown")
-          .. ", Items: "
-          .. #items
-          .. "\nPicker state: "
-          .. vim.inspect({
-            source = picker.opts and picker.opts.source,
-            has_actions = picker.opts and picker.opts.actions and vim.tbl_keys(picker.opts.actions) or {},
-            current_item = safe_picker_call(picker, "current"),
-            selected_items = safe_picker_call(picker, "selected"),
-          })
-      )
+  -- If still no actions, show error
+  if #action_list == 0 then
+    vim.notify("No actions available for this context", vim.log.levels.WARN)
+    return
+  end
+
+  -- Ensure we have items to work with
+  if #items == 0 then
+    local current, err = safe_picker_call(picker, "current")
+    if not err and current then
+      items = { current }
+    else
+      vim.notify("No items available", vim.log.levels.WARN)
+      return
     end
   end
 
@@ -1482,6 +1992,10 @@ M.actions = {
   search_in_directory = M.search_in_directory,
   diff_selected = M.diff_selected,
   handle_directory_expansion = M.handle_directory_expansion,
+  -- Context menu actions (which-key based)
+  context_menu = M.context_menu,
+  git_context_menu = M.git_context_menu,
+  buffer_context_menu = M.buffer_context_menu,
 }
 
 -- Export context menu function (main entry point)

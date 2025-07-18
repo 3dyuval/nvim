@@ -137,6 +137,21 @@ return {
                 require("utils.picker-extensions").show_menu(picker)
               end,
             },
+            context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.context_menu(picker, item)
+              end,
+            },
+            git_context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.git_context_menu(picker, item)
+              end,
+            },
+            buffer_context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.buffer_context_menu(picker, item)
+              end,
+            },
           },
           win = {
             list = {
@@ -156,7 +171,7 @@ return {
                 ["x"] = false, -- Disable default x binding
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
-                ["b"] = "show_context_menu",
+                ["f"] = "context_menu",
               },
             },
           },
@@ -176,10 +191,17 @@ return {
             "--exclude",
             "node_modules",
           },
+          actions = {
+            context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.context_menu(picker, item)
+              end,
+            },
+          },
           win = {
             list = {
               keys = {
-                ["b"] = "show_context_menu",
+                ["f"] = "context_menu",
               },
             },
           },
@@ -201,19 +223,33 @@ return {
           },
         },
         buffers = {
+          actions = {
+            buffer_context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.buffer_context_menu(picker, item)
+              end,
+            },
+          },
           win = {
             list = {
               keys = {
-                ["b"] = "show_context_menu",
+                ["f"] = "buffer_context_menu",
               },
             },
           },
         },
         git_status = {
+          actions = {
+            git_context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.git_context_menu(picker, item)
+              end,
+            },
+          },
           win = {
             list = {
               keys = {
-                ["b"] = "show_context_menu",
+                ["f"] = "git_context_menu",
               },
             },
           },
