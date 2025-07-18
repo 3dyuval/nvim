@@ -6,7 +6,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "jq -r '.tool_input.file_path' | { read file_path; if echo \"$file_path\" | grep -qE '\\.(js|jsx|ts|tsx|json|lua|html|vue)$'; then format \"$file_path\"; fi; }"
+						"command": "jq -r '.tool_input.file_path' | { read file_path; if echo \"$file_path\" | grep -qE '\\.(js|jsx|ts|tsx|json|lua|html|vue|css|scss)$'; then \"$HOME/.config/nvim/scripts/batch-formatter\" \"$file_path\"; fi; }"
 					}
 				]
 			}

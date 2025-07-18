@@ -11,6 +11,8 @@ return {
       html = { "prettier" },
       htmlangular = { "prettier" },
       vue = { "prettier" },
+      css = { "prettier" },
+      scss = { "prettier" },
     },
     formatters = {
       biome = {

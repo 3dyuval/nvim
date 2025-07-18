@@ -37,7 +37,9 @@ function M.format_file(filepath, options)
       json = "json",
       lua = "lua",
       html = "html",
-      vue = "vue"
+      vue = "vue",
+      css = "css",
+      scss = "scss"
     }
     if ft_map[ext] then
       vim.api.nvim_buf_set_option(bufnr, "filetype", ft_map[ext])
@@ -86,7 +88,7 @@ function M.format_batch(paths, options)
     if vim.fn.isdirectory(path) == 1 then
       -- Find supported files in directory
       local cmd = string.format(
-        "find %s -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.json' -o -name '*.lua' -o -name '*.html' -o -name '*.vue' \\)",
+        "find %s -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.json' -o -name '*.lua' -o -name '*.html' -o -name '*.vue' -o -name '*.css' -o -name '*.scss' \\)",
         vim.fn.shellescape(path)
       )
       local result = vim.fn.systemlist(cmd)

@@ -39,6 +39,8 @@ require('conform').setup({
     lua = { 'stylua' },
     html = { 'prettier' },
     vue = { 'prettier' },
+    css = { 'prettier' },
+    scss = { 'prettier' },
   },
   formatters = {
     biome = {

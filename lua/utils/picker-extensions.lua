@@ -150,7 +150,7 @@ local function format_action(picker, item_or_items)
     if selected_item.dir or vim.fn.isdirectory(selected_item.file) == 1 then
       -- Directory: find all supported files recursively
       local find_cmd = string.format(
-        "find %s -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.json' -o -name '*.lua' -o -name '*.html' -o -name '*.vue' \\)",
+        "find %s -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.json' -o -name '*.lua' -o -name '*.html' -o -name '*.vue' -o -name '*.css' -o -name '*.scss' \\)",
         vim.fn.shellescape(selected_item.file)
       )
       local dir_files = vim.fn.systemlist(find_cmd)
