@@ -17,8 +17,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
 
 # Create minimal init.lua for formatting
 create_minimal_init() {
-    local temp_init=$(mktemp --suffix=.lua)
-    cat > "$temp_init" << 'EOF'
+  local temp_init=$(mktemp --suffix=.lua)
+  cat >"$temp_init" <<'EOF'
 -- Minimal init.lua for formatting only
 local lazy_path = vim.fn.stdpath('data') .. '/lazy/conform.nvim'
 if not vim.loop.fs_stat(lazy_path) then
@@ -55,116 +55,181 @@ require('conform').setup({
   },
 })
 
--- Format function
-function FormatFile(filepath)
-  if vim.fn.filereadable(filepath) == 0 then
-    print('ERROR: File not found: ' .. filepath)
-    os.exit(1)
-  end
-  
-  local bufnr = vim.fn.bufnr(filepath, true)
-  vim.fn.bufload(bufnr)
-  
-  -- Set filetype based on extension
-  local ext = filepath:match('%.(%w+)$')
-  if ext == 'js' then vim.bo[bufnr].filetype = 'javascript'
-  elseif ext == 'jsx' then vim.bo[bufnr].filetype = 'javascriptreact'
-  elseif ext == 'ts' then vim.bo[bufnr].filetype = 'typescript'
-  elseif ext == 'tsx' then vim.bo[bufnr].filetype = 'typescriptreact'
-  elseif ext == 'json' then vim.bo[bufnr].filetype = 'json'
-  elseif ext == 'lua' then vim.bo[bufnr].filetype = 'lua'
-  elseif ext == 'html' then vim.bo[bufnr].filetype = 'html'
-  elseif ext == 'vue' then vim.bo[bufnr].filetype = 'vue'
-  end
-  
+-- Format multiple files function
+function FormatFiles(files)
   local conform = require('conform')
-  local formatters = conform.list_formatters(bufnr)
+  local success_count = 0
+  local total_count = #files
   
-  if #formatters == 0 then
-    print('INFO: No formatters configured for ' .. filepath)
-    os.exit(0)
+  print('INFO: Processing ' .. total_count .. ' files...')
+  
+  for _, filepath in ipairs(files) do
+    if vim.fn.filereadable(filepath) == 0 then
+      print('ERROR: File not found: ' .. filepath)
+    else
+      local bufnr = vim.fn.bufnr(filepath, true)
+      vim.fn.bufload(bufnr)
+      
+      -- Set filetype based on extension
+      local ext = filepath:match('%.(%w+)$')
+      if ext == 'js' then vim.bo[bufnr].filetype = 'javascript'
+      elseif ext == 'jsx' then vim.bo[bufnr].filetype = 'javascriptreact'
+      elseif ext == 'ts' then vim.bo[bufnr].filetype = 'typescript'
+      elseif ext == 'tsx' then vim.bo[bufnr].filetype = 'typescriptreact'
+      elseif ext == 'json' then vim.bo[bufnr].filetype = 'json'
+      elseif ext == 'lua' then vim.bo[bufnr].filetype = 'lua'
+      elseif ext == 'html' then vim.bo[bufnr].filetype = 'html'
+      elseif ext == 'vue' then vim.bo[bufnr].filetype = 'vue'
+      elseif ext == 'css' then vim.bo[bufnr].filetype = 'css'
+      elseif ext == 'scss' then vim.bo[bufnr].filetype = 'scss'
+      end
+      
+      local formatters = conform.list_formatters(bufnr)
+      
+      if #formatters == 0 then
+        print('INFO: No formatters configured for ' .. filepath)
+      else
+        local success = conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+        
+        if success then
+          vim.api.nvim_buf_call(bufnr, function()
+            vim.cmd('silent! write!')
+          end)
+          print('SUCCESS: Formatted ' .. filepath)
+          success_count = success_count + 1
+        else
+          print('ERROR: Failed to format ' .. filepath)
+        end
+      end
+    end
   end
   
-  local success = conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+  print('INFO: Processed ' .. success_count .. '/' .. total_count .. ' files successfully')
   
-  if success then
-    vim.api.nvim_buf_call(bufnr, function()
-      vim.cmd('silent! write!')
-    end)
-    print('SUCCESS: Formatted ' .. filepath)
-  else
-    print('ERROR: Failed to format ' .. filepath)
+  if success_count < total_count then
     os.exit(1)
   end
 end
+
+-- Backward compatibility - format single file
+function FormatFile(filepath)
+  FormatFiles({filepath})
+end
 EOF
-    echo "$temp_init"
+  echo "$temp_init"
+}
+
+# Format multiple files in batch
+format_files_batch() {
+  local temp_init="${!#}"     # Last argument is temp_init
+  local files=("${@:1:$#-1}") # All arguments except the last one
+
+  if [[ ${#files[@]} -eq 0 ]]; then
+    log_error "No files provided"
+    return 1
+  fi
+
+  # Create Lua array string for files
+  local lua_files="{"
+  for i in "${!files[@]}"; do
+    if [[ $i -gt 0 ]]; then
+      lua_files+=", "
+    fi
+    lua_files+="'${files[i]}'"
+  done
+  lua_files+="}"
+
+  # Run neovim with minimal config - process all files in single instance
+  local result
+  result=$(nvim --headless -u "$temp_init" -c "lua FormatFiles($lua_files)" -c "qall" 2>&1)
+
+  # Parse result and log appropriately
+  local success_pattern="Processed [0-9]+/[0-9]+ files successfully"
+  if echo "$result" | grep -q "$success_pattern"; then
+    echo "$result" | while IFS= read -r line; do
+      if [[ "$line" == "SUCCESS:"* ]]; then
+        log_info "$(echo "$line" | sed 's/SUCCESS: //')"
+      elif [[ "$line" == "INFO:"* ]]; then
+        log_info "$(echo "$line" | sed 's/INFO: //')"
+      elif [[ "$line" == "ERROR:"* ]]; then
+        log_error "$(echo "$line" | sed 's/ERROR: //')"
+      fi
+    done
+    return 0
+  else
+    log_error "Batch formatting failed"
+    echo "$result" | while IFS= read -r line; do
+      if [[ "$line" == "ERROR:"* ]]; then
+        log_error "$(echo "$line" | sed 's/ERROR: //')"
+      fi
+    done
+    return 1
+  fi
 }
 
 # Format a single file
 format_file() {
-    local file="$1"
-    local temp_init="$2"
-    
-    if [[ ! -f "$file" ]]; then
-        log_error "File not found: $file"
-        return 1
-    fi
-    
-    # Run neovim with minimal config
-    local result
-    result=$(nvim --headless -u "$temp_init" -c "lua FormatFile('$file')" -c "qall" 2>&1)
-    
-    if [[ "$result" == "SUCCESS:"* ]]; then
-        log_info "$(echo "$result" | sed 's/SUCCESS: //')"
-        return 0
-    elif [[ "$result" == "INFO:"* ]]; then
-        # Not an error, just no formatters
-        return 0
-    else
-        log_error "$(echo "$result" | sed 's/ERROR: //')"
-        return 1
-    fi
+  local file="$1"
+  local temp_init="$2"
+
+  if [[ ! -f "$file" ]]; then
+    log_error "File not found: $file"
+    return 1
+  fi
+
+  # Run neovim with minimal config
+  local result
+  result=$(nvim --headless -u "$temp_init" -c "lua FormatFile('$file')" -c "qall" 2>&1)
+
+  if [[ "$result" == "SUCCESS:"* ]]; then
+    log_info "$(echo "$result" | sed 's/SUCCESS: //')"
+    return 0
+  elif [[ "$result" == "INFO:"* ]]; then
+    # Not an error, just no formatters
+    return 0
+  else
+    log_error "$(echo "$result" | sed 's/ERROR: //')"
+    return 1
+  fi
 }
 
 # Process directory
 process_directory() {
-    local dir="$1"
-    local temp_init="$2"
-    
-    # Find supported files
-    local files=()
-    while IFS= read -r -d '' file; do
-        files+=("$file")
-    done < <(find "$dir" -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.json" -o -name "*.lua" -o -name "*.html" -o -name "*.vue" \) -print0)
-    
-    if [[ ${#files[@]} -eq 0 ]]; then
-        log_info "No supported files found in $dir"
-        return 0
-    fi
-    
-    log_info "Found ${#files[@]} files in $dir"
-    
-    local success=0
-    for file in "${files[@]}"; do
-        if format_file "$file" "$temp_init"; then
-            ((success++))
-        fi
-    done
-    
-    log_info "Processed $success/${#files[@]} files"
-    return $([[ $success -eq ${#files[@]} ]] && echo 0 || echo 1)
+  local dir="$1"
+  local temp_init="$2"
+
+  # Find supported files
+  local files=()
+  while IFS= read -r -d '' file; do
+    files+=("$file")
+  done < <(find "$dir" -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.json" -o -name "*.lua" -o -name "*.html" -o -name "*.vue" -o -name "*.css" -o -name "*.scss" \) -print0)
+
+  if [[ ${#files[@]} -eq 0 ]]; then
+    log_info "No supported files found in $dir"
+    return 0
+  fi
+
+  log_info "Found ${#files[@]} files in $dir"
+
+  # Format all files in single nvim instance
+  if format_files_batch "${files[@]}" "$temp_init"; then
+    log_info "Successfully processed all files in $dir"
+    return 0
+  else
+    log_error "Failed to process files in $dir"
+    return 1
+  fi
 }
 
 # Main function
 main() {
-    local targets=()
-    
-    # Parse arguments
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            -h|--help)
-                cat << EOF
+  local targets=()
+
+  # Parse arguments
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+    -h | --help)
+      cat <<EOF
 Usage: $0 [files or directories...]
 
 Sandboxed formatter using conform.nvim in minimal neovim environment.
@@ -175,52 +240,53 @@ Examples:
   $0 src/               # Format all supported files in directory
   $0 .                  # Format current directory
 EOF
-                exit 0
-                ;;
-            *)
-                targets+=("$1")
-                shift
-                ;;
-        esac
-    done
-    
-    # Default to current directory
-    if [[ ${#targets[@]} -eq 0 ]]; then
-        targets=(".")
+      exit 0
+      ;;
+    *)
+      targets+=("$1")
+      shift
+      ;;
+    esac
+  done
+
+  # Default to current directory
+  if [[ ${#targets[@]} -eq 0 ]]; then
+    targets=(".")
+  fi
+
+  # Check dependencies
+  if ! command -v nvim &>/dev/null; then
+    log_error "Neovim is required"
+    exit 1
+  fi
+
+  # Create minimal init file
+  local temp_init
+  temp_init=$(create_minimal_init)
+
+  # Ensure cleanup
+  trap "rm -f '$temp_init'" EXIT
+
+  local exit_code=0
+
+  # Process each target
+  for target in "${targets[@]}"; do
+    if [[ -f "$target" ]]; then
+      if ! format_file "$target" "$temp_init"; then
+        exit_code=1
+      fi
+    elif [[ -d "$target" ]]; then
+      if ! process_directory "$target" "$temp_init"; then
+        exit_code=1
+      fi
+    else
+      log_error "File or directory not found: $target"
+      exit_code=1
     fi
-    
-    # Check dependencies
-    if ! command -v nvim &> /dev/null; then
-        log_error "Neovim is required"
-        exit 1
-    fi
-    
-    # Create minimal init file
-    local temp_init
-    temp_init=$(create_minimal_init)
-    
-    # Ensure cleanup
-    trap "rm -f '$temp_init'" EXIT
-    
-    local exit_code=0
-    
-    # Process each target
-    for target in "${targets[@]}"; do
-        if [[ -f "$target" ]]; then
-            if ! format_file "$target" "$temp_init"; then
-                exit_code=1
-            fi
-        elif [[ -d "$target" ]]; then
-            if ! process_directory "$target" "$temp_init"; then
-                exit_code=1
-            fi
-        else
-            log_error "File or directory not found: $target"
-            exit_code=1
-        fi
-    done
-    
-    exit $exit_code
+  done
+
+  exit $exit_code
 }
 
 main "$@"
+
