@@ -130,7 +130,7 @@ end
 -- Reusable format action function
 local function format_action(picker, item_or_items)
   -- Handle both single item and multiple items
-  local items = {}
+  local items
   if type(item_or_items) == "table" and item_or_items[1] then
     -- Multiple items array
     items = item_or_items
@@ -143,7 +143,7 @@ local function format_action(picker, item_or_items)
       items = { item_or_items }
     end
   end
-  
+
   -- Collect all files to format
   local files_to_format = {}
   for _, selected_item in ipairs(items) do
@@ -166,13 +166,13 @@ local function format_action(picker, item_or_items)
       end
     end
   end
-  
+
   -- Format all collected files
   if #files_to_format > 0 then
     for _, file in ipairs(files_to_format) do
       vim.cmd("FormatAndOrganize " .. vim.fn.fnameescape(file))
     end
-    
+
     -- Refresh picker if possible
     if picker.refresh then
       picker:refresh()
