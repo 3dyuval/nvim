@@ -11,8 +11,21 @@ end
 
 -- Delete on 'x' (Graphite layout) - but allow surround plugin to handle 'xs'
 -- Note: surround plugin will handle 'xs' directly, this handles other 'x' operations
-map({ "n", "x" }, "x", "d", { desc = "Delete" })
--- Skip operator-pending mode to let surround plugin handle 'xs' directly
+-- Use function to ensure xx behaves like dd (delete line and yank)
+map({ "n" }, "x", function()
+  local count = vim.v.count1
+  if count == 1 then
+    return "d"
+  else
+    return count .. "d"
+  end
+end, { desc = "Delete", expr = true })
+
+-- Special case: xx should behave like dd (delete line and yank)
+map({ "n" }, "xx", "dd", { desc = "Delete line (and yank)" })
+
+-- Visual mode: x still maps to d
+map({ "x" }, "x", "d", { desc = "Delete" })
 
 -- Up/down/left/right
 map({ "n", "o", "x" }, "h", "h", { desc = "Left (h)" })
@@ -70,8 +83,10 @@ map({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 map({ "n", "o", "x" }, "<C-s>", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "<C-S>", "N", { desc = "Previous search match" })
 
--- Repeat find
-map({ "n", "o", "x" }, ";", ";", { desc = "Repeat find forward" })
+-- Map semicolon to repeat last command (instead of dot)
+map({ "n" }, ";", ".", { desc = "Repeat last command" })
+-- Move repeat find to different keys
+map({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
 map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
@@ -104,10 +119,13 @@ map({ "x" }, "C", "y", { desc = "Yank selection" })
 map({ "n", "x" }, "V", "P", { desc = "Paste before" })
 map({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
--- Undo/redo
-map({ "n" }, "z", "u", { desc = "Undo" })
-map({ "n" }, "<S-u>", "U", { desc = "Undo line" })
-map({ "n" }, "<C-u>", "<C-r>", { desc = "Redo" })
+-- Undo/redo (z for undo, Z for redo - Graphite layout)
+-- Need to unmap built-in commands first
+override_map("n", "u", "<Nop>", { desc = "Unmapped (now z)" })
+override_map("n", "U", "<Nop>", { desc = "Unmapped (now gz)" })
+override_map("n", "z", "u", { desc = "Undo" })
+override_map("n", "Z", "<C-r>", { desc = "Redo" })
+override_map("n", "gz", "U", { desc = "Undo line" })
 -- Change
 map({ "n", "o", "x" }, "w", "c", { desc = "Change" })
 map({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
@@ -140,57 +158,42 @@ map({ "n" }, "<leader>gb", function()
 end, { desc = "Git branches (all)" })
 
 -- History keymap root
-map({ "n" }, "<leader>hf", function()
+map({ "n" }, "<leader>hg", function()
   vim.cmd("DiffviewFileHistory %")
 end, { desc = "Git file history" })
 
-map({ "n" }, "<leader>hl", function()
-  Snacks.picker.git_log()
-end, { desc = "Git log" })
-
-map({ "n" }, "<leader>hL", function()
-  Snacks.picker.git_log_line()
-end, { desc = "Git log for current line" })
-
-map({ "n" }, "<leader>hb", function()
-  Snacks.picker.git_log_file()
-end, { desc = "Git log for current file" })
-
--- Firefox history keymaps
-map({ "n" }, "<leader>hF", function()
-  Snacks.picker.firefox_search()
-end, { desc = "Firefox search (all visited places)" })
+map({ "n" }, "<leader>gf", "<cmd>DiffviewFileHistory<cr>", { desc = "File History (Diffview)" })
+map({ "n" }, "<leader>hw", "<cmd>DiffviewOpen origin/main...HEAD<cr>", { desc = "Diff with main branch" })
+map({ "n" }, "<leader>hd", "<cmd>DiffviewOpen<cr>", { desc = "Open Diffview" })
+map({ "n" }, "<leader>hm", "<cmd>DiffviewOpen --merge-tool<cr>", { desc = "Open Diffview merge tool" })
 
 map({ "n" }, "<leader>hB", function()
   Snacks.picker.firefox_bookmarks()
 end, { desc = "Firefox bookmarks" })
 
-map({ "n" }, "<leader>hH", function()
+map({ "n" }, "<leader>hf", function()
   Snacks.picker.firefox_history()
 end, { desc = "Firefox history" })
 
 -- File history keymaps
-map({ "n" }, "<leader>ht", function()
+map({ "n" }, "<leader>hh", function()
   require("file_history").history()
 end, { desc = "Current file history" })
 
-map({ "n" }, "<leader>hT", function()
+map({ "n" }, "<leader>ha", function()
   require("file_history").files()
 end, { desc = "All files in backup repository" })
 
-map({ "n" }, "<leader>hq", function()
+map({ "n" }, "<leader>hA", function()
   require("file_history").query()
 end, { desc = "Query file history by time range" })
 
-map({ "n" }, "<leader>hs", function()
+map({ "n" }, "<leader>hT", function()
   require("file_history").backup()
 end, { desc = "Manual backup with tag" })
 -- 'til
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
-
--- Fix diffput (t for 'transfer')
--- map({ "n" }, "dt", "dp", { desc = "diffput (t for 'transfer')" })
 
 -- Force override any plugin mappings for Q
 vim.keymap.set("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
@@ -233,9 +236,6 @@ map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
 -- Buffer navigation - using Tab keys
 map({ "n" }, "<S-Tab>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 map({ "n" }, "<Tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
--- Directional window navigation (commented out due to buffer nav conflicts)
--- map({ "n" }, "<C-a>", "<C-w>j", { desc = "Window down" })
--- map({ "n" }, "<C-e>", "<C-w>k", { desc = "Window up" })
 
 -- Add some commonly used editor operations
 map({ "n" }, "<leader>fs", ":w<CR>", { desc = "Save file" })

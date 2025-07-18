@@ -2,12 +2,6 @@ return {
   "sindrets/diffview.nvim",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   cmd = { "DiffviewOpen", "DiffviewFileHistory" },
-  keys = {
-    { "<leader>gw", "<cmd>DiffviewOpen origin/main...HEAD<cr>", desc = "Diff with main branch" },
-    { "<leader>gf", "<cmd>DiffviewFileHistory<cr>", desc = "File History (Diffview)" },
-    { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview" },
-    { "<leader>gv", "<cmd>DiffviewOpen --merge-tool<cr>", desc = "Open Diffview merge tool" },
-  },
   config = function()
     local ok, diffview = pcall(require, "diffview")
     if not ok then
