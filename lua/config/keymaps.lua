@@ -11,8 +11,21 @@ end
 
 -- Delete on 'x' (Graphite layout) - but allow surround plugin to handle 'xs'
 -- Note: surround plugin will handle 'xs' directly, this handles other 'x' operations
-map({ "n", "x" }, "x", "d", { desc = "Delete" })
--- Skip operator-pending mode to let surround plugin handle 'xs' directly
+-- Use function to ensure xx behaves like dd (delete line and yank)
+map({ "n" }, "x", function()
+  local count = vim.v.count1
+  if count == 1 then
+    return "d"
+  else
+    return count .. "d"
+  end
+end, { desc = "Delete", expr = true })
+
+-- Special case: xx should behave like dd (delete line and yank)
+map({ "n" }, "xx", "dd", { desc = "Delete line (and yank)" })
+
+-- Visual mode: x still maps to d
+map({ "x" }, "x", "d", { desc = "Delete" })
 
 -- Up/down/left/right
 map({ "n", "o", "x" }, "h", "h", { desc = "Left (h)" })
