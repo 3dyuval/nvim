@@ -127,6 +127,59 @@ end
 -- PICKER ACTIONS
 -- ============================================================================
 
+-- Reusable format action function
+local function format_action(picker, item_or_items)
+  -- Handle both single item and multiple items
+  local items = {}
+  if type(item_or_items) == "table" and item_or_items[1] then
+    -- Multiple items array
+    items = item_or_items
+  else
+    -- Single item or selected items
+    local selected = safe_picker_call(picker, "selected") or {}
+    if #selected > 0 then
+      items = selected
+    else
+      items = { item_or_items }
+    end
+  end
+  
+  -- Collect all files to format
+  local files_to_format = {}
+  for _, selected_item in ipairs(items) do
+    if selected_item.dir or vim.fn.isdirectory(selected_item.file) == 1 then
+      -- Directory: find all supported files recursively
+      local find_cmd = string.format(
+        "find %s -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.json' -o -name '*.lua' -o -name '*.html' -o -name '*.vue' \\)",
+        vim.fn.shellescape(selected_item.file)
+      )
+      local dir_files = vim.fn.systemlist(find_cmd)
+      for _, file in ipairs(dir_files) do
+        if vim.fn.filereadable(file) == 1 then
+          table.insert(files_to_format, file)
+        end
+      end
+    else
+      -- Single file: add if readable
+      if vim.fn.filereadable(selected_item.file) == 1 then
+        table.insert(files_to_format, selected_item.file)
+      end
+    end
+  end
+  
+  -- Format all collected files
+  if #files_to_format > 0 then
+    for _, file in ipairs(files_to_format) do
+      vim.cmd("FormatAndOrganize " .. vim.fn.fnameescape(file))
+    end
+    
+    -- Refresh picker if possible
+    if picker.refresh then
+      picker:refresh()
+    end
+  end
+end
+
 -- Explorer: Open multiple buffers action
 M.open_multiple_buffers = function(picker)
   if not validate_picker(picker) then
@@ -789,6 +842,11 @@ local actions = {
       end,
     },
     {
+      key = "f",
+      desc = "Format files",
+      action = format_action,
+    },
+    {
       key = "p",
       desc = "Run Save Patterns",
       action = run_save_patterns_action,
@@ -862,6 +920,11 @@ local actions = {
         vim.fn.setreg("+", item.file)
         vim.notify("Copied path: " .. item.file)
       end,
+    },
+    {
+      key = "f",
+      desc = "Format files in directory",
+      action = format_action,
     },
     {
       key = "n",
@@ -940,6 +1003,11 @@ local actions = {
           end
         end
       end,
+    },
+    {
+      key = "f",
+      desc = "Format selected files",
+      action = format_action,
     },
     {
       key = "p",

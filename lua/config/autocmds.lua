@@ -18,6 +18,58 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Create unified FormatAndOrganize command
+vim.api.nvim_create_user_command("FormatAndOrganize", function(opts)
+  local bufnr = opts.args and opts.args ~= "" and vim.fn.bufnr(opts.args) or vim.api.nvim_get_current_buf()
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+  
+  if filepath == "" or vim.fn.filereadable(filepath) == 0 then
+    return
+  end
+  
+  -- Get absolute path
+  local abs_file = vim.fn.fnamemodify(filepath, ":p")
+  
+  -- First: Format with conform
+  local conform = require("conform")
+  local format_success = conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+  
+  if not format_success then
+    return
+  end
+  
+  -- Second: Organize imports
+  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+  
+  if vim.tbl_contains({ "javascript", "javascriptreact", "typescript", "typescriptreact" }, filetype) then
+    -- Check if biome is available
+    local biome_cmd = vim.fn.executable("biome")
+    if biome_cmd == 1 then
+      -- Use biome to organize imports only (disable formatting)
+      local cmd = {
+        "biome",
+        "check",
+        "--write",
+        "--formatter-enabled=false",
+        "--linter-enabled=false",
+        abs_file
+      }
+      
+      vim.fn.system(cmd)
+    else
+      -- Fallback to TSToolsOrganizeImports
+      vim.cmd("TSToolsOrganizeImports")
+    end
+  end
+  
+  -- Reload buffer to show changes
+  vim.cmd("silent! checktime")
+end, {
+  desc = "Format code and organize imports",
+  nargs = "?",
+  complete = "file"
+})
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "javascript", "typescript", "json", "lua", "python", "css", "scss" },
   callback = function()
