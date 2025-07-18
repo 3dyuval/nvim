@@ -119,10 +119,13 @@ map({ "x" }, "C", "y", { desc = "Yank selection" })
 map({ "n", "x" }, "V", "P", { desc = "Paste before" })
 map({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
--- Undo/redo
-map({ "n" }, "z", "u", { desc = "Undo" })
-map({ "n" }, "<S-u>", "U", { desc = "Undo line" })
-map({ "n" }, "<C-u>", "<C-r>", { desc = "Redo" })
+-- Undo/redo (z for undo, Z for redo - Graphite layout)
+-- Need to unmap built-in commands first
+override_map("n", "u", "<Nop>", { desc = "Unmapped (now z)" })
+override_map("n", "U", "<Nop>", { desc = "Unmapped (now gz)" })
+override_map("n", "z", "u", { desc = "Undo" })
+override_map("n", "Z", "<C-r>", { desc = "Redo" })
+override_map("n", "gz", "U", { desc = "Undo line" })
 -- Change
 map({ "n", "o", "x" }, "w", "c", { desc = "Change" })
 map({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
