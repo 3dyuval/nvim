@@ -36,8 +36,8 @@ no-utils:
 # Run all tests
 test:
 	@echo "Running all tests..."
-	@if [ -f "scripts/run_tests.sh" ]; then \
-		./scripts/run_tests.sh; \
+	@if [ -f "test/ci.sh" ]; then \
+		./test/ci.sh; \
 	else \
 		echo "⚠️ Test runner script not found"; \
 		echo "=== Basic config test ==="; \

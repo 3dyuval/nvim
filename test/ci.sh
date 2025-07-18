@@ -18,20 +18,20 @@ if command -v nvim >/dev/null 2>&1; then
   if [ -d "lua/utils/tests" ]; then
     nvim --headless \
       -c "lua package.path = package.path .. ';./lua/?.lua'" \
-      -c "lua if pcall(require, 'plenary.test_harness') then require('plenary.test_harness').test_directory('./lua/utils/tests', {minimal_init = './tests/minimal_init.lua'}) else print('⚠️ Plenary not available, running basic tests...'); require('utils.tests.run_all').run_all_tests() end" \
+      -c "lua if pcall(require, 'plenary.test_harness') then require('plenary.test_harness').test_directory('./lua/utils/tests', {minimal_init = './test/minimal_init.lua'}) else print('⚠️ Plenary not available, running basic tests...'); require('utils.tests.run_all').run_all_tests() end" \
       -c "qa"
   else
     echo "⚠️ No test directory found"
   fi
   
-  # Test 3: Script-specific tests
-  echo "=== Running script tests ==="
-  if [ -d "lua/scripts/tests" ]; then
-    for test_file in lua/scripts/tests/*.lua; do
+  # Test 3: Additional test files in test directory
+  echo "=== Running additional tests ==="
+  if [ -d "test" ]; then
+    for test_file in test/test_*.lua; do
       if [ -f "$test_file" ]; then
         echo "Running $(basename "$test_file")"
         nvim --headless \
-          -c "lua require('$(echo "$test_file" | sed 's|lua/||' | sed 's|\.lua||' | sed 's|/|\.|g')').run_all_tests()" \
+          -c "lua package.path = package.path .. ';./test/?.lua'; dofile('$test_file')" \
           -c "qa"
       fi
     done

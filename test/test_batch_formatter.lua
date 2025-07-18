@@ -1,9 +1,7 @@
 -- Test for batch-formatter script
 -- Tests the CLI batch formatter with various file types
 
-local M = {}
-
-function M.run_all_tests()
+local function run_all_tests()
 	print("=== Batch Formatter Tests ===")
 
 	local temp_dir = vim.fn.tempname()
@@ -104,5 +102,5 @@ function M.run_all_tests()
 	print("=== Batch Formatter Tests Complete ===")
 end
 
-return M
-
+-- Run tests when file is executed directly
+run_all_tests()
