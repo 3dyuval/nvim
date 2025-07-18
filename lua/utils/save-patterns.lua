@@ -10,15 +10,11 @@ M.patterns = {
         name = "organize_imports",
         desc = "Organize imports",
         fn = function(bufnr)
-          -- Try typescript-tools command first
-          local ok, _ = pcall(vim.cmd, "TSToolsOrganizeImports")
-          if not ok then
-            -- Fallback to LSP organize imports
-            if LazyVim and LazyVim.lsp and LazyVim.lsp.action then
-              local organize_imports = LazyVim.lsp.action["source.organizeImports"]
-              if organize_imports and type(organize_imports) == "function" then
-                pcall(organize_imports)
-              end
+          -- Use LSP organize imports directly
+          if LazyVim and LazyVim.lsp and LazyVim.lsp.action then
+            local organize_imports = LazyVim.lsp.action["source.organizeImports"]
+            if organize_imports and type(organize_imports) == "function" then
+              pcall(organize_imports)
             end
           end
         end,
@@ -37,8 +33,14 @@ M.patterns = {
         name = "format",
         desc = "Format with stylua",
         fn = function(bufnr)
-          local conform = require("conform")
-          conform.format({ bufnr = bufnr, async = false })
+          -- Use LazyVim's formatting system instead of direct conform calls
+          if LazyVim and LazyVim.format then
+            LazyVim.format({ buf = bufnr })
+          else
+            -- Fallback to direct conform if LazyVim not available
+            local conform = require("conform")
+            conform.format({ bufnr = bufnr, async = false })
+          end
         end,
       },
     },
@@ -51,8 +53,14 @@ M.patterns = {
         name = "format",
         desc = "Format with biome",
         fn = function(bufnr)
-          local conform = require("conform")
-          conform.format({ bufnr = bufnr, async = false })
+          -- Use LazyVim's formatting system instead of direct conform calls
+          if LazyVim and LazyVim.format then
+            LazyVim.format({ buf = bufnr })
+          else
+            -- Fallback to direct conform if LazyVim not available
+            local conform = require("conform")
+            conform.format({ bufnr = bufnr, async = false })
+          end
         end,
       },
     },
@@ -175,12 +183,81 @@ function M.run_on_multiple_files()
   return picker
 end
 
+-- Enhanced run on multiple files with async formatter API
+function M.run_on_multiple_files_async()
+  local picker = Snacks.picker.files({
+    prompt = "Select files to run save patterns on (Tab to select multiple, Enter to process)",
+  })
+
+  -- Override the confirm action
+  picker.opts.win = picker.opts.win or {}
+  picker.opts.win.list = picker.opts.win.list or {}
+  picker.opts.win.list.keys = picker.opts.win.list.keys or {}
+
+  picker.opts.win.list.keys["<CR>"] = function(self)
+    local items = self:selected()
+    if #items == 0 then
+      local current = self:current()
+      if current then
+        items = { current }
+      end
+    end
+
+    if #items == 0 then
+      vim.notify("No files selected", vim.log.levels.WARN)
+      return
+    end
+
+    -- Extract file paths
+    local paths = {}
+    for _, item in ipairs(items) do
+      if item.file then
+        table.insert(paths, item.file)
+      end
+    end
+
+    if #paths > 0 then
+      -- Use the async formatter API for better progress tracking
+      local formatter = require("utils.formatter")
+      formatter.format_batch(paths, {
+        verbose = true,
+        on_progress = function(status)
+          vim.notify(string.format("Processing patterns: %s", status.message), vim.log.levels.INFO)
+        end,
+        on_complete = function(status)
+          local message = string.format("Save patterns completed: %s", status.message)
+          local level = status.exit_code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR
+          vim.notify(message, level)
+        end
+      })
+    end
+
+    self:close()
+  end
+
+  picker.opts.win.list.keys["<Tab>"] = "toggle_select"
+
+  return picker
+end
+
 -- Setup autocmd for save patterns
 function M.setup_autocmd()
   vim.api.nvim_create_autocmd("BufWritePre", {
     group = vim.api.nvim_create_augroup("SavePatterns", { clear = true }),
     callback = function(args)
       local bufnr = args.buf
+      
+      -- Respect LazyVim's auto-format settings
+      -- Check global auto-format setting
+      if vim.g.autoformat == false then
+        return
+      end
+      
+      -- Check buffer-specific auto-format setting
+      if vim.b[bufnr].autoformat == false then
+        return
+      end
+      
       local filetype = vim.bo[bufnr].filetype
       local filepath = vim.api.nvim_buf_get_name(bufnr)
 

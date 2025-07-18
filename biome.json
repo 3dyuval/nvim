@@ -32,7 +32,17 @@
 				"organizeImports": {
 					"level": "on",
 					"options": {
-						"groups": ["react", ":PACKAGE:", ":ALIAS:"]
+						"groups": [
+							"react",
+							"react-*",
+							"@angular",
+							"@angular/*",
+							"vue",
+							"vue-*",
+							":PACKAGE:",
+							":ALIAS:",
+							":PATH:"
+						]
 					}
 				}
 			}
