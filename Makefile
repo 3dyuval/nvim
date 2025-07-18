@@ -36,45 +36,13 @@ no-utils:
 # Run all tests
 test:
 	@echo "Running all tests..."
-	@echo "=== Testing configuration loading ==="
-	@nvim --headless -c "lua print('✅ Neovim config loaded successfully')" -c "qa"
-	
-	@echo "=== Running utils tests ==="
-	@if [ -f "lua/utils/tests/run_all.lua" ]; then \
-		nvim --headless -c "lua require('utils.tests.run_all').run_all_tests()" -c "qa"; \
+	@if [ -f "scripts/run_tests.sh" ]; then \
+		./scripts/run_tests.sh; \
 	else \
-		echo "⚠️  Utils test runner not found"; \
+		echo "⚠️ Test runner script not found"; \
+		echo "=== Basic config test ==="; \
+		nvim --headless -c "lua print('✅ Neovim config loaded successfully')" -c "qa"; \
 	fi
-	
-	@echo "=== Running git branch tests ==="
-	@if [ -f "lua/plugins/tests/test_snacks_git_branches.lua" ]; then \
-		nvim --headless -c "lua require('plugins.tests.test_snacks_git_branches').run_all_tests()" -c "qa"; \
-	else \
-		echo "⚠️  Git branch tests not found"; \
-	fi
-	
-	@echo "=== Running keymap conflict tests ==="
-	@if [ -f "lua/config/test-utils/test_keymaps.lua" ]; then \
-		nvim --headless -c "lua require('config.test-utils.test_keymaps')" -c "qa"; \
-	else \
-		echo "⚠️  Keymap tests not found"; \
-	fi
-	
-	@echo "=== Running fold tests ==="
-	@if [ -f "lua/plugins/tests/test_fold_functionality.lua" ]; then \
-		nvim --headless -c "lua require('plugins.tests.test_fold_functionality')" -c "qa"; \
-	else \
-		echo "⚠️  Fold tests not found"; \
-	fi
-	
-	@echo "=== Running batch formatter tests ==="
-	@if [ -f "lua/scripts/tests/test_batch_formatter.lua" ]; then \
-		nvim --headless -c "lua require('scripts.tests.test_batch_formatter').run_all_tests()" -c "qa"; \
-	else \
-		echo "⚠️  Batch formatter tests not found"; \
-	fi
-	
-	@echo "✅ All tests completed"
 
 # Format code using stylua
 format:
