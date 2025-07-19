@@ -38,3 +38,6 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 		vim.bo.filetype = "log"
 	end,
 })
+
+-- Initialize sticky explorer
+require("utils.sticky-explorer").setup()
