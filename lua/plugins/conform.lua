@@ -3,26 +3,21 @@ return {
   dependencies = { "williamboman/mason.nvim" }, -- Ensure Mason loads first
   opts = {
     formatters_by_ft = {
-      typescript = { "biome" },
-      javascript = { "biome" },
-      typescriptreact = { "biome" },
-      javascriptreact = { "biome" },
+      lua = { "stylua" },
+      typescript = { "biome", "biome-organize-imports" },
+      javascript = { "biome", "biome-organize-imports" },
+      typescriptreact = { "biome", "biome-organize-imports" },
+      javascriptreact = { "biome", "biome-organize-imports" },
       json = { "biome" },
       html = { "prettier" },
       htmlangular = { "prettier" },
       vue = { "prettier" },
+      css = { "prettier" },
+      scss = { "prettier" },
     },
-    formatters = {
-      biome = {
-        args = {
-          "format",
-          "--config-path",
-          vim.fn.stdpath("config") .. "/biome.json",
-          "--stdin-file-path",
-          "$FILENAME",
-        },
-      },
-      -- prettier config would go here if you need to override it
-    },
+    -- formatters = {
+    --   -- Remove custom biome config to use standard auto-discovery
+    --   -- Both biome and biome-organize-imports will now use util.root_file()
+    -- },
   },
 }

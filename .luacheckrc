@@ -11,9 +11,12 @@ globals = {
 std = "lua53+busted"
 
 -- Ignore certain warnings
+-- All warnings https://luacheck.readthedocs.io/en/stable/warnings.html
 ignore = {
+  "211", -- Unused local
   "212", -- Unused argument
-  "213", -- Unused loop variable
+  "213", -- Unused loop variable    
+  "314", -- Value of a field in a table literal is unused.
   "631", -- Line is too long
   "614", -- Trailing whitespace
   "611", -- Line contains only whitespace
@@ -36,3 +39,10 @@ max_line_length = 120
 
 -- Maximum cyclomatic complexity
 max_cyclomatic_complexity = 15
+
+-- Per-file configurations
+files["lua/utils/picker-extensions.lua"] = {
+  ignore = {
+    "432", -- shadowing upvalue argument 'item' (intentional in format_item callbacks)
+  },
+}

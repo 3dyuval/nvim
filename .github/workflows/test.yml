@@ -14,8 +14,21 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
+    - name: Run luacheck type check / linter
+      run: |
+        sudo apt-get update
+        sudo apt-get install lua5.3 lua5.3-dev luarocks -y --no-install-recommends
+        sudo luarocks install luacheck
+        make check
+
+    - name: Check for errant util calls
+      run: make no-utils
+
     - name: Install Neovim
-      run: sudo snap install nvim --classic
+      uses: rhysd/action-setup-vim@v1
+      with:
+        neovim: true
+        version: stable
 
     - name: Install Plenary
       run: |
@@ -28,14 +41,6 @@ jobs:
         mkdir -p $HOME/.local/share/nvim/lazy/
         git clone https://github.com/folke/snacks.nvim.git
         mv snacks.nvim $HOME/.local/share/nvim/lazy/
-
-    - name: Run luacheck type check / linter
-      run: |
-        sudo apt-get install lua-check -y --no-install-recommends
-        make check
-
-    - name: Check for errant util calls
-      run: make no-utils
 
     - name: Run Tests
       run: make test

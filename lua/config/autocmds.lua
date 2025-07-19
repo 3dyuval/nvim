@@ -36,6 +36,3 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     vim.bo.filetype = "log"
   end,
 })
-
--- Setup save patterns system
-require("utils.save-patterns").setup_autocmd()
