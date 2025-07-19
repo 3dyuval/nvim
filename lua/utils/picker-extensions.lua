@@ -127,6 +127,63 @@ end
 -- PICKER ACTIONS
 -- ============================================================================
 
+-- Reusable format action function
+local function format_action(picker, item_or_items)
+  -- Handle both single item and multiple items
+  local items
+  if type(item_or_items) == "table" and item_or_items[1] then
+    -- Multiple items array
+    items = item_or_items
+  else
+    -- Single item or selected items
+    local selected = safe_picker_call(picker, "selected") or {}
+    if #selected > 0 then
+      items = selected
+    else
+      items = { item_or_items }
+    end
+  end
+
+  -- Collect all files to format
+  local files_to_format = {}
+  for _, selected_item in ipairs(items) do
+    if selected_item.dir or vim.fn.isdirectory(selected_item.file) == 1 then
+      -- Directory: find all supported files recursively
+      local find_cmd = string.format(
+        "find %s -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.json' -o -name '*.lua' -o -name '*.html' -o -name '*.vue' -o -name '*.css' -o -name '*.scss' \\)",
+        vim.fn.shellescape(selected_item.file)
+      )
+      local dir_files = vim.fn.systemlist(find_cmd)
+      for _, file in ipairs(dir_files) do
+        if vim.fn.filereadable(file) == 1 then
+          table.insert(files_to_format, file)
+        end
+      end
+    else
+      -- Single file: add if readable
+      if vim.fn.filereadable(selected_item.file) == 1 then
+        table.insert(files_to_format, selected_item.file)
+      end
+    end
+  end
+
+  -- Format all collected files
+  if #files_to_format > 0 then
+    for _, file in ipairs(files_to_format) do
+      -- Use conform directly since it now handles import organization
+      local conform = require("conform")
+      local bufnr = vim.fn.bufnr(file, true)
+      vim.fn.bufload(bufnr)
+      conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+    end
+
+    -- Refresh picker if possible
+    if picker.refresh then
+      picker:refresh()
+    end
+  end
+end
+
 -- Explorer: Open multiple buffers action
 M.open_multiple_buffers = function(picker)
   if not validate_picker(picker) then
@@ -294,9 +351,9 @@ end
 -- CONTEXT MENU SYSTEM
 -- ============================================================================
 
--- Reusable save patterns action
-local function run_save_patterns_action(picker, items)
-  local save_patterns = require("utils.save-patterns")
+-- Format files using conform.nvim
+local function format_files_action(picker, items)
+  local conform = require("conform")
   local processed = 0
   local errors = 0
 
@@ -314,26 +371,21 @@ local function run_save_patterns_action(picker, items)
         vim.bo[bufnr].modifiable = true
         vim.bo[bufnr].readonly = false
 
-        local filetype = vim.filetype.match({ filename = item.file }) or ""
-        local patterns = save_patterns.get_patterns_for_filetype(filetype)
-          or save_patterns.get_patterns_for_file(item.file)
+        -- Use conform directly since it now handles import organization
+        conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+        processed = processed + 1
 
-        if patterns then
-          save_patterns.run_patterns(bufnr, patterns)
-          processed = processed + 1
-
-          if vim.bo[bufnr].modified then
-            vim.api.nvim_buf_call(bufnr, function()
-              vim.cmd("silent! write")
-            end)
-          end
+        if vim.bo[bufnr].modified then
+          vim.api.nvim_buf_call(bufnr, function()
+            vim.cmd("silent! write")
+          end)
         end
       end)
 
       if not success then
         errors = errors + 1
         vim.notify(
-          "Error processing " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
+          "Error formatting " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
           vim.log.levels.WARN
         )
       end
@@ -341,15 +393,9 @@ local function run_save_patterns_action(picker, items)
   end
 
   if processed > 0 then
-    vim.notify(
-      string.format(
-        "Processed save patterns on %d files%s",
-        processed,
-        errors > 0 and " (" .. errors .. " errors)" or ""
-      )
-    )
+    vim.notify(string.format("Formatted %d files%s", processed, errors > 0 and " (" .. errors .. " errors)" or ""))
   else
-    vim.notify("No files processed - no matching patterns found", vim.log.levels.WARN)
+    vim.notify("No files formatted", vim.log.levels.WARN)
   end
 end
 
@@ -817,9 +863,14 @@ local actions = {
       end,
     },
     {
-      key = "p",
-      desc = "Run Save Patterns",
-      action = run_save_patterns_action,
+      key = "f",
+      desc = "Format files",
+      action = format_action,
+    },
+    {
+      key = "f",
+      desc = "Format files",
+      action = format_files_action,
     },
   },
 
@@ -890,6 +941,11 @@ local actions = {
         vim.fn.setreg("+", item.file)
         vim.notify("Copied path: " .. item.file)
       end,
+    },
+    {
+      key = "f",
+      desc = "Format files in directory",
+      action = format_action,
     },
     {
       key = "n",
@@ -985,9 +1041,14 @@ local actions = {
       end,
     },
     {
-      key = "p",
-      desc = "Run Save Patterns",
-      action = run_save_patterns_action,
+      key = "f",
+      desc = "Format selected files",
+      action = format_action,
+    },
+    {
+      key = "f",
+      desc = "Format files",
+      action = format_files_action,
     },
     {
       key = "f",
@@ -1086,7 +1147,7 @@ local actions = {
       key = "p",
       desc = "Run Save Patterns",
       action = function(picker, items)
-        run_save_patterns_action(picker, items)
+        format_files_action(picker, items)
         if picker.refresh then
           picker:refresh()
         end
@@ -1189,7 +1250,7 @@ local actions = {
         end
 
         if #file_items > 0 then
-          run_save_patterns_action(picker, file_items)
+          format_files_action(picker, file_items)
         else
           vim.notify("No valid files found in selected buffers", vim.log.levels.WARN)
         end
