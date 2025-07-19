@@ -220,35 +220,46 @@ M.copy_file_path = function(picker, item)
 		return
 	end
 
-	local vals = {
-		["PATH"] = item.file,
-		["FILE CONTENT"] = "file_content",
-		["PATH (HOME)"] = vim.fn.fnamemodify(item.file, ":~"),
-		["PATH (CWD)"] = vim.fn.fnamemodify(item.file, ":."),
-		["BASENAME"] = vim.fn.fnamemodify(item.file, ":t:r"),
-		["EXTENSION"] = vim.fn.fnamemodify(item.file, ":t:e"),
-		["FILENAME"] = vim.fn.fnamemodify(item.file, ":t"),
-		["URI"] = vim.uri_from_fname(item.file),
+	-- Create ordered list with icons and values
+	local copy_options = {
+		{ key = "PATH (CWD)", icon = "󰉋", value = vim.fn.fnamemodify(item.file, ":.") },
+		{ key = "PATH (HOME)", icon = "󰋜", value = vim.fn.fnamemodify(item.file, ":~") },
+		{ key = "FILE CONTENT", icon = "󰈙", value = "file_content" },
+		{ key = "FILENAME", icon = "󰈔", value = vim.fn.fnamemodify(item.file, ":t") },
+		{ key = "PATH", icon = "󰆏", value = item.file },
+		{ key = "BASENAME", icon = "󰈙", value = vim.fn.fnamemodify(item.file, ":t:r") },
+		{ key = "EXTENSION", icon = "󰈙", value = vim.fn.fnamemodify(item.file, ":t:e") },
+		{ key = "URI", icon = "󰌷", value = vim.uri_from_fname(item.file) },
 	}
 
-	local options = vim.tbl_filter(function(val)
-		return vals[val] ~= ""
-	end, vim.tbl_keys(vals))
+	-- Filter out empty values and create menu options
+	local menu_options = {}
+	local option_map = {}
 
-	if vim.tbl_isempty(options) then
+	for i, option in ipairs(copy_options) do
+		if option.value and option.value ~= "" then
+			local display_text = string.format("%s %s: %s", option.icon, option.key, option.value)
+			table.insert(menu_options, display_text)
+			option_map[#menu_options] = option
+		end
+	end
+
+	if #menu_options == 0 then
 		vim.notify("No values to copy", vim.log.levels.WARN)
 		return
 	end
 
-	vim.ui.select(options, {
+	vim.ui.select(menu_options, {
 		prompt = "Choose to copy to clipboard:",
 		format_item = function(list_item)
-			return ("%s: %s"):format(list_item, vals[list_item])
+			return list_item
 		end,
-	}, function(choice)
-		local result = vals[choice]
-		if result then
-			if choice == "FILE CONTENT" then
+	}, function(choice, idx)
+		if choice and idx and option_map[idx] then
+			local selected_option = option_map[idx]
+			local result = selected_option.value
+
+			if selected_option.key == "FILE CONTENT" then
 				if vim.fn.filereadable(item.file) == 0 then
 					vim.notify("File not readable: " .. item.file, vim.log.levels.ERROR)
 					return
@@ -1608,6 +1619,7 @@ M.context_menu = function(picker, item)
 
 	-- Determine what we're working with
 	local menu_title
+	local target_items = { item }
 
 	if item then
 		if item.dir then
@@ -1627,76 +1639,8 @@ M.context_menu = function(picker, item)
 	-- Format action
 	table.insert(options, "󰉋 Format")
 	table.insert(actions, function()
-		local paths = {}
-		for _, target_item in ipairs(target_items) do
-			if target_item.file then
-				table.insert(paths, target_item.file)
-			end
-		end
-
-		if #paths > 0 then
-			if #paths == 1 and not target_items[1].dir then
-				formatter.format_file(paths[1], {
-					verbose = true,
-					on_complete = function(status)
-						if picker.refresh then
-							picker:refresh()
-						end
-					end,
-				})
-			else
-				formatter.format_batch(paths, {
-					verbose = true,
-					on_complete = function(status)
-						if picker.refresh then
-							picker:refresh()
-						end
-					end,
-				})
-			end
-		end
-	end)
-
-	-- Save patterns action
-	table.insert(options, "󰒓 Save Patterns")
-	table.insert(actions, function()
-		local save_patterns = require("utils.save-patterns")
-		local processed = 0
-
-		for _, target_item in ipairs(target_items) do
-			if not target_item.dir and vim.fn.filereadable(target_item.file) == 1 then
-				local success, err = pcall(function()
-					local bufnr = vim.fn.bufnr(target_item.file, true)
-					vim.fn.bufload(bufnr)
-
-					local filetype = vim.filetype.match({ filename = target_item.file }) or ""
-					local patterns = save_patterns.get_patterns_for_filetype(filetype)
-						or save_patterns.get_patterns_for_file(target_item.file)
-
-					if patterns then
-						save_patterns.run_patterns(bufnr, patterns)
-						processed = processed + 1
-
-						if vim.bo[bufnr].modified then
-							vim.api.nvim_buf_call(bufnr, function()
-								vim.cmd("silent! write")
-							end)
-						end
-					end
-				end)
-
-				if not success then
-					vim.notify("Error processing " .. vim.fn.fnamemodify(target_item.file, ":t"), vim.log.levels.WARN)
-				end
-			end
-		end
-
-		if processed > 0 then
-			vim.notify("Processed save patterns on " .. processed .. " files")
-			if picker.refresh then
-				picker:refresh()
-			end
-		end
+		-- Use the unified format action that works with any scenario
+		format_action(picker, item)
 	end)
 
 	-- Rename action
@@ -1738,17 +1682,6 @@ M.context_menu = function(picker, item)
 				picker:refresh()
 			end
 		end
-	end)
-
-	-- Copy path action
-	table.insert(options, "󰆏 Copy Path")
-	table.insert(actions, function()
-		local paths = {}
-		for _, target_item in ipairs(target_items) do
-			table.insert(paths, target_item.file)
-		end
-		vim.fn.setreg("+", table.concat(paths, "\n"))
-		vim.notify("Copied " .. #paths .. " paths")
 	end)
 
 	-- Show the menu
