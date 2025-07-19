@@ -83,6 +83,7 @@ return {
 					keys = {
 						["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
 						["c"] = "create", -- Remap 'c' to create file/folder
+						["<C-a>"] = false, -- Disable select all - it's distracting
 						["i"] = function(picker)
 							local item = picker:current()
 							if item and item.dir then
@@ -160,6 +161,7 @@ return {
 								["/"] = "toggle_focus",
 								["<Esc>"] = { "close", mode = { "n", "i" } },
 								["<C-c>"] = "focus_input",
+								["<C-a>"] = false, -- Disable select all - it's distracting
 								["p"] = "copy_file_path",
 								["g"] = "search_in_directory", -- Opens a grep snacks
 								["i"] = function(picker)

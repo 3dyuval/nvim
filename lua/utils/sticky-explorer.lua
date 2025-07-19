@@ -59,10 +59,20 @@ local function open_explorer()
 	-- Store current window to return focus
 	local current_win = vim.api.nvim_get_current_win()
 
-	-- Create simple explorer without any special close handling
+	-- Create explorer with Esc key to close and update state
 	local picker = require("snacks").picker.explorer({
 		root = false,
 		auto_close = false,
+		win = {
+			list = {
+				keys = {
+					["<Esc>"] = function(picker)
+						set_explorer_enabled(false)
+						picker:close()
+					end,
+				},
+			},
+		},
 		layout = {
 			preset = "left",
 			preview = false,
@@ -89,17 +99,14 @@ end
 
 -- Public API
 function M.toggle()
-	local currently_enabled = get_explorer_enabled()
-	local new_state = not currently_enabled
-
-	set_explorer_enabled(new_state)
-
-	if new_state then
-		-- Opening: create explorer
-		open_explorer()
+	local win = find_explorer_window()
+	if win then
+		-- Explorer is open, focus it instead of closing
+		vim.api.nvim_set_current_win(win)
 	else
-		-- Closing: close explorer
-		close_explorer()
+		-- Explorer is closed, open it
+		set_explorer_enabled(true)
+		open_explorer()
 	end
 end
 
@@ -144,4 +151,3 @@ function M.setup()
 end
 
 return M
-
