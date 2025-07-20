@@ -36,7 +36,7 @@ return {
         -- "remove_unused_imports"|"organize_imports") -- or string "all"
         -- to include all supported code actions
         -- specify commands exposed as code_actions
-        expose_as_code_action = {},
+        expose_as_code_action = "all", -- Expose all supported code actions
         -- string|nil - specify a custom path to `tsserver.js` file, if this is nil or file under path
         -- not exists then standard path resolution strategy is applied
         tsserver_path = nil,
@@ -116,6 +116,8 @@ return {
       { "<leader>cC", "<cmd>LspInfo<cr>", desc = "LSP Info" },
       { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh Codelens" },
       { "<leader>cr", vim.lsp.buf.references, desc = "Show References" },
+      { "<leader>cc", vim.lsp.buf.rename, desc = "Rename Symbol" },
+      { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action" },
       {
         "gR",
         "<cmd>TSToolsFileReferences<cr>",
