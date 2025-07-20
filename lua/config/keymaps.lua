@@ -103,13 +103,14 @@ map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 map({ "v" }, "X", "r", { desc = "Replace selected text" })
 
 -- Folds
-map({ "n", "x" }, "b", "z", { desc = "Fold commands" })
+map({ "n", "x" }, "f", "z", { desc = "Fold commands" })
+map({ "n", "x" }, "ff", "zo", { desc = "Open fold (unfold)" })
+map({ "n", "x" }, "fF", "zR", { desc = "Open all folds (unfold all)" })
+map({ "n", "x" }, "fu", "zc", { desc = "Close fold (fold one)" })
+map({ "n", "x" }, "fU", "zM", { desc = "Close all folds (fold all)" })
+map({ "n", "x" }, "fe", "zk", { desc = "Move up to fold" })
+map({ "n", "x" }, "fa", "zj", { desc = "Move down to fold" })
 map({ "n", "x" }, "bb", "zb", { desc = "Scroll line and cursor to bottom" })
-map({ "n", "x" }, "be", "zk", { desc = "Move up to fold" })
-map({ "n", "x" }, "ba", "zj", { desc = "Move down to fold" })
-map({ "n", "x" }, "bf", "zc", { desc = "Close fold" })
-map({ "n", "x" }, "bF", "zM", { desc = "Fold entire buffer" })
-map({ "n", "x" }, "bO", "zR", { desc = "Open all folds" })
 
 -- Copy/paste
 map({ "n", "o", "x" }, "c", "y", { desc = "Yank (copy)" })
