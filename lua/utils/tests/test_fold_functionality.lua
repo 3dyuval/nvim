@@ -46,13 +46,14 @@ end
 -- Test 4: Test existing fold keymaps
 print("\n4. Testing existing fold keymaps...")
 local keymaps_to_test = {
-	{ mode = "n", lhs = "b", desc = "Fold commands prefix (maps to z)" },
+	{ mode = "n", lhs = "f", desc = "Fold commands prefix (maps to z)" },
+	{ mode = "n", lhs = "ff", desc = "Open fold (unfold)" },
+	{ mode = "n", lhs = "fF", desc = "Open all folds (unfold all)" },
+	{ mode = "n", lhs = "fu", desc = "Close fold (fold one)" },
+	{ mode = "n", lhs = "fU", desc = "Close all folds (fold all)" },
+	{ mode = "n", lhs = "fe", desc = "Move up to fold (zk)" },
+	{ mode = "n", lhs = "fa", desc = "Move down to fold (zj)" },
 	{ mode = "n", lhs = "bb", desc = "Scroll line to bottom (zb)" },
-	{ mode = "n", lhs = "be", desc = "Move up to fold (zk)" },
-	{ mode = "n", lhs = "ba", desc = "Move down to fold (zj)" },
-	{ mode = "n", lhs = "bf", desc = "Close fold (zc)" },
-	{ mode = "n", lhs = "bF", desc = "Fold entire buffer (zM)" },
-	{ mode = "n", lhs = "bO", desc = "Open all folds (zR)" },
 }
 
 -- Get all current keymaps
