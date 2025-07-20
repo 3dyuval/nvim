@@ -58,9 +58,10 @@ map({ "n", "o", "x" }, ".", "$", { desc = "End of line" })
 -- Insert/append
 -- map({ "v" }, "S", "I", { desc = "Insert at start of selection" })
 map({ "n" }, "r", "i", { desc = "Insert before cursor" })
-map({ "n" }, "T", "I", { desc = "Insert at start of line" })
+map({ "n" }, "R", "I", { desc = "Insert at start of line" })
 map({ "n" }, "t", "a", { desc = "Insert after cursor" })
-map({ "n" }, "S", "A", { desc = "Insert at end of line" })
+map({ "n" }, "T", "A", { desc = "Insert at end of line" })
+map({ "n" }, "S", "R", { desc = "Replace mode" })
 
 -- Jumplist navigation
 map({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
@@ -102,8 +103,7 @@ map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 -- Keep visual replace on a different key
 map({ "v" }, "X", "r", { desc = "Replace selected text" })
 
--- Folds
-map({ "n", "x" }, "f", "z", { desc = "Fold commands" })
+-- Folds (f and F remain default vim find character forward/backward)
 map({ "n", "x" }, "ff", "zo", { desc = "Open fold (unfold)" })
 map({ "n", "x" }, "fF", "zR", { desc = "Open all folds (unfold all)" })
 map({ "n", "x" }, "fu", "zc", { desc = "Close fold (fold one)" })
