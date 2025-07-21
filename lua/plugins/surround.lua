@@ -216,7 +216,10 @@ M.default_opts = {
   move_cursor = "begin",
   indent_lines = function(start, stop)
     local b = vim.bo
-    if start < stop and (b.equalprg ~= "" or b.indentexpr ~= "" or b.cindent or b.smartindent or b.lisp) then
+    if
+      start < stop
+      and (b.equalprg ~= "" or b.indentexpr ~= "" or b.cindent or b.smartindent or b.lisp)
+    then
       vim.cmd(string.format("silent normal! %dG=%dG", start, stop))
       require("nvim-surround.cache").set_callback("")
     end
@@ -240,7 +243,10 @@ M.get_selection = function(args)
   elseif args.query then
     return require("nvim-surround.queries").get_selection(args.query.capture, args.query.type)
   else
-    vim.notify("Invalid key provided for `:h nvim-surround.config.get_selection()`.", vim.log.levels.ERROR)
+    vim.notify(
+      "Invalid key provided for `:h nvim-surround.config.get_selection()`.",
+      vim.log.levels.ERROR
+    )
   end
 end
 
@@ -252,7 +258,10 @@ M.get_selections = function(args)
   if args.pattern then
     return require("nvim-surround.patterns").get_selections(selection, args.pattern)
   else
-    vim.notify("Invalid key provided for `:h nvim-surround.config.get_selections()`.", vim.log.levels.ERROR)
+    vim.notify(
+      "Invalid key provided for `:h nvim-surround.config.get_selections()`.",
+      vim.log.levels.ERROR
+    )
   end
 end
 

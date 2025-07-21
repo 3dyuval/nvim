@@ -27,14 +27,26 @@ return {
       })
     end,
     keys = {
-      { "gpd", "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", desc = "Preview Definition" },
+      {
+        "gpd",
+        "<cmd>lua require('goto-preview').goto_preview_definition()<CR>",
+        desc = "Preview Definition",
+      },
       {
         "gpt",
         "<cmd>lua require('goto-preview').goto_preview_type_definition()<CR>",
         desc = "Preview Type Definition",
       },
-      { "gpi", "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", desc = "Preview Implementation" },
-      { "gpr", "<cmd>lua require('goto-preview').goto_preview_references()<CR>", desc = "Preview References" },
+      {
+        "gpi",
+        "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>",
+        desc = "Preview Implementation",
+      },
+      {
+        "gpr",
+        "<cmd>lua require('goto-preview').goto_preview_references()<CR>",
+        desc = "Preview References",
+      },
       { "gP", "<cmd>lua require('goto-preview').close_all_win()<CR>", desc = "Close All Previews" },
     },
   },

@@ -11,7 +11,7 @@ return {
 
       -- Disable vtsls (replaced with typescript-tools.nvim)
       vtsls = { enabled = false },
-      
+
       -- Original vtsls config preserved for reference
       --[[vtsls = {
         filetypes = {
@@ -236,7 +236,12 @@ return {
       end,--]]
       volar = function(_, opts)
         LazyVim.lsp.on_attach(function(client, buffer)
-          vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
+          vim.keymap.set(
+            "n",
+            "<leader>cr",
+            vim.lsp.buf.rename,
+            { buffer = buffer, desc = "LSP Rename" }
+          )
           if client.server_capabilities.documentSymbolProvider then
             require("nvim-navic").attach(client, buffer)
           end

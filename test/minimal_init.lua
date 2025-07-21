@@ -14,13 +14,12 @@ require("config.options")
 
 -- Simple test helper
 _G.test_util = {
-	reset_editor = function()
-		for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-			if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
-				vim.api.nvim_buf_delete(buf, { force = true })
-			end
-		end
-		vim.cmd("silent! %bwipeout!")
-	end,
+  reset_editor = function()
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+        vim.api.nvim_buf_delete(buf, { force = true })
+      end
+    end
+    vim.cmd("silent! %bwipeout!")
+  end,
 }
-

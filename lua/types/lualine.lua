@@ -28,4 +28,3 @@
 ---@field winbar table Winbar configuration
 ---@field inactive_winbar table Inactive winbar configuration
 ---@field extensions table Extensions configuration
-

@@ -1,4 +1,4 @@
-function js_formatter(bufnr)
+local function js_formatter(bufnr)
   -- Get the directory of the current buffer
   local bufname = vim.api.nvim_buf_get_name(bufnr)
   local dirname = vim.fn.fnamemodify(bufname, ":h")
