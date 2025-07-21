@@ -163,9 +163,19 @@ map({ "n" }, "<leader>hg", function()
 end, { desc = "Git file history" })
 
 map({ "n" }, "<leader>gf", "<cmd>DiffviewFileHistory<cr>", { desc = "File History (Diffview)" })
-map({ "n" }, "<leader>hw", "<cmd>DiffviewOpen origin/main...HEAD<cr>", { desc = "Diff with main branch" })
+map(
+  { "n" },
+  "<leader>hw",
+  "<cmd>DiffviewOpen origin/main...HEAD<cr>",
+  { desc = "Diff with main branch" }
+)
 map({ "n" }, "<leader>hd", "<cmd>DiffviewOpen<cr>", { desc = "Open Diffview" })
-map({ "n" }, "<leader>hm", "<cmd>DiffviewOpen --merge-tool<cr>", { desc = "Open Diffview merge tool" })
+map(
+  { "n" },
+  "<leader>hm",
+  "<cmd>DiffviewOpen --merge-tool<cr>",
+  { desc = "Open Diffview merge tool" }
+)
 
 map({ "n" }, "<leader>hB", function()
   Snacks.picker.firefox_bookmarks()
@@ -340,9 +350,24 @@ end, { desc = "Diffview this file" })
 
 -- Treewalker keymaps (will override LazyVim defaults)
 -- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl
-vim.keymap.set({ "n", "v" }, "<C-e>", "<cmd>Treewalker Up<cr>", { silent = true, desc = "Treewalker Up" })
-vim.keymap.set({ "n", "v" }, "<C-a>", "<cmd>Treewalker Down<cr>", { silent = true, desc = "Treewalker Down" })
-vim.keymap.set({ "n", "v" }, "<C-i>", "<cmd>Treewalker Right<cr>", { silent = true, desc = "Treewalker Right" })
+vim.keymap.set(
+  { "n", "v" },
+  "<C-e>",
+  "<cmd>Treewalker Up<cr>",
+  { silent = true, desc = "Treewalker Up" }
+)
+vim.keymap.set(
+  { "n", "v" },
+  "<C-a>",
+  "<cmd>Treewalker Down<cr>",
+  { silent = true, desc = "Treewalker Down" }
+)
+vim.keymap.set(
+  { "n", "v" },
+  "<C-i>",
+  "<cmd>Treewalker Right<cr>",
+  { silent = true, desc = "Treewalker Right" }
+)
 -- Use C-h for parent (move left then parent)
 vim.keymap.set("n", "<C-h>", function()
   vim.cmd("normal! h")
@@ -354,10 +379,30 @@ vim.keymap.set("v", "<C-h>", function()
 end, { desc = "Move left then Treewalker Parent", silent = true })
 
 -- Swapping keymaps using Alt+HAEI - "swap" with alt
-vim.keymap.set("n", "<M-e>", "<cmd>Treewalker SwapUp<cr>", { silent = true, desc = "Treewalker SwapUp" })
-vim.keymap.set("n", "<M-a>", "<cmd>Treewalker SwapDown<cr>", { silent = true, desc = "Treewalker SwapDown" })
-vim.keymap.set("n", "<M-h>", "<cmd>Treewalker SwapLeft<cr>", { silent = true, desc = "Treewalker SwapLeft" })
-vim.keymap.set("n", "<M-i>", "<cmd>Treewalker SwapRight<cr>", { silent = true, desc = "Treewalker SwapRight" })
+vim.keymap.set(
+  "n",
+  "<M-e>",
+  "<cmd>Treewalker SwapUp<cr>",
+  { silent = true, desc = "Treewalker SwapUp" }
+)
+vim.keymap.set(
+  "n",
+  "<M-a>",
+  "<cmd>Treewalker SwapDown<cr>",
+  { silent = true, desc = "Treewalker SwapDown" }
+)
+vim.keymap.set(
+  "n",
+  "<M-h>",
+  "<cmd>Treewalker SwapLeft<cr>",
+  { silent = true, desc = "Treewalker SwapLeft" }
+)
+vim.keymap.set(
+  "n",
+  "<M-i>",
+  "<cmd>Treewalker SwapRight<cr>",
+  { silent = true, desc = "Treewalker SwapRight" }
+)
 
 -- Project-wide diagnostics keymap
 override_map("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })

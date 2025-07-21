@@ -77,7 +77,8 @@ return {
               end
 
               -- Revert current buffer to selected commit
-              local cmd = string.format("git show %s:%s", commit_hash, vim.fn.fnamemodify(file_path, ":."))
+              local cmd =
+                string.format("git show %s:%s", commit_hash, vim.fn.fnamemodify(file_path, ":."))
               local handle = io.popen(cmd)
               if handle then
                 local content = handle:read("*a")
