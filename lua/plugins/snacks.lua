@@ -256,6 +256,46 @@ return {
 						},
 					},
 				},
+				git_branches = {
+					auto_close = false,
+					focus = "list",
+					actions = {
+						branch_actions_menu = function(picker)
+							-- Use the centralized picker-extensions for branch actions
+							local picker_extensions = require("utils.picker-extensions")
+							picker_extensions.show_context_menu(picker)
+						end,
+					},
+					win = {
+						list = {
+							keys = {
+								["p"] = "branch_actions_menu",
+							},
+						},
+					},
+				},
+				git_diff = {
+					layout = {
+						preset = "vscode",
+					},
+				},
+				git_log = {
+					focus = "list",
+					actions = {
+						log_actions_menu = function(picker)
+							-- Use the centralized picker-extensions for log actions
+							local picker_extensions = require("utils.picker-extensions")
+							picker_extensions.show_context_menu(picker)
+						end,
+					},
+					win = {
+						list = {
+							keys = {
+								["p"] = "log_actions_menu",
+							},
+						},
+					},
+				},
 			},
 		},
 	},

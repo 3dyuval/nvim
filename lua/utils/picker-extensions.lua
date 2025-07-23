@@ -123,6 +123,70 @@ M.get_branch_name = function(item)
 	return nil
 end
 
+-- Extract commit hash from git log picker item
+M.get_commit_hash = function(item)
+	if not item then
+		return nil
+	end
+
+	-- If item has a commit/hash field, use it
+	if type(item) == "table" then
+		if item.commit then
+			return item.commit
+		end
+		if item.hash then
+			return item.hash
+		end
+		if item.sha then
+			return item.sha
+		end
+
+		-- If item has text field, try to parse it
+		if item.text then
+			-- Match patterns like "abc1234 commit message"
+			local commit_pat = "([a-z0-9]+)"
+			local hash = item.text:match("^" .. commit_pat)
+			if hash and #hash >= 7 then
+				return hash
+			end
+		end
+	end
+
+	-- Handle string items (simple commit hash)
+	if type(item) == "string" then
+		local hash = item:match("^([a-z0-9]+)")
+		if hash and #hash >= 7 then
+			return hash
+		end
+	end
+
+	return nil
+end
+
+-- Extract commit message from git log picker item
+M.get_commit_message = function(item)
+	if not item then
+		return nil
+	end
+
+	-- If item has a message field, use it
+	if type(item) == "table" and item.message then
+		return item.message
+	end
+
+	-- If item has text field, try to parse it
+	if type(item) == "table" and item.text then
+		-- Match patterns like "abc1234 commit message"
+		local commit_pat = "[a-z0-9]+"
+		local message = item.text:match("^" .. commit_pat .. "%s+(.+)")
+		if message then
+			return message
+		end
+	end
+
+	return nil
+end
+
 -- ============================================================================
 -- PICKER ACTIONS
 -- ============================================================================
@@ -167,14 +231,11 @@ local function format_action(picker, item_or_items)
 		end
 	end
 
-	-- Format all collected files
+	-- Format all collected files using the centralized formatter
 	if #files_to_format > 0 then
+		local formatter = require("utils.formatter")
 		for _, file in ipairs(files_to_format) do
-			-- Use conform directly since it now handles import organization
-			local conform = require("conform")
-			local bufnr = vim.fn.bufnr(file, true)
-			vim.fn.bufload(bufnr)
-			conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+			formatter.format_file(file, { timeout_ms = 5000, quiet = true })
 		end
 
 		-- Refresh picker if possible
@@ -362,9 +423,9 @@ end
 -- CONTEXT MENU SYSTEM
 -- ============================================================================
 
--- Format files using conform.nvim
+-- Format files using centralized formatter
 local function format_files_action(picker, items)
-	local conform = require("conform")
+	local formatter = require("utils.formatter")
 	local processed = 0
 	local errors = 0
 
@@ -375,30 +436,15 @@ local function format_files_action(picker, items)
 
 	for _, item in ipairs(items) do
 		if not item.dir and vim.fn.filereadable(item.file) == 1 then
-			local success, err = pcall(function()
-				local bufnr = vim.fn.bufnr(item.file, true)
-				vim.fn.bufload(bufnr)
-
-				vim.bo[bufnr].modifiable = true
-				vim.bo[bufnr].readonly = false
-
-				-- Use conform directly since it now handles import organization
-				conform.format({ bufnr = bufnr, timeout_ms = 5000 })
+			local success = formatter.format_file(item.file, { 
+				timeout_ms = 5000, 
+				quiet = true 
+			})
+			
+			if success then
 				processed = processed + 1
-
-				if vim.bo[bufnr].modified then
-					vim.api.nvim_buf_call(bufnr, function()
-						vim.cmd("silent! write")
-					end)
-				end
-			end)
-
-			if not success then
+			else
 				errors = errors + 1
-				vim.notify(
-					"Error formatting " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
-					vim.log.levels.WARN
-				)
 			end
 		end
 	end
@@ -700,6 +746,16 @@ local contexts = {
 			if source == "git_branches" then
 				return true
 			end
+			
+			-- Check if _source is git_branches (Snacks internal property)
+			if picker._source == "git_branches" then
+				return true
+			end
+
+			-- Check if picker has branch_actions_menu (our custom action)
+			if picker.opts and picker.opts.actions and picker.opts.actions.branch_actions_menu then
+				return true
+			end
 
 			-- Check if picker has git branch-specific properties
 			local current, err = M.get_current_item(picker)
@@ -722,6 +778,76 @@ local contexts = {
 							if current.text:match(pattern) then
 								return true
 							end
+						end
+					end
+				end
+			end
+
+			return false
+		end,
+		get_items = function(picker)
+			local items = {}
+
+			if not validate_picker(picker) then
+				return items
+			end
+
+			-- Try to get selected items first
+			local selected, err = safe_picker_call(picker, "selected")
+			if not err and selected and #selected > 0 then
+				items = selected
+			end
+
+			-- Fallback to current item
+			if #items == 0 then
+				local current, err = M.get_current_item(picker)
+				if not err and current then
+					items = { current }
+				end
+			end
+
+			return items
+		end,
+	},
+
+	git_log = {
+		detect = function(picker)
+			if not validate_picker(picker) then
+				return false
+			end
+
+			-- Check source first (most reliable method)
+			local source = picker.opts and picker.opts.source
+			if source == "git_log" then
+				return true
+			end
+			
+			-- Check if _source is git_log (Snacks internal property)
+			if picker._source == "git_log" then
+				return true
+			end
+
+			-- Check if picker has log_actions_menu (our custom action)
+			if picker.opts and picker.opts.actions and picker.opts.actions.log_actions_menu then
+				return true
+			end
+
+			-- Check if picker has git log-specific properties
+			local current, err = M.get_current_item(picker)
+			if not err and current then
+				-- Check for git log item structure (commit hash, message, etc.)
+				if type(current) == "table" then
+					-- Look for git log specific fields
+					if current.commit or current.hash or current.sha then
+						return true
+					end
+
+					-- Check if text field matches git log patterns (commit hash + message)
+					if current.text then
+						local commit_pat = ("[a-z0-9]"):rep(7)
+						-- Match patterns like "abc1234 commit message"
+						if current.text:match("^" .. commit_pat .. "%s+") then
+							return true
 						end
 					end
 				end
@@ -1466,6 +1592,133 @@ local actions = {
 				vim.cmd("DiffviewOpen HEAD.." .. branch)
 			end,
 		},
+		{
+			key = "F",
+			desc = "Diff current file against branch",
+			action = function(picker, item)
+				local branch = M.get_branch_name(item)
+				if not branch then
+					vim.notify("No branch selected", vim.log.levels.WARN)
+					return
+				end
+				picker:close()
+				-- Simple comparison: branch vs working tree for current file
+				vim.cmd("DiffviewOpen " .. branch .. " -- " .. vim.fn.expand("%"))
+			end,
+		},
+	},
+
+	-- Git log specific actions
+	git_log_actions = {
+		{
+			key = "s",
+			desc = "Show commit diff",
+			action = function(picker, item)
+				local commit = M.get_commit_hash(item)
+				if not commit then
+					vim.notify("No commit selected", vim.log.levels.WARN)
+					return
+				end
+				vim.cmd("DiffviewOpen " .. commit .. "^.." .. commit)
+			end,
+		},
+		{
+			key = "c",
+			desc = "Cherry-pick commit",
+			action = function(picker, item)
+				local commit = M.get_commit_hash(item)
+				if not commit then
+					vim.notify("No commit selected", vim.log.levels.WARN)
+					return
+				end
+				local confirm = vim.fn.confirm("Cherry-pick commit '" .. commit:sub(1, 7) .. "'?", "&Yes\n&No", 2)
+				if confirm == 1 then
+					vim.system({ "git", "cherry-pick", commit }, {
+						text = true,
+					}, function(result)
+						if result.code == 0 then
+							vim.notify("Cherry-picked commit: " .. commit:sub(1, 7))
+						else
+							vim.notify("Failed to cherry-pick: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+						end
+					end)
+				end
+			end,
+		},
+		{
+			key = "r",
+			desc = "Revert commit",
+			action = function(picker, item)
+				local commit = M.get_commit_hash(item)
+				if not commit then
+					vim.notify("No commit selected", vim.log.levels.WARN)
+					return
+				end
+				local confirm = vim.fn.confirm("Revert commit '" .. commit:sub(1, 7) .. "'?", "&Yes\n&No", 2)
+				if confirm == 1 then
+					vim.system({ "git", "revert", "--no-edit", commit }, {
+						text = true,
+					}, function(result)
+						if result.code == 0 then
+							vim.notify("Reverted commit: " .. commit:sub(1, 7))
+						else
+							vim.notify("Failed to revert: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+						end
+					end)
+				end
+			end,
+		},
+		{
+			key = "y",
+			desc = "Copy commit hash",
+			action = function(picker, item)
+				local commit = M.get_commit_hash(item)
+				if not commit then
+					vim.notify("No commit selected", vim.log.levels.WARN)
+					return
+				end
+				vim.fn.setreg("+", commit)
+				vim.notify("Copied commit hash: " .. commit:sub(1, 7))
+			end,
+		},
+		{
+			key = "Y",
+			desc = "Copy commit message",
+			action = function(picker, item)
+				local message = M.get_commit_message(item)
+				if not message then
+					vim.notify("No commit message found", vim.log.levels.WARN)
+					return
+				end
+				vim.fn.setreg("+", message)
+				vim.notify("Copied commit message")
+			end,
+		},
+		{
+			key = "b",
+			desc = "Create branch from commit",
+			action = function(picker, item)
+				local commit = M.get_commit_hash(item)
+				if not commit then
+					vim.notify("No commit selected", vim.log.levels.WARN)
+					return
+				end
+				vim.ui.input({ prompt = "New branch name: " }, function(branch_name)
+					if branch_name and branch_name ~= "" then
+						vim.system({ "git", "checkout", "-b", branch_name, commit }, {
+							text = true,
+						}, function(result)
+							if result.code == 0 then
+								vim.notify("Created and checked out branch: " .. branch_name)
+								picker:close()
+							else
+								vim.notify("Failed to create branch: " .. (result.stderr or "unknown error"), vim.log.levels.ERROR)
+							end
+						end)
+					end
+				end)
+			end,
+		},
 	},
 }
 
@@ -1476,7 +1729,7 @@ local function detect_context(picker)
 	end
 
 	-- Check contexts in specific order (most specific first)
-	local context_order = { "sidebar_explorer", "explorer", "git_branches", "git_status", "buffers", "files" }
+	local context_order = { "sidebar_explorer", "explorer", "git_branches", "git_log", "git_status", "buffers", "files" }
 
 	for _, context_name in ipairs(context_order) do
 		local context = contexts[context_name]
@@ -1521,6 +1774,8 @@ local function get_actions(picker)
 	-- Context-specific actions (prioritize git contexts like folke does)
 	if context_name == "git_branches" then
 		vim.list_extend(action_list, actions.git_branch_actions)
+	elseif context_name == "git_log" then
+		vim.list_extend(action_list, actions.git_log_actions)
 	elseif context_name == "git_status" then
 		vim.list_extend(action_list, actions.git_status_actions)
 	elseif context_name == "buffers" then

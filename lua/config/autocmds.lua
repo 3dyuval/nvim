@@ -39,5 +39,34 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 	end,
 })
 
--- Initialize sticky explorer
-require("utils.sticky-explorer").setup()
+vim.api.nvim_create_user_command("CopyLocation", function(opts)
+	local filepath = vim.fn.expand("%:p")
+	local line = vim.fn.line(".")
+	local col = vim.fn.col(".")
+
+	-- Different format options
+	local formats = {
+		default = "%s:%d:%d",
+		relative = "%s:%d:%d", -- Will use relative path
+		simple = "%s (line %d)",
+		github = "%s#L%d", -- GitHub-style link format
+	}
+
+	-- Use relative path if requested
+	if opts.args == "rel" or opts.args == "relative" then
+		filepath = vim.fn.expand("%:.") -- Relative to cwd
+	elseif opts.args == "name" then
+		filepath = vim.fn.expand("%:t") -- Just filename
+	end
+
+	local format = formats[opts.args] or formats.default
+	local location = string.format(format, filepath, line, col)
+
+	vim.fn.setreg("+", location)
+	print("Copied: " .. location)
+end, {
+	nargs = "?",
+	complete = function()
+		return { "rel", "relative", "name", "github", "simple" }
+	end,
+})

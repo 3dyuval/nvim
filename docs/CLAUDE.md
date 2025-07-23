@@ -27,7 +27,7 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 
 - **Lua formatting**: `stylua .` (2 spaces, 120 column width)
 - **JS/TS formatting**: `biome format --write .` or `prettier --write .`
-- **Headless testing**: `nvim --headless -u NONE -c 'source test.lua'`
+- **Headless testing**: `nvim --headless -c 'source test.lua'`
 - **Keymap conflict check**:
   - Location: `lua/config/test-utils/test_keymaps.lua`
   - Usage: `echo 'lua_table' | lua lua/config/test-utils/test_keymaps.lua`
@@ -42,7 +42,7 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
     ```
 
   - Output: "NO CONFLICTS FOUND" or detailed conflict list
-  - Tests against actual loaded Neovim keymaps in headless mode
+  - Tests against actual loaded Neovim keymaps with full config in headless mode
 - **Plugin sync**: `nvim +Lazy sync +qa` or `<leader>rl` keymap
 - **Config reload**: `:source $MYVIMRC` or `<leader>rr` keymap
 - **Health check**: `:checkhealth` for plugin verification

@@ -1,5 +1,9 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
+	"files": {
+		"ignoreUnknown": true,
+		"experimentalScannerIgnores": ["node_modules"]
+	},
 	"formatter": {
 		"enabled": true,
 		"formatWithErrors": true,
@@ -15,8 +19,8 @@
 			"bracketSameLine": false,
 			"bracketSpacing": true,
 			"jsxQuoteStyle": "double",
-			"quoteProperties": "asNeeded",
 			"quoteStyle": "single",
+			"quoteProperties": "asNeeded",
 			"semicolons": "always",
 			"trailingCommas": "none"
 		}
@@ -51,6 +55,9 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
+			"suspicious": {
+				"noExplicitAny": "off"
+			},
 			"style": {
 				"useImportType": "info"
 			},

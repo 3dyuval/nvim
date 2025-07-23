@@ -135,6 +135,10 @@ local function capture_existing_keymaps()
                 buffer = map.buffer or false,
                 type = 'explicit'
             }
+            -- Debug: print leader keymaps
+            if mode == 'n' and string.find(map.lhs, '<leader>') then
+                print("DEBUG: Found keymap " .. map.lhs .. " -> " .. (map.rhs or '') .. " (" .. (map.desc or '') .. ")")
+            end
         end
     end
 end
@@ -257,12 +261,24 @@ vim.cmd('qall!')
   file:write(test_content)
   file:close()
 
-  -- Run nvim in headless mode
-  local cmd = string.format("nvim --headless -u NONE -c 'source %s'", test_file)
+  -- Run nvim with full config but capture output and exit quickly
+  local temp_output = "/tmp/nvim_keymap_output.txt"
+  local cmd = string.format("timeout 10s nvim --headless -c 'source %s' 2>&1 | tee %s; echo $? > %s.exit", 
+    test_file, temp_output, temp_output)
   local success = os.execute(cmd)
 
+  -- Read and display output
+  local output_file = io.open(temp_output, "r")
+  if output_file then
+    local output = output_file:read("*all")
+    print(output)
+    output_file:close()
+  end
+  
   -- Cleanup
   os.remove(test_file)
+  os.remove(temp_output)
+  os.remove(temp_output .. ".exit")
 
   return success == 0
 end

@@ -1,5 +1,8 @@
 local M = {}
 
+-- Feature flags
+local ENABLE_GLOBAL_CONFIG_DETECTION = false -- Disabled due to incorrect global formatter registration
+
 -- ============================================================================
 -- DIRECT CONFORM INTEGRATION
 -- ============================================================================
@@ -46,13 +49,22 @@ function M.format_file(filepath, options)
 		end
 	end
 
-	-- Format the buffer
-	local success = conform.format({
+	-- Configure format options based on feature flag
+	local format_opts = {
 		bufnr = bufnr,
 		timeout_ms = options.timeout_ms or 5000,
 		dry_run = options.dry_run or false,
 		quiet = options.quiet or false,
-	})
+	}
+
+	-- Disable global config detection if feature flag is disabled
+	if not ENABLE_GLOBAL_CONFIG_DETECTION then
+		-- Use only local project configuration, skip global formatters
+		format_opts.formatters = {}
+	end
+
+	-- Format the buffer
+	local success = conform.format(format_opts)
 
 	if success then
 		-- Save the buffer if formatting succeeded
