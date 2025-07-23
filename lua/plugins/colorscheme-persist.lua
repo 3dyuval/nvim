@@ -24,7 +24,8 @@ return {
                 vim.cmd.colorscheme(selection.value)
 
                 -- Update the config file directly
-                local config_file = vim.fn.stdpath("config") .. "/lua/plugins/colorscheme-persist.lua"
+                local config_file = vim.fn.stdpath("config")
+                  .. "/lua/plugins/colorscheme-persist.lua"
                 local content = vim.fn.readfile(config_file)
 
                 -- Find and replace the colorscheme line

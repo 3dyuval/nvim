@@ -77,9 +77,9 @@ return {
         -- WARNING: it is disabled by default (maybe you configuration or distro already uses nvim-ts-autotag,
         -- that maybe have a conflict if enable this feature. )
         jsx_close_tag = {
-            enable = false,
-            filetypes = { "javascriptreact", "typescriptreact" },
-        }
+          enable = false,
+          filetypes = { "javascriptreact", "typescriptreact" },
+        },
       },
       filetypes = {
         "javascript",
@@ -129,12 +129,12 @@ return {
           -- Use biome for organize imports only (no formatting)
           local bufnr = vim.api.nvim_get_current_buf()
           local filepath = vim.api.nvim_buf_get_name(bufnr)
-          
+
           if filepath == "" or vim.fn.filereadable(filepath) == 0 then
             vim.notify("No valid file to organize imports", vim.log.levels.WARN)
             return
           end
-          
+
           -- Check if biome is available
           local biome_cmd = vim.fn.executable("biome")
           if biome_cmd == 0 then
@@ -142,7 +142,7 @@ return {
             vim.cmd("TSToolsOrganizeImports")
             return
           end
-          
+
           -- Use biome to organize imports only (disable formatting)
           local cmd = {
             "biome",
@@ -150,11 +150,11 @@ return {
             "--write",
             "--formatter-enabled=false",
             "--linter-enabled=false",
-            filepath
+            filepath,
           }
-          
+
           vim.fn.system(cmd)
-          
+
           -- Reload the buffer to show changes
           vim.cmd("silent! checktime")
         end,

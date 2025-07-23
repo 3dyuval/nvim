@@ -59,8 +59,9 @@ return {
 
         -- Get git root directory from file's directory first
         local file_dir = vim.fn.fnamemodify(file, ":h")
-        local git_root =
-          vim.fn.system("cd " .. vim.fn.shellescape(file_dir) .. " && git rev-parse --show-toplevel"):gsub("\n", "")
+        local git_root = vim.fn
+          .system("cd " .. vim.fn.shellescape(file_dir) .. " && git rev-parse --show-toplevel")
+          :gsub("\n", "")
 
         -- Convert absolute path to relative path from git root
         local relative_file = file:gsub("^" .. vim.pesc(git_root) .. "/", "")
@@ -151,7 +152,10 @@ return {
           local has_conflicts = vim.fn.search("^<<<<<<< ", "nw") > 0
           if has_conflicts then
             notified_buffers[bufnr] = true
-            vim.notify("Conflicts detected! Use <leader>gr for smart resolution", vim.log.levels.WARN)
+            vim.notify(
+              "Conflicts detected! Use <leader>gr for smart resolution",
+              vim.log.levels.WARN
+            )
           end
         end,
       })

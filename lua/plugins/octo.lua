@@ -9,7 +9,7 @@ return {
   },
   opts = function()
     vim.treesitter.language.register("markdown", "octo")
-    
+
     return {
       enable_builtin = true,
       default_to_projects_v2 = false,
@@ -28,7 +28,7 @@ return {
   config = function(_, opts)
     require("octo").setup(opts)
     vim.cmd([[hi OctoEditable guibg=none]])
-    
+
     -- Disable swap files for Octo buffers
     vim.api.nvim_create_autocmd("BufReadPre", {
       pattern = "octo://*",
@@ -36,7 +36,7 @@ return {
         vim.opt_local.swapfile = false
       end,
     })
-    
+
     -- Keep some empty windows in sessions
     vim.api.nvim_create_autocmd("ExitPre", {
       group = vim.api.nvim_create_augroup("octo_exit_pre", { clear = true }),
@@ -53,12 +53,16 @@ return {
   end,
   keys = {
     { "<leader>so", "<cmd>Octo<cr>", desc = "Octo" },
-    { "<leader>gi", function()
+    {
+      "<leader>gi",
+      function()
         vim.cmd("Octo issue list")
         vim.defer_fn(function()
           vim.cmd("startinsert")
         end, 100)
-      end, desc = "List Issues" },
+      end,
+      desc = "List Issues",
+    },
     { "<leader>gI", "<cmd>Octo issue search<CR>", desc = "Search Issues" },
     { "<leader>gP", "<cmd>Octo pr search<CR>", desc = "Search PRs" },
     { "<leader>gR", "<cmd>Octo repo list<CR>", desc = "List Repos" },
