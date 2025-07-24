@@ -34,7 +34,7 @@ return {
       preset = {
         keys = {
           {
-            icon = " ",
+            icon = "",
             key = "e",
             desc = "Explorer",
             action = function()
@@ -51,21 +51,28 @@ return {
               vim.o.shortmess = old_shortmess
             end,
           },
-          { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
+          { icon = "", key = "n", desc = "New File", action = ":ene | startinsert" },
           {
-            icon = " ",
-            key = "g",
+            icon = "󰈞",
+            key = "/",
             desc = "Find Text",
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
+          { icon = "", key = "g", desc = "Neogit", action = ":Neogit" },
           {
-            icon = " ",
+            icon = "󰋚",
             key = "r",
             desc = "Recent Files",
             action = ":lua Snacks.dashboard.pick('oldfiles')",
           },
           {
-            icon = " ",
+            icon = " ",
+            key = "g",
+            desc = "Find modified file",
+            action = ":lua Snacks.dashboard.pick('git_status')",
+          },
+          {
+            icon = "",
             key = "p",
             desc = "Projects",
             action = function()
@@ -73,12 +80,14 @@ return {
             end,
           },
           {
-            icon = " ",
+            icon = "",
             key = "c",
             desc = "Config",
             action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
           },
-          { icon = " ", key = "s", desc = "Restore Session", section = "session" },
+          { icon = "󱅬", key = "s", desc = "Restore Session", section = "session" },
+          { icon = " ", key = "z", desc = "ZSH", action = ":e ~/.zshrc" },
+          { icon = " ", key = "t", desc = "Show todo", action = ":TodoTrouble" },
           {
             icon = "󰒲 ",
             key = "l",
@@ -86,7 +95,7 @@ return {
             action = ":Lazy",
             enabled = package.loaded.lazy ~= nil,
           },
-          { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+          { icon = "󰈆", key = "q", desc = "Quit", action = ":qa" },
         },
       },
     },
