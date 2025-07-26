@@ -6,39 +6,39 @@
 
 -- Simple table serializer (replacement for vim.inspect)
 local function serialize_table(t, indent)
-  indent = indent or 0
-  local spaces = string.rep("  ", indent)
+	indent = indent or 0
+	local spaces = string.rep("  ", indent)
 
-  if type(t) ~= "table" then
-    if type(t) == "string" then
-      return string.format('"%s"', t:gsub('"', '\\"'))
-    else
-      return tostring(t)
-    end
-  end
+	if type(t) ~= "table" then
+		if type(t) == "string" then
+			return string.format('"%s"', t:gsub('"', '\\"'))
+		else
+			return tostring(t)
+		end
+	end
 
-  local result = "{\n"
-  for k, v in pairs(t) do
-    local key_str
-    if type(k) == "string" then
-      key_str = string.format("%s = ", k)
-    else
-      key_str = string.format("[%s] = ", k)
-    end
+	local result = "{\n"
+	for k, v in pairs(t) do
+		local key_str
+		if type(k) == "string" then
+			key_str = string.format("%s = ", k)
+		else
+			key_str = string.format("[%s] = ", k)
+		end
 
-    result = result .. spaces .. "  " .. key_str .. serialize_table(v, indent + 1) .. ",\n"
-  end
-  result = result .. spaces .. "}"
+		result = result .. spaces .. "  " .. key_str .. serialize_table(v, indent + 1) .. ",\n"
+	end
+	result = result .. spaces .. "}"
 
-  return result
+	return result
 end
 
 local function test_keymaps(keymaps)
-  -- Create a temporary test file
-  local test_file = "/tmp/nvim_keymap_test.lua"
+	-- Create a temporary test file
+	local test_file = "/tmp/nvim_keymap_test.lua"
 
-  -- Generate test script content
-  local test_content = [[
+	-- Generate test script content
+	local test_content = [[
 -- Keymap conflict tester
 local conflicts = {}
 local existing_keymaps = {}
@@ -252,44 +252,48 @@ end
 vim.cmd('qall!')
 ]]
 
-  -- Write test file
-  local file = io.open(test_file, "w")
-  if not file then
-    print("Error: Could not create test file")
-    return false
-  end
-  file:write(test_content)
-  file:close()
+	-- Write test file
+	local file = io.open(test_file, "w")
+	if not file then
+		print("Error: Could not create test file")
+		return false
+	end
+	file:write(test_content)
+	file:close()
 
-  -- Run nvim with full config but capture output and exit quickly
-  local temp_output = "/tmp/nvim_keymap_output.txt"
-  local cmd = string.format("timeout 10s nvim --headless -c 'source %s' 2>&1 | tee %s; echo $? > %s.exit", 
-    test_file, temp_output, temp_output)
-  local success = os.execute(cmd)
+	-- Run nvim with full config but capture output and exit quickly
+	local temp_output = "/tmp/nvim_keymap_output.txt"
+	local cmd = string.format(
+		"timeout 10s nvim --headless -c 'source %s' 2>&1 | tee %s; echo $? > %s.exit",
+		test_file,
+		temp_output,
+		temp_output
+	)
+	local success = os.execute(cmd)
 
-  -- Read and display output
-  local output_file = io.open(temp_output, "r")
-  if output_file then
-    local output = output_file:read("*all")
-    print(output)
-    output_file:close()
-  end
-  
-  -- Cleanup
-  os.remove(test_file)
-  os.remove(temp_output)
-  os.remove(temp_output .. ".exit")
+	-- Read and display output
+	local output_file = io.open(temp_output, "r")
+	if output_file then
+		local output = output_file:read("*all")
+		print(output)
+		output_file:close()
+	end
 
-  return success == 0
+	-- Cleanup
+	os.remove(test_file)
+	os.remove(temp_output)
+	os.remove(temp_output .. ".exit")
+
+	return success == 0
 end
 
 -- Read from stdin
 local function _read_stdin() -- Reserved for future stdin input
-  local input = ""
-  for line in io.lines() do
-    input = input .. line .. "\n"
-  end
-  return input:gsub("\n$", "") -- Remove trailing newline
+	local input = ""
+	for line in io.lines() do
+		input = input .. line .. "\n"
+	end
+	return input:gsub("\n$", "") -- Remove trailing newline
 end
 
 -- Main logic
@@ -301,46 +305,46 @@ local stdin_content = ""
 
 -- Check if we can read from stdin immediately
 local _success, _result = pcall(function()
-  local line = io.read("*line")
-  if line then
-    stdin_content = line .. "\n"
-    -- Read the rest
-    for additional_line in io.lines() do
-      stdin_content = stdin_content .. additional_line .. "\n"
-    end
-    input_available = true
-  end
+	local line = io.read("*line")
+	if line then
+		stdin_content = line .. "\n"
+		-- Read the rest
+		for additional_line in io.lines() do
+			stdin_content = stdin_content .. additional_line .. "\n"
+		end
+		input_available = true
+	end
 end)
 
 if input_available and stdin_content ~= "" then
-  -- Remove trailing newline
-  stdin_content = stdin_content:gsub("\n$", "")
+	-- Remove trailing newline
+	stdin_content = stdin_content:gsub("\n$", "")
 
-  -- Try to evaluate as Lua table
-  local func, load_err = load("return " .. stdin_content)
-  if func then
-    local eval_success, result = pcall(func)
-    if eval_success then
-      keymaps = result
-    else
-      print("Error evaluating input:", result)
-      os.exit(1)
-    end
-  else
-    print("Error loading input:", load_err)
-    print("Make sure your input is a valid Lua table")
-    os.exit(1)
-  end
+	-- Try to evaluate as Lua table
+	local func, load_err = load("return " .. stdin_content)
+	if func then
+		local eval_success, result = pcall(func)
+		if eval_success then
+			keymaps = result
+		else
+			print("Error evaluating input:", result)
+			os.exit(1)
+		end
+	else
+		print("Error loading input:", load_err)
+		print("Make sure your input is a valid Lua table")
+		os.exit(1)
+	end
 else
-  -- Use example keymaps for testing
-  keymaps = {
-    { mode = "n", lhs = "<leader>ff", rhs = ":Telescope find_files<CR>", desc = "Find files" },
-    { mode = "n", lhs = "<leader>fg", rhs = ":Telescope live_grep<CR>", desc = "Live grep" },
-    { mode = "n", lhs = "<C-h>", rhs = "<C-w>h", desc = "Window left" },
-    { mode = "i", lhs = "jk", rhs = "<Esc>", desc = "Exit insert mode" },
-    { mode = "v", lhs = "<leader>y", rhs = '"+y', desc = "Copy to clipboard" },
-  }
-  print("No stdin input detected, using example keymaps...")
+	-- Use example keymaps for testing
+	keymaps = {
+		{ mode = "n", lhs = "<leader>ff", rhs = ":Telescope find_files<CR>", desc = "Find files" },
+		{ mode = "n", lhs = "<leader>fg", rhs = ":Telescope live_grep<CR>", desc = "Live grep" },
+		{ mode = "n", lhs = "<C-h>", rhs = "<C-w>h", desc = "Window left" },
+		{ mode = "i", lhs = "jk", rhs = "<Esc>", desc = "Exit insert mode" },
+		{ mode = "v", lhs = "<leader>y", rhs = '"+y', desc = "Copy to clipboard" },
+	}
+	print("No stdin input detected, using example keymaps...")
 end
 
 -- Run the test

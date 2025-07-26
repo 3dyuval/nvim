@@ -125,7 +125,7 @@ local function run_all_tests()
 		local success, result = pcall(test.fn)
 		if success and result then
 			passed = passed + 1
-			    print("  ✓ " .. test.name .. " passed")
+			print("  ✓ " .. test.name .. " passed")
 		else
 			print("  ✗ " .. test.name .. " failed")
 		end

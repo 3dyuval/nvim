@@ -276,7 +276,7 @@ return {
 				},
 				git_diff = {
 					layout = {
-						preset = "vscode",
+						preset = "default",
 					},
 				},
 				git_log = {

@@ -436,11 +436,11 @@ local function format_files_action(picker, items)
 
 	for _, item in ipairs(items) do
 		if not item.dir and vim.fn.filereadable(item.file) == 1 then
-			local success = formatter.format_file(item.file, { 
-				timeout_ms = 5000, 
-				quiet = true 
+			local success = formatter.format_file(item.file, {
+				timeout_ms = 5000,
+				quiet = true,
 			})
-			
+
 			if success then
 				processed = processed + 1
 			else
@@ -746,7 +746,7 @@ local contexts = {
 			if source == "git_branches" then
 				return true
 			end
-			
+
 			-- Check if _source is git_branches (Snacks internal property)
 			if picker._source == "git_branches" then
 				return true
@@ -821,7 +821,7 @@ local contexts = {
 			if source == "git_log" then
 				return true
 			end
-			
+
 			-- Check if _source is git_log (Snacks internal property)
 			if picker._source == "git_log" then
 				return true
@@ -1590,20 +1590,6 @@ local actions = {
 					return
 				end
 				vim.cmd("DiffviewOpen HEAD.." .. branch)
-			end,
-		},
-		{
-			key = "F",
-			desc = "Diff current file against branch",
-			action = function(picker, item)
-				local branch = M.get_branch_name(item)
-				if not branch then
-					vim.notify("No branch selected", vim.log.levels.WARN)
-					return
-				end
-				picker:close()
-				-- Simple comparison: branch vs working tree for current file
-				vim.cmd("DiffviewOpen " .. branch .. " -- " .. vim.fn.expand("%"))
 			end,
 		},
 	},

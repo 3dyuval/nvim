@@ -278,4 +278,3 @@ if not pcall(debug.getlocal, 4, 1) then
 end
 
 return M
-

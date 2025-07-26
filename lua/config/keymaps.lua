@@ -164,8 +164,8 @@ map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
-map({ "n" }, "<leader>gn", "<cmd>:Neogit cwd=%:p:h<CR>", { desc = "Open neogit" })
-map({ "n" }, "<leader>gh", function()
+map({ "n" }, "<leader>gn", "<cmd>Neogit cwd=%:p:h<cr>", { desc = "Open neogit" })
+map({ "n" }, "<leader>gj", function()
 	Snacks.terminal("gh dash", { win = { style = "terminal" } })
 end, { desc = "Open GitHub dashboard" })
 
@@ -182,19 +182,51 @@ map({ "n" }, "<leader>gb", function()
 	Snacks.picker.git_branches({ all = true })
 end, { desc = "Git branches (all)" })
 
--- History keymap root
-map({ "n" }, "<leader>hg", function()
-	vim.cmd("DiffviewFileHistory %")
-end, { desc = "Git file history" })
+-- Gitsigns keymaps (moved from plugins/gitsigns.lua for better organization)
+-- Navigation adapted for HAEI layout (]e = next, [e = prev)
+map("n", "]e", function()
+	require("gitsigns").next_hunk()
+end, { desc = "Next Hunk" })
+map("n", "[e", function()
+	require("gitsigns").prev_hunk()
+end, { desc = "Prev Hunk" })
 
-map({ "n" }, "<leader>gd", function()
+-- Buffer operations
+map("n", "<leader>gG", function()
+	require("gitsigns").stage_buffer()
+end, { desc = "Stage Buffer" })
+map("n", "<leader>gu", function()
+	require("gitsigns").undo_stage_hunk()
+end, { desc = "Undo Stage Hunk" })
+map("n", "<leader>gX", function()
+	require("gitsigns").reset_buffer()
+end, { desc = "Reset Buffer" })
+
+-- Preview and blame
+map("n", "<leader>gh", function()
+	require("gitsigns").preview_hunk()
+end, { desc = "Git hunks (preview)" })
+map("n", "<leader>gp", function()
+	require("gitsigns").preview_hunk()
+end, { desc = "Preview Hunk" })
+map("n", "<leader>gB", function()
+	require("gitsigns").blame_line({ full = true })
+end, { desc = "Blame Line" })
+
+-- Text object for hunks
+map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<cr>", { desc = "GitSigns Select Hunk" })
+
+-- Add new git diff commands
+map({ "n" }, "<leader>gdf", "<cmd>DiffviewFileHistory %<cr>", { desc = "Git file diff history" })
+
+map({ "n" }, "<leader>gdd", function()
 	Snacks.picker.git_diff()
-end, { desc = "Git Diff (hunks)" })
+end, { desc = "Git Diff picker (hunks)" })
 
-map({ "n" }, "<leader>gf", "<cmd>DiffviewFileHistory<cr>", { desc = "File History (Diffview)" })
-map({ "n" }, "<leader>hw", "<cmd>DiffviewOpen origin/main...HEAD<cr>", { desc = "Diff with main branch" })
-map({ "n" }, "<leader>hd", "<cmd>DiffviewOpen<cr>", { desc = "Open Diffview" })
-map({ "n" }, "<leader>hm", "<cmd>DiffviewOpen --merge-tool<cr>", { desc = "Open Diffview merge tool" })
+map({ "n" }, "<leader>gdr", "<cmd>DiffviewOpen<cr>", { desc = "Git diffview" })
+map({ "n" }, "<leader>gdl", "<cmd>DiffviewFileHistory<cr>", { desc = "Git file history (all files)" })
+map({ "n" }, "<leader>gdh", "<cmd>DiffviewOpen origin/main...HEAD<cr>", { desc = "Diff with main branch" })
+map({ "n" }, "<leader>gdm", "<cmd>DiffviewOpen --merge-tool<cr>", { desc = "Open Diffview merge tool" })
 
 map({ "n" }, "<leader>hB", function()
 	Snacks.picker.firefox_bookmarks()
@@ -362,10 +394,6 @@ map({ "o" }, "t{", "a{", { desc = "Around braces (for nvim-surround)" })
 map({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
 map({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
 map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
-
-map("n", "<leader>gD", function()
-	vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
-end, { desc = "Diffview this file" })
 
 -- Treewalker keymaps (will override LazyVim defaults)
 -- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl

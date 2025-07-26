@@ -8,12 +8,12 @@ vim.opt.foldlevelstart = 99 -- Start with most folds open
 vim.opt.foldenable = true -- Enable folding
 vim.opt.foldcolumn = "1" -- Show fold column
 vim.opt.fillchars = {
-  foldopen = "▼",
-  foldclose = "▶",
-  fold = " ",
-  foldsep = " ",
-  diff = "╱",
-  eob = " ",
+	foldopen = "▼",
+	foldclose = "▶",
+	fold = " ",
+	foldsep = " ",
+	diff = "╱",
+	eob = " ",
 }
 
 -- vim-visual-multi configuration (must be set before plugin loads)
@@ -55,16 +55,16 @@ vim.cmd([[
 -- Custom motions for Graphite layout (backup method)
 -- This was attempt #2 to handle Graphite layout - may not be working
 vim.g.VM_custom_motions = {
-  ["j"] = "a", -- VM's 'j' (down) mapped to your 'a'
-  ["k"] = "e", -- VM's 'k' (up) mapped to your 'e'
-  ["l"] = "i", -- VM's 'l' (right) mapped to your 'i'
-  ["w"] = "d", -- VM's 'w' (word) mapped to your 'd'
-  ["b"] = "l", -- VM's 'b' (back) mapped to your 'l'
+	["j"] = "a", -- VM's 'j' (down) mapped to your 'a'
+	["k"] = "e", -- VM's 'k' (up) mapped to your 'e'
+	["l"] = "i", -- VM's 'l' (right) mapped to your 'i'
+	["w"] = "d", -- VM's 'w' (word) mapped to your 'd'
+	["b"] = "l", -- VM's 'b' (back) mapped to your 'l'
 }
 
 -- Custom remaps for Graphite layout (backup method)
 -- This was attempt #3 to handle Graphite layout - may not be working
 vim.g.VM_custom_remaps = {
-  ["r"] = "i", -- Your 'r' triggers VM's 'i' (insert)
-  ["t"] = "a", -- Your 't' triggers VM's 'a' (append)
+	["r"] = "i", -- Your 'r' triggers VM's 'i' (insert)
+	["t"] = "a", -- Your 't' triggers VM's 'a' (append)
 }

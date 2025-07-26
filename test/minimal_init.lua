@@ -23,4 +23,3 @@ _G.test_util = {
 		vim.cmd("silent! %bwipeout!")
 	end,
 }
-

@@ -1,19 +1,19 @@
 return {
-  "neovim/nvim-lspconfig",
-  opts = {
-    servers = {
-      -- Disable other TypeScript servers
-      tsserver = { enabled = false },
-      ts_ls = { enabled = false },
-      -- Suppress LazyVim typescript extra's typescript-language-server
-      -- See issue #1 - LazyVim extra conflicts with vtsls configuration
-      ["typescript-language-server"] = { enabled = false },
+	"neovim/nvim-lspconfig",
+	opts = {
+		servers = {
+			-- Disable other TypeScript servers
+			tsserver = { enabled = false },
+			ts_ls = { enabled = false },
+			-- Suppress LazyVim typescript extra's typescript-language-server
+			-- See issue #1 - LazyVim extra conflicts with vtsls configuration
+			["typescript-language-server"] = { enabled = false },
 
-      -- Disable vtsls (replaced with typescript-tools.nvim)
-      vtsls = { enabled = false },
-      
-      -- Original vtsls config preserved for reference
-      --[[vtsls = {
+			-- Disable vtsls (replaced with typescript-tools.nvim)
+			vtsls = { enabled = false },
+
+			-- Original vtsls config preserved for reference
+			--[[vtsls = {
         filetypes = {
           "javascript",
           "javascriptreact",
@@ -115,37 +115,37 @@ return {
         },
       },--]]
 
-      -- Enable Volar for Vue
-      volar = {
-        filetypes = { "vue" },
-        init_options = {
-          vue = {
-            hybridMode = false,
-          },
-          typescript = {
-            -- You may want to set the tsdk path, or leave it default
-            -- tsdk = "/path/to/typescript/lib",
-          },
-        },
-        settings = {
-          vue = {
-            complete = {
-              casing = {
-                tags = "kebab",
-                props = "kebab",
-              },
-            },
-          },
-        },
-      },
+			-- Enable Volar for Vue
+			volar = {
+				filetypes = { "vue" },
+				init_options = {
+					vue = {
+						hybridMode = false,
+					},
+					typescript = {
+						-- You may want to set the tsdk path, or leave it default
+						-- tsdk = "/path/to/typescript/lib",
+					},
+				},
+				settings = {
+					vue = {
+						complete = {
+							casing = {
+								tags = "kebab",
+								props = "kebab",
+							},
+						},
+					},
+				},
+			},
 
-      -- Disable Angular Language Server (conflicts with typescript-tools)
-      angularls = { enabled = false },
-    },
-    setup = {
-      -- Don't define setup functions for disabled servers
-      -- tsserver, ts_ls, vtsls, and typescript-language-server are disabled via enabled = false
-      --[[vtsls_old = function(_, opts)
+			-- Disable Angular Language Server (conflicts with typescript-tools)
+			angularls = { enabled = false },
+		},
+		setup = {
+			-- Don't define setup functions for disabled servers
+			-- tsserver, ts_ls, vtsls, and typescript-language-server are disabled via enabled = false
+			--[[vtsls_old = function(_, opts)
         LazyVim.lsp.on_attach(function(client, buffer)
           vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
 
@@ -234,15 +234,15 @@ return {
         opts.settings.javascript =
           vim.tbl_deep_extend("force", {}, opts.settings.typescript, opts.settings.javascript or {})
       end,--]]
-      volar = function(_, opts)
-        LazyVim.lsp.on_attach(function(client, buffer)
-          vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
-          if client.server_capabilities.documentSymbolProvider then
-            require("nvim-navic").attach(client, buffer)
-          end
-        end, "volar")
-      end,
-      -- angularls setup function removed since server is disabled
-    },
-  },
+			volar = function(_, opts)
+				LazyVim.lsp.on_attach(function(client, buffer)
+					vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { buffer = buffer, desc = "LSP Rename" })
+					if client.server_capabilities.documentSymbolProvider then
+						require("nvim-navic").attach(client, buffer)
+					end
+				end, "volar")
+			end,
+			-- angularls setup function removed since server is disabled
+		},
+	},
 }
