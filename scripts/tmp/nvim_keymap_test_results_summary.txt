@@ -1,0 +1,6 @@
+Neovim Keymap Test Results
+==========================
+Test File: scripts/tmp/nvim_test_keymaps.txt
+Output File: scripts/tmp/nvim_keymap_test_results.json
+Pane Title: Keymap Conflict Test
+Keep Open: true

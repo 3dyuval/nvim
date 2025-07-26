@@ -37,47 +37,43 @@
 --   # listen_on unix:/tmp/kitty
 --
 -- HOW IT WORKS:
--- 1. Launches Neovim in a new kitty tab with a temp file (bypasses LazyVim dashboard)
+-- 1. Launches Neovim in a new kitty pane with a test file (bypasses LazyVim dashboard)
 -- 2. Loads the interactive test script via require()
 -- 3. Executes keymap conflict tests and captures results
--- 4. Displays formatted results and optionally closes the tab
--- 5. Uses kitty's remote control protocol to send commands and text
+-- 4. Saves output to JSON and summary files
+-- 5. Displays formatted results and optionally closes the pane
+-- 6. Uses kitty's remote control protocol to send commands and text
+
+-- Import kitty-mcp module
+local kitty = require("kitty-mcp")
 
 local M = {}
 
--- Helper function to execute shell commands
-local function execute_command(cmd)
-	local handle = io.popen(cmd .. " 2>&1")
-	local result = handle:read("*a")
-	local success = handle:close()
-	return result, success
-end
-
--- Helper function to execute kitty remote control commands
-local function kitty_command(cmd)
-	local full_cmd = string.format("kitten @ %s", cmd)
-	return execute_command(full_cmd)
-end
-
--- Send text to a specific kitty window
-local function send_text(match_criteria, text)
-	local cmd = string.format("send-text --match '%s' \"%s\"", match_criteria, text:gsub('"', '\\"'))
-	return kitty_command(cmd)
-end
-
--- Launch Neovim in a new tab
-local function launch_nvim_tab(title)
+-- Launch Neovim in a new pane
+local function launch_nvim_pane(title, test_file)
 	title = title or "Neovim Test"
-	-- Use nvim from PATH
+	test_file = test_file or "scripts/tmp/test_file.txt"
+
+	-- Ensure scripts/tmp directory exists
+	os.execute("mkdir -p scripts/tmp")
+
+	-- Create test file if it doesn't exist
+	local file = io.open(test_file, "w")
+	if file then
+		file:write(
+			"# Neovim Test File\n\nThis is a test file for neovim runner.\nYou can edit this content for testing purposes.\n"
+		)
+		file:close()
+	end
+
+	-- Use nvim from PATH and launch in new pane
 	local nvim_path = "nvim"
-	-- Create a temp file to bypass dashboard - LazyVim doesn't show dashboard when opening a file
-	local temp_file = "/tmp/nvim_keymap_test_temp.lua"
-	local cmd = string.format('launch --type=tab --tab-title="%s" %s %s', title, nvim_path, temp_file)
+	local cmd = string.format('launch --type=window --title="%s" %s %s', title, nvim_path, test_file)
 	print("Debug: Running command: " .. cmd)
 	local result, success = kitty_command(cmd)
 	print("Debug: Command result: " .. (result or "nil"))
 	print("Debug: Command success: " .. tostring(success))
-	return result, success
+	return result, success, test_file
 end
 
 -- Wait for Neovim to fully load
@@ -88,55 +84,66 @@ local function wait_for_nvim(seconds)
 end
 
 -- Test keymap conflicts in Neovim
-function M.test_keymap_conflicts(keymaps, keep_open)
-	local tab_title = "Keymap Conflict Test"
-	local output_file = "/tmp/nvim_keymap_test_results.json"
+function M.test_keymap_conflicts(keymaps, keep_open, output_file)
+	local pane_title = "Keymap Conflict Test"
+	output_file = output_file or "scripts/tmp/nvim_keymap_test_results.json"
+	local test_file = "scripts/tmp/nvim_test_keymaps.txt"
 
 	print("=== Testing Neovim Keymap Conflicts ===")
 
-	-- Launch Neovim with minimal UI to avoid GPU errors
-	print("Launching Neovim...")
-	launch_nvim_tab(tab_title)
-	wait_for_nvim(4) -- Wait a bit longer for full load
+	-- Launch Neovim in new pane with test file
+	print("Launching Neovim in new pane...")
+	local window_id, success, created_file = kitty.launch_nvim_test(pane_title, test_file, true, false)
+	if not success then
+		print("Failed to launch neovim pane")
+		return false
+	end
 
-	-- Dashboard bypassed by opening a temp file
+	print(string.format("✅ Launched Neovim in window ID: %s", window_id))
+	local window_match = string.format("id:%s", window_id)
+
+	wait_for_nvim(4) -- Wait a bit longer for full load
 
 	-- Load the interactive test script using require
 	print("Loading keymap conflict test script...")
-	send_text(string.format("title:%s", tab_title), ':lua require("config.tests.test_keymaps_interactive")')
-	os.execute("sleep 0.5")
-	send_text(string.format("title:%s", tab_title), "") -- Press Enter
-	os.execute("sleep 1")
+	kitty.send_nvim_require(window_match, "config.tests.test_keymaps_interactive", false)
 
 	-- First, let's check if the mapping exists
 	print("Checking existing <leader>cp mapping...")
-	send_text(string.format("title:%s", tab_title), ":nmap <leader>cp")
+	kitty.send_nvim_command(window_match, "nmap <leader>cp", false)
 	os.execute("sleep 0.5")
-	send_text(string.format("title:%s", tab_title), "") -- Press Enter
+	kitty.send_text(window_match, "") -- Press Enter
 	os.execute("sleep 1")
 
 	-- Write results to file for reading
 	local test_cmd
+	-- Write conflicts results to readable text file with proper syntax
+	local text_report_file = "/tmp/vm_conflicts_report.txt"
 	if keymaps then
 		local keymaps_str = serialize_keymaps(keymaps)
 		test_cmd = string.format(
-			':lua require("config.tests.test_keymaps_interactive").write_results(%s, "%s")',
+			':lua local keymaps = %s local existing = require("config.tests.test_keymaps_interactive").capture_existing_keymaps() local conflicts = require("config.tests.test_keymaps_interactive").test_keymap_conflicts(keymaps, existing) local file = io.open("%s", "w") file:write("VM Keymaps Conflicts Analysis") file:write("\\n============================\\n\\n") file:write("Test Date: " .. os.date()) file:write("\\n\\nTested Keymaps:\\n") for i, km in ipairs(keymaps) do file:write("  " .. i .. ". " .. km.lhs .. " (" .. km.mode .. ") -> " .. (km.desc or km.rhs)) file:write("\\n") end file:write("\\nConflicts Found: " .. #conflicts) file:write("\\n\\n") if #conflicts > 0 then for i, conflict in ipairs(conflicts) do file:write("CONFLICT " .. i .. ":\\n") file:write("  Key: " .. conflict.key) file:write("\\n  Existing: " .. (conflict.existing_rhs or "unknown") .. " (" .. (conflict.existing_desc or "no description") .. ")") file:write("\\n  New: " .. (conflict.new_rhs or "unknown") .. " (" .. (conflict.new_desc or "no description") .. ")") file:write("\\n  Type: " .. (conflict.conflict_type or "unknown")) file:write("\\n  Severity: " .. (conflict.severity or "unknown")) file:write("\\n\\n") end else file:write("SUCCESS: No conflicts detected! Your VM keymaps are safe to use.") end file:close() print("VM conflicts report written to %s")',
 			keymaps_str,
-			output_file
+			text_report_file
 		)
 	else
 		-- Test default <leader>cp
 		print("Testing <leader>cp conflict...")
 		test_cmd = string.format(
-			':lua require("config.tests.test_keymaps_interactive").write_results({{ mode = "n", lhs = "<leader>cp", rhs = "test", desc = "Test conflicting keymap" }}, "%s")',
-			output_file
+			':lua local keymaps = {{ mode = "n", lhs = "<leader>cp", rhs = "test", desc = "Test conflicting keymap" }} local existing = require("config.tests.test_keymaps_interactive").capture_existing_keymaps() local conflicts = require("config.tests.test_keymaps_interactive").test_keymap_conflicts(keymaps, existing) local file = io.open("%s", "w") file:write("Leader CP Conflict Test") file:write("\\n======================\\n\\n") file:write("Conflicts Found: " .. #conflicts) file:write("\\n\\n") if #conflicts > 0 then for i, conflict in ipairs(conflicts) do file:write("CONFLICT: " .. conflict.key .. " -> " .. (conflict.existing_desc or "unknown")) file:write("\\n") end else file:write("No conflicts found.") end file:close() print("Conflict report written to %s")',
+			text_report_file
 		)
 	end
 
-	send_text(string.format("title:%s", tab_title), test_cmd)
+	kitty.send_text(window_match, test_cmd)
 	os.execute("sleep 0.5")
-	send_text(string.format("title:%s", tab_title), "") -- Press Enter
+	kitty.send_text(window_match, "") -- Press Enter
 	os.execute("sleep 2") -- Wait for results to be written
+
+	-- Open the results in a new buffer
+	kitty.send_nvim_command(window_match, string.format("new %s", text_report_file), false)
+	os.execute("sleep 1")
+	os.execute("sleep 0.5")
 
 	-- Read and display results
 	local file = io.open(output_file, "r")
@@ -195,16 +202,30 @@ function M.test_keymap_conflicts(keymaps, keep_open)
 		print("\n❌ Could not read results. Check the Neovim tab for visual results.")
 	end
 
-	-- Close the tab unless keep_open is true
+	-- Close the pane unless keep_open is true
 	if not keep_open then
 		os.execute("sleep 1")
-		print("\nClosing test tab...")
-		kitty_command(string.format('close-tab --match title:"%s"', tab_title))
+		print("\nClosing test pane...")
+		kitty_command(string.format('close-window --match title:"%s"', pane_title))
 	else
-		print("\n✅ Test tab kept open. Check the '" .. tab_title .. "' tab for visual results.")
+		print("\n✅ Test pane kept open. Check the '" .. pane_title .. "' pane for visual results.")
 	end
 
-	return true
+	-- Save summary to additional output file
+	local summary_file = output_file:gsub("%.json$", "_summary.txt")
+	local summary_handle = io.open(summary_file, "w")
+	if summary_handle then
+		summary_handle:write("Neovim Keymap Test Results\n")
+		summary_handle:write("==========================\n")
+		summary_handle:write("Test File: " .. test_file .. "\n")
+		summary_handle:write("Output File: " .. output_file .. "\n")
+		summary_handle:write("Pane Title: " .. pane_title .. "\n")
+		summary_handle:write("Keep Open: " .. tostring(keep_open) .. "\n")
+		summary_handle:close()
+		print("📄 Test summary written to: " .. summary_file)
+	end
+
+	return true, output_file, summary_file
 end
 
 -- Test a single keymap
@@ -215,22 +236,27 @@ end
 
 -- Test with results written to file
 function M.test_with_output(keymaps, output_file)
-	output_file = output_file or "/tmp/keymap_conflict_results.json"
-	local tab_title = "Keymap Test Output"
+	output_file = output_file or "scripts/tmp/keymap_conflict_results.json"
+	local pane_title = "Keymap Test Output"
+	local test_file = "scripts/tmp/nvim_test_output.txt"
 
 	print("=== Testing with JSON Output ===")
 
-	-- Launch Neovim
-	launch_nvim_tab(tab_title)
+	-- Launch Neovim in pane
+	local result, success, created_file = kitty.launch_nvim_test(pane_title, test_file, true, false)
+	if not success then
+		print("Failed to launch neovim pane")
+		return nil
+	end
 	wait_for_nvim()
 
 	-- Source the test script
-	send_text(
-		string.format("title:%s", tab_title),
+	kitty.send_text(
+		string.format("title:%s", pane_title),
 		":source ~/.config/nvim/lua/config/tests/test_keymaps_interactive.lua"
 	)
 	os.execute("sleep 0.5")
-	send_text(string.format("title:%s", tab_title), "")
+	kitty.send_text(string.format("title:%s", pane_title), "")
 
 	-- Run test and write results
 	os.execute("sleep 0.5")
@@ -240,9 +266,9 @@ function M.test_with_output(keymaps, output_file)
 		keymaps_str,
 		output_file
 	)
-	send_text(string.format("title:%s", tab_title), cmd)
+	kitty.send_text(string.format("title:%s", pane_title), cmd)
 	os.execute("sleep 0.5")
-	send_text(string.format("title:%s", tab_title), "")
+	kitty.send_text(string.format("title:%s", pane_title), "")
 
 	-- Wait for file to be written
 	os.execute("sleep 1")
@@ -286,23 +312,29 @@ function serialize_keymaps(keymaps)
 end
 
 -- Run Neovim command
-function M.run_nvim_command(command, tab_title)
-	tab_title = tab_title or "Neovim Command"
+function M.run_nvim_command(command, pane_title, test_file)
+	pane_title = pane_title or "Neovim Command"
+	test_file = test_file or "scripts/tmp/nvim_command_test.txt"
 
 	print(string.format("=== Running Neovim Command: %s ===", command))
 
-	-- Launch Neovim
-	launch_nvim_tab(tab_title)
+	-- Launch Neovim in pane
+	local result, success, created_file = kitty.launch_nvim_test(pane_title, test_file, true, false)
+	if not success then
+		print("Failed to launch neovim pane")
+		return false
+	end
 	wait_for_nvim()
 
 	-- Run the command
-	send_text(string.format("title:%s", tab_title), command)
+	kitty.send_text(string.format("title:%s", pane_title), command)
 	os.execute("sleep 0.5")
-	send_text(string.format("title:%s", tab_title), "")
+	kitty.send_text(string.format("title:%s", pane_title), "")
 
-	print("\n✅ Command executed in '" .. tab_title .. "' tab.")
+	print("\n✅ Command executed in '" .. pane_title .. "' pane.")
+	print("📁 Test file: " .. test_file)
 
-	return true
+	return true, test_file
 end
 
 -- Command line interface
@@ -326,12 +358,13 @@ Usage: lua neovim_runner_kitty.lua [command] [options] [--keep-open]
 
 Commands:
     test-conflicts              Test default <leader>cp conflict
+    test-conflicts vm           Test VM (Visual Multi) keymaps conflicts
     test-single MODE LHS RHS    Test a single keymap
     test-output [FILE]          Test and write JSON results to file
     run-command "COMMAND"       Run arbitrary Neovim command
 
 Options:
-    --keep-open                 Keep the Neovim tab open after testing
+    --keep-open                 Keep the Neovim pane open after testing
 
 Examples:
     lua neovim_runner_kitty.lua test-conflicts
@@ -339,9 +372,28 @@ Examples:
     lua neovim_runner_kitty.lua test-conflicts --keep-open
     lua neovim_runner_kitty.lua test-output /tmp/results.json
     lua neovim_runner_kitty.lua run-command ":checkhealth"
+
+Output Files:
+    - JSON results: scripts/tmp/nvim_keymap_test_results.json
+    - Summary: scripts/tmp/nvim_keymap_test_results_summary.txt
+    - Test files: scripts/tmp/nvim_test_*.txt
 ]])
 	elseif args[1] == "test-conflicts" then
-		M.test_keymap_conflicts(nil, keep_open)
+		if args[2] == "vm" then
+			-- Test VM keymaps specifically
+			local vm_keymaps = {
+				{ mode = "n", lhs = "<leader>k", rhs = "VM toggle", desc = "VM leader key" },
+				{ mode = "n", lhs = "<leader>kh", rhs = "VM move left", desc = "VM left (h mapped)" },
+				{ mode = "n", lhs = "<leader>ka", rhs = "VM move down", desc = "VM down (a->j mapped)" },
+				{ mode = "n", lhs = "<leader>ke", rhs = "VM move up", desc = "VM up (e->k mapped)" },
+				{ mode = "n", lhs = "<leader>ki", rhs = "VM move right", desc = "VM right (i->l mapped)" },
+				{ mode = "n", lhs = "<leader>kr", rhs = "VM insert", desc = "VM insert (r->i mapped)" },
+				{ mode = "n", lhs = "<leader>kt", rhs = "VM append", desc = "VM append (t->a mapped)" },
+			}
+			M.test_keymap_conflicts(vm_keymaps, keep_open)
+		else
+			M.test_keymap_conflicts(nil, keep_open)
+		end
 	elseif args[1] == "test-single" and #args >= 4 then
 		M.test_single_keymap(args[2], args[3], args[4], args[5], keep_open)
 	elseif args[1] == "test-output" then

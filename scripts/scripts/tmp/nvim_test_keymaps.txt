@@ -1,0 +1,16 @@
+# Neovim Test File - Keymap Conflict Test
+Generated at: 2025-07-26 14:15:40
+
+This is a test file for kitty-mcp neovim integration.
+File path: scripts/tmp/nvim_test_keymaps.txt
+
+## Test Status
+- ✅ File created successfully
+- ⏳ Waiting for neovim to load plugins...
+- 🔄 Ready for command testing
+
+## Instructions
+You can edit this content for testing purposes.
+Commands sent via kitty-mcp will appear below:
+
+---

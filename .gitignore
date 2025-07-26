@@ -2,3 +2,4 @@
 .claude
 .aider*
 mcp-debug.log
+tmp/**/*
