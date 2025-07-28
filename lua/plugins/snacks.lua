@@ -35,7 +35,7 @@ return {
         keys = {
           {
             icon = "",
-            key = "e",
+            key = "E",
             desc = "Explorer",
             action = function()
               -- Set shortmess to avoid swap file prompts
@@ -51,25 +51,26 @@ return {
               vim.o.shortmess = old_shortmess
             end,
           },
-          { icon = "", key = "n", desc = "New File", action = ":ene | startinsert" },
           {
             icon = "󰈞",
             key = "/",
             desc = "Find Text",
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
-          { icon = "", key = "g", desc = "Neogit", action = ":Neogit" },
+          { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
           {
-            icon = "󰋚",
+            icon = "",
             key = "r",
             desc = "Recent Files",
             action = ":lua Snacks.dashboard.pick('oldfiles')",
           },
           {
-            icon = " ",
-            key = "g",
-            desc = "Find modified file",
-            action = ":lua Snacks.dashboard.pick('git_status')",
+            icon = "󰥩",
+            key = "z",
+            desc = "Recent Directories",
+            action = function()
+              Snacks.picker.zoxide()
+            end,
           },
           {
             icon = "",
@@ -86,7 +87,6 @@ return {
             action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
           },
           { icon = "󱅬", key = "s", desc = "Restore Session", section = "session" },
-          { icon = " ", key = "z", desc = "ZSH", action = ":e ~/.zshrc" },
           { icon = " ", key = "t", desc = "Show todo", action = ":TodoTrouble" },
           {
             icon = "󰒲 ",
@@ -95,7 +95,6 @@ return {
             action = ":Lazy",
             enabled = package.loaded.lazy ~= nil,
           },
-          { icon = "󰈆", key = "q", desc = "Quit", action = ":qa" },
         },
       },
     },
@@ -281,6 +280,70 @@ return {
             },
           },
         },
+        git_branches = {
+          auto_close = false,
+          focus = "list",
+          actions = {
+            branch_actions_menu = function(picker)
+              -- Use the centralized picker-extensions for branch actions
+              local picker_extensions = require("utils.picker-extensions")
+              picker_extensions.show_context_menu(picker)
+            end,
+          },
+          win = {
+            list = {
+              keys = {
+                ["p"] = "branch_actions_menu",
+              },
+            },
+          },
+        },
+        git_diff = {
+          layout = {
+            preset = "vscode",
+          },
+        },
+        git_log = {
+          win = {
+            list = {
+              keys = {
+                ["p"] = function(picker)
+                  local picker_extensions = require("utils.picker-extensions")
+                  picker_extensions.show_context_menu(picker)
+                end,
+              },
+            },
+          },
+        },
+        zoxide = {
+          -- Configure zoxide picker
+          follow = true,
+          cmd = "zoxide",
+          args = { "query", "-l" },
+          actions = {
+            zoxide_cd = {
+              action = function(picker, item)
+                picker:close()
+                vim.cmd("cd " .. vim.fn.fnameescape(item.file or item.text))
+                vim.notify("Changed directory to: " .. (item.file or item.text))
+              end,
+            },
+            zoxide_explorer = {
+              action = function(picker, item)
+                picker:close()
+                Snacks.picker.explorer({ cwd = item.file or item.text })
+              end,
+            },
+          },
+          win = {
+            list = {
+              keys = {
+                ["<CR>"] = "zoxide_cd",
+                ["e"] = "zoxide_explorer",
+              },
+            },
+          },
+        },
       },
     },
   },
@@ -335,6 +398,13 @@ return {
         vim.o.shortmess = old_shortmess
       end,
       desc = "Explorer (floating modal)",
+    },
+    {
+      "<leader>sz",
+      function()
+        Snacks.picker.zoxide()
+      end,
+      desc = "Zoxide (smart directories)",
     },
   },
 }

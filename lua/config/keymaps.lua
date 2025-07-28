@@ -237,10 +237,31 @@ vim.api.nvim_create_autocmd("User", {
 })
 
 -- Window navigation - using leader+w prefix
-map({ "n" }, "<leader>wh", "<C-w>h", { desc = "Left window" })
-map({ "n" }, "<leader>wi", "<C-w>l", { desc = "Right window" })
-map({ "n" }, "<leader>wa", "<C-w>j", { desc = "Window down" })
-map({ "n" }, "<leader>we", "<C-w>k", { desc = "Window up" })
+-- map({ "n" }, "<leader>wh", "<C-w>h", { desc = "Left window" })
+-- map({ "n" }, "<leader>wi", "<C-w>l", { desc = "Right window" })
+-- map({ "n" }, "<leader>wa", "<C-w>j", { desc = "Window down" })
+-- map({ "n" }, "<leader>we", "<C-w>k", { desc = "Window up" })
+--
+-- pcall(vim.keymap.del, { "n", "x", "v", "o" }, "<C-S>")
+-- pcall(vim.keymap.del, "n", "<C-a>")
+-- pcall(vim.keymap.del, "n", "<C-i>")
+--
+--- Helper to produce a lambda for smart-splits movement with default opts
+---@param dir "left"|"down"|"up"|"right"
+local function move_split(dir)
+  return function()
+    require("smart-splits")["move_cursor_" .. dir]({
+      same_row = true,
+      at_edge = "stop",
+    })
+  end
+end
+
+map({ "n" }, "<C-h>", move_split("left"), { noremap = true, desc = "Left window" })
+map({ "n" }, "<C-a>", move_split("down"), { noremap = true, desc = "Window down" })
+map({ "n" }, "<C-e>", move_split("up"), { noremap = true, desc = "Window up" })
+map({ "n" }, "<C-i>", move_split("right"), { noremap = true, desc = "Right window" })
+
 -- Cycle through windows with Alt+Tab
 map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
 
@@ -356,34 +377,34 @@ end, { desc = "Diffview this file" })
 
 -- Treewalker keymaps (will override LazyVim defaults)
 -- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl
-vim.keymap.set(
-  { "n", "v" },
-  "<C-e>",
-  "<cmd>Treewalker Up<cr>",
-  { silent = true, desc = "Treewalker Up" }
-)
-vim.keymap.set(
-  { "n", "v" },
-  "<C-a>",
-  "<cmd>Treewalker Down<cr>",
-  { silent = true, desc = "Treewalker Down" }
-)
-vim.keymap.set(
-  { "n", "v" },
-  "<C-i>",
-  "<cmd>Treewalker Right<cr>",
-  { silent = true, desc = "Treewalker Right" }
-)
--- Use C-h for parent (move left then parent)
-vim.keymap.set("n", "<C-h>", function()
-  vim.cmd("normal! h")
-  vim.cmd("Treewalker Parent")
-end, { desc = "Move left then Treewalker Parent", silent = true })
-vim.keymap.set("v", "<C-h>", function()
-  vim.cmd("normal! h")
-  vim.cmd("Treewalker Parent")
-end, { desc = "Move left then Treewalker Parent", silent = true })
-
+-- vim.keymap.set(
+--   { "n", "v" },
+--   "<C-e>",
+--   "<cmd>Treewalker Up<cr>",
+--   { silent = true, desc = "Treewalker Up" }
+-- )
+-- vim.keymap.set(
+--   { "n", "v" },
+--   "<C-a>",
+--   "<cmd>Treewalker Down<cr>",
+--   { silent = true, desc = "Treewalker Down" }
+-- )
+-- vim.keymap.set(
+--   { "n", "v" },
+--   "<C-i>",
+--   "<cmd>Treewalker Right<cr>",
+--   { silent = true, desc = "Treewalker Right" }
+-- )
+-- -- Use C-h for parent (move left then parent)
+-- vim.keymap.set("n", "<C-h>", function()
+--   vim.cmd("normal! h")
+--   vim.cmd("Treewalker Parent")
+-- end, { desc = "Move left then Treewalker Parent", silent = true })
+-- vim.keymap.set("v", "<C-h>", function()
+--   vim.cmd("normal! h")
+--   vim.cmd("Treewalker Parent")
+-- end, { desc = "Move left then Treewalker Parent", silent = true })
+--
 -- Swapping keymaps using Alt+HAEI - "swap" with alt
 vim.keymap.set(
   "n",
