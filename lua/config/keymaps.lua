@@ -236,38 +236,39 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
--- Window navigation - using leader+w prefix
--- map({ "n" }, "<leader>wh", "<C-w>h", { desc = "Left window" })
--- map({ "n" }, "<leader>wi", "<C-w>l", { desc = "Right window" })
--- map({ "n" }, "<leader>wa", "<C-w>j", { desc = "Window down" })
--- map({ "n" }, "<leader>we", "<C-w>k", { desc = "Window up" })
---
--- pcall(vim.keymap.del, { "n", "x", "v", "o" }, "<C-S>")
--- pcall(vim.keymap.del, "n", "<C-a>")
--- pcall(vim.keymap.del, "n", "<C-i>")
---
 --- Helper to produce a lambda for smart-splits movement with default opts
 ---@param dir "left"|"down"|"up"|"right"
-local function move_split(dir)
+---@para op "move" | "resize"
+local function move_split(dir, op)
   return function()
-    require("smart-splits")["move_cursor_" .. dir]({
-      same_row = true,
-      at_edge = "stop",
-    })
+    if op == "move" then
+      require("smart-splits")["move_cursor_" .. dir]({
+        same_row = true,
+        at_edge = "stop",
+      })
+    end
+    if op == "resize" then
+      require("smart-splits")["resize_" .. dir](5)
+    end
   end
 end
 
-map({ "n" }, "<C-h>", move_split("left"), { noremap = true, desc = "Left window" })
-map({ "n" }, "<C-a>", move_split("down"), { noremap = true, desc = "Window down" })
-map({ "n" }, "<C-e>", move_split("up"), { noremap = true, desc = "Window up" })
-map({ "n" }, "<C-i>", move_split("right"), { noremap = true, desc = "Right window" })
+map({ "n" }, "<C-h>", move_split("left", "move"), { noremap = true, desc = "Left window" })
+map({ "n" }, "<C-a>", move_split("down", "move"), { noremap = true, desc = "Window down" })
+map({ "n" }, "<C-e>", move_split("up", "move"), { noremap = true, desc = "Window up" })
+map({ "n" }, "<C-i>", move_split("right", "move"), { noremap = true, desc = "Right window" })
+
+map({ "n" }, "<M-C-h>", move_split("left", "resize"), { noremap = true, desc = "Left window" })
+map({ "n" }, "<M-C-a>", move_split("down", "resize"), { noremap = true, desc = "Window down" })
+map({ "n" }, "<M-C-e>", move_split("up", "resize"), { noremap = true, desc = "Window up" })
+map({ "n" }, "<M-C-i>", move_split("right", "resize"), { noremap = true, desc = "Right window" })
 
 -- Cycle through windows with Alt+Tab
-map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
+-- map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
 
 -- Buffer navigation - using Tab keys
-map({ "n" }, "<S-Tab>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
-map({ "n" }, "<Tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+map({ "n" }, "<C-p>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+map({ "n" }, "<C-.>", "<cmd>bnext<cr>", { desc = "Next buffer" })
 
 -- Add some commonly used editor operations
 map({ "n" }, "<leader>fs", ":w<CR>", { desc = "Save file" })

@@ -377,14 +377,14 @@ return {
       desc = "Explorer (open files only)",
     },
     {
-      "<leader>e",
+      "<leader>E",
       function()
         require("utils.sticky-explorer").toggle()
       end,
       desc = "Toggle sticky sidebar explorer",
     },
     {
-      "<leader>E",
+      "<leader>e",
       function()
         -- Regular floating modal explorer
         local old_shortmess = vim.o.shortmess
@@ -393,6 +393,7 @@ return {
         Snacks.picker.explorer({
           root = false,
           auto_close = true,
+          preview = true,
         })
 
         vim.o.shortmess = old_shortmess
@@ -400,7 +401,7 @@ return {
       desc = "Explorer (floating modal)",
     },
     {
-      "<leader>sz",
+      "<leader>z",
       function()
         Snacks.picker.zoxide()
       end,
