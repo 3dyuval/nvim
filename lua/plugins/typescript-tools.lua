@@ -60,16 +60,21 @@ return {
           includeInlayFunctionLikeReturnTypeHints = false, -- Disable verbose return types
           includeInlayEnumMemberValueHints = true, -- Keep concise enum values
         },
-        -- File watching optimization - exclude large directories to reduce file watchers (issue #48)
+        -- File watching optimization - exclude directories from file change monitoring (issue #48)
+        -- NOTE: This only affects file watching, NOT module resolution or type definitions
+        -- You can still jump to definitions in node_modules - this just prevents watching for changes
         watchOptions = {
           excludeDirectories = {
-            "**/node_modules",
+            "**/node_modules",  -- Safe to exclude - types still work, just no file watching
             "**/dist",
             "**/build",
             "**/.git",
             "**/coverage",
             "**/tmp",
             "**/temp",
+            "**/.cache",
+            "**/.next",
+            "**/.nuxt",
           },
         },
         -- locale of all tsserver messages, supported locales you can find here:
