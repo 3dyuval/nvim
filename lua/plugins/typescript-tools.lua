@@ -60,6 +60,18 @@ return {
           includeInlayFunctionLikeReturnTypeHints = false, -- Disable verbose return types
           includeInlayEnumMemberValueHints = true, -- Keep concise enum values
         },
+        -- File watching optimization - exclude large directories to reduce file watchers (issue #48)
+        watchOptions = {
+          excludeDirectories = {
+            "**/node_modules",
+            "**/dist",
+            "**/build",
+            "**/.git",
+            "**/coverage",
+            "**/tmp",
+            "**/temp",
+          },
+        },
         -- locale of all tsserver messages, supported locales you can find here:
         -- https://github.com/microsoft/TypeScript/blob/3c221fc086be52b19801f6e8d82596d04607ede6/src/compiler/utilitiesPublic.ts#L620
         tsserver_locale = "en",
