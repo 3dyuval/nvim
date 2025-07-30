@@ -186,15 +186,8 @@ map({ "n" }, "<leader>hf", function()
   Snacks.picker.firefox_history()
 end, { desc = "Firefox history" })
 
--- File history keymaps
-map({ "n" }, "<leader>hh", function()
-  require("file_history").history()
-end, { desc = "Current file history" })
-
-map({ "n" }, "<leader>ha", function()
-  require("file_history").files()
-end, { desc = "All files in backup repository" })
-
+-- File history keymaps (main keymaps are in plugin config file)
+-- Additional keymaps that extend the plugin functionality
 map({ "n" }, "<leader>hA", function()
   require("file_history").query()
 end, { desc = "Query file history by time range" })
@@ -202,6 +195,10 @@ end, { desc = "Query file history by time range" })
 map({ "n" }, "<leader>hT", function()
   require("file_history").backup()
 end, { desc = "Manual backup with tag" })
+
+map({ "n" }, "<leader>hp", function()
+  require("file_history").project_files()
+end, { desc = "Project files history" })
 -- 'til
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })

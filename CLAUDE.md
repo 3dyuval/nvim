@@ -74,3 +74,11 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 - **Operations**: x=delete, w=change, c=yank, v=paste, n=visual, z=undo
 - **Tree-sitter**: rf/Tf=function, rc/Tc=class, ry/Ty=element
 - **NEVER** use standard Vim keys (hjkl, ia) - always use Graphite equivalents
+
+## Local Configurations
+
+- You can always view source of lazy plugins at `/home/yuval/.local/share/nvim/lazy`
+
+## Development Workflow Memories
+
+- Always use stylua (already in path) after making series of changes to lua files
