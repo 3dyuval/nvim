@@ -13,7 +13,7 @@ return {
       enhanced_diff_hl = true, -- Better word-level diff highlighting
       use_icons = true,
       show_help_hints = true, -- Show keyboard shortcuts
-      watch_index = true, -- Update automatically
+      watch_index = false, -- Disabled to reduce file watchers (see issue #48)
       -- Default args to ensure proper merge conflict handling
       default_args = {
         DiffviewOpen = { "--imply-local" },
