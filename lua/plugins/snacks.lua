@@ -1,5 +1,24 @@
 -- https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 
+-- Shared explorer function
+local function open_explorer(opts)
+  local old_shortmess = vim.o.shortmess
+  vim.o.shortmess = vim.o.shortmess .. "A"
+
+  local config = vim.tbl_deep_extend("force", {
+    root = false,
+  }, opts or {})
+
+  Snacks.picker.explorer(config)
+
+  vim.o.shortmess = old_shortmess
+end
+
+-- Delegate to comprehensive format action from picker-extensions
+local function format_current_item(picker, item)
+  require("utils.picker-extensions").actions.format_action(picker, item)
+end
+
 return {
   "folke/snacks.nvim",
   priority = 1000,
@@ -27,14 +46,28 @@ return {
     dashboard = {
       enabled = true,
       sections = {
-        { section = "header" },
+        { section = "header", enabled = true },
         { section = "keys", gap = 1, padding = 1 },
-        { section = "startup" },
+        { section = "startup", enabled = false },
+        {
+          pane = 1,
+          icon = " ",
+          title = "Git Status",
+          section = "terminal",
+          enabled = function()
+            return Snacks.git.get_root() ~= nil
+          end,
+          cmd = "git status --short --branch --renames",
+          height = 5,
+          padding = 1,
+          ttl = 5 * 60,
+          indent = 3,
+        },
       },
       preset = {
         keys = {
           {
-            icon = "",
+            icon = "",
             key = "E",
             desc = "Explorer",
             action = function()
@@ -59,13 +92,13 @@ return {
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
           {
-            icon = "",
+            icon = "",
             key = "r",
             desc = "Recent Files",
             action = ":lua Snacks.dashboard.pick('oldfiles')",
           },
           {
-            icon = "󰥩",
+            icon = "󰰶",
             key = "z",
             desc = "Recent Directories",
             action = function()
@@ -73,7 +106,7 @@ return {
             end,
           },
           {
-            icon = "",
+            icon = "",
             key = "p",
             desc = "Projects",
             action = function()
@@ -86,7 +119,7 @@ return {
             desc = "Config",
             action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
           },
-          { icon = "󱅬", key = "s", desc = "Restore Session", section = "session" },
+          { icon = "", key = "s", desc = "Restore Session", section = "session" },
           { icon = " ", key = "t", desc = "Show todo", action = ":TodoTrouble" },
           {
             icon = "󰒲 ",
@@ -95,6 +128,7 @@ return {
             action = ":Lazy",
             enabled = package.loaded.lazy ~= nil,
           },
+          { icon = "", key = "q", desc = "Quit", action = ":qa!" },
         },
       },
     },
@@ -106,6 +140,7 @@ return {
         input = {
           keys = {
             ["<Esc>"] = { "focus_list", mode = { "i" } },
+            ["<Bs>"] = false,
           },
         },
         list = {
@@ -164,35 +199,18 @@ return {
                 require("utils.picker-extensions").actions.diff_selected(picker)
               end,
             },
-            show_context_menu = {
-              action = function(picker)
-                require("utils.picker-extensions").show_menu(picker)
-              end,
-            },
-            context_menu = {
-              action = function(picker, item)
-                require("utils.picker-extensions").actions.context_menu(picker, item)
-              end,
-            },
-            git_context_menu = {
-              action = function(picker, item)
-                require("utils.picker-extensions").actions.git_context_menu(picker, item)
-              end,
-            },
-            buffer_context_menu = {
-              action = function(picker, item)
-                require("utils.picker-extensions").actions.buffer_context_menu(picker, item)
-              end,
-            },
           },
           win = {
             list = {
               keys = {
+                ["<BS>"] = false, -- Disable backspace navigation
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
                 ["/"] = "toggle_focus",
                 ["<C-c>"] = "focus_input",
                 ["<C-a>"] = false, -- Disable select all - it's distracting
-                ["p"] = "copy_file_path",
+                ["p"] = function(picker, item)
+                  require("utils.picker-extensions").actions.context_menu(picker, item)
+                end,
                 ["g"] = "search_in_directory", -- Opens a grep snacks
                 ["i"] = function(picker)
                   require("utils.picker-extensions").actions.handle_directory_expansion(picker)
@@ -203,7 +221,9 @@ return {
                 ["x"] = false, -- Disable default x binding
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
-                ["f"] = "context_menu",
+                ["f"] = function(picker, item)
+                  format_current_item(picker, item)
+                end,
               },
             },
           },
@@ -223,17 +243,12 @@ return {
             "--exclude",
             "node_modules",
           },
-          actions = {
-            context_menu = {
-              action = function(picker, item)
-                require("utils.picker-extensions").actions.context_menu(picker, item)
-              end,
-            },
-          },
           win = {
             list = {
               keys = {
-                ["f"] = "context_menu",
+                ["f"] = function(picker, item)
+                  format_current_item(picker, item)
+                end,
               },
             },
           },
@@ -255,33 +270,49 @@ return {
           },
         },
         buffers = {
-          actions = {
-            buffer_context_menu = {
-              action = function(picker, item)
-                require("utils.picker-extensions").actions.buffer_context_menu(picker, item)
-              end,
-            },
-          },
           win = {
             list = {
               keys = {
-                ["f"] = "buffer_context_menu",
+                ["f"] = function(picker, item)
+                  -- For buffers, format the buffer content directly
+                  local items = picker:selected({ fallback = true })
+                  local conform = require("conform")
+                  local processed = 0
+
+                  for _, buf_item in ipairs(items) do
+                    if buf_item.bufnr and vim.api.nvim_buf_is_loaded(buf_item.bufnr) then
+                      local success, err = pcall(function()
+                        conform.format({ bufnr = buf_item.bufnr, timeout_ms = 5000 })
+                        processed = processed + 1
+                      end)
+
+                      if not success then
+                        vim.notify(
+                          "Error formatting buffer: " .. (err or "unknown"),
+                          vim.log.levels.WARN
+                        )
+                      end
+                    end
+                  end
+
+                  if processed > 0 then
+                    vim.notify("Formatted " .. processed .. " buffers")
+                  end
+                end,
               },
             },
           },
         },
         git_status = {
-          actions = {
-            git_context_menu = {
-              action = function(picker, item)
-                require("utils.picker-extensions").actions.git_context_menu(picker, item)
-              end,
-            },
-          },
+          focus = "list",
+          layout = "sidebar",
           win = {
             list = {
               keys = {
-                ["f"] = "git_context_menu",
+                ["f"] = function(picker, item)
+                  format_current_item(picker, item)
+                end,
+                ["s"] = { "git_stage", mode = { "n", "i" } },
               },
             },
           },
@@ -289,33 +320,27 @@ return {
         git_branches = {
           auto_close = false,
           focus = "list",
-          actions = {
-            branch_actions_menu = function(picker)
-              -- Use the centralized picker-extensions for branch actions
-              local picker_extensions = require("utils.picker-extensions")
-              picker_extensions.show_context_menu(picker)
-            end,
-          },
           win = {
             list = {
               keys = {
-                ["p"] = "branch_actions_menu",
+                -- Direct access to git branch actions using Snacks built-ins
+                ["c"] = { "git_checkout", mode = { "n", "i" } }, -- Checkout branch
+                ["d"] = { "git_branch_del", mode = { "n", "i" } }, -- Delete branch
+                ["n"] = { "git_branch_add", mode = { "n", "i" } }, -- Create new branch
               },
             },
           },
         },
         git_diff = {
-          layout = {
-            preset = "vscode",
-          },
+          focus = "list",
         },
         git_log = {
+          focus = "list",
           win = {
             list = {
               keys = {
-                ["p"] = function(picker)
-                  local picker_extensions = require("utils.picker-extensions")
-                  picker_extensions.show_context_menu(picker)
+                ["p"] = function(picker, item)
+                  require("utils.picker-extensions").actions.context_menu(picker, item)
                 end,
               },
             },
@@ -385,26 +410,25 @@ return {
     {
       "<leader>E",
       function()
-        require("utils.sticky-explorer").toggle()
+        open_explorer({
+          auto_close = false,
+          layout = {
+            preset = "left",
+            preview = false,
+          },
+        })
       end,
-      desc = "Toggle sticky sidebar explorer",
+      desc = "Explorer (sidebar)",
     },
     {
       "<leader>e",
       function()
-        -- Regular floating modal explorer
-        local old_shortmess = vim.o.shortmess
-        vim.o.shortmess = vim.o.shortmess .. "A"
-
-        Snacks.picker.explorer({
-          root = false,
+        open_explorer({
           auto_close = true,
           preview = true,
         })
-
-        vim.o.shortmess = old_shortmess
       end,
-      desc = "Explorer (floating modal)",
+      desc = "Explorer (window)",
     },
     {
       "<leader>z",

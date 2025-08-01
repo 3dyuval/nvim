@@ -52,15 +52,16 @@ return {
     })
   end,
   keys = {
-    { "<leader>so", "<cmd>Octo<cr>", desc = "Octo" },
+    {
+      "<leader>go",
+      function()
+        require("utils.octo-menu").show()
+      end,
+      desc = " Octo Menu",
+    },
     {
       "<leader>gi",
-      function()
-        vim.cmd("Octo issue list")
-        vim.defer_fn(function()
-          vim.cmd("startinsert")
-        end, 100)
-      end,
+      "<cmd>Octo issue search<CR>",
       desc = "List Issues",
     },
     { "<leader>gI", "<cmd>Octo issue search<CR>", desc = "Search Issues" },

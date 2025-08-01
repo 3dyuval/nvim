@@ -104,10 +104,10 @@ map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 map({ "v" }, "X", "r", { desc = "Replace selected text" })
 
 -- Folds (f and F remain default vim find character forward/backward)
-map({ "n", "x" }, "ff", "zo", { desc = "Open fold (unfold)" })
-map({ "n", "x" }, "fF", "zR", { desc = "Open all folds (unfold all)" })
+map({ "n", "x" }, "fo", "zo", { desc = "Open fold (unfold)" })
 map({ "n", "x" }, "fu", "zc", { desc = "Close fold (fold one)" })
-map({ "n", "x" }, "fU", "zM", { desc = "Close all folds (fold all)" })
+map({ "n", "x" }, "ff", "zM", { desc = "Close all folds (fold all)" })
+map({ "n", "x" }, "fF", "zR", { desc = "Open all folds (unfold all)" })
 map({ "n", "x" }, "fe", "zk", { desc = "Move up to fold" })
 map({ "n", "x" }, "fa", "zj", { desc = "Move down to fold" })
 map({ "n", "x" }, "bb", "zb", { desc = "Scroll line and cursor to bottom" })
@@ -117,6 +117,11 @@ map({ "n", "o", "x" }, "c", "y", { desc = "Yank (copy)" })
 map({ "n", "x" }, "v", "p", { desc = "Paste" })
 map({ "n" }, "C", "y$", { desc = "Yank to end of line" })
 map({ "x" }, "C", "y", { desc = "Yank selection" })
+
+-- Fold-aware yanking (visual mode only)
+map("x", "cc", function()
+  require("utils.fold-yank").yank_visible()
+end, { desc = "Yank visible lines (exclude folded)" })
 map({ "n", "x" }, "V", "P", { desc = "Paste before" })
 map({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
@@ -141,9 +146,10 @@ map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
 map({ "n" }, "<leader>gn", "<cmd>:Neogit cwd=%:p:h<CR>", { desc = "Open neogit" })
+
 map({ "n" }, "<leader>gh", function()
-  Snacks.terminal("gh dash", { win = { style = "terminal" } })
-end, { desc = "Open GitHub dashboard" })
+  Snacks.picker.git_diff()
+end, { desc = "Diff hunks" })
 
 -- Lazygit
 map({ "n" }, "<leader>gz", function()

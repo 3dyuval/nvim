@@ -18,6 +18,20 @@ return {
       typescript = { "imports" },
       typescriptreact = { "imports" },
     },
+    -- Disable automatic fold restoration
+    enable_get_fold_virt_text = true,
+    preview = {
+      mappings = {
+        scrollB = "",
+        scrollF = "",
+        scrollU = "",
+        scrollD = "",
+        scrollE = "",
+        scrollY = "",
+        jump = "",
+        close = "q",
+      },
+    },
     -- Simple fold text with line count
     fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
       local newVirtText = {}
@@ -52,6 +66,18 @@ return {
     -- Ensure foldlevel is respected
     vim.o.foldlevel = 99
     vim.o.foldlevelstart = 99
+
+    -- Remap fold commands to use UFO's implementation
+    -- This prevents fold level from being changed by zR/zM
+    vim.keymap.set("n", "zR", require("ufo").openAllFolds, { desc = "Open all folds" })
+    vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { desc = "Close all folds" })
+    vim.keymap.set(
+      "n",
+      "zr",
+      require("ufo").openFoldsExceptKinds,
+      { desc = "Open folds except kinds" }
+    )
+    vim.keymap.set("n", "zm", require("ufo").closeFoldsWith, { desc = "Close folds with level" })
 
     -- Let treesitter handle all folding - removed manual import folding to avoid conflicts
   end,

@@ -91,12 +91,27 @@ else
 fi
 
 echo ""
+echo "🔧 Setting up todo script permissions..."
+if chmod +x ~/.config/nvim/lua/utils/todo.lua; then
+    print_status "todo script permissions set"
+else
+    print_warning "Failed to set todo script permissions"
+fi
+
+echo "🔧 Testing todo script functionality..."
+if cd ~/.config/nvim && lua lua/utils/todo.lua >/dev/null 2>&1; then
+    print_status "todo script working correctly"
+else
+    print_warning "todo script test failed - check lua and rg installation"
+fi
+
 echo "🎉 All dependencies installed successfully!"
 echo ""
 echo "Installed components:"
 echo "  • git-resolve-conflict: $(which git-resolve-conflict > /dev/null && echo '✅ Available' || echo '❌ Not found')"
 echo "  • git-filter-repo: $(which git-filter-repo > /dev/null && echo '✅ Available' || echo '❌ Not found')"
 echo "  • js-debug: $([ -f ~/.local/share/js-debug/src/dapDebugServer.js ] && echo '✅ Available' || echo '❌ Not found')"
+echo "  • todo script: $([ -x ~/.config/nvim/lua/utils/todo.lua ] && echo '✅ Executable' || echo '❌ Not executable')"
 echo ""
 echo "ℹ️  Restart Neovim to use the new dependencies."
 echo "ℹ️  This script works across machines (lab, yuval) due to portable paths."

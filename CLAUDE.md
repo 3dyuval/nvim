@@ -78,3 +78,7 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 ## Documentation and Plugin References
 
 - for docs/plugin you can use lazy local to see all relevant details at `/home/yuval/.config/lazygit`
+
+## Local Configuration
+
+- Use the local `/home/yuval/.local/share/nvim` instead of getting blobs from github

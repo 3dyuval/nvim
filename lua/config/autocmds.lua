@@ -39,5 +39,41 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   end,
 })
 
--- Initialize sticky explorer
-require("utils.sticky-explorer").setup()
+-- Prevent automatic refolding on cursor movements and edits
+-- Use a more robust approach to preserve fold state
+local fold_preserved = false
+vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
+  callback = function()
+    if not fold_preserved then
+      -- Preserve current fold level
+      local current_foldlevel = vim.wo.foldlevel
+      vim.defer_fn(function()
+        if vim.wo.foldlevel ~= current_foldlevel then
+          vim.wo.foldlevel = current_foldlevel
+        end
+      end, 50)
+    end
+  end,
+})
+
+-- Also ensure fold level stays high when entering windows
+vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
+  callback = function()
+    if vim.wo.foldlevel < 99 then
+      vim.wo.foldlevel = 99
+    end
+  end,
+})
+
+-- Simple approach: just ensure foldlevel stays at 99 when switching tabs
+-- Let persistence.nvim handle the actual fold state saving
+vim.api.nvim_create_autocmd({ "TabEnter", "BufWinEnter" }, {
+  callback = function()
+    -- Small delay to let UFO settle, then ensure foldlevel is high
+    vim.defer_fn(function()
+      if vim.wo.foldlevel < 99 then
+        vim.wo.foldlevel = 99
+      end
+    end, 100)
+  end,
+})
