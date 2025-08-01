@@ -74,3 +74,7 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 - **Operations**: x=delete, w=change, c=yank, v=paste, n=visual, z=undo
 - **Tree-sitter**: rf/Tf=function, rc/Tc=class, ry/Ty=element
 - **NEVER** use standard Vim keys (hjkl, ia) - always use Graphite equivalents
+
+## Documentation and Plugin References
+
+- for docs/plugin you can use lazy local to see all relevant details at `/home/yuval/.config/lazygit`

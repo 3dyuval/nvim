@@ -103,8 +103,15 @@ return {
       hidden = true,
       ignored = false,
       win = {
+        input = {
+          keys = {
+            ["<Esc>"] = { "focus_list", mode = { "i" } },
+          },
+        },
         list = {
           keys = {
+            ["<Esc>"] = { "close", mode = { "n" } },
+            ["<C-p>"] = "toggle_preview", -- Toggle preview globally
             ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
             ["c"] = "create", -- Remap 'c' to create file/folder
             ["<C-a>"] = false, -- Disable select all - it's distracting
@@ -183,7 +190,6 @@ return {
               keys = {
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
                 ["/"] = "toggle_focus",
-                ["<Esc>"] = { "close", mode = { "n", "i" } },
                 ["<C-c>"] = "focus_input",
                 ["<C-a>"] = false, -- Disable select all - it's distracting
                 ["p"] = "copy_file_path",

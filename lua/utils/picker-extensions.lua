@@ -1507,8 +1507,8 @@ local actions = {
       end,
     },
     {
-      key = "f",
-      desc = "Show diff vs current",
+      key = "v",
+      desc = "View diff vs current branch",
       action = function(picker, item)
         local branch = M.get_branch_name(item)
         if not branch then
