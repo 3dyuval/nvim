@@ -33,9 +33,7 @@ map({ "n", "o", "x" }, "e", "k", { desc = "Up (k)" })
 map({ "n", "o", "x" }, "a", "j", { desc = "Down (j)" })
 map({ "n", "o", "x" }, "i", "l", { desc = "Right (l)" })
 
--- E/A for End of WORD forward/backward
-map({ "n", "o", "x" }, "E", "E", { desc = "End of WORD forward" })
-map({ "n", "o", "x" }, "A", "gE", { desc = "End of WORD back (reverse of E)" })
+-- E/A moved to smart context-aware functions below (lines 124-125)
 
 -- Override HAEI navigation in visual modes (including visual line mode)
 -- Use noremap to fully override default vim behavior including text objects
@@ -91,9 +89,9 @@ map({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
 map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
--- Screen navigation - top/bottom
-map({ "n", "o", "x" }, "E", "H", { desc = "Top of screen" })
-map({ "n", "o", "x" }, "A", "L", { desc = "Bottom of screen" })
+-- Smart context-aware navigation - smooth scroll or diff navigation
+map({ "n", "o", "x" }, "E", vim.cmd("normal! ]c"), { desc = "Next Diff" })
+map({ "n", "o", "x" }, "A", vim.cmd("normal! [c"), { desc = "Prev diff" })
 
 -- End of word left/right (moved to different keys)
 map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
@@ -170,6 +168,12 @@ map({ "n" }, "<leader>hg", function()
 end, { desc = "Git file history" })
 
 map({ "n" }, "<leader>gf", "<cmd>DiffviewFileHistory<cr>", { desc = "File History (Diffview)" })
+
+-- Git resolve conflict (works globally, not just in diffview)
+map({ "n" }, "<leader>gv", function()
+  local git_resolve = require("git-resolve-conflict")
+  git_resolve.pick_and_resolve()
+end, { desc = "Resolve file: pick strategy" })
 map(
   { "n" },
   "<leader>hw",
@@ -212,8 +216,11 @@ end, { desc = "Manual backup with tag" })
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 
+map({ "n" }, "<E>", vim.cmd("normal! ]c"), { desc = "Next conflict", noremap = true })
+map({ "n" }, "<A>", vim.cmd("normal! [c"), { desc = "Previous conflict", noremap = true })
+
 -- Force override any plugin mappings for Q
-vim.keymap.set("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
+map("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
 
 -- Misc overridden keys must be prefixed with g
 map({ "n", "x" }, "gX", "X", { desc = "Delete before cursor" })

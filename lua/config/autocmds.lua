@@ -77,3 +77,7 @@ vim.api.nvim_create_autocmd({ "TabEnter", "BufWinEnter" }, {
     end, 100)
   end,
 })
+
+-- Note: Removed vim.api.nvim_echo override - was interfering with diffview
+
+-- Note: Removed FileType autocmd for DiffviewFiles - was interfering with buffer creation

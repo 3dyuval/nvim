@@ -14,59 +14,33 @@ return {
 
     local actions = require("diffview.actions")
     local git_resolve = require("git-resolve-conflict")
+    local git_conflict = require("utils.git-conflict")
 
-    -- Smart conflict detection function for reuse
-    local function is_in_conflict()
-      local ok, parser = pcall(vim.treesitter.get_parser, 0)
+    -- Pure diff operations (no conflict handling)
+    local function pure_diff_get()
+      -- Try numbered diffget first (for 3-way diffs), fallback to regular
+      local ok = pcall(function()
+        vim.cmd("diffget 3")
+      end)
       if not ok then
-        return false
-      end
-
-      local row = vim.api.nvim_win_get_cursor(0)[1] - 1
-      local query = vim.treesitter.query.get(parser:lang(), "conflict")
-
-      if query then
-        local tree = parser:parse()[1]
-        for _, node in query:iter_captures(tree:root(), 0, row, row + 1) do
-          return true
-        end
-      end
-      return false
-    end
-
-    -- Smart diff operations that handle both conflicts and regular diffs
-    local function smart_get()
-      if is_in_conflict() then
-        actions.conflict_choose("theirs")()
-      else
-        -- Try numbered diffget first (for 3-way diffs), fallback to regular
-        local ok = pcall(function()
-          vim.cmd("diffget 3")
-        end)
-        if not ok then
-          -- This will work in file history with --base=LOCAL
-          vim.cmd("diffget")
-        end
+        -- This will work in file history with --base=LOCAL
+        vim.cmd("diffget")
       end
     end
 
-    local function smart_put()
+    local function pure_diff_put()
       -- File history buffers are read-only, diffput doesn't make sense here
       if not vim.bo.modifiable then
         vim.notify("Cannot put changes to historical file versions", vim.log.levels.WARN)
         return
       end
 
-      if is_in_conflict() then
-        actions.conflict_choose("ours")()
-      else
-        -- For 3-way merge, use numbered dp commands
-        local ok = pcall(function()
-          vim.cmd("diffput 1")
-        end)
-        if not ok then
-          vim.cmd("diffput")
-        end
+      -- For 3-way merge, use numbered dp commands
+      local ok = pcall(function()
+        vim.cmd("diffput 1")
+      end)
+      if not ok then
+        vim.cmd("diffput")
       end
     end
 
@@ -133,6 +107,8 @@ return {
       },
       keymaps = {
         view = {
+          ["<leader>gV"] = actions.cycle_layout,
+          ["g<C-x>"] = false, -- Disable default layout cycling
           -- Disable default leader mappings
           ["<leader>co"] = false,
           ["<leader>ct"] = false,
@@ -147,20 +123,36 @@ return {
 
           ["q"] = "<Cmd>DiffviewClose<CR>",
           ["?"] = actions.help("view"),
-
-          -- Smart diff operations using shared functions
-          { "n", "go", smart_get, { desc = "Smart get: conflict or diff" } },
-          { "n", "gp", smart_put, { desc = "Smart put: conflict or diff" } },
+          {
+            "n",
+            "A",
+            actions.view_windo(function()
+              vim.cmd("norm! ]c")
+            end),
+            { desc = "Next diff hunk" },
+          },
+          {
+            "n",
+            "E",
+            actions.view_windo(function()
+              vim.cmd("norm! [c")
+            end),
+            { desc = "Previous diff hunk" },
+          },
+          -- Pure diff operations (no conflict handling)
+          { "n", "go", pure_diff_get, { desc = "Diff get from theirs" } },
+          { "n", "gp", pure_diff_put, { desc = "Diff put to theirs" } },
           { "n", "gO", smart_get_all, { desc = "Get ALL hunks / restore file" } },
           { "n", "gP", "<Cmd>%diffput<CR>", { desc = "Put ALL hunks to theirs" } },
+
+          -- Discrete conflict resolution hunk bindings
+          { "n", "gho", actions.conflict_choose("ours"), { desc = "Resolve hunk: OURS" } },
+          { "n", "ghp", actions.conflict_choose("theirs"), { desc = "Resolve hunk: THEIRS" } },
+          { "n", "ghu", actions.conflict_choose("all"), { desc = "Resolve hunk: UNION (both)" } },
 
           -- Diff navigation using built-in commands
           { "n", "]c", "]c", { desc = "Next diff hunk" } },
           { "n", "[c", "[c", { desc = "Previous diff hunk" } },
-
-          -- Section navigation mapped to diff navigation
-          { "n", "A", "]c", { desc = "Next diff hunk (section)" } },
-          { "n", "E", "[c", { desc = "Previous diff hunk (section)" } },
 
           -- Conflict navigation using diffview actions
           { "n", "]x", actions.next_conflict, { desc = "Next conflict" } },
@@ -187,14 +179,10 @@ return {
           { "n", "<leader>gO", git_resolve.resolve_ours, { desc = "Resolve file: OURS" } },
           { "n", "<leader>gT", git_resolve.resolve_theirs, { desc = "Resolve file: THEIRS" } },
           { "n", "<leader>gU", git_resolve.resolve_union, { desc = "Resolve file: UNION" } },
-          {
-            "n",
-            "<leader>gr",
-            git_resolve.pick_and_resolve,
-            { desc = "Resolve file: pick strategy" },
-          },
         },
         file_panel = {
+          ["<leader>gV"] = actions.cycle_layout,
+          ["g<C-x>"] = false, -- Disable default layout cycling
           ["<leader>cO"] = false,
           ["<leader>cT"] = false,
           ["<leader>cB"] = false,
@@ -205,7 +193,7 @@ return {
           -- Navigation from file panel using view_windo
           {
             "n",
-            "]c",
+            "A",
             actions.view_windo(function()
               vim.cmd("norm! ]c")
             end),
@@ -213,43 +201,25 @@ return {
           },
           {
             "n",
-            "[c",
+            "E",
             actions.view_windo(function()
               vim.cmd("norm! [c")
             end),
             { desc = "Previous diff hunk" },
           },
 
-          -- Section navigation mapped to diff navigation from file panel
-          {
-            "n",
-            "A",
-            actions.view_windo(function()
-              vim.cmd("norm! ]c")
-            end),
-            { desc = "Next diff hunk (section)" },
-          },
-          {
-            "n",
-            "E",
-            actions.view_windo(function()
-              vim.cmd("norm! [c")
-            end),
-            { desc = "Previous diff hunk (section)" },
-          },
-
-          -- Smart diff operations from file panel using view_windo
+          -- Pure diff operations from file panel using view_windo
           {
             "n",
             "go",
-            actions.view_windo(smart_get),
-            { desc = "Smart get: conflict or diff" },
+            actions.view_windo(pure_diff_get),
+            { desc = "Diff get from theirs" },
           },
           {
             "n",
             "gp",
-            actions.view_windo(smart_put),
-            { desc = "Smart put: conflict or diff" },
+            actions.view_windo(pure_diff_put),
+            { desc = "Diff put to theirs" },
           },
           {
             "n",
@@ -266,16 +236,37 @@ return {
             { desc = "Put ALL hunks to theirs" },
           },
 
+          -- Discrete conflict resolution hunk bindings from file panel
+          {
+            "n",
+            "gho",
+            actions.view_windo(actions.conflict_choose("ours")),
+            { desc = "Resolve hunk: OURS" },
+          },
+          {
+            "n",
+            "ghp",
+            actions.view_windo(actions.conflict_choose("theirs")),
+            { desc = "Resolve hunk: THEIRS" },
+          },
+          {
+            "n",
+            "ghu",
+            actions.view_windo(actions.conflict_choose("all")),
+            { desc = "Resolve hunk: UNION (both)" },
+          },
           -- Conflict navigation from file panel
           { "n", "]x", actions.next_conflict, { desc = "Next conflict" } },
           { "n", "[x", actions.prev_conflict, { desc = "Previous conflict" } },
         },
         file_history_panel = {
+          ["<leader>gV"] = actions.cycle_layout,
+          ["g<C-x>"] = false, -- Disable default layout cycling
           ["q"] = "<Cmd>DiffviewClose<CR>",
           ["?"] = actions.help("file_history_panel"),
           {
             "n",
-            "]c",
+            "A",
             actions.view_windo(function()
               vim.cmd("norm! ]c")
             end),
@@ -283,29 +274,11 @@ return {
           },
           {
             "n",
-            "[c",
-            actions.view_windo(function()
-              vim.cmd("norm! [c")
-            end),
-            { desc = "Previous diff hunk" },
-          },
-
-          -- Section navigation mapped to diff navigation from file history panel
-          {
-            "n",
-            "A",
-            actions.view_windo(function()
-              vim.cmd("norm! ]c")
-            end),
-            { desc = "Next diff hunk (section)" },
-          },
-          {
-            "n",
             "E",
             actions.view_windo(function()
               vim.cmd("norm! [c")
             end),
-            { desc = "Previous diff hunk (section)" },
+            { desc = "Previous diff hunk" },
           },
         },
       },
