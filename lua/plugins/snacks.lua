@@ -27,20 +27,62 @@ return {
   opts = {
     indent = {
       enabled = function()
-        local bufname = vim.api.nvim_buf_get_name(0)
-        return not bufname:match("^diffview://")
+        -- Check for special buffer types first (dashboard, terminal, etc.)
+        if vim.bo.buftype ~= "" or not vim.bo.modifiable then
+          return false
+        end
+
+        local ok, bufname = pcall(vim.api.nvim_buf_get_name, 0)
+        if not ok then
+          return false
+        end
+
+        -- Check for diffview buffers and empty buffers (dashboard/scratch)
+        if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then -- Empty bufname = dashboard/scratch
+          return false
+        end
+
+        return true
       end,
       scope = {
         enabled = function()
-          local bufname = vim.api.nvim_buf_get_name(0)
-          return not bufname:match("^diffview://")
+          -- Check for special buffer types first (dashboard, terminal, etc.)
+          if vim.bo.buftype ~= "" or not vim.bo.modifiable then
+            return false
+          end
+
+          local ok, bufname = pcall(vim.api.nvim_buf_get_name, 0)
+          if not ok then
+            return false
+          end
+
+          -- Check for diffview buffers and empty buffers (dashboard/scratch)
+          if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then -- Empty bufname = dashboard/scratch
+            return false
+          end
+
+          return true
         end,
       },
     },
     scope = {
       enabled = function()
-        local bufname = vim.api.nvim_buf_get_name(0)
-        return not bufname:match("^diffview://")
+        -- Check for special buffer types first (dashboard, terminal, etc.)
+        if vim.bo.buftype ~= "" or not vim.bo.modifiable then
+          return false
+        end
+
+        local ok, bufname = pcall(vim.api.nvim_buf_get_name, 0)
+        if not ok then
+          return false
+        end
+
+        -- Check for diffview buffers and empty buffers (dashboard/scratch)
+        if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then -- Empty bufname = dashboard/scratch
+          return false
+        end
+
+        return true
       end,
     },
     dashboard = {
@@ -323,10 +365,35 @@ return {
           win = {
             list = {
               keys = {
-                -- Direct access to git branch actions using Snacks built-ins
-                ["c"] = { "git_checkout", mode = { "n", "i" } }, -- Checkout branch
-                ["d"] = { "git_branch_del", mode = { "n", "i" } }, -- Delete branch
-                ["n"] = { "git_branch_add", mode = { "n", "i" } }, -- Create new branch
+                ["p"] = function(picker, item)
+                  -- Show git branch context menu with all git actions
+                  local picker_extensions = require("utils.picker-extensions")
+                  local current_item, err = picker_extensions.get_current_item(picker)
+                  if not err and current_item then
+                    picker_extensions.actions.context_menu(picker, current_item)
+                  else
+                    vim.notify("No branch selected", vim.log.levels.WARN)
+                  end
+                end,
+                ["v"] = function(picker, item)
+                  -- Direct diff action
+                  local picker_extensions = require("utils.picker-extensions")
+                  local current_item, err = picker_extensions.get_current_item(picker)
+                  if not err and current_item then
+                    local branch = picker_extensions.get_branch_name(current_item)
+                    if not branch then
+                      vim.notify("No branch selected", vim.log.levels.WARN)
+                      return
+                    end
+                    local cmd = "DiffviewOpen HEAD.." .. vim.fn.shellescape(branch)
+                    local ok, error = pcall(vim.cmd, cmd)
+                    if not ok then
+                      vim.notify("Error opening diff: " .. error, vim.log.levels.ERROR)
+                    end
+                  else
+                    vim.notify("No branch selected", vim.log.levels.WARN)
+                  end
+                end,
               },
             },
           },

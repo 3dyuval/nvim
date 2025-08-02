@@ -28,13 +28,14 @@ return {
 
     local keymap = {
       ["ga"] = function()
-        neoscroll.ctrl_d({ duration = 150, easing = "linear" })
+        local bufname = vim.api.nvim_buf_get_name(0)
+        return not bufname:match("^diffview://")
+          and neoscroll.ctrl_d({ duration = 150, easing = "linear" })
       end,
       ["ge"] = function()
-        neoscroll.ctrl_u({ duration = 150, easing = "linear" })
-      end,
-      ["gs"] = function()
-        neoscroll.zz({ half_win_duration = 150 })
+        local bufname = vim.api.nvim_buf_get_name(0)
+        return not bufname:match("^diffview://")
+          and neoscroll.ctrl_u({ duration = 150, easing = "linear" })
       end,
     }
     local modes = { "n", "v", "x" }

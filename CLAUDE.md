@@ -1,5 +1,11 @@
 # AGENTS.md - Neovim Configuration Manager
 
+## Documentation and Plugin References
+
+> [!IMPORTANT]
+>
+> - When handing plugin which require implementations details you need to directly docs you can use lazy local to see all relevant details at `/home/yuval/.config/lazygit`
+
 ## Role & Workflow
 
 You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue list`, `gh pr list`). Main focus: keymaps and plugins. **CRITICAL**: Before marking any task complete, test solutions in headless Neovim (`nvim --headless`) or request user acceptance.
@@ -74,10 +80,6 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 - **Operations**: x=delete, w=change, c=yank, v=paste, n=visual, z=undo
 - **Tree-sitter**: rf/Tf=function, rc/Tc=class, ry/Ty=element
 - **NEVER** use standard Vim keys (hjkl, ia) - always use Graphite equivalents
-
-## Documentation and Plugin References
-
-- for docs/plugin you can use lazy local to see all relevant details at `/home/yuval/.config/lazygit`
 
 ## Local Configuration
 

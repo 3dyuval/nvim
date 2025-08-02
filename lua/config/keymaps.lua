@@ -92,8 +92,8 @@ map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
 -- Screen navigation - top/bottom
-map({ "n", "o", "x" }, "H", "H", { desc = "Top of screen" })
-map({ "n", "o", "x" }, "I", "L", { desc = "Bottom of screen" })
+map({ "n", "o", "x" }, "E", "H", { desc = "Top of screen" })
+map({ "n", "o", "x" }, "A", "L", { desc = "Bottom of screen" })
 
 -- End of word left/right (moved to different keys)
 map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
@@ -214,9 +214,6 @@ map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 
 -- Force override any plugin mappings for Q
 vim.keymap.set("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
-
--- Screen navigation - H/I for top/bottom (replaces B mapping)
-map({ "n", "o", "x" }, "I", "L", { desc = "Bottom of screen" })
 
 -- Misc overridden keys must be prefixed with g
 map({ "n", "x" }, "gX", "X", { desc = "Delete before cursor" })

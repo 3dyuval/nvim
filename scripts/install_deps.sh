@@ -24,9 +24,9 @@ print_error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-# Check if npm is installed
-if ! command -v npm &> /dev/null; then
-    print_error "npm is not installed. Please install Node.js and npm first."
+# Check if git is installed  
+if ! command -v git &> /dev/null; then
+    print_error "git is not installed. Please install git first."
     exit 1
 fi
 
@@ -36,13 +36,9 @@ if ! command -v wget &> /dev/null; then
     exit 1
 fi
 
-echo "📦 Installing git-resolve-conflict..."
-if npm install -g git-resolve-conflict; then
-    print_status "git-resolve-conflict installed successfully"
-else
-    print_error "Failed to install git-resolve-conflict"
-    exit 1
-fi
+# git-resolve-conflict is now built-in (pure Lua implementation)
+print_status "git-resolve-conflict: ✅ Built-in (no external dependencies)"
+print_status "Available via :GitResolve command in Neovim"
 
 echo "📦 Installing git-filter-repo (for file-history.nvim purge functionality)..."
 if sudo apt update && sudo apt install -y git-filter-repo; then
@@ -108,7 +104,7 @@ fi
 echo "🎉 All dependencies installed successfully!"
 echo ""
 echo "Installed components:"
-echo "  • git-resolve-conflict: $(which git-resolve-conflict > /dev/null && echo '✅ Available' || echo '❌ Not found')"
+echo "  • git-resolve-conflict: ✅ Built-in (pure Lua)"
 echo "  • git-filter-repo: $(which git-filter-repo > /dev/null && echo '✅ Available' || echo '❌ Not found')"
 echo "  • js-debug: $([ -f ~/.local/share/js-debug/src/dapDebugServer.js ] && echo '✅ Available' || echo '❌ Not found')"
 echo "  • todo script: $([ -x ~/.config/nvim/lua/utils/todo.lua ] && echo '✅ Executable' || echo '❌ Not executable')"
