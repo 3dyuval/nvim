@@ -12,7 +12,12 @@ return {
     commit_view = {
       kind = "vsplit",
     },
-    keymaps = {},
+    keymaps = {
+      popup = {
+        ["m"] = false,
+        ["M"] = "Merge",
+      },
+    },
     autoinstall = true,
   },
   dependencies = {

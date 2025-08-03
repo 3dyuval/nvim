@@ -1,2 +1,2 @@
 require("config.lazy")
--- require("config.diff-highlights")
+require("config.diff-highlights")

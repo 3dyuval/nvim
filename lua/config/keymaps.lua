@@ -89,12 +89,14 @@ map({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
 map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
--- Smart context-aware navigation - smooth scroll or diff navigation
-map({ "n", "o", "x" }, "E", vim.cmd("normal! ]c"), { desc = "Next Diff" })
-map({ "n", "o", "x" }, "A", vim.cmd("normal! [c"), { desc = "Prev diff" })
+-- Smart context-aware navigation - diff navigation baseline (Graphite layout)
+map({ "n", "o", "x" }, "A", "]c", { desc = "Next diff hunk" })
+map({ "n", "o", "x" }, "E", "[c", { desc = "Previous diff hunk" })
+
+map({ "n" }, "gd", "<Cmd>DiffviewOpen<Cr>", { desc = "Diff view open" })
 
 -- End of word left/right (moved to different keys)
-map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
+-- map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
 map({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
 map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 
@@ -143,7 +145,7 @@ map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
-map({ "n" }, "<leader>gn", "<cmd>:Neogit cwd=%:p:h<CR>", { desc = "Open neogit" })
+map({ "n" }, "<leader>gnn", "<cmd>:Neogit cwd=%:p:h<CR>", { desc = "Open neogit" })
 
 map({ "n" }, "<leader>gh", function()
   Snacks.picker.git_diff()
@@ -163,30 +165,33 @@ map({ "n" }, "<leader>gb", function()
 end, { desc = "Git branches (all)" })
 
 -- History keymap root
-map({ "n" }, "<leader>hg", function()
-  vim.cmd("DiffviewFileHistory %")
+map({ "n" }, "<leader>gf", function()
+  -- vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
+
+  vim.cmd("DiffviewFileHistory -- " .. vim.fn.expand("%:p"))
 end, { desc = "Git file history" })
 
-map({ "n" }, "<leader>gf", "<cmd>DiffviewFileHistory<cr>", { desc = "File History (Diffview)" })
+-- map({ "n" }, "<leader>gh", "<cmd>DiffviewFileHistory<cr>", { desc = "File History (Diffview)" })
 
--- Git resolve conflict (works globally, not just in diffview)
-map({ "n" }, "<leader>gv", function()
-  local git_resolve = require("git-resolve-conflict")
-  git_resolve.pick_and_resolve()
-end, { desc = "Resolve file: pick strategy" })
-map(
-  { "n" },
-  "<leader>hw",
-  "<cmd>DiffviewOpen origin/main...HEAD<cr>",
-  { desc = "Diff with main branch" }
-)
-map({ "n" }, "<leader>hd", "<cmd>DiffviewOpen<cr>", { desc = "Open Diffview" })
-map(
-  { "n" },
-  "<leader>hm",
-  "<cmd>DiffviewOpen --merge-tool<cr>",
-  { desc = "Open Diffview merge tool" }
-)
+map({ "n" }, "<leader>gV", function()
+  require("git-resolve-conflict").resolve_union()
+end, { desc = "Choose both/union (file)" })
+
+-- Git conflict navigation (override LazyVim's LSP reference navigation)
+override_map("n", "[[", "<cmd>GitConflictPrevConflict<cr>", { desc = "Previous git conflict" })
+override_map("n", "]]", "<cmd>GitConflictNextConflict<cr>", { desc = "Next git conflict" })
+
+-- Git conflict resolution using git-resolve-conflict plugin (file-level resolution)
+map({ "n" }, "gO", function()
+  require("git-resolve-conflict").resolve_ours()
+end, { desc = "Resolve file: ours" })
+map({ "n" }, "gP", function()
+  require("git-resolve-conflict").resolve_theirs()
+end, { desc = "Resolve file: theirs" })
+map({ "n" }, "<leader>gR", function()
+  require("git-resolve-conflict").restore_file_conflict()
+end, { desc = "Restore conflict markers" })
+map({ "n" }, "<leader>gD", "<cmd>DiffviewOpen<cr>", { desc = "Open Diffview" })
 
 map({ "n" }, "<leader>hB", function()
   Snacks.picker.firefox_bookmarks()
@@ -216,8 +221,38 @@ end, { desc = "Manual backup with tag" })
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 
-map({ "n" }, "<E>", vim.cmd("normal! ]c"), { desc = "Next conflict", noremap = true })
-map({ "n" }, "<A>", vim.cmd("normal! [c"), { desc = "Previous conflict", noremap = true })
+map({ "n" }, "<leader>cpp", function()
+  local file_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":.")
+  vim.fn.setreg("+", file_path)
+  vim.notify("Copied path: " .. file_path)
+end, { desc = "Copy file path (relative to cwd)" })
+
+map({ "n" }, "<leader>cpc", function()
+  local file_path = vim.fn.expand("%:p")
+  if vim.fn.filereadable(file_path) == 0 then
+    vim.notify("File not readable: " .. file_path, vim.log.levels.ERROR)
+    return
+  end
+  local content = vim.fn.readfile(file_path)
+  local content_str = table.concat(content, "\n")
+  vim.fn.setreg("+", content_str)
+  vim.notify("Copied file contents (" .. #content .. " lines)")
+end, { desc = "Copy file contents" })
+
+map({ "n" }, "<leader>cpk", function()
+  local file_path = vim.fn.expand("%:p")
+  local line_number = vim.fn.line(".")
+  local path_with_line = file_path .. ":" .. line_number
+  vim.fn.setreg("+", path_with_line)
+  vim.notify("Copied: " .. path_with_line)
+end, { desc = "Copy file path with line number" })
+
+map(
+  "n",
+  "<leader>gnc",
+  require("neogit").action("commit", "commit", { "--verbose", "--all" }),
+  { desc = "commit in neogit" }
+)
 
 -- Force override any plugin mappings for Q
 map("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
@@ -252,8 +287,12 @@ vim.api.nvim_create_autocmd("User", {
 local function move_split(dir, op)
   return function()
     if op == "move" then
+      -- Check if we're currently in a snacks explorer buffer
+      local buf_name = vim.api.nvim_buf_get_name(0)
+      local is_snacks_explorer = buf_name:match("snacks://") or vim.bo.filetype == "snacks_picker"
+
       require("smart-splits")["move_cursor_" .. dir]({
-        same_row = true,
+        same_row = not is_snacks_explorer, -- Use same_row=false when IN explorer
         at_edge = "stop",
       })
     end
@@ -382,10 +421,11 @@ map({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
 map({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
 map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 
-map("n", "<leader>gD", function()
-  vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
-end, { desc = "Diffview this file" })
-
+-- map("n", "<leader>gf", function()
+--   -- TODO make sidebar hidder (mapped to <leader>b)
+--   vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
+-- end, { desc = "Diffview this file" })
+--
 -- Treewalker keymaps (will override LazyVim defaults)
 -- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl
 -- vim.keymap.set(

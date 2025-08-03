@@ -201,6 +201,12 @@ return {
               -- For files, do nothing
             end, -- Expand/collapse directory
             ["h"] = "explorer_close", -- Collapse/close directory
+            -- Git status navigation (Graphite layout: A=down/next, E=up/prev)
+            ["A"] = "explorer_git_next", -- Next git status file
+            ["E"] = "explorer_git_prev", -- Previous git status file
+            -- Conflict navigation (using error navigation as proxy for conflicts)
+            ["]]"] = "explorer_warn_next", -- Next conflict/error
+            ["[["] = "explorer_error_prev", -- Previous conflict/error
             -- Remove global "b" keymap - it will be defined per-source
           },
         },
@@ -402,6 +408,7 @@ return {
           focus = "list",
         },
         git_log = {
+          -- TODO <leader>gL showr a git log for commit for current buffer
           focus = "list",
           win = {
             list = {

@@ -55,6 +55,12 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 
 ## Code Style & Standards
 
+> [!IMPORTANT]
+> **ALWAYS look for established patterns in a file you are about to write to.** Study existing code conventions, helper functions, and patterns before making changes. For example:
+> - If a file has an `override_map` function, use it instead of manual `pcall(vim.keymap.del)` 
+> - Follow existing naming conventions and code organization
+> - Use established helper functions rather than reimplementing functionality
+
 - **Lua**: 2-space indent, snake_case vars/funcs, PascalCase modules, `local` scope, `pcall()` errors
 - **JS/TS**: Single quotes, no semicolons, biome formatting, organize imports on save
 - **Keymaps**: Use `vim.keymap.set()`, descriptive `desc`, check conflicts before adding

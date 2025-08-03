@@ -79,7 +79,7 @@ return {
           winbar_info = true,
         },
         merge_tool = {
-          layout = "diff3_horizontal",
+          layout = "diff1_plain",
           disable_diagnostics = true,
           winbar_info = true,
         },
@@ -107,7 +107,7 @@ return {
       },
       keymaps = {
         view = {
-          ["<leader>gV"] = actions.cycle_layout,
+          ["<leader>."] = actions.cycle_layout,
           ["g<C-x>"] = false, -- Disable default layout cycling
           -- Disable default leader mappings
           ["<leader>co"] = false,
@@ -123,62 +123,26 @@ return {
 
           ["q"] = "<Cmd>DiffviewClose<CR>",
           ["?"] = actions.help("view"),
-          {
-            "n",
-            "A",
-            actions.view_windo(function()
-              vim.cmd("norm! ]c")
-            end),
-            { desc = "Next diff hunk" },
-          },
-          {
-            "n",
-            "E",
-            actions.view_windo(function()
-              vim.cmd("norm! [c")
-            end),
-            { desc = "Previous diff hunk" },
-          },
-          -- Pure diff operations (no conflict handling)
-          { "n", "go", pure_diff_get, { desc = "Diff get from theirs" } },
-          { "n", "gp", pure_diff_put, { desc = "Diff put to theirs" } },
-          { "n", "gO", smart_get_all, { desc = "Get ALL hunks / restore file" } },
-          { "n", "gP", "<Cmd>%diffput<CR>", { desc = "Put ALL hunks to theirs" } },
-
-          -- Discrete conflict resolution hunk bindings
-          { "n", "gho", actions.conflict_choose("ours"), { desc = "Resolve hunk: OURS" } },
-          { "n", "ghp", actions.conflict_choose("theirs"), { desc = "Resolve hunk: THEIRS" } },
-          { "n", "ghu", actions.conflict_choose("all"), { desc = "Resolve hunk: UNION (both)" } },
-
-          -- Diff navigation using built-in commands
-          { "n", "]c", "]c", { desc = "Next diff hunk" } },
-          { "n", "[c", "[c", { desc = "Previous diff hunk" } },
 
           -- Conflict navigation using diffview actions
-          { "n", "]x", actions.next_conflict, { desc = "Next conflict" } },
-          { "n", "[x", actions.prev_conflict, { desc = "Previous conflict" } },
+          { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
+          { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
+
+          -- Diff hunk navigation (Graphite layout: A=down, E=up)
+          { "n", "A", "]c", { desc = "Next diff hunk" } },
+          { "n", "E", "[c", { desc = "Previous diff hunk" } },
+
+          -- Pure diff operations (no conflict handling)
+          { "n", "go", actions.diffget, { desc = "Diff get from theirs" } },
+          { "n", "gp", actions.diffput, { desc = "Diff put to theirs" } },
+          -- { "n", "gO", smart_get_all, { desc = "Get ALL hunks / restore file" } },
+          -- { "n", "gP", "<Cmd>%diffput<CR>", { desc = "Put ALL hunks to theirs" } },
 
           -- Conflict resolution actions (hunk-level)
-          { "n", "<leader>co", actions.conflict_choose("ours"), { desc = "Choose OURS (hunk)" } },
-          {
-            "n",
-            "<leader>ct",
-            actions.conflict_choose("theirs"),
-            { desc = "Choose THEIRS (hunk)" },
-          },
-          { "n", "<leader>cb", actions.conflict_choose("base"), { desc = "Choose BASE (hunk)" } },
-          { "n", "<leader>ca", actions.conflict_choose("all"), { desc = "Choose ALL (hunk)" } },
-          {
-            "n",
-            "<leader>cn",
-            actions.conflict_choose("none"),
-            { desc = "Delete conflict (hunk)" },
-          },
-
           -- File-wide conflict resolution using git-resolve-conflict
           { "n", "<leader>gO", git_resolve.resolve_ours, { desc = "Resolve file: OURS" } },
-          { "n", "<leader>gT", git_resolve.resolve_theirs, { desc = "Resolve file: THEIRS" } },
-          { "n", "<leader>gU", git_resolve.resolve_union, { desc = "Resolve file: UNION" } },
+          { "n", "<leader>gP", git_resolve.resolve_theirs, { desc = "Resolve file: THEIRS" } },
+          { "n", "<leader>gV", git_resolve.resolve_union, { desc = "Resolve file: UNION" } },
         },
         file_panel = {
           ["<leader>gV"] = actions.cycle_layout,
@@ -256,14 +220,18 @@ return {
             { desc = "Resolve hunk: UNION (both)" },
           },
           -- Conflict navigation from file panel
-          { "n", "]x", actions.next_conflict, { desc = "Next conflict" } },
-          { "n", "[x", actions.prev_conflict, { desc = "Previous conflict" } },
+          { "n", "]]", actions.view_windo(actions.next_conflict)({ desc = "Next conflict" }) },
+          { "n", "[[", actions.view_windo(actions.prev_conflict), { desc = "Previous conflict" } },
         },
         file_history_panel = {
           ["<leader>gV"] = actions.cycle_layout,
           ["g<C-x>"] = false, -- Disable default layout cycling
           ["q"] = "<Cmd>DiffviewClose<CR>",
           ["?"] = actions.help("file_history_panel"),
+          -- Conflict navigation using diffview actions
+          { "n", "]]", actions.view_windo(actions.next_conflict)({ desc = "Next conflict" }) },
+          { "n", "[[", actions.view_windo(actions.prev_conflict), { desc = "Previous conflict" } },
+
           {
             "n",
             "A",

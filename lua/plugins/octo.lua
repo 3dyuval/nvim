@@ -64,11 +64,6 @@ return {
       "<cmd>Octo issue search<CR>",
       desc = "List Issues",
     },
-    { "<leader>gI", "<cmd>Octo issue search<CR>", desc = "Search Issues" },
-    { "<leader>gP", "<cmd>Octo pr search<CR>", desc = "Search PRs" },
-    { "<leader>gR", "<cmd>Octo repo list<CR>", desc = "List Repos" },
-    { "<leader>gS", "<cmd>Octo search<CR>", desc = "Search" },
-
     { "<localleader>a", "", desc = "+assignee", ft = "octo" },
     { "<localleader>c", "", desc = "+comment/code", ft = "octo" },
     { "<localleader>l", "", desc = "+label", ft = "octo" },

@@ -1272,11 +1272,7 @@ local actions = {
           vim.notify("No branch selected", vim.log.levels.WARN)
           return
         end
-        local cmd = "DiffviewOpen HEAD.." .. vim.fn.shellescape(branch)
-        local ok, err = pcall(vim.cmd, cmd)
-        if not ok then
-          vim.notify("Error opening diff: " .. err, vim.log.levels.ERROR)
-        end
+        vim.cmd("DiffviewOpen HEAD.." .. branch)
       end,
     },
   },
@@ -1711,6 +1707,7 @@ M.buffer_context_menu = function(picker, item)
   end)
 end
 
+
 -- ============================================================================
 -- PUBLIC API
 -- ============================================================================
@@ -1728,5 +1725,6 @@ M.actions = {
   git_context_menu = M.git_context_menu,
   buffer_context_menu = M.buffer_context_menu,
 }
+
 
 return M

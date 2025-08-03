@@ -12,7 +12,7 @@ return {
           ["]o"] = "@loop.*",
           ["]s"] = "@scope",
           ["]z"] = "@fold",
-          ["]]"] = "@class.outer",
+          -- ["]]"] = "@class.outer",
         },
         goto_next_end = {
           ["]M"] = "@function.outer",
@@ -25,7 +25,7 @@ return {
           ["[o"] = "@loop.*",
           ["[s"] = "@scope",
           ["[z"] = "@fold",
-          ["[["] = "@class.outer",
+          -- ["[["] = "@class.outer",
         },
         goto_previous_end = {
           ["[M"] = "@function.outer",
