@@ -68,3 +68,6 @@ vim.g.VM_custom_remaps = {
   ["r"] = "i", -- Your 'r' triggers VM's 'i' (insert)
   ["t"] = "a", -- Your 't' triggers VM's 'a' (append)
 }
+
+-- Keep cursor in same column when using jump commands
+vim.opt.startofline = false
