@@ -93,8 +93,6 @@ map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 map({ "n", "o", "x" }, "A", "]c", { desc = "Next diff hunk" })
 map({ "n", "o", "x" }, "E", "[c", { desc = "Previous diff hunk" })
 
-map({ "n" }, "gd", "<Cmd>DiffviewOpen<Cr>", { desc = "Diff view open" })
-
 -- End of word left/right (moved to different keys)
 -- map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
 map({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
@@ -165,13 +163,6 @@ map({ "n" }, "<leader>gb", function()
 end, { desc = "Git branches (all)" })
 
 -- History keymap root
-map({ "n" }, "<leader>gf", function()
-  -- vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
-
-  vim.cmd("DiffviewFileHistory -- " .. vim.fn.expand("%:p"))
-end, { desc = "Git file history" })
-
--- map({ "n" }, "<leader>gh", "<cmd>DiffviewFileHistory<cr>", { desc = "File History (Diffview)" })
 
 map({ "n" }, "<leader>gV", function()
   require("git-resolve-conflict").resolve_union()
@@ -191,7 +182,23 @@ end, { desc = "Resolve file: theirs" })
 map({ "n" }, "<leader>gR", function()
   require("git-resolve-conflict").restore_file_conflict()
 end, { desc = "Restore conflict markers" })
-map({ "n" }, "<leader>gD", "<cmd>DiffviewOpen<cr>", { desc = "Open Diffview" })
+
+-- Unset default LazyVim <leader>gd mapping to avoid conflicts
+pcall(vim.keymap.del, "n", "<leader>gd")
+pcall(vim.keymap.del, "n", "<leader>gs")
+
+map({ "n" }, "gdd", "<Cmd>DiffviewOpen<Cr>", { desc = "Diff view open" })
+map({ "n" }, "gds", function()
+  -- First open git status picker to select files for diffing
+  Snacks.picker.git_status()
+end, { desc = "Git status for diff" })
+
+map(
+  { "n" },
+  "<leader>gdf",
+  "<cmd>DiffviewFileHistory %<cr>",
+  { desc = "Open Diffview Current File History" }
+)
 
 map({ "n" }, "<leader>hB", function()
   Snacks.picker.firefox_bookmarks()
@@ -239,7 +246,7 @@ map({ "n" }, "<leader>cpc", function()
   vim.notify("Copied file contents (" .. #content .. " lines)")
 end, { desc = "Copy file contents" })
 
-map({ "n" }, "<leader>cpk", function()
+map({ "n" }, "<leader>cpl", function()
   local file_path = vim.fn.expand("%:p")
   local line_number = vim.fn.line(".")
   local path_with_line = file_path .. ":" .. line_number

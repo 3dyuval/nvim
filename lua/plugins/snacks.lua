@@ -247,6 +247,11 @@ return {
                 require("utils.picker-extensions").actions.diff_selected(picker)
               end,
             },
+            context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.context_menu(picker, item)
+              end,
+            },
           },
           win = {
             list = {
@@ -256,9 +261,7 @@ return {
                 ["/"] = "toggle_focus",
                 ["<C-c>"] = "focus_input",
                 ["<C-a>"] = false, -- Disable select all - it's distracting
-                ["p"] = function(picker, item)
-                  require("utils.picker-extensions").actions.context_menu(picker, item)
-                end,
+                ["p"] = "copy_file_path",
                 ["g"] = "search_in_directory", -- Opens a grep snacks
                 ["i"] = function(picker)
                   require("utils.picker-extensions").actions.handle_directory_expansion(picker)
@@ -269,9 +272,7 @@ return {
                 ["x"] = false, -- Disable default x binding
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
-                ["f"] = function(picker, item)
-                  format_current_item(picker, item)
-                end,
+                ["f"] = "context_menu",
               },
             },
           },
@@ -291,12 +292,17 @@ return {
             "--exclude",
             "node_modules",
           },
+          actions = {
+            context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.context_menu(picker, item)
+              end,
+            },
+          },
           win = {
             list = {
               keys = {
-                ["f"] = function(picker, item)
-                  format_current_item(picker, item)
-                end,
+                ["f"] = "context_menu",
               },
             },
           },
@@ -318,35 +324,17 @@ return {
           },
         },
         buffers = {
+          actions = {
+            buffer_context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.buffer_context_menu(picker, item)
+              end,
+            },
+          },
           win = {
             list = {
               keys = {
-                ["f"] = function(picker, item)
-                  -- For buffers, format the buffer content directly
-                  local items = picker:selected({ fallback = true })
-                  local conform = require("conform")
-                  local processed = 0
-
-                  for _, buf_item in ipairs(items) do
-                    if buf_item.bufnr and vim.api.nvim_buf_is_loaded(buf_item.bufnr) then
-                      local success, err = pcall(function()
-                        conform.format({ bufnr = buf_item.bufnr, timeout_ms = 5000 })
-                        processed = processed + 1
-                      end)
-
-                      if not success then
-                        vim.notify(
-                          "Error formatting buffer: " .. (err or "unknown"),
-                          vim.log.levels.WARN
-                        )
-                      end
-                    end
-                  end
-
-                  if processed > 0 then
-                    vim.notify("Formatted " .. processed .. " buffers")
-                  end
-                end,
+                ["f"] = "buffer_context_menu",
               },
             },
           },
@@ -354,12 +342,17 @@ return {
         git_status = {
           focus = "list",
           layout = "sidebar",
+          actions = {
+            git_context_menu = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.git_context_menu(picker, item)
+              end,
+            },
+          },
           win = {
             list = {
               keys = {
-                ["f"] = function(picker, item)
-                  format_current_item(picker, item)
-                end,
+                ["f"] = "git_context_menu",
                 ["s"] = { "git_stage", mode = { "n", "i" } },
               },
             },
