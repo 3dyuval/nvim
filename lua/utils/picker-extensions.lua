@@ -1113,76 +1113,20 @@ local actions = {
     },
   },
 
-  -- Git-specific actions (when in git repo)
+  -- Basic git actions (use Snacks built-ins when possible)
   git_actions = {
     {
-      key = "ga",
-      desc = "Git add",
+      key = "s",
+      desc = "Stage/Unstage files",
       action = function(picker, items)
-        local files = {}
-        for _, item in ipairs(items) do
-          if not item.dir then
-            table.insert(files, item.file)
-          end
-        end
-        if #files > 0 then
-          vim.system({ "git", "add", unpack(files) })
-          vim.notify("Added " .. #files .. " files to git")
-          if picker.refresh then
-            picker:refresh()
-          end
-        end
-      end,
-    },
-    {
-      key = "gr",
-      desc = "Git restore",
-      action = function(picker, items)
-        local files = {}
-        for _, item in ipairs(items) do
-          if not item.dir then
-            table.insert(files, item.file)
-          end
-        end
-        if #files > 0 then
-          local confirm = vim.fn.confirm("Restore " .. #files .. " files?", "&Yes\n&No", 2)
-          if confirm == 1 then
-            vim.system({ "git", "restore", unpack(files) })
-            vim.notify("Restored " .. #files .. " files")
-            if picker.refresh then
-              picker:refresh()
-            end
-          end
-        end
+        -- Use Snacks built-in git_stage action
+        require("snacks").picker.actions.git_stage(picker)
       end,
     },
   },
 
-  -- Git status specific actions
+  -- Git status specific actions (using Snacks built-ins)
   git_status_actions = {
-    {
-      key = "s",
-      desc = "Stage/Unstage Files",
-      action = function(picker, items)
-        for _, item in ipairs(items) do
-          local file = item.file
-          if
-            item.status
-            and (item.status:match("^M") or item.status:match("^A") or item.status:match("^D"))
-          then
-            -- File is staged, unstage it
-            vim.system({ "git", "restore", "--staged", file })
-          else
-            -- File is unstaged, stage it
-            vim.system({ "git", "add", file })
-          end
-        end
-        vim.notify("Toggled stage status for " .. #items .. " files")
-        if picker.refresh then
-          picker:refresh()
-        end
-      end,
-    },
     {
       key = "p",
       desc = "Run Save Patterns",
@@ -1200,24 +1144,6 @@ local actions = {
         -- Don't close picker, open diff in split
         vim.cmd("split")
         vim.cmd("Gvdiffsplit " .. vim.fn.fnameescape(item.file))
-      end,
-    },
-    {
-      key = "r",
-      desc = "Restore file",
-      action = function(picker, items)
-        local files = {}
-        for _, item in ipairs(items) do
-          table.insert(files, item.file)
-        end
-        local confirm = vim.fn.confirm("Restore " .. #files .. " files?", "&Yes\n&No", 2)
-        if confirm == 1 then
-          vim.system({ "git", "restore", unpack(files) })
-          vim.notify("Restored " .. #files .. " files")
-          if picker.refresh then
-            picker:refresh()
-          end
-        end
       end,
     },
   },
@@ -1298,202 +1224,33 @@ local actions = {
     },
   },
 
-  -- Git branch-specific actions
+  -- Git branch-specific actions (using Snacks built-ins)
   git_branch_actions = {
     {
       key = "c",
       desc = "Checkout branch",
       action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        picker:close()
-        vim.system({ "git", "checkout", branch }, {
-          text = true,
-        }, function(result)
-          if result.code == 0 then
-            vim.notify("Checked out branch: " .. branch)
-          else
-            vim.notify(
-              "Failed to checkout branch: " .. (result.stderr or "unknown error"),
-              vim.log.levels.ERROR
-            )
-          end
-        end)
+        -- Use Snacks built-in git_checkout action
+        require("snacks").picker.actions.git_checkout(picker, item)
       end,
     },
     {
       key = "d",
       desc = "Delete branch",
       action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        local confirm = vim.fn.confirm("Delete branch '" .. branch .. "'?", "&Yes\n&No", 2)
-        if confirm == 1 then
-          vim.system({ "git", "branch", "-d", branch }, {
-            text = true,
-          }, function(result)
-            if result.code == 0 then
-              vim.notify("Deleted branch: " .. branch)
-              if picker.refresh then
-                picker:refresh()
-              end
-            else
-              vim.notify(
-                "Failed to delete branch: " .. (result.stderr or "unknown error"),
-                vim.log.levels.ERROR
-              )
-            end
-          end)
-        end
-      end,
-    },
-    {
-      key = "D",
-      desc = "Force delete branch",
-      action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        local confirm = vim.fn.confirm("Force delete branch '" .. branch .. "'?", "&Yes\n&No", 2)
-        if confirm == 1 then
-          vim.system({ "git", "branch", "-D", branch }, {
-            text = true,
-          }, function(result)
-            if result.code == 0 then
-              vim.notify("Force deleted branch: " .. branch)
-              if picker.refresh then
-                picker:refresh()
-              end
-            else
-              vim.notify(
-                "Failed to force delete branch: " .. (result.stderr or "unknown error"),
-                vim.log.levels.ERROR
-              )
-            end
-          end)
-        end
-      end,
-    },
-    {
-      key = "r",
-      desc = "Rename branch",
-      action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        vim.ui.input({ prompt = "Rename '" .. branch .. "' to: " }, function(new_name)
-          if new_name and new_name ~= "" and new_name ~= branch then
-            vim.system({ "git", "branch", "-m", branch, new_name }, {
-              text = true,
-            }, function(result)
-              if result.code == 0 then
-                vim.notify("Renamed branch: " .. branch .. " -> " .. new_name)
-                if picker.refresh then
-                  picker:refresh()
-                end
-              else
-                vim.notify(
-                  "Failed to rename branch: " .. (result.stderr or "unknown error"),
-                  vim.log.levels.ERROR
-                )
-              end
-            end)
-          end
-        end)
+        -- Use Snacks built-in git_branch_del action
+        require("snacks").picker.actions.git_branch_del(picker, item)
       end,
     },
     {
       key = "n",
-      desc = "Create new branch from this",
+      desc = "Create new branch",
       action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        vim.ui.input({ prompt = "New branch name: " }, function(new_name)
-          if new_name and new_name ~= "" then
-            vim.system({ "git", "checkout", "-b", new_name, branch }, {
-              text = true,
-            }, function(result)
-              if result.code == 0 then
-                vim.notify("Created and checked out new branch: " .. new_name)
-                picker:close()
-              else
-                vim.notify(
-                  "Failed to create branch: " .. (result.stderr or "unknown error"),
-                  vim.log.levels.ERROR
-                )
-              end
-            end)
-          end
-        end)
+        -- Use Snacks built-in git_branch_add action
+        require("snacks").picker.actions.git_branch_add(picker)
       end,
     },
-    {
-      key = "m",
-      desc = "Merge into current",
-      action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        local confirm =
-          vim.fn.confirm("Merge '" .. branch .. "' into current branch?", "&Yes\n&No", 2)
-        if confirm == 1 then
-          vim.system({ "git", "merge", branch }, {
-            text = true,
-          }, function(result)
-            if result.code == 0 then
-              vim.notify("Merged branch: " .. branch)
-            else
-              vim.notify(
-                "Failed to merge branch: " .. (result.stderr or "unknown error"),
-                vim.log.levels.ERROR
-              )
-            end
-          end)
-        end
-      end,
-    },
-    {
-      key = "R",
-      desc = "Rebase current onto this",
-      action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        local confirm =
-          vim.fn.confirm("Rebase current branch onto '" .. branch .. "'?", "&Yes\n&No", 2)
-        if confirm == 1 then
-          vim.system({ "git", "rebase", branch }, {
-            text = true,
-          }, function(result)
-            if result.code == 0 then
-              vim.notify("Rebased onto branch: " .. branch)
-            else
-              vim.notify(
-                "Failed to rebase onto branch: " .. (result.stderr or "unknown error"),
-                vim.log.levels.ERROR
-              )
-            end
-          end)
-        end
-      end,
-    },
+    -- Keep some custom actions that don't have direct Snacks equivalents
     {
       key = "l",
       desc = "Show log",
@@ -1507,8 +1264,8 @@ local actions = {
       end,
     },
     {
-      key = "f",
-      desc = "Show diff vs current",
+      key = "v",
+      desc = "View diff vs current branch",
       action = function(picker, item)
         local branch = M.get_branch_name(item)
         if not branch then
@@ -1576,6 +1333,14 @@ local function get_actions(picker)
     vim.list_extend(action_list, actions.git_branch_actions)
   elseif context_name == "git_status" then
     vim.list_extend(action_list, actions.git_status_actions)
+    -- Add built-in git stage action
+    table.insert(action_list, {
+      key = "s",
+      desc = "Stage/Unstage files",
+      action = function(picker, items)
+        require("snacks").picker.actions.git_stage(picker)
+      end,
+    })
   elseif context_name == "buffers" then
     vim.list_extend(action_list, actions.buffer_actions)
   elseif context_name == "explorer" or context_name == "files" then
@@ -1942,94 +1707,6 @@ M.buffer_context_menu = function(picker, item)
   end)
 end
 
--- Show context menu
-M.show_context_menu = function(picker)
-  if not validate_picker(picker) then
-    return
-  end
-
-  local action_list, items = get_actions(picker)
-  local context_name, _context = detect_context(picker)
-
-  -- If no actions from context detection, try to get current item for basic actions
-  if #action_list == 0 then
-    local current, err = safe_picker_call(picker, "current")
-    if not err and current and current.file then
-      if current.dir then
-        action_list = actions.single_dir
-      else
-        action_list = actions.single_file
-      end
-      items = { current }
-
-      -- Update format action description for the current item with icons
-      for _, action in ipairs(action_list) do
-        if action.key == "f" then
-          if current.dir then
-            action.desc = "󰈔 Format hovered directory (recursive)"
-          else
-            -- Get file icon if possible
-            local icon = "󰈙" -- default file icon
-            if current.file then
-              local ok, devicons = pcall(require, "nvim-web-devicons")
-              if ok then
-                local file_icon = devicons.get_icon(vim.fn.fnamemodify(current.file, ":t"))
-                if file_icon then
-                  icon = file_icon
-                end
-              end
-            end
-            action.desc = icon .. " Format hovered file"
-          end
-        end
-      end
-    end
-  end
-
-  -- If still no actions, show error
-  if #action_list == 0 then
-    vim.notify("No actions available for this context", vim.log.levels.WARN)
-    return
-  end
-
-  -- Ensure we have items to work with
-  if #items == 0 then
-    local current, err = safe_picker_call(picker, "current")
-    if not err and current then
-      items = { current }
-    else
-      vim.notify("No items available", vim.log.levels.WARN)
-      return
-    end
-  end
-
-  -- Create menu items for vim.ui.select
-  local menu_options = {}
-  local action_map = {}
-
-  for i, action in ipairs(action_list) do
-    local option_text = string.format("[%s] %s", action.key, action.desc)
-    table.insert(menu_options, option_text)
-    action_map[i] = action
-  end
-
-  -- Show menu using vim.ui.select
-  vim.ui.select(menu_options, {
-    prompt = "Choose action:",
-    format_item = function(item)
-      return item
-    end,
-  }, function(choice, idx)
-    if choice and idx and action_map[idx] then
-      local action = action_map[idx]
-      if #items == 1 then
-        action.action(picker, items[1])
-      else
-        action.action(picker, items)
-      end
-    end
-  end)
-end
 
 -- ============================================================================
 -- PUBLIC API
@@ -2042,13 +1719,12 @@ M.actions = {
   search_in_directory = M.search_in_directory,
   diff_selected = M.diff_selected,
   handle_directory_expansion = M.handle_directory_expansion,
+  format_action = format_action,
   -- Context menu actions (which-key based)
   context_menu = M.context_menu,
   git_context_menu = M.git_context_menu,
   buffer_context_menu = M.buffer_context_menu,
 }
 
--- Export context menu function (main entry point)
-M.show_menu = M.show_context_menu
 
 return M

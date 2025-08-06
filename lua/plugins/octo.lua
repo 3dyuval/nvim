@@ -52,22 +52,18 @@ return {
     })
   end,
   keys = {
-    { "<leader>so", "<cmd>Octo<cr>", desc = "Octo" },
+    {
+      "<leader>go",
+      function()
+        require("utils.octo-menu").show()
+      end,
+      desc = " Octo Menu",
+    },
     {
       "<leader>gi",
-      function()
-        vim.cmd("Octo issue list")
-        vim.defer_fn(function()
-          vim.cmd("startinsert")
-        end, 100)
-      end,
+      "<cmd>Octo issue search<CR>",
       desc = "List Issues",
     },
-    { "<leader>gI", "<cmd>Octo issue search<CR>", desc = "Search Issues" },
-    { "<leader>gP", "<cmd>Octo pr search<CR>", desc = "Search PRs" },
-    { "<leader>gR", "<cmd>Octo repo list<CR>", desc = "List Repos" },
-    { "<leader>gS", "<cmd>Octo search<CR>", desc = "Search" },
-
     { "<localleader>a", "", desc = "+assignee", ft = "octo" },
     { "<localleader>c", "", desc = "+comment/code", ft = "octo" },
     { "<localleader>l", "", desc = "+label", ft = "octo" },

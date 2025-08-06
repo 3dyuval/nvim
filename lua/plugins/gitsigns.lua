@@ -11,8 +11,8 @@ return {
         end
 
         -- Navigation adapted for HAEI layout (]e = next, [e = prev)
-        map("n", "]e", gs.next_hunk, "Next Hunk")
-        map("n", "[e", gs.prev_hunk, "Prev Hunk")
+        map("n", "A", gs.next_hunk, "Next Hunk")
+        map("n", "E", gs.prev_hunk, "Prev Hunk")
 
         -- Stage/reset hunks
         map({ "n", "v" }, "<leader>gg", ":Gitsigns stage_hunk<CR>", "Stage Hunk")
@@ -29,20 +29,6 @@ return {
           gs.blame_line({ full = true })
         end, "Blame Line")
 
-        -- Diff operations
-        map("n", "<leader>gd", function()
-          Snacks.picker.git_branches({
-            all = true,
-            prompt = "Select branch to diff against:",
-            confirm = function(picker, item)
-              if item then
-                picker:close()
-                -- Simple comparison: branch vs working tree
-                vim.cmd("DiffviewOpen " .. item.text .. " -- " .. vim.fn.expand("%"))
-              end
-            end,
-          })
-        end, "Diff This Against Branch")
         -- map("n", "<leader>gD", function()
         --   gs.diffthis("~")
         -- end, "Diff This ~")

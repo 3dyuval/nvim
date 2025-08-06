@@ -141,6 +141,34 @@ return {
 
       -- Disable Angular Language Server (conflicts with typescript-tools)
       angularls = { enabled = false },
+
+      -- Tailwind CSS Language Server
+      tailwindcss = {
+        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact" },
+        settings = {
+          tailwindCSS = {
+            validate = true,
+            lint = {
+              cssConflict = "warning",
+              invalidApply = "error",
+              invalidScreen = "error",
+              invalidTailwindDirective = "error",
+              invalidVariant = "error",
+              recommendedVariantOrder = "warning"
+            },
+            experimental = {
+              classRegex = {
+                "className\\s*=\\s*[\"']([^\"']*)[\"']",
+                "class\\s*=\\s*[\"']([^\"']*)[\"']",
+                "classList\\s*=\\s*[\"']([^\"']*)[\"']",
+                {"clsx\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]"},
+                {"classnames\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]"},
+                {"cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]"}
+              }
+            }
+          }
+        }
+      },
     },
     setup = {
       -- Don't define setup functions for disabled servers

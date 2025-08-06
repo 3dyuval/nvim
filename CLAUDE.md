@@ -1,5 +1,11 @@
 # AGENTS.md - Neovim Configuration Manager
 
+## Documentation and Plugin References
+
+> [!IMPORTANT]
+>
+> - When handing plugin which require implementations details you need to directly docs you can use lazy local to see all relevant details at `/home/yuval/.config/lazygit`
+
 ## Role & Workflow
 
 You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue list`, `gh pr list`). Main focus: keymaps and plugins. **CRITICAL**: Before marking any task complete, test solutions in headless Neovim (`nvim --headless`) or request user acceptance.
@@ -49,6 +55,13 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 
 ## Code Style & Standards
 
+> [!IMPORTANT]
+> **ALWAYS look for established patterns in a file you are about to write to.** Study existing code conventions, helper functions, and patterns before making changes. For example:
+>
+> - If a file has an `override_map` function, use it instead of manual `pcall(vim.keymap.del)`
+> - Follow existing naming conventions and code organization
+> - Use established helper functions rather than reimplementing functionality
+
 - **Lua**: 2-space indent, snake_case vars/funcs, PascalCase modules, `local` scope, `pcall()` errors
 - **JS/TS**: Single quotes, no semicolons, biome formatting, organize imports on save
 - **Keymaps**: Use `vim.keymap.set()`, descriptive `desc`, check conflicts before adding
@@ -74,3 +87,7 @@ When implementing custom Github functionality use `pwntester/octo.nvim`.
 - **Operations**: x=delete, w=change, c=yank, v=paste, n=visual, z=undo
 - **Tree-sitter**: rf/Tf=function, rc/Tc=class, ry/Ty=element
 - **NEVER** use standard Vim keys (hjkl, ia) - always use Graphite equivalents
+
+## Local Configuration
+
+- Use the local `/home/yuval/.local/share/nvim` instead of getting blobs from github
