@@ -18,6 +18,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "javascript", "typescript", "json", "lua", "python", "css", "scss" },
   callback = function()

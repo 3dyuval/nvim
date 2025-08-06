@@ -7,9 +7,9 @@ return {
         ours = "gp", -- map gp to choose ours (put)
         theirs = "go", -- map go to choose theirs (get)
         none = "0", -- keep default
-        both = "gv",
-        next = "]]",
-        prev = "[[",
+        both = "gu",
+        next = "]x",
+        prev = "[x",
       },
       default_commands = true,
       disable_diagnostics = false,
