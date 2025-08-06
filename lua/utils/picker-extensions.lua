@@ -1707,7 +1707,6 @@ M.buffer_context_menu = function(picker, item)
   end)
 end
 
-
 -- ============================================================================
 -- PUBLIC API
 -- ============================================================================
@@ -1725,6 +1724,5 @@ M.actions = {
   git_context_menu = M.git_context_menu,
   buffer_context_menu = M.buffer_context_menu,
 }
-
 
 return M

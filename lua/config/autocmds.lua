@@ -18,7 +18,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "javascript", "typescript", "json", "lua", "python", "css", "scss" },
   callback = function()
@@ -84,7 +83,7 @@ vim.api.nvim_create_autocmd({ "TabEnter", "BufWinEnter" }, {
 -- Note: Removed FileType autocmd for DiffviewFiles - was interfering with buffer creation
 
 -- Auto-start Tailwind CSS LSP in projects that have tailwind.config.js
-vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
   callback = function()
     -- Only proceed if we haven't already tried to start tailwindcss for this buffer
@@ -92,10 +91,11 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
       return
     end
     vim.b.tailwind_checked = true
-    
+
     -- Check if tailwind config exists in project root
-    local config_files = { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs" }
-    
+    local config_files =
+      { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs" }
+
     for _, config_file in ipairs(config_files) do
       if vim.fn.filereadable(config_file) == 1 then
         print("Found " .. config_file .. ", starting Tailwind LSP...")

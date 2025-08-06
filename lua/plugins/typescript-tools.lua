@@ -65,7 +65,7 @@ return {
         -- You can still jump to definitions in node_modules - this just prevents watching for changes
         watchOptions = {
           excludeDirectories = {
-            "**/node_modules",  -- Safe to exclude - types still work, just no file watching
+            "**/node_modules", -- Safe to exclude - types still work, just no file watching
             "**/dist",
             "**/build",
             "**/.git",
@@ -75,6 +75,13 @@ return {
             "**/.cache",
             "**/.next",
             "**/.nuxt",
+            -- React Native specific directories (issue #49)
+            "**/android/build",
+            "**/android/.gradle",
+            "**/ios/build",
+            "**/ios/Pods",
+            "**/.expo",
+            "**/expo-env.d.ts",
           },
         },
         -- locale of all tsserver messages, supported locales you can find here:

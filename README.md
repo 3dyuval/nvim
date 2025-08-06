@@ -26,7 +26,7 @@ sudo sysctl -p
 This configuration includes several optimizations to reduce file watcher usage:
 
 1. **Diffview.nvim** - Disabled `watch_index` to prevent continuous git monitoring
-2. **TypeScript Tools** - Configured to exclude node_modules and build directories
+2. **TypeScript Tools** - Configured to exclude node_modules, build directories, and React Native dirs
 3. **.ignore file** - Excludes large directories from file watching operations
 
-See issue #48 for more details.
+See issues #48 and #49 for more details.

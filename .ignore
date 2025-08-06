@@ -14,6 +14,15 @@ target/
 *.min.js
 *.min.css
 
+# React Native specific (issue #49)
+android/build/
+android/.gradle/
+android/app/build/
+ios/build/
+ios/Pods/
+.expo/
+expo-env.d.ts
+
 # Version control
 .git/
 .svn/

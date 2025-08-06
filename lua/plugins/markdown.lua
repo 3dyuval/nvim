@@ -21,7 +21,12 @@ return {
     keys = {
       -- Markdown-specific commands (only work in markdown files)
       { "<leader>pf", "<cmd>MDTaskToggle<cr>", ft = text_filetypes, desc = "Toggle task checkbox" },
-      { "<leader>pl", "<cmd>MDListItemBelow<cr>", ft = text_filetypes, desc = "Add list item below" },
+      {
+        "<leader>pl",
+        "<cmd>MDListItemBelow<cr>",
+        ft = text_filetypes,
+        desc = "Add list item below",
+      },
       { "<leader>ph", "]]", ft = text_filetypes, desc = "Next heading" },
       { "<leader>pk", "gliw", mode = "n", ft = text_filetypes, desc = "Add link to word" },
       { "<leader>pk", "gl", mode = "v", ft = text_filetypes, desc = "Add link (visual)" },
