@@ -164,13 +164,13 @@ end, { desc = "Git branches (all)" })
 
 -- History keymap root
 
-map({ "n" }, "<leader>gV", function()
+map({ "n" }, "<leader>gU", function()
   require("git-resolve-conflict").resolve_union()
 end, { desc = "Choose both/union (file)" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
-override_map("n", "[[", "<cmd>GitConflictPrevConflict<cr>", { desc = "Previous git conflict" })
-override_map("n", "]]", "<cmd>GitConflictNextConflict<cr>", { desc = "Next git conflict" })
+override_map("n", "[[", "[x", { desc = "Previous git conflict" })
+override_map("n", "]]", "]x", { desc = "Next git conflict" })
 
 -- Git conflict resolution using git-resolve-conflict plugin (file-level resolution)
 map({ "n" }, "gO", function()
@@ -296,7 +296,7 @@ local function move_split(dir, op)
       local is_snacks_explorer = buf_name:match("snacks://") or vim.bo.filetype == "snacks_picker"
 
       require("smart-splits")["move_cursor_" .. dir]({
-        same_row = not is_snacks_explorer, -- Use same_row=false when IN explorer
+        same_row = false,
         at_edge = "stop",
       })
     end
@@ -377,21 +377,6 @@ map({ "x", "o" }, "tc", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@class.outer", "textobjects")
 end, { desc = "Select outer class" })
 
-map({ "x", "o" }, "Re", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@element.inner", "textobjects")
-end, { desc = "Select inner JSX element" })
-
-map({ "x", "o" }, "Te", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@element.outer", "textobjects")
-end, { desc = "Select around JSX element" })
-
-map({ "x", "o" }, "Rh", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@tag.inner", "textobjects")
-end, { desc = "Select inner HTML tag" })
-
-map({ "x", "o" }, "Th", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@tag.outer", "textobjects")
-end, { desc = "Select around HTML tag" })
 map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 
@@ -425,11 +410,13 @@ map({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
 map({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
 map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 
--- map("n", "<leader>gf", function()
---   -- TODO make sidebar hidder (mapped to <leader>b)
---   vim.cmd("DiffviewOpen -- " .. vim.fn.expand("%:p"))
--- end, { desc = "Diffview this file" })
---
+map({ "n", "o", "v" }, "te", function()
+  require("nvim-treesitter.textobjects.select").select_textobject(
+    "@jsx_self_closing_element",
+    "textobjects"
+  )
+end, { desc = "Select JSX self-closing element" })
+
 -- Treewalker keymaps (will override LazyVim defaults)
 -- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl
 -- vim.keymap.set(

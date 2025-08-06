@@ -13,7 +13,7 @@ This document explains all git-related keybindings in the Neovim configuration, 
 #### File-wide Operations
 - `<leader>gO` - Resolve entire file as OURS (keep current branch version)
 - `<leader>gP` - Resolve entire file as THEIRS (take incoming branch version)
-- `<leader>gV` - Resolve entire file as UNION (keep both versions)
+- `<leader>gU` - Resolve entire file as UNION (keep both versions)
 - `<leader>gv` - Open git-resolve-conflict picker to choose resolution strategy
 
 #### Hunk-level Operations (in Diffview)
@@ -74,7 +74,7 @@ This document explains all git-related keybindings in the Neovim configuration, 
 | `ghu` | Conflict | Resolve hunk as UNION |
 | `<leader>gO` | Any | Resolve file as OURS |
 | `<leader>gP` | Any | Resolve file as THEIRS |
-| `<leader>gV` | Any | Resolve file as UNION |
+| `<leader>gU` | Any | Resolve file as UNION |
 | `<leader>gv` | Any | Open resolve picker |
 | `A`/`E` | Any | Navigate diffs/conflicts |
 | `]x`/`[x` | Normal buffer | Navigate conflicts |

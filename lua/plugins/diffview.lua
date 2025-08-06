@@ -206,7 +206,7 @@ return {
           -- File-wide: resolve entire file
           { "n", "<leader>gO", git_resolve.resolve_ours, { desc = "Resolve file: OURS" } },
           { "n", "<leader>gP", git_resolve.resolve_theirs, { desc = "Resolve file: THEIRS" } },
-          { "n", "<leader>gV", git_resolve.resolve_union, { desc = "Resolve file: UNION" } },
+          { "n", "<leader>gU", git_resolve.resolve_union, { desc = "Resolve file: UNION" } },
 
           -- Hunk-level: resolve current conflict hunk only
           { "n", "gho", actions.conflict_choose("ours"), { desc = "Resolve hunk: OURS" } },
