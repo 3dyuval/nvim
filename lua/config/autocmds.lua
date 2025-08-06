@@ -82,3 +82,28 @@ vim.api.nvim_create_autocmd({ "TabEnter", "BufWinEnter" }, {
 -- Note: Removed vim.api.nvim_echo override - was interfering with diffview
 
 -- Note: Removed FileType autocmd for DiffviewFiles - was interfering with buffer creation
+
+-- Auto-start Tailwind CSS LSP in projects that have tailwind.config.js
+vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {
+  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
+  callback = function()
+    -- Only proceed if we haven't already tried to start tailwindcss for this buffer
+    if vim.b.tailwind_checked then
+      return
+    end
+    vim.b.tailwind_checked = true
+    
+    -- Check if tailwind config exists in project root
+    local config_files = { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs" }
+    
+    for _, config_file in ipairs(config_files) do
+      if vim.fn.filereadable(config_file) == 1 then
+        print("Found " .. config_file .. ", starting Tailwind LSP...")
+        vim.defer_fn(function()
+          vim.cmd("LspStart tailwindcss")
+        end, 200)
+        break
+      end
+    end
+  end,
+})

@@ -477,3 +477,33 @@ vim.keymap.set(
 override_map("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
 
 -- Grug-far search within range
+map({ "n", "v" }, "<leader>sr", function()
+  require("grug-far").open({ visualSelectionUsage = "operate-within-range" })
+end, { desc = "Search/Replace within range (Grug-far)" })
+
+-- Grug-far search in current file only
+map("n", "<leader>sF", function()
+  require("grug-far").open({
+    prefills = {
+      paths = vim.fn.expand("%"), -- Current file path
+    },
+  })
+end, { desc = "Search/Replace in current file (Grug-far)" })
+
+-- Grug-far search selected text in current file
+map("v", "<leader>sF", function()
+  require("grug-far").with_visual_selection({
+    prefills = {
+      paths = vim.fn.expand("%"), -- Current file path
+    },
+  })
+end, { desc = "Search/Replace selection in current file (Grug-far)" })
+
+-- Grug-far search in current directory
+map("n", "<leader>sR", function()
+  require("grug-far").open({
+    prefills = {
+      paths = vim.fn.expand("%:h"), -- Current file's directory
+    },
+  })
+end, { desc = "Search/Replace in current directory (Grug-far)" })
