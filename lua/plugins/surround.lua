@@ -177,6 +177,28 @@ M.default_opts = {
         end,
       },
     },
+    -- Markdown-specific surrounds
+    ["*"] = {
+      add = { "**", "**" },
+      find = function()
+        return M.get_selection({ pattern = "%*%*.-*%*" })
+      end,
+      delete = "^(%*%*)().-()(%*%*)$",
+    },
+    ["_"] = {
+      add = { "_", "_" },
+      find = function()
+        return M.get_selection({ pattern = "_.-_" })
+      end,
+      delete = "^(_)().-()(_)$",
+    },
+    ["~"] = {
+      add = { "~~", "~~" },
+      find = function()
+        return M.get_selection({ pattern = "~~.-~~" })
+      end,
+      delete = "^(~~)().-()(~~)$",
+    },
     invalid_key_behavior = {
       add = function(char)
         if not char or char:find("%c") then
