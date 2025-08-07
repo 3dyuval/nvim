@@ -101,16 +101,57 @@ else
     print_warning "todo script test failed - check lua and rg installation"
 fi
 
+# Install StyLua
+echo ""
+echo "📦 Installing StyLua (Lua formatter)..."
+
+# Determine the latest version
+STYLUA_VERSION="v0.20.0"
+STYLUA_RELEASE_URL="https://github.com/JohnnyMorganz/StyLua/releases/download/${STYLUA_VERSION}/stylua-linux-x86_64.zip"
+
+# Create directory for stylua
+mkdir -p ~/.local/bin
+
+# Download StyLua
+cd /tmp
+if wget -q "${STYLUA_RELEASE_URL}"; then
+    print_status "Downloaded StyLua release"
+else
+    print_error "Failed to download StyLua"
+    exit 1
+fi
+
+# Extract and install
+if unzip -q stylua-linux-x86_64.zip; then
+    print_status "Extracted StyLua"
+    chmod +x stylua
+    mv stylua ~/.local/bin/
+    rm stylua-linux-x86_64.zip
+else
+    print_error "Failed to extract StyLua"
+    exit 1
+fi
+
+# Verify installation
+if ~/.local/bin/stylua --version > /dev/null 2>&1; then
+    print_status "StyLua installed successfully"
+else
+    print_error "StyLua installation verification failed"
+fi
+
+echo ""
 echo "🎉 All dependencies installed successfully!"
 echo ""
 echo "Installed components:"
 echo "  • git-resolve-conflict: ✅ Built-in (pure Lua)"
 echo "  • git-filter-repo: $(which git-filter-repo > /dev/null && echo '✅ Available' || echo '❌ Not found')"
 echo "  • js-debug: $([ -f ~/.local/share/js-debug/src/dapDebugServer.js ] && echo '✅ Available' || echo '❌ Not found')"
+echo "  • stylua: $(~/.local/bin/stylua --version > /dev/null 2>&1 && echo '✅ Available' || echo '❌ Not found')"
 echo "  • todo script: $([ -x ~/.config/nvim/lua/utils/todo.lua ] && echo '✅ Executable' || echo '❌ Not executable')"
 echo ""
 echo "ℹ️  Restart Neovim to use the new dependencies."
 echo "ℹ️  This script works across machines (lab, yuval) due to portable paths."
+echo "ℹ️  Make sure ~/.local/bin is in your PATH for stylua to work."
 echo ""
 echo "Fixed warnings/errors:"
 echo "  • git-resolve-conflict warning: ✅ Resolved"

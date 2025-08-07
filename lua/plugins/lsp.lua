@@ -144,7 +144,15 @@ return {
 
       -- Tailwind CSS Language Server
       tailwindcss = {
-        filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact" },
+        filetypes = {
+          "html",
+          "css",
+          "scss",
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact",
+        },
         settings = {
           tailwindCSS = {
             validate = true,
@@ -154,20 +162,20 @@ return {
               invalidScreen = "error",
               invalidTailwindDirective = "error",
               invalidVariant = "error",
-              recommendedVariantOrder = "warning"
+              recommendedVariantOrder = "warning",
             },
             experimental = {
               classRegex = {
                 "className\\s*=\\s*[\"']([^\"']*)[\"']",
                 "class\\s*=\\s*[\"']([^\"']*)[\"']",
                 "classList\\s*=\\s*[\"']([^\"']*)[\"']",
-                {"clsx\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]"},
-                {"classnames\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]"},
-                {"cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]"}
-              }
-            }
-          }
-        }
+                { "clsx\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]" },
+                { "classnames\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]" },
+                { "cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*)[\"'`]" },
+              },
+            },
+          },
+        },
       },
     },
     setup = {

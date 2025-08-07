@@ -1,0 +1,70 @@
+# File watcher exclusions for Neovim plugins (issue #48)
+# This file helps reduce ENOSPC errors by excluding large directories
+# from file watching operations
+
+# Node.js
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+target/
+*.min.js
+*.min.css
+
+# React Native specific (issue #49)
+android/build/
+android/.gradle/
+android/app/build/
+ios/build/
+ios/Pods/
+.expo/
+expo-env.d.ts
+
+# Version control
+.git/
+.svn/
+.hg/
+
+# Dependencies
+vendor/
+bower_components/
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Test/Coverage
+coverage/
+.nyc_output/
+__pycache__/
+*.pyc
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+
+# Large media files
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.pdf
+*.zip
+*.tar.gz

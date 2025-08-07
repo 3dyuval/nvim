@@ -113,4 +113,3 @@ function M.smart_diffview_open(args)
 end
 
 return M
-
