@@ -12,7 +12,12 @@ return {
       })
     end,
   },
-
+  {
+    "ficcdaf/ashen.nvim",
+    lazy = false,
+    tag = "*",
+    priority = 1000,
+  },
   -- Oxocarbon - Minimal dark theme inspired by IBM Carbon
   {
     "nyoom-engineering/oxocarbon.nvim",

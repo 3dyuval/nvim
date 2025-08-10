@@ -71,3 +71,12 @@ vim.g.VM_custom_remaps = {
 
 -- Keep cursor in same column when using jump commands
 vim.opt.startofline = false
+
+-- Configure how tabs and spaces are displayed
+vim.opt.listchars = {
+  tab = "  ",  -- Show tabs as spaces instead of > > >
+  trail = "·",
+  extends = "→",
+  precedes = "←",
+  nbsp = "␣",
+}
