@@ -101,6 +101,23 @@ else
     print_warning "todo script test failed - check lua and rg installation"
 fi
 
+echo ""
+echo "🔧 Installing smart-splits kittens for Kitty integration..."
+SMART_SPLITS_PATH="$HOME/.local/share/nvim/lazy/smart-splits.nvim"
+if [ -d "$SMART_SPLITS_PATH" ]; then
+    if [ -f "$SMART_SPLITS_PATH/kitty/install-kittens.bash" ]; then
+        if bash "$SMART_SPLITS_PATH/kitty/install-kittens.bash"; then
+            print_status "smart-splits kittens installed successfully"
+        else
+            print_warning "Failed to install smart-splits kittens - run manually if needed"
+        fi
+    else
+        print_warning "smart-splits install script not found - plugin may not be installed yet"
+    fi
+else
+    print_warning "smart-splits plugin not found - install Lazy.nvim plugins first"
+fi
+
 # Install StyLua
 echo ""
 echo "📦 Installing StyLua (Lua formatter)..."
@@ -148,6 +165,7 @@ echo "  • git-filter-repo: $(which git-filter-repo > /dev/null && echo '✅ Av
 echo "  • js-debug: $([ -f ~/.local/share/js-debug/src/dapDebugServer.js ] && echo '✅ Available' || echo '❌ Not found')"
 echo "  • stylua: $(~/.local/bin/stylua --version > /dev/null 2>&1 && echo '✅ Available' || echo '❌ Not found')"
 echo "  • todo script: $([ -x ~/.config/nvim/lua/utils/todo.lua ] && echo '✅ Executable' || echo '❌ Not executable')"
+echo "  • smart-splits kittens: $([ -f ~/.config/kitty/neighboring_window.py ] && echo '✅ Available' || echo '❌ Not found')"
 echo ""
 echo "ℹ️  Restart Neovim to use the new dependencies."
 echo "ℹ️  This script works across machines (lab, yuval) due to portable paths."

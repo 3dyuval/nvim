@@ -3,18 +3,18 @@ set -e
 
 # Simple test runner inspired by conform.nvim
 # Creates isolated environment and runs tests with Plenary
-
 echo "🧪 Running Neovim configuration tests..."
 
 # Test 1: Basic config loading
+
 echo "=== Testing configuration loading ==="
 nvim --headless -c "lua print('✅ Neovim config loaded successfully')" -c "qa"
 
-# Test 2: Run tests with Plenary if available
+# Test 2: Run tests with Plenary (if available)
 if command -v nvim >/dev/null 2>&1; then
   echo "=== Running Plenary-based tests ==="
-  
-  # Check if we have any plenary-based tests
+
+  # Check if we have any plenary based tests
   if [ -d "lua/utils/tests" ]; then
     nvim --headless \
       -c "lua package.path = package.path .. ';./lua/?.lua'" \
@@ -23,7 +23,7 @@ if command -v nvim >/dev/null 2>&1; then
   else
     echo "⚠️ No test directory found"
   fi
-  
+
   # Test 3: Additional test files in test directory
   echo "=== Running additional tests ==="
   if [ -d "test" ]; then
@@ -37,8 +37,9 @@ if command -v nvim >/dev/null 2>&1; then
     done
   fi
 else
-  echo "❌ Neovim not found"
+  echo "❌ Neovim not found!!! Aborting"
   exit 1
 fi
 
 echo "✅ All tests completed"
+
