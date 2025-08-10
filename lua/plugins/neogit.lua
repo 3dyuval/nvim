@@ -12,10 +12,14 @@ return {
     commit_view = {
       kind = "vsplit",
     },
-    keymaps = {
+    mappings = {
       popup = {
         ["m"] = false,
-        ["M"] = "Merge",
+        ["M"] = "MergePopup",
+      },
+      status = {
+        ["C"] = "YankSelected",
+        ["m"] = false, -- disable merge to use your custom binding
       },
     },
     autoinstall = true,
