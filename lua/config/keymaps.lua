@@ -164,6 +164,8 @@ end, { desc = "Git branches (all)" })
 
 -- History keymap root
 
+map({ "n" }, "<leader>hu", "<Cmd>undolist<Cr>", { desc = "View undo list" })
+
 map({ "n" }, "<leader>gU", function()
   require("git-resolve-conflict").resolve_union()
 end, { desc = "Choose both/union (file)" })
@@ -185,18 +187,13 @@ end, { desc = "Restore conflict markers" })
 
 -- Unset default LazyVim <leader>gd mapping to avoid conflicts
 pcall(vim.keymap.del, "n", "<leader>gd")
-pcall(vim.keymap.del, "n", "<leader>gs")
 
 map({ "n" }, "gdd", "<Cmd>DiffviewOpen<Cr>", { desc = "Diff view open" })
-map({ "n" }, "gds", function()
-  -- First open git status picker to select files for diffing
-  Snacks.picker.git_status()
-end, { desc = "Git status for diff" })
-
+map({ "n" }, "gds", "<Cmd>:DiffviewFileHistory -g --range=stash<Cr>", { desc = "Diff view stash" })
 map(
   { "n" },
   "<leader>gdf",
-  "<cmd>DiffviewFileHistory %<cr>",
+  ":DiffviewFileHistory %",
   { desc = "Open Diffview Current File History" }
 )
 
