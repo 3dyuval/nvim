@@ -1531,6 +1531,16 @@ M.git_context_menu = function(picker, item)
   local options = {}
   local actions = {}
 
+  -- Conflict filter toggle action
+  local is_conflict_filter_active = picker._conflict_filter_active or false
+  local conflict_toggle_text = is_conflict_filter_active and "󰍉 Show All Files"
+    or "󰍉 Show Only Conflicts"
+  table.insert(options, conflict_toggle_text)
+  table.insert(actions, function()
+    -- Use the proper toggle function
+    M.toggle_conflict_filter(picker)
+  end)
+
   -- Format action
   table.insert(options, "󰉋 Format")
   table.insert(actions, function()
@@ -1707,6 +1717,65 @@ M.buffer_context_menu = function(picker, item)
   end)
 end
 
+-- Git conflicts filter function - filters items to show only conflicted files
+M.filter_conflicts = function(item, ctx)
+  -- Debug: print the item structure to understand what fields are available
+  if vim.g.debug_git_conflicts then
+    print("Git item debug:")
+    print("  status:", vim.inspect(item.status))
+    print("  git_status:", vim.inspect(item.git_status))
+    print("  text:", vim.inspect(item.text))
+    print("  full item:", vim.inspect(item))
+  end
+
+  -- Try different possible fields for git status
+  local status = item.status or item.git_status
+  if status and (status:match("UU") or status:match("AA") or status:match("DD")) then
+    return item
+  end
+  return false -- Filter out non-conflicted files (use false, not nil)
+end
+
+-- Git conflicts picker - dedicated picker for conflicted files only
+M.git_conflicts = function()
+  Snacks.picker.git_status({
+    transform = M.filter_conflicts,
+    auto_close = false,
+    layout = "sidebar",
+    win = {
+      title = "Git Conflicts",
+      list = {
+        keys = {
+          ["f"] = "git_context_menu",
+          ["s"] = { "git_stage", mode = { "n", "i" } },
+        },
+      },
+    },
+    actions = {
+      git_context_menu = {
+        action = function(picker, item)
+          require("utils.picker-extensions").actions.git_context_menu(picker, item)
+        end,
+      },
+    },
+  })
+end
+
+-- Git status: Toggle conflict filter (keeping for backward compatibility)
+M.toggle_conflict_filter = function(picker)
+  -- Toggle the conflict filter state (following Snacks keymaps pattern)
+  picker.opts.show_conflicts_only = not picker.opts.show_conflicts_only
+
+  if picker.opts.show_conflicts_only then
+    vim.notify("Showing only conflicted files", vim.log.levels.INFO)
+  else
+    vim.notify("Showing all git status files", vim.log.levels.INFO)
+  end
+
+  -- Re-run finder with new options (following Snacks pattern)
+  picker:find()
+end
+
 -- ============================================================================
 -- PUBLIC API
 -- ============================================================================
@@ -1719,6 +1788,11 @@ M.actions = {
   diff_selected = M.diff_selected,
   handle_directory_expansion = M.handle_directory_expansion,
   format_action = format_action,
+  toggle_conflict_filter = M.toggle_conflict_filter,
+  git_conflicts = M.git_conflicts,
+  git_conflicts_explorer = M.git_conflicts_explorer,
+  filter_conflicts = M.filter_conflicts,
+  filter_conflicts_explorer = M.filter_conflicts_explorer,
   -- Context menu actions (which-key based)
   context_menu = M.context_menu,
   git_context_menu = M.git_context_menu,

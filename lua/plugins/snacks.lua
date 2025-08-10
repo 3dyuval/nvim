@@ -25,39 +25,95 @@ return {
   lazy = false,
   ---@type snacks.Config
   opts = {
+    input = {
+      enabled = true,
+      icon = " ",
+      win = {
+        relative = "editor",
+        position = "float",
+        row = vim.o.lines - 3, -- Position near bottom like classic cmdline
+        height = 1,
+        width = vim.o.columns - 4,
+        border = "none",
+      },
+    },
     indent = {
-      enabled = function()
-        -- Check for special buffer types first (dashboard, terminal, etc.)
-        if vim.bo.buftype ~= "" or not vim.bo.modifiable then
+      enabled = function(buf)
+        -- Safely get current buffer if none provided
+        local bufnr = buf or vim.api.nvim_get_current_buf()
+
+        -- Check if buffer is valid
+        if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
           return false
         end
 
-        local ok, bufname = pcall(vim.api.nvim_buf_get_name, 0)
-        if not ok then
+        -- Check buffer-local disable flags first
+        if vim.b[bufnr].snacks_indent == false or vim.b[bufnr].miniindentscope_disable then
+          return false
+        end
+
+        local ok, buftype = pcall(function()
+          return vim.bo[bufnr].buftype
+        end)
+        if not ok or buftype ~= "" then
+          return false
+        end
+
+        local ok2, modifiable = pcall(function()
+          return vim.bo[bufnr].modifiable
+        end)
+        if not ok2 or not modifiable then
+          return false
+        end
+
+        local ok3, bufname = pcall(vim.api.nvim_buf_get_name, bufnr)
+        if not ok3 then
           return false
         end
 
         -- Check for diffview buffers and empty buffers (dashboard/scratch)
-        if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then -- Empty bufname = dashboard/scratch
+        if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then
           return false
         end
 
         return true
       end,
       scope = {
-        enabled = function()
-          -- Check for special buffer types first (dashboard, terminal, etc.)
-          if vim.bo.buftype ~= "" or not vim.bo.modifiable then
+        enabled = function(buf)
+          -- Safely get current buffer if none provided
+          local bufnr = buf or vim.api.nvim_get_current_buf()
+
+          -- Check if buffer is valid
+          if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
             return false
           end
 
-          local ok, bufname = pcall(vim.api.nvim_buf_get_name, 0)
-          if not ok then
+          -- Check buffer-local disable flags first
+          if vim.b[bufnr].snacks_scope == false or vim.b[bufnr].miniindentscope_disable then
+            return false
+          end
+
+          local ok, buftype = pcall(function()
+            return vim.bo[bufnr].buftype
+          end)
+          if not ok or buftype ~= "" then
+            return false
+          end
+
+          local ok2, modifiable = pcall(function()
+            return vim.bo[bufnr].modifiable
+          end)
+          if not ok2 or not modifiable then
+            return false
+          end
+
+          local ok3, bufname = pcall(vim.api.nvim_buf_get_name, bufnr)
+          if not ok3 then
             return false
           end
 
           -- Check for diffview buffers and empty buffers (dashboard/scratch)
-          if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then -- Empty bufname = dashboard/scratch
+          if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then
             return false
           end
 
@@ -66,19 +122,41 @@ return {
       },
     },
     scope = {
-      enabled = function()
-        -- Check for special buffer types first (dashboard, terminal, etc.)
-        if vim.bo.buftype ~= "" or not vim.bo.modifiable then
+      enabled = function(buf)
+        -- Safely get current buffer if none provided
+        local bufnr = buf or vim.api.nvim_get_current_buf()
+
+        -- Check if buffer is valid
+        if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
           return false
         end
 
-        local ok, bufname = pcall(vim.api.nvim_buf_get_name, 0)
-        if not ok then
+        -- Check buffer-local disable flags first
+        if vim.b[bufnr].snacks_scope == false or vim.b[bufnr].miniindentscope_disable then
+          return false
+        end
+
+        local ok, buftype = pcall(function()
+          return vim.bo[bufnr].buftype
+        end)
+        if not ok or buftype ~= "" then
+          return false
+        end
+
+        local ok2, modifiable = pcall(function()
+          return vim.bo[bufnr].modifiable
+        end)
+        if not ok2 or not modifiable then
+          return false
+        end
+
+        local ok3, bufname = pcall(vim.api.nvim_buf_get_name, bufnr)
+        if not ok3 then
           return false
         end
 
         -- Check for diffview buffers and empty buffers (dashboard/scratch)
-        if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then -- Empty bufname = dashboard/scratch
+        if bufname:match("^diffview://") or bufname:match("^git://") or bufname == "" then
           return false
         end
 
@@ -117,9 +195,12 @@ return {
               local old_shortmess = vim.o.shortmess
               vim.o.shortmess = vim.o.shortmess .. "A"
 
-              Snacks.picker.explorer({
-                root = false,
-                auto_close = true,
+              open_explorer({
+                auto_close = false,
+                layout = {
+                  preset = "left",
+                  preview = false,
+                },
               })
 
               -- Restore shortmess
@@ -446,6 +527,20 @@ return {
     },
   },
   keys = {
+    {
+      "<leader>gc",
+      function()
+        require("utils.picker-extensions").actions.git_conflicts()
+      end,
+      desc = "Git Conflicts",
+    },
+    {
+      "<leader>gC",
+      function()
+        require("utils.picker-extensions").actions.git_conflicts_explorer()
+      end,
+      desc = "Git Conflicts Explorer",
+    },
     {
       "<leader>se",
       function()
