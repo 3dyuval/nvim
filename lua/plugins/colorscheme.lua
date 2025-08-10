@@ -15,7 +15,6 @@ return {
   {
     "ficcdaf/ashen.nvim",
     lazy = false,
-    tag = "*",
     priority = 1000,
   },
   -- Oxocarbon - Minimal dark theme inspired by IBM Carbon
