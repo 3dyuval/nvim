@@ -302,7 +302,7 @@ return {
         local should_disable = not vim.bo.modifiable
           or vim.bo.buftype ~= ""
           or bufname:match("^diffview://")
-          or bufname:match("^git://")
+          or (bufname:match("^git://") and not bufname:match("^neogit://"))
           or bufname == ""
 
         if should_disable then

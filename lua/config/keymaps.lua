@@ -474,7 +474,7 @@ vim.keymap.set(
 override_map("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
 
 -- Grug-far search within range
-map({ "n", "v" }, "<leader>sr", function()
+map({ "v" }, "<leader>sr", function()
   require("grug-far").open({ visualSelectionUsage = "operate-within-range" })
 end, { desc = "Search/Replace within range (Grug-far)" })
 
