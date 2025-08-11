@@ -47,7 +47,7 @@
   "modus-themes.nvim": { "branch": "master", "commit": "61b8c10ec636f42baf6c845edb14b9ae2723711f" },
   "moonfly": { "branch": "master", "commit": "21d24c3e2b31386f14fadd8c114c5d0673b878c2" },
   "move.nvim": { "branch": "main", "commit": "599b14047b82e92874b9a408e4df228b965c3a1d" },
-  "neogit": { "branch": "master", "commit": "269a813161b009de19db416ad159891502cf0c85" },
+  "neogit": { "branch": "master", "commit": "b8d840ed988ec3751ea2d9c9a66f635c3439564a" },
   "neoscroll.nvim": { "branch": "master", "commit": "f957373912e88579e26fdaea4735450ff2ef5c9c" },
   "nightfox.nvim": { "branch": "main", "commit": "ba47d4b4c5ec308718641ba7402c143836f35aa9" },
   "noice.nvim": { "branch": "main", "commit": "0427460c2d7f673ad60eb02b35f5e9926cf67c59" },
