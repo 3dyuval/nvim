@@ -15,14 +15,6 @@ return {
       default_to_projects_v2 = false,
       default_merge_method = "squash",
       picker = "snacks",
-      picker_config = {
-        mappings = {
-          open_in_browser = { lhs = "<C-b>", desc = "open issue in browser" },
-        },
-        snacks = {
-          focus = "input",
-        },
-      },
     }
   end,
   config = function(_, opts)
@@ -30,10 +22,22 @@ return {
     vim.cmd([[hi OctoEditable guibg=none]])
 
     -- Disable swap files for Octo buffers
-    vim.api.nvim_create_autocmd("BufReadPre", {
+    vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile", "BufEnter" }, {
       pattern = "octo://*",
       callback = function()
         vim.opt_local.swapfile = false
+        vim.opt_local.backup = false
+        vim.opt_local.writebackup = false
+      end,
+    })
+    
+    -- Also disable swap files for Octo picker buffers
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "OctoPanel",
+      callback = function()
+        vim.opt_local.swapfile = false
+        vim.opt_local.backup = false
+        vim.opt_local.writebackup = false
       end,
     })
 

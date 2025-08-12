@@ -1761,19 +1761,30 @@ M.git_conflicts = function()
   })
 end
 
--- Git status: Toggle conflict filter (keeping for backward compatibility)
+-- Git status: Toggle conflict filter
 M.toggle_conflict_filter = function(picker)
-  -- Toggle the conflict filter state (following Snacks keymaps pattern)
-  picker.opts.show_conflicts_only = not picker.opts.show_conflicts_only
-
-  if picker.opts.show_conflicts_only then
+  -- Toggle the conflict filter state
+  picker._conflict_filter_active = not picker._conflict_filter_active
+  
+  if picker._conflict_filter_active then
     vim.notify("Showing only conflicted files", vim.log.levels.INFO)
+    -- Store original filter search
+    picker._original_filter_search = picker.filter.search
+    -- Set filter to match conflict patterns
+    picker.filter.search = "UU|AA|DD"
+    picker.filter.opts = vim.tbl_extend("force", picker.filter.opts or {}, {
+      -- Make sure we're searching in the status field
+      fields = { "status" },
+    })
   else
     vim.notify("Showing all git status files", vim.log.levels.INFO)
+    -- Restore original filter
+    picker.filter.search = picker._original_filter_search or ""
+    picker.filter.opts.fields = nil
   end
-
-  -- Re-run finder with new options (following Snacks pattern)
-  picker:find()
+  
+  -- Update the filter
+  picker:update_filter()
 end
 
 -- ============================================================================

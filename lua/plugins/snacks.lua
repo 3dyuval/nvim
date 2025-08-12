@@ -214,6 +214,7 @@ return {
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
+          { key = "o", desc = "Octo Issues", action = ":Octo issue search" },
           {
             icon = "",
             key = "r",
@@ -271,24 +272,7 @@ return {
             ["<Esc>"] = { "close", mode = { "n" } },
             ["<C-p>"] = "toggle_preview", -- Toggle preview globally
             ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
-            ["c"] = "create", -- Remap 'c' to create file/folder
             ["<C-a>"] = false, -- Disable select all - it's distracting
-            ["i"] = function(picker)
-              local item = picker:current()
-              if item and item.dir then
-                -- For directories, use the default confirm behavior
-                picker:confirm()
-              end
-              -- For files, do nothing
-            end, -- Expand/collapse directory
-            ["h"] = "explorer_close", -- Collapse/close directory
-            -- Git status navigation (Graphite layout: A=down/next, E=up/prev)
-            ["A"] = "explorer_git_next", -- Next git status file
-            ["E"] = "explorer_git_prev", -- Previous git status file
-            -- Conflict navigation (using error navigation as proxy for conflicts)
-            ["]]"] = "explorer_warn_next", -- Next conflict/error
-            ["[["] = "explorer_error_prev", -- Previous conflict/error
-            -- Remove global "b" keymap - it will be defined per-source
           },
         },
       },
@@ -339,6 +323,7 @@ return {
               keys = {
                 ["<BS>"] = false, -- Disable backspace navigation
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
+                ["c"] = "create", -- Remap 'c' to create file/folder
                 ["/"] = "toggle_focus",
                 ["<C-c>"] = "focus_input",
                 ["<C-a>"] = false, -- Disable select all - it's distracting
@@ -348,6 +333,12 @@ return {
                   require("utils.picker-extensions").actions.handle_directory_expansion(picker)
                 end, -- Expand/collapse directory
                 ["h"] = "explorer_close", -- Collapse/close directory
+                -- Git status navigation (Graphite layout: A=down/next, E=up/prev)
+                ["A"] = "explorer_git_next", -- Next git status file
+                ["E"] = "explorer_git_prev", -- Previous git status file
+                -- Conflict navigation (using error navigation as proxy for conflicts)
+                ["]]"] = "explorer_warn_next", -- Next conflict/error
+                ["[["] = "explorer_error_prev", -- Previous conflict/error
                 ["D"] = "diff",
                 ["r"] = "explorer_add", -- Create file/folder
                 ["x"] = false, -- Disable default x binding
@@ -429,12 +420,18 @@ return {
                 require("utils.picker-extensions").actions.git_context_menu(picker, item)
               end,
             },
+            toggle_conflict_filter = {
+              action = function(picker)
+                require("utils.picker-extensions").actions.toggle_conflict_filter(picker)
+              end,
+            },
           },
           win = {
             list = {
               keys = {
                 ["f"] = "git_context_menu",
                 ["s"] = { "git_stage", mode = { "n", "i" } },
+                ["<M-c>"] = "toggle_conflict_filter",
               },
             },
           },
