@@ -13,6 +13,16 @@ return {
       })
     end,
   },
+  
+  -- Disable unwanted default colorschemes (keep only tokyonight and catppuccin)
+  { "folke/tokyonight.nvim", enabled = true },
+  { "catppuccin/nvim", name = "catppuccin", enabled = true },
+  { "ellisonleao/gruvbox.nvim", enabled = false },
+  { "rebelot/kanagawa.nvim", enabled = false },
+  { "rose-pine/neovim", name = "rose-pine", enabled = false },
+  { "Mofiqul/dracula.nvim", enabled = false },
+  { "navarasu/onedark.nvim", enabled = false },
+  { "EdenEast/nightfox.nvim", enabled = false },
   {
     "neovim/nvim-lspconfig",
     init = function()
