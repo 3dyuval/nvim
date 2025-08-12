@@ -55,7 +55,7 @@ return {
           includeInlayParameterNameHints = "literals", -- Only for literal values, not "all"
           includeInlayParameterNameHintsWhenArgumentMatchesName = false,
           includeInlayFunctionParameterTypeHints = false, -- Disable verbose function parameter types
-          includeInlayVariableTypeHints = false, -- Disable verbose variable types
+          includeInlayVariableTypeHints = true, -- Verbose variable types
           includeInlayPropertyDeclarationTypeHints = true, -- Keep useful property types
           includeInlayFunctionLikeReturnTypeHints = false, -- Disable verbose return types
           includeInlayEnumMemberValueHints = true, -- Keep concise enum values
@@ -131,22 +131,8 @@ return {
       })
     end,
     keys = {
-      {
-        "gD",
-        "<cmd>TSToolsGoToSourceDefinition<cr>",
-        desc = "Goto Source Definition",
-      },
-      { "<leader>cD", "<cmd>TSToolsRunCodelens<cr>", desc = "Run Codelens Action" },
-      { "<leader>cC", "<cmd>LspInfo<cr>", desc = "LSP Info" },
-      { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh Codelens" },
-      { "<leader>cr", vim.lsp.buf.references, desc = "Show References" },
-      { "<leader>cc", vim.lsp.buf.rename, desc = "Rename Symbol" },
-      { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action" },
-      {
-        "gR",
-        "<cmd>TSToolsFileReferences<cr>",
-        desc = "File References",
-      },
+      { "gD", "<cmd>TSToolsGoToSourceDefinition<cr>", desc = "Goto Source Definition" },
+      { "gR", "<cmd>TSToolsFileReferences<cr>", desc = "File References" },
       {
         "<leader>co",
         function()
@@ -184,26 +170,10 @@ return {
         end,
         desc = "Organize Imports (Biome)",
       },
-      {
-        "<leader>cI",
-        "<cmd>TSToolsAddMissingImports<cr>",
-        desc = "Add missing imports",
-      },
-      {
-        "<leader>cu",
-        "<cmd>TSToolsRemoveUnusedImports<cr>",
-        desc = "Remove unused imports",
-      },
-      {
-        "<leader>cF",
-        "<cmd>TSToolsFixAll<cr>",
-        desc = "Fix all diagnostics",
-      },
-      {
-        "<leader>cV",
-        "<cmd>TSToolsSelectTsVersion<cr>",
-        desc = "Select TS workspace version",
-      },
+      { "<leader>cI", "<cmd>TSToolsAddMissingImports<cr>", desc = "Add missing imports" },
+      { "<leader>cu", "<cmd>TSToolsRemoveUnusedImports<cr>", desc = "Remove unused imports" },
+      { "<leader>cF", "<cmd>TSToolsFixAll<cr>", desc = "Fix all diagnostics" },
+      { "<leader>cV", "<cmd>TSToolsSelectTsVersion<cr>", desc = "Select TS workspace version" },
     },
   },
 }
