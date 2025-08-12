@@ -4,7 +4,7 @@
 local map = vim.keymap.set
 
 -- Helper function to safely override existing keymaps
-local function override_map(mode, lhs, rhs, opts)
+local function remap(mode, lhs, rhs, opts)
   pcall(vim.keymap.del, mode, lhs)
   map(mode, lhs, rhs, opts)
 end
@@ -125,11 +125,11 @@ map({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
 -- Undo/redo (z for undo, Z for redo - Graphite layout)
 -- Need to unmap built-in commands first
-override_map("n", "u", "<Nop>", { desc = "Unmapped (now z)" })
-override_map("n", "U", "<Nop>", { desc = "Unmapped (now gz)" })
-override_map("n", "z", "u", { desc = "Undo" })
-override_map("n", "Z", "<C-r>", { desc = "Redo" })
-override_map("n", "gz", "U", { desc = "Undo line" })
+remap("n", "u", "<Nop>", { desc = "Unmapped (now z)" })
+remap("n", "U", "<Nop>", { desc = "Unmapped (now gz)" })
+remap("n", "z", "u", { desc = "Undo" })
+remap("n", "Z", "<C-r>", { desc = "Redo" })
+remap("n", "gz", "U", { desc = "Undo line" })
 -- Change
 map({ "n", "o", "x" }, "w", "c", { desc = "Change" })
 map({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
@@ -184,8 +184,8 @@ end, { desc = "Save & Stage Buffer" })
 map({ "n" }, "<leader>hu", "<Cmd>undolist<Cr>", { desc = "View undo list" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
-override_map("n", "[[", "[x", { desc = "Previous git conflict" })
-override_map("n", "]]", "]x", { desc = "Next git conflict" })
+remap("n", "[[", "[x", { desc = "Previous git conflict" })
+remap("n", "]]", "]x", { desc = "Next git conflict" })
 
 -- Note: Git conflict resolution now handled by lil.nvim in keymaps/diff.lua
 -- Bindings: go/gp (diff), gO/gP/gU/gR (conflict resolution)
@@ -347,6 +347,7 @@ map({ "n" }, "<leader>ct", function()
   vim.cmd("split | terminal tsc --noEmit")
 end, { desc = "TypeScript type check" })
 
+
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 
@@ -479,7 +480,7 @@ vim.keymap.set(
 )
 
 -- Project-wide diagnostics keymap
-override_map("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
+remap("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
 
 -- Grug-far search within range
 map({ "v" }, "<leader>sr", function()
