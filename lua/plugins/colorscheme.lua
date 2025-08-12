@@ -1,16 +1,8 @@
 return {
-  -- Cyberdream - High-contrast, futuristic & vibrant
   {
-    "scottmckendry/cyberdream.nvim",
+    "dgox16/oldworld.nvim",
     lazy = false,
     priority = 1000,
-    config = function()
-      require("cyberdream").setup({
-        transparent = true,
-        italic_comments = true,
-        hide_fillchars = true,
-      })
-    end,
   },
   {
     "ficcdaf/ashen.nvim",
@@ -22,53 +14,6 @@ return {
     "nyoom-engineering/oxocarbon.nvim",
     lazy = false,
     priority = 1000,
-  },
-
-  -- Bamboo - Warm green theme
-  {
-    "ribru17/bamboo.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("bamboo").setup({
-        transparent = false,
-        term_colors = true,
-      })
-    end,
-  },
-
-  -- Nordic - Nord-inspired but darker
-  {
-    "AlexvZyl/nordic.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("nordic").setup({
-        transparent = false,
-        reduced_blue = true,
-      })
-    end,
-  },
-
-  -- Moonfly - Dark theme with vibrant colors
-  {
-    "bluz71/vim-moonfly-colors",
-    lazy = false,
-    priority = 1000,
-    name = "moonfly",
-  },
-
-  -- Everforest - Comfortable green theme
-  {
-    "neanias/everforest-nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("everforest").setup({
-        background = "hard",
-        transparent_background_level = 0,
-      })
-    end,
   },
 
   -- Tundra - Clean dark theme
@@ -92,21 +37,6 @@ return {
     "savq/melange-nvim",
     lazy = false,
     priority = 1000,
-  },
-
-  -- Modus themes - High accessibility with WCAG AAA compliance
-  {
-    "miikanissi/modus-themes.nvim",
-    lazy = false,
-    priority = 1000,
-  },
-
-  -- Jellybeans - Classic vim colorscheme ported
-  {
-    "metalelf0/jellybeans-nvim",
-    lazy = false,
-    priority = 1000,
-    dependencies = { "rktjmp/lush.nvim" },
   },
 
   -- Material themes - Multiple material design variants
