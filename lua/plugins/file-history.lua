@@ -2,72 +2,27 @@ return {
   "dawsers/file-history.nvim",
   dependencies = {
     "folke/snacks.nvim",
+    "va9iff/lil",
   },
   config = function()
     local file_history = require("file_history")
+
     file_history.setup({
       backup_dir = "~/.file-history-git",
       git_cmd = "git",
       hostname = nil,
-      key_bindings = {
-        revert_to_selected = "<C-Enter>", -- Fixed: was <C-Enter>
-        open_file_diff_tab = "<M-d>", -- Fixed: was <C-d>
-        open_buffer_diff_tab = "<M-d>", -- Fixed: was <C-d>
-        toggle_incremental = "<M-l>",
-        delete_history = "<M-d>",
-        purge_history = "<M-p>",
-      },
+      key_bindings = require("lil")._.file_history_key_bindings,
     })
 
-    vim.keymap.set("n", "<leader>hh", function()
-      file_history.history()
-    end, { silent = true, desc = "local history of file" })
-    vim.keymap.set("n", "<leader>ha", function()
-      file_history.files()
-    end, { silent = true, desc = "All files in backup repository" })
+    -- Note: Keymaps now handled by keymaps/history.lua for centralized management
 
     -- DIFFVIEW INTEGRATION EXTENSION
+    -- Use centralized functions from keymaps/history.lua
     local original_actions = require("file_history.actions")
+    local history_actions = require("lil").extern
 
-    local function diffview_open_buffer_diff(item, data)
-      if not data.buf then
-        return
-      end
-
-      local current_file = vim.api.nvim_buf_get_name(data.buf)
-
-      if current_file == "" then
-        vim.notify("No file currently open", vim.log.levels.ERROR)
-        return
-      end
-
-      -- Trust that DiffView is available and handle errors gracefully
-      local success, err = pcall(function()
-        local cmd =
-          string.format("DiffviewOpen %s -- %s", item.hash, vim.fn.fnamemodify(current_file, ":."))
-        vim.cmd(cmd)
-      end)
-
-      if not success then
-        vim.notify("DiffView command failed: " .. tostring(err), vim.log.levels.ERROR)
-        -- Fallback to original vim diff method
-        require("file_history.actions").open_buffer_diff_tab(item, data)
-      end
-    end
-
-    local function diffview_open_file_diff(item)
-      local success, err = pcall(function()
-        local cmd = string.format("DiffviewOpen HEAD..%s -- %s", item.hash, item.file)
-        vim.cmd(cmd)
-      end)
-
-      if not success then
-        vim.notify("DiffView command failed: " .. tostring(err), vim.log.levels.ERROR)
-        require("file_history.actions").open_file_diff_tab(item)
-      end
-    end
-
-    original_actions.open_buffer_diff_tab = diffview_open_buffer_diff
-    original_actions.open_file_diff_tab = diffview_open_file_diff
+    -- Override with centralized diffview integration functions
+    original_actions.open_buffer_diff_tab = history_actions.diffview_open_buffer_diff
+    original_actions.open_file_diff_tab = history_actions.diffview_open_file_diff
   end,
 }

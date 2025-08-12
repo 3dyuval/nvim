@@ -162,25 +162,33 @@ map({ "n" }, "<leader>gb", function()
   Snacks.picker.git_branches({ all = true })
 end, { desc = "Git branches (all)" })
 
+-- Global save & stage buffer (works in all modes)
+map({ "n", "v", "i" }, "<leader>fS", function()
+  vim.cmd("write") -- Save the file first
+  -- Use gitsigns if available, otherwise use git command
+  local ok, gs = pcall(require, "gitsigns")
+  if ok then
+    gs.stage_buffer()
+  else
+    -- Fallback to git add for current file
+    local file = vim.fn.expand("%:p")
+    if file ~= "" then
+      vim.fn.system("git add " .. vim.fn.shellescape(file))
+      vim.notify("Saved and staged: " .. vim.fn.expand("%:t"), vim.log.levels.INFO)
+    end
+  end
+end, { desc = "Save & Stage Buffer" })
+
 -- History keymap root
 
 map({ "n" }, "<leader>hu", "<Cmd>undolist<Cr>", { desc = "View undo list" })
-
-map({ "n" }, "<leader>gU", function()
-  require("git-resolve-conflict").resolve_union()
-end, { desc = "Choose both/union (file)" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 override_map("n", "[[", "[x", { desc = "Previous git conflict" })
 override_map("n", "]]", "]x", { desc = "Next git conflict" })
 
--- Git conflict resolution using git-resolve-conflict plugin (file-level resolution)
-map({ "n" }, "gO", function()
-  require("git-resolve-conflict").resolve_ours()
-end, { desc = "Resolve file: ours" })
-map({ "n" }, "gP", function()
-  require("git-resolve-conflict").resolve_theirs()
-end, { desc = "Resolve file: theirs" })
+-- Note: Git conflict resolution now handled by lil.nvim in keymaps/diff.lua
+-- Bindings: go/gp (diff), gO/gP/gU/gR (conflict resolution)
 map({ "n" }, "<leader>gR", function()
   require("git-resolve-conflict").restore_file_conflict()
 end, { desc = "Restore conflict markers" })

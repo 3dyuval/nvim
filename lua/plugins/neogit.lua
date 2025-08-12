@@ -20,6 +20,11 @@ return {
       status = {
         ["C"] = "YankSelected",
         ["m"] = false, -- disable merge to use your custom binding
+        ["<leader>q"] = "Close", -- Close Neogit
+        -- Git conflict resolution keybindings (matching keymaps.lua)
+        ["grO"] = function() require("git-resolve-conflict").resolve_ours() end,
+        ["grP"] = function() require("git-resolve-conflict").resolve_theirs() end,
+        ["grU"] = function() require("git-resolve-conflict").resolve_union() end,
       },
     },
     autoinstall = true,
