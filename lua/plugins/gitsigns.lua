@@ -10,16 +10,21 @@ return {
           vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
         end
 
-        -- Navigation adapted for HAEI layout (]e = next, [e = prev)
+        -- Navigation: A/E for hunks (down/up), ]]/[[ for conflicts
         map("n", "A", gs.next_hunk, "Next Hunk")
         map("n", "E", gs.prev_hunk, "Prev Hunk")
+        vim.keymap.set("n", "]]", "]x", { buffer = buffer, desc = "Next conflict", remap = true })
+        vim.keymap.set("n", "[[", "[x", { buffer = buffer, desc = "Previous conflict", remap = true })
 
         -- Stage/reset hunks
         map({ "n", "v" }, "<leader>gg", ":Gitsigns stage_hunk<CR>", "Stage Hunk")
         map({ "n", "v" }, "<leader>gx", ":Gitsigns reset_hunk<CR>", "Reset Hunk")
 
         -- Buffer operations
-        map("n", "<leader>gG", gs.stage_buffer, "Stage Buffer")
+        map({ "n", "v", "i" }, "<leader>fS", function()
+          vim.cmd("write") -- Save the file first
+          gs.stage_buffer() -- Then stage the buffer
+        end, "Save & Stage Buffer")
         map("n", "<leader>gu", gs.undo_stage_hunk, "Undo Stage Hunk")
         map("n", "<leader>gX", gs.reset_buffer, "Reset Buffer")
 
