@@ -15,7 +15,7 @@ local extern = lil.extern
 --
 -- KEY BENEFITS:
 -- ✓ Consistent muscle memory across all git contexts
--- ✓ No mode-specific overrides or context switching required  
+-- ✓ No mode-specific overrides or context switching required
 -- ✓ Single source of truth for all git diff operations
 -- ✓ Simplified from complex plugin-specific bindings to 6 universal ones
 --
@@ -156,19 +156,27 @@ extern.smart_get_all = function()
 end
 
 -- ============================================================================
--- SIMPLIFIED KEYBINDING MAPPINGS (6 Essential Operations)
+-- SIMPLIFIED KEYBINDING MAPPINGS (6 Essential Operations + Diffview Commands)
 -- ============================================================================
 
-lil.map {
-  g = {
+local leader = lil.key("Leader")
+
+lil.map({
+  ["<leader>g"] = {
     -- Diff operations (vim native - work in any diff buffer)
-    o = extern.diff_get,  -- Get hunk from other buffer
-    p = extern.diff_put,  -- Put hunk to other buffer
-    
+    o = extern.diff_get, -- Get hunk from other buffer
+    p = extern.diff_put, -- Put hunk to other buffer
+
     -- Conflict resolution (file-level - work everywhere)
-    O = extern.resolve_file_ours,     -- Resolve file: ours
-    P = extern.resolve_file_theirs,   -- Resolve file: pick theirs  
-    U = extern.resolve_file_union,    -- Resolve file: union (both)
+    O = extern.resolve_file_ours, -- Resolve file: ours
+    P = extern.resolve_file_theirs, -- Resolve file: pick theirs
+    U = extern.resolve_file_union, -- Resolve file: union (both)
     R = extern.restore_conflict_markers, -- Restore conflict markers
-  }
-}
+
+    n = "<cmd>:Neogit cwd=%:p:h<CR>",
+    c = "<cmd>:Neogit commit<CR>",
+    d = "<Cmd>DiffviewOpen<Cr>", -- <leader>gd - Diff view open
+    s = "<Cmd>DiffviewFileHistory -g --range=stash<Cr>", -- <leader>gs - Diff view stash
+    f = ":DiffviewFileHistory %", -- <leader>gf - Current file history
+  },
+})

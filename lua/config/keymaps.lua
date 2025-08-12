@@ -3,6 +3,10 @@
 -- Add any additional keymaps here
 local map = vim.keymap.set
 
+-- Load lil.nvim keymaps modules that need to override LazyVim defaults
+-- These are loaded here to ensure they override plugin keymaps
+require("keymaps.files") -- Contains <leader>ff override for FFF.nvim
+
 -- Helper function to safely override existing keymaps
 local function remap(mode, lhs, rhs, opts)
   pcall(vim.keymap.del, mode, lhs)
@@ -143,8 +147,6 @@ map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
-map({ "n" }, "<leader>gnn", "<cmd>:Neogit cwd=%:p:h<CR>", { desc = "Open neogit" })
-
 map({ "n" }, "<leader>gh", function()
   Snacks.picker.git_diff()
 end, { desc = "Diff hunks" })
@@ -195,15 +197,6 @@ end, { desc = "Restore conflict markers" })
 
 -- Unset default LazyVim <leader>gd mapping to avoid conflicts
 pcall(vim.keymap.del, "n", "<leader>gd")
-
-map({ "n" }, "gdd", "<Cmd>DiffviewOpen<Cr>", { desc = "Diff view open" })
-map({ "n" }, "gds", "<Cmd>:DiffviewFileHistory -g --range=stash<Cr>", { desc = "Diff view stash" })
-map(
-  { "n" },
-  "<leader>gdf",
-  ":DiffviewFileHistory %",
-  { desc = "Open Diffview Current File History" }
-)
 
 map({ "n" }, "<leader>hB", function()
   Snacks.picker.firefox_bookmarks()
@@ -256,12 +249,12 @@ map({ "n" }, "<leader>cpl", function()
   vim.notify("Copied: " .. path_with_line)
 end, { desc = "Copy file path with line number" })
 
-map(
-  "n",
-  "<leader>gnc",
-  require("neogit").action("commit", "commit", { "--verbose", "--all" }),
-  { desc = "commit in neogit" }
-)
+-- map(
+--   "n",
+--   "<leader>gnc",
+--   require("neogit").action("commit", "commit", { "--verbose", "--all" }),
+--   { desc = "commit in neogit" }
+-- )
 
 -- Force override any plugin mappings for Q
 map("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
@@ -346,7 +339,6 @@ map({ "n" }, "<leader>rl", "<cmd>Lazy sync<cr>", { desc = "Lazy sync plugins" })
 map({ "n" }, "<leader>ct", function()
   vim.cmd("split | terminal tsc --noEmit")
 end, { desc = "TypeScript type check" })
-
 
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })

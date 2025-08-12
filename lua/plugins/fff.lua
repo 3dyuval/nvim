@@ -25,6 +25,7 @@ return {
     },
 
     keymaps = {
+      open = "<leader>F",
       close = "<Esc>",
       select = "<CR>",
       select_split = "<C-s>",
@@ -50,6 +51,10 @@ return {
     icons = {
       enabled = true,
     },
+    
+    -- Directory display options
+    show_hidden = false,                    -- Show hidden files/folders
+    respect_gitignore = true,               -- Respect .gitignore rules
+    follow_symlinks = false,                -- Follow symbolic links
   },
 }
-
