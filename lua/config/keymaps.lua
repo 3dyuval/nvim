@@ -2,11 +2,14 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 local map = vim.keymap.set
+-- Unset default LazyVim <leader>gd mapping to avoid conflicts
+pcall(vim.keymap.del, "n", "<leader>gd")
 
 -- Load lil.nvim keymaps modules that need to override LazyVim defaults
 -- These are loaded here to ensure they override plugin keymaps
 require("keymaps.files") -- Contains <leader>ff override for FFF.nvim
-
+require("keymaps.diff") -- Contains <leader>ff override for FFF.nvim
+require("keymaps.history") -- Contains <leader>ff override for FFF.nvim
 -- Helper function to safely override existing keymaps
 local function remap(mode, lhs, rhs, opts)
   pcall(vim.keymap.del, mode, lhs)
@@ -194,9 +197,6 @@ remap("n", "]]", "]x", { desc = "Next git conflict" })
 map({ "n" }, "<leader>gR", function()
   require("git-resolve-conflict").restore_file_conflict()
 end, { desc = "Restore conflict markers" })
-
--- Unset default LazyVim <leader>gd mapping to avoid conflicts
-pcall(vim.keymap.del, "n", "<leader>gd")
 
 map({ "n" }, "<leader>hB", function()
   Snacks.picker.firefox_bookmarks()

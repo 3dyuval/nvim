@@ -163,13 +163,13 @@ local leader = lil.key("Leader")
 
 lil.map({
   ["<leader>g"] = {
-    -- Diff operations (vim native - work in any diff buffer)
-    o = extern.diff_get, -- Get hunk from other buffer
+
     p = extern.diff_put, -- Put hunk to other buffer
+    o = extern.diff_get, -- Get hunk from other buffer
 
     -- Conflict resolution (file-level - work everywhere)
-    O = extern.resolve_file_ours, -- Resolve file: ours
-    P = extern.resolve_file_theirs, -- Resolve file: pick theirs
+    P = extern.resolve_file_ours, -- Resolve file: ours (put)
+    O = extern.resolve_file_theirs, -- Resolve file: pick theirs (get)
     U = extern.resolve_file_union, -- Resolve file: union (both)
     R = extern.restore_conflict_markers, -- Restore conflict markers
 

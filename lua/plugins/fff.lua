@@ -1,6 +1,6 @@
 return {
   "dmtrKovalenko/fff.nvim",
-  enabled = true, -- Disable until Rust backend is built
+  enabled = true,
   build = "cargo +nightly build --release",
   opts = {
     base_path = vim.fn.getcwd(),
@@ -51,10 +51,10 @@ return {
     icons = {
       enabled = true,
     },
-    
+
     -- Directory display options
-    show_hidden = false,                    -- Show hidden files/folders
-    respect_gitignore = true,               -- Respect .gitignore rules
-    follow_symlinks = false,                -- Follow symbolic links
+    show_hidden = false, -- Show hidden files/folders
+    respect_gitignore = true, -- Respect .gitignore rules
+    follow_symlinks = false, -- Follow symbolic links
   },
 }
