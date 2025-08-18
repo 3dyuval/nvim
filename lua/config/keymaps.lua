@@ -8,8 +8,8 @@ pcall(vim.keymap.del, "n", "<leader>gd")
 -- Load lil.nvim keymaps modules that need to override LazyVim defaults
 -- These are loaded here to ensure they override plugin keymaps
 require("keymaps.files") -- Contains <leader>ff override for FFF.nvim
-require("keymaps.diff") -- Contains <leader>ff override for FFF.nvim
-require("keymaps.history") -- Contains <leader>ff override for FFF.nvim
+require("keymaps.diff") -- Contains <leader>g override for git diff operations
+require("keymaps.history")
 -- Helper function to safely override existing keymaps
 local function remap(mode, lhs, rhs, opts)
   pcall(vim.keymap.del, mode, lhs)
@@ -249,13 +249,6 @@ map({ "n" }, "<leader>cpl", function()
   vim.notify("Copied: " .. path_with_line)
 end, { desc = "Copy file path with line number" })
 
--- map(
---   "n",
---   "<leader>gnc",
---   require("neogit").action("commit", "commit", { "--verbose", "--all" }),
---   { desc = "commit in neogit" }
--- )
-
 -- Force override any plugin mappings for Q
 map("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
 
@@ -375,8 +368,9 @@ map({ "x", "o" }, "tc", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@class.outer", "textobjects")
 end, { desc = "Select outer class" })
 
-map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
-map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
+map({ "n", "o" }, "r", "i", { desc = "O mode: inner (i)" })
+map({ "n", "o" }, "s", "a", { desc = "O mode: a/an (a)" })
+-- Note: 's' in visual mode is reserved for surround plugin
 
 -- Removed redundant visual surround mapping - handled by plugin config
 map({ "o", "v" }, "X", "r", { desc = "Replace" })

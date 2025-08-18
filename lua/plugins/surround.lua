@@ -17,32 +17,32 @@ M.default_opts = {
   },
   surrounds = {
     ["("] = {
-      add = { "( ", " )" },
+      add = { "(", ")" },
       find = function()
         return M.get_selection({ motion = "a(" })
       end,
-      delete = "^(. ?)().-( ?.)()$",
+      delete = "^(.)().-(.)()$",
     },
     [")"] = {
-      add = { "(", ")" },
+      add = { "( ", " )" },
       find = function()
         return M.get_selection({ motion = "a)" })
       end,
-      delete = "^(.)().-(.)()$",
+      delete = "^(. ?)().-( ?.)()$",
     },
     ["{"] = {
-      add = { "{ ", " }" },
+      add = { "{", "}" },
       find = function()
         return M.get_selection({ motion = "a{" })
       end,
-      delete = "^(. ?)().-( ?.)()$",
+      delete = "^(.)().-(.)()$",
     },
     ["}"] = {
-      add = { "{", "}" },
+      add = { "{ ", " }" },
       find = function()
         return M.get_selection({ motion = "a}" })
       end,
-      delete = "^(.)().-(.)()$",
+      delete = "^(. ?)().-( ?.)()$",
     },
     ["<"] = {
       add = { "< ", " >" },
@@ -59,6 +59,13 @@ M.default_opts = {
       delete = "^(.)().-(.)()$",
     },
     ["["] = {
+      add = { "[", "]" },
+      find = function()
+        return M.get_selection({ motion = "a[" })
+      end,
+      delete = "^(.)().-(.)()$",
+    },
+    ["]"] = {
       add = function()
         -- Check if we're in an Angular HTML file
         if vim.bo.filetype == "htmlangular" then
@@ -68,16 +75,9 @@ M.default_opts = {
         end
       end,
       find = function()
-        return M.get_selection({ motion = "a[" })
-      end,
-      delete = "^(. ?)().-( ?.)()$",
-    },
-    ["]"] = {
-      add = { "[", "]" },
-      find = function()
         return M.get_selection({ motion = "a]" })
       end,
-      delete = "^(.)().-(.)()$",
+      delete = "^(. ?)().-( ?.)()$",
     },
     ["'"] = {
       add = { "'", "'" },
