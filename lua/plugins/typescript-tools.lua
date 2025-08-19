@@ -130,50 +130,6 @@ return {
         end,
       })
     end,
-    keys = {
-      { "gD", "<cmd>TSToolsGoToSourceDefinition<cr>", desc = "Goto Source Definition" },
-      { "gR", "<cmd>TSToolsFileReferences<cr>", desc = "File References" },
-      {
-        "<leader>co",
-        function()
-          -- Use biome for organize imports only (no formatting)
-          local bufnr = vim.api.nvim_get_current_buf()
-          local filepath = vim.api.nvim_buf_get_name(bufnr)
-
-          if filepath == "" or vim.fn.filereadable(filepath) == 0 then
-            vim.notify("No valid file to organize imports", vim.log.levels.WARN)
-            return
-          end
-
-          -- Check if biome is available
-          local biome_cmd = vim.fn.executable("biome")
-          if biome_cmd == 0 then
-            -- Fallback to TSToolsOrganizeImports if biome not available
-            vim.cmd("TSToolsOrganizeImports")
-            return
-          end
-
-          -- Use biome to organize imports only (disable formatting)
-          local cmd = {
-            "biome",
-            "check",
-            "--write",
-            "--formatter-enabled=false",
-            "--linter-enabled=false",
-            filepath,
-          }
-
-          vim.fn.system(cmd)
-
-          -- Reload the buffer to show changes
-          vim.cmd("silent! checktime")
-        end,
-        desc = "Organize Imports (Biome)",
-      },
-      { "<leader>cI", "<cmd>TSToolsAddMissingImports<cr>", desc = "Add missing imports" },
-      { "<leader>cu", "<cmd>TSToolsRemoveUnusedImports<cr>", desc = "Remove unused imports" },
-      { "<leader>cF", "<cmd>TSToolsFixAll<cr>", desc = "Fix all diagnostics" },
-      { "<leader>cV", "<cmd>TSToolsSelectTsVersion<cr>", desc = "Select TS workspace version" },
-    },
+    -- Keys are now handled by keymaps/code.lua via lil.nvim
   },
 }
