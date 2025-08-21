@@ -2,7 +2,6 @@ return {
   "sindrets/diffview.nvim",
   dependencies = {
     "nvim-tree/nvim-web-devicons",
-    "3dyuval/git-resolve-conflict.nvim",
   },
   cmd = { "DiffviewOpen", "DiffviewFileHistory" },
   config = function()
@@ -13,122 +12,247 @@ return {
     end
 
     local actions = require("diffview.actions")
-    local git_resolve = require("git-resolve-conflict")
-    local git_conflict = require("utils.git-conflict")
 
-    -- Pure diff operations (no conflict handling)
-    local function pure_diff_get()
-      -- Try numbered diffget first (for 3-way diffs), fallback to regular
-      local ok = pcall(function()
-        vim.cmd("diffget 3")
-      end)
-      if not ok then
-        -- This will work in file history with --base=LOCAL
-        vim.cmd("diffget")
-      end
-    end
-
-    local function pure_diff_put()
-      -- diffput rarely works in diffview contexts - most buffers are read-only
-      vim.notify(
-        "diffput not available: target buffer is typically read-only in diffview",
-        vim.log.levels.WARN
-      )
-    end
-
-    -- Union operation: combine current hunk with hunk from other diff buffer
-    -- Based on: https://vi.stackexchange.com/a/36854/38754
-    local function pure_diff_union()
-      if not vim.bo.modifiable then
-        vim.notify("Current buffer is not modifiable", vim.log.levels.WARN)
-        return
-      end
-
-      -- Helper function to check if line is part of diff
-      local function is_diff_line(line_no)
-        return vim.fn.diff_hlID(line_no, 1) > 0
-      end
-
-      -- Find start and end of current diff hunk
-      local function get_hunk_range()
-        local line = vim.fn.line(".")
-        if not is_diff_line(line) then
-          return nil, nil
-        end
-
-        local startline = line
-        while is_diff_line(startline - 1) do
-          startline = startline - 1
-        end
-
-        local endline = line
-        while is_diff_line(endline + 1) do
-          endline = endline + 1
-        end
-
-        return startline, endline
-      end
-
-      local startline, endline = get_hunk_range()
-      if not startline then
-        vim.notify("Cursor is not on a diff hunk", vim.log.levels.WARN)
-        return
-      end
-
-      -- Find the other diff buffer
-      local other_win = nil
-      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-        local buf = vim.api.nvim_win_get_buf(win)
-        if buf ~= vim.api.nvim_get_current_buf() and vim.bo[buf].diff then
-          other_win = win
-          break
-        end
-      end
-
-      if not other_win then
-        vim.notify("No other diff buffer found", vim.log.levels.WARN)
-        return
-      end
-
-      -- Get lines from current buffer
-      local current_lines = vim.api.nvim_buf_get_lines(0, startline - 1, endline, false)
-
-      -- Get corresponding lines from other buffer
-      local other_buf = vim.api.nvim_win_get_buf(other_win)
-      local other_lines = vim.api.nvim_buf_get_lines(other_buf, startline - 1, endline, false)
-
-      -- Combine lines (current first, then other)
-      local union_lines = {}
-      for _, line in ipairs(current_lines) do
-        table.insert(union_lines, line)
-      end
-      for _, line in ipairs(other_lines) do
-        table.insert(union_lines, line)
-      end
-
-      -- Replace current hunk with union
-      vim.api.nvim_buf_set_lines(0, startline - 1, endline, false, union_lines)
-      vim.notify("Combined hunk from both buffers", vim.log.levels.INFO)
-    end
-
-    -- Smart get all hunks - uses restore_entry in file history mode
-    local function smart_get_all()
-      if not vim.bo.modifiable then
-        -- In file history mode, use restore_entry
-        local view = require("diffview.lib").get_current_view()
-        if
-          view
-          and view:instanceof(
-            require("diffview.scene.views.file_history.file_history_view").FileHistoryView
-          )
-        then
-          actions.restore_entry()
-          return
-        end
-      end
-      -- Normal mode: get all hunks
-      vim.cmd("%diffget")
-    end
+    local keymaps = {
+      { "n", "<leader>q", actions.close, { desc = "Close the subject of the context" } },
+      { "n", "A", "]c", { desc = "Next diff hunk" } },
+      { "n", "E", "[c", { desc = "Previous diff hunk" } },
+      { "n", "gp", actions.diffget("ours"), { desc = "Put hunk from ours" } },
+      { "n", "go", actions.diffget("theirs"), { desc = "Get hunk from theirs" } },
+      { "n", "gu", actions.diffget("all"), { desc = "Get union of both hunks" } },
+      {
+        "n",
+        "j",
+        false,
+        { desc = "Bring the cursor to the next file entry" },
+      },
+      {
+        "n",
+        "<down>",
+        false,
+        { desc = "Bring the cursor to the next file entry" },
+      },
+      {
+        "n",
+        "k",
+        false,
+        { desc = "Bring the cursor to the previous file entry" },
+      },
+      {
+        "n",
+        "<up>",
+        false,
+        { desc = "Bring the cursor to the previous file entry" },
+      },
+      {
+        "n",
+        "<cr>",
+        actions.select_entry,
+        { desc = "Open the diff for the selected entry" },
+      },
+      {
+        "n",
+        "o",
+        false,
+        { desc = "Open the diff for the selected entry" },
+      },
+      {
+        "n",
+        "l",
+        false,
+        { desc = "Open the diff for the selected entry" },
+      },
+      {
+        "n",
+        "<2-LeftMouse>",
+        false,
+        { desc = "Open the diff for the selected entry" },
+      },
+      {
+        "n",
+        "-",
+        false,
+        { desc = "Stage / unstage the selected entry" },
+      },
+      {
+        "n",
+        "s",
+        actions.toggle_stage_entry,
+        { desc = "Stage / unstage the selected entry" },
+      },
+      {
+        "n",
+        "S",
+        actions.stage_all,
+        { desc = "Stage all entries" },
+      },
+      {
+        "n",
+        "U",
+        actions.unstage_all,
+        { desc = "Unstage all entries" },
+      },
+      {
+        "n",
+        "X",
+        actions.restore_entry,
+        { desc = "Restore entry to the state on the left side" },
+      },
+      {
+        "n",
+        "L",
+        actions.open_commit_log,
+        { desc = "Open the commit log panel" },
+      },
+      {
+        "n",
+        "zo",
+        actions.open_fold,
+        { desc = "Expand fold" },
+      },
+      { "n", "h", false, { desc = "Collapse fold" } },
+      { "n", "zc", false, { desc = "Collapse fold" } },
+      { "n", "za", false, { desc = "Toggle fold" } },
+      { "n", "zR", false, { desc = "Expand all folds" } },
+      {
+        "n",
+        "ff",
+        actions.close_all_folds,
+        { desc = "Collapse all folds" },
+      },
+      {
+        "n",
+        "<c-b>",
+        actions.scroll_view(-0.25),
+        { desc = "Scroll the view up" },
+      },
+      {
+        "n",
+        "<c-f>",
+        actions.scroll_view(0.25),
+        { desc = "Scroll the view down" },
+      },
+      {
+        "n",
+        "<tab>",
+        actions.select_next_entry,
+        { desc = "Open the diff for the next file" },
+      },
+      {
+        "n",
+        "<s-tab>",
+        actions.select_prev_entry,
+        { desc = "Open the diff for the previous file" },
+      },
+      {
+        "n",
+        "[F",
+        actions.select_first_entry,
+        { desc = "Open the diff for the first file" },
+      },
+      {
+        "n",
+        "]F",
+        actions.select_last_entry,
+        { desc = "Open the diff for the last file" },
+      },
+      {
+        "n",
+        "gf",
+        actions.goto_file_edit,
+        { desc = "Open the file in the previous tabpage" },
+      },
+      {
+        "n",
+        "<C-w><C-f>",
+        actions.goto_file_split,
+        { desc = "Open the file in a new split" },
+      },
+      {
+        "n",
+        "<C-w>gf",
+        actions.goto_file_tab,
+        { desc = "Open the file in a new tabpage" },
+      },
+      {
+        "n",
+        "i",
+        actions.listing_style,
+        { desc = "Toggle between 'list' and 'tree' views" },
+      },
+      {
+        "n",
+        "f",
+        actions.toggle_flatten_dirs,
+        { desc = "Flatten empty subdirectories in tree listing style" },
+      },
+      {
+        "n",
+        "<C-r>",
+        actions.refresh_files,
+        { desc = "Update stats and entries in the file list" },
+      },
+      {
+        "n",
+        "<leader>e",
+        actions.focus_files,
+        { desc = "Bring focus to the file panel" },
+      },
+      {
+        "n",
+        "<leader>b",
+        actions.toggle_files,
+        { desc = "Toggle the file panel" },
+      },
+      {
+        "n",
+        "<leader>.",
+        actions.cycle_layout,
+        { desc = "Cycle available layouts" },
+      },
+      {
+        "n",
+        "[[",
+        actions.prev_conflict,
+        { desc = "Go to the previous conflict" },
+      },
+      {
+        "n",
+        "]]",
+        actions.next_conflict,
+        { desc = "Go to the next conflict" },
+      },
+      {
+        "n",
+        "?",
+        actions.help("file_panel"),
+        { desc = "Open the help panel" },
+      },
+      {
+        "n",
+        "<leader>gO",
+        actions.conflict_choose_all("theirs"),
+        { desc = "Get THEIRS version for all conflicts" },
+      },
+      {
+        "n",
+        "<leader>gP",
+        actions.conflict_choose_all("ours"),
+        { desc = "Put OURS version for all conflicts" },
+      },
+      {
+        "n",
+        "<leader>gU",
+        actions.conflict_choose_all("all"),
+        { desc = "Choose ALL versions for all conflicts" },
+      },
+      {
+        "n",
+        "dX",
+        false,
+        { desc = "Delete the conflict region for the whole file" },
+      },
+    }
 
     diffview.setup({
       enhanced_diff_hl = true, -- Better word-level diff highlighting
@@ -173,151 +297,8 @@ return {
         },
       },
       keymaps = {
-        view = {
-          ["<leader>."] = actions.cycle_layout,
-          ["g<C-x>"] = false, -- Disable default layout cycling
-          -- Disable default leader mappings
-          ["<leader>co"] = false,
-          ["<leader>ct"] = false,
-          ["<leader>cb"] = false,
-          ["<leader>ca"] = false,
-          ["<leader>cO"] = false,
-          ["<leader>cT"] = false,
-          ["<leader>cB"] = false,
-          ["<leader>cA"] = false,
-          ["dx"] = false, -- Disable default conflict delete
-          ["dX"] = false, -- Disable default conflict delete all
-
-          ["q"] = "<Cmd>DiffviewClose<CR>",
-          ["?"] = actions.help("view"),
-
-          -- Conflict navigation using diffview actions
-          { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
-          { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
-
-          -- Diff hunk navigation (Graphite layout: A=down, E=up)
-          { "n", "A", "]c", { desc = "Next diff hunk" } },
-          { "n", "E", "[c", { desc = "Previous diff hunk" } },
-
-          -- Diff operations (works in working tree buffer)
-          { "n", "go", pure_diff_get, { desc = "Get hunk from other buffer" } },
-
-          -- Conflict resolution actions
-          -- File-wide: resolve entire file
-          { "n", "<leader>gO", git_resolve.resolve_ours, { desc = "Resolve file: OURS" } },
-          { "n", "<leader>gP", git_resolve.resolve_theirs, { desc = "Resolve file: THEIRS" } },
-          { "n", "<leader>gU", git_resolve.resolve_union, { desc = "Resolve file: UNION" } },
-
-          -- Hunk-level: resolve current conflict hunk only
-          { "n", "gho", actions.conflict_choose("ours"), { desc = "Resolve hunk: OURS" } },
-          { "n", "ghp", actions.conflict_choose("theirs"), { desc = "Resolve hunk: THEIRS" } },
-          { "n", "ghu", actions.conflict_choose("all"), { desc = "Resolve hunk: UNION (both)" } },
-        },
-        file_panel = {
-          ["<leader>."] = actions.cycle_layout,
-          ["g<C-x>"] = false, -- Disable default layout cycling
-          ["<leader>cO"] = false,
-          ["<leader>cT"] = false,
-          ["<leader>cB"] = false,
-          ["<leader>cA"] = false,
-          ["q"] = "<Cmd>DiffviewClose<CR>",
-          ["?"] = actions.help("file_panel"),
-
-          -- Navigation from file panel using view_windo
-          {
-            "n",
-            "A",
-            actions.view_windo(function()
-              vim.cmd("norm! ]c")
-            end),
-            { desc = "Next diff hunk" },
-          },
-          {
-            "n",
-            "E",
-            actions.view_windo(function()
-              vim.cmd("norm! [c")
-            end),
-            { desc = "Previous diff hunk" },
-          },
-
-          -- Pure diff operations from file panel using view_windo
-          {
-            "n",
-            "go",
-            actions.view_windo(pure_diff_get),
-            { desc = "Diff get from theirs" },
-          },
-          {
-            "n",
-            "gp",
-            actions.view_windo(pure_diff_put),
-            { desc = "Diff put to theirs" },
-          },
-          {
-            "n",
-            "gO",
-            actions.view_windo(smart_get_all),
-            { desc = "Get ALL hunks / restore file" },
-          },
-          {
-            "n",
-            "gP",
-            actions.view_windo(function()
-              vim.cmd("%diffput")
-            end),
-            { desc = "Put ALL hunks to theirs" },
-          },
-
-          -- Discrete conflict resolution hunk bindings from file panel
-          {
-            "n",
-            "gho",
-            actions.view_windo(actions.conflict_choose("ours")),
-            { desc = "Resolve hunk: OURS" },
-          },
-          {
-            "n",
-            "ghp",
-            actions.view_windo(actions.conflict_choose("theirs")),
-            { desc = "Resolve hunk: THEIRS" },
-          },
-          {
-            "n",
-            "ghu",
-            actions.view_windo(actions.conflict_choose("all")),
-            { desc = "Resolve hunk: UNION (both)" },
-          },
-          -- Conflict navigation from file panel
-          { "n", "]]", actions.view_windo(actions.next_conflict)({ desc = "Next conflict" }) },
-          { "n", "[[", actions.view_windo(actions.prev_conflict), { desc = "Previous conflict" } },
-        },
-        file_history_panel = {
-          ["g<C-x>"] = false, -- Disable default layout cycling
-          ["<leader>."] = actions.cycle_layout,
-          ["q"] = "<Cmd>DiffviewClose<CR>",
-          ["?"] = actions.help("file_history_panel"),
-          -- Conflict navigation using diffview actions
-          { "n", "]]", actions.view_windo(actions.next_conflict)({ desc = "Next conflict" }) },
-          { "n", "[[", actions.view_windo(actions.prev_conflict), { desc = "Previous conflict" } },
-
-          {
-            "n",
-            "A",
-            actions.view_windo(function()
-              vim.cmd("norm! ]c")
-            end),
-            { desc = "Next diff hunk" },
-          },
-          {
-            "n",
-            "E",
-            actions.view_windo(function()
-              vim.cmd("norm! [c")
-            end),
-            { desc = "Previous diff hunk" },
-          },
-        },
+        view = keymaps,
+        file_panel = keymaps,
       },
     })
   end,

@@ -187,10 +187,28 @@ map({ "n" }, "<leader>hu", "<Cmd>undolist<Cr>", { desc = "View undo list" })
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
 remap("n", "]]", "]x", { desc = "Next git conflict" })
 
--- Note: Git conflict resolution now handled by lil.nvim in keymaps/diff.lua
--- Bindings: go/gp (diff), gO/gP/gU/gR (conflict resolution)
+-- Git conflict resolution keymaps
+map({ "n" }, "go", "<Cmd>GitConflictChooseTheirs<Cr>", { desc = "Choose theirs (git conflict)" })
+map({ "n" }, "gp", "<Cmd>GitConflictChooseOurs<Cr>", { desc = "Choose ours (git conflict)" })
+map({ "n" }, "gu", "<Cmd>GitConflictChooseBoth<Cr>", { desc = "Choose both (git conflict)" })
+
+-- Restore conflict markers (git checkout --conflict=merge file)
 map({ "n" }, "<leader>gR", function()
-  require("git-resolve-conflict").restore_file_conflict()
+  local file = vim.fn.expand("%:p")
+  if file == "" then
+    vim.notify("No file to restore", vim.log.levels.WARN)
+    return
+  end
+  
+  local cmd = "git checkout --conflict=merge " .. vim.fn.shellescape(file)
+  local result = vim.fn.system(cmd)
+  
+  if vim.v.shell_error == 0 then
+    vim.cmd("edit!") -- Reload the file
+    vim.notify("Restored conflict markers for: " .. vim.fn.expand("%:t"), vim.log.levels.INFO)
+  else
+    vim.notify("Failed to restore conflict markers: " .. result, vim.log.levels.ERROR)
+  end
 end, { desc = "Restore conflict markers" })
 
 -- Unset default LazyVim <leader>gd mapping to avoid conflicts
