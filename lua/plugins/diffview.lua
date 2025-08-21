@@ -15,11 +15,26 @@ return {
     local actions = require("diffview.actions")
     local git_resolve = require("git-resolve-conflict")
     local git_conflict = require("utils.git-conflict")
-    
-    -- Import centralized git operations from lil.nvim extern
-    local lil = require("lil")
-    local extern = lil.extern
 
+    -- Pure diff operations (no conflict handling)
+    local function pure_diff_get()
+      -- Try numbered diffget first (for 3-way diffs), fallback to regular
+      local ok = pcall(function()
+        vim.cmd("diffget 3")
+      end)
+      if not ok then
+        -- This will work in file history with --base=LOCAL
+        vim.cmd("diffget")
+      end
+    end
+
+    local function pure_diff_put()
+      -- diffput rarely works in diffview contexts - most buffers are read-only
+      vim.notify(
+        "diffput not available: target buffer is typically read-only in diffview",
+        vim.log.levels.WARN
+      )
+    end
 
     -- Union operation: combine current hunk with hunk from other diff buffer
     -- Based on: https://vi.stackexchange.com/a/36854/38754
@@ -173,7 +188,7 @@ return {
           ["dx"] = false, -- Disable default conflict delete
           ["dX"] = false, -- Disable default conflict delete all
 
-          ["<leader>q"] = "<Cmd>DiffviewClose<CR>",
+          ["q"] = "<Cmd>DiffviewClose<CR>",
           ["?"] = actions.help("view"),
 
           -- Conflict navigation using diffview actions
@@ -184,22 +199,19 @@ return {
           { "n", "A", "]c", { desc = "Next diff hunk" } },
           { "n", "E", "[c", { desc = "Previous diff hunk" } },
 
-          -- Git operations: See keymaps/diff.lua for 6-binding system
-          -- Advanced operations (pure_diff_union, smart_get_all) available for future integration
-          
-          -- Save and stage current file/buffer
-          { 
-            { "n", "v", "i" }, 
-            "<leader>fS", 
-            function()
-              vim.cmd("write") -- Save the file first
-              actions.stage_all() -- Then stage the file
-            end, 
-            { desc = "Save & Stage current file" } 
-          },
+          -- Diff operations (works in working tree buffer)
+          { "n", "go", pure_diff_get, { desc = "Get hunk from other buffer" } },
 
-          -- Git operations: See keymaps/diff.lua for 6-binding system
-          -- Advanced operations (pure_diff_union, smart_get_all) available for future integration
+          -- Conflict resolution actions
+          -- File-wide: resolve entire file
+          { "n", "<leader>gO", git_resolve.resolve_ours, { desc = "Resolve file: OURS" } },
+          { "n", "<leader>gP", git_resolve.resolve_theirs, { desc = "Resolve file: THEIRS" } },
+          { "n", "<leader>gU", git_resolve.resolve_union, { desc = "Resolve file: UNION" } },
+
+          -- Hunk-level: resolve current conflict hunk only
+          { "n", "gho", actions.conflict_choose("ours"), { desc = "Resolve hunk: OURS" } },
+          { "n", "ghp", actions.conflict_choose("theirs"), { desc = "Resolve hunk: THEIRS" } },
+          { "n", "ghu", actions.conflict_choose("all"), { desc = "Resolve hunk: UNION (both)" } },
         },
         file_panel = {
           ["<leader>."] = actions.cycle_layout,
@@ -208,7 +220,7 @@ return {
           ["<leader>cT"] = false,
           ["<leader>cB"] = false,
           ["<leader>cA"] = false,
-          ["<leader>q"] = "<Cmd>DiffviewClose<CR>",
+          ["q"] = "<Cmd>DiffviewClose<CR>",
           ["?"] = actions.help("file_panel"),
 
           -- Navigation from file panel using view_windo
@@ -229,25 +241,53 @@ return {
             { desc = "Previous diff hunk" },
           },
 
-          -- Centralized git operations (wrapped with view_windo for file panels)
-          { "n", "go", actions.view_windo(extern.diff_get), { desc = "Get hunk from other buffer" } },
-          { "n", "gp", actions.view_windo(extern.diff_put), { desc = "Put hunk to other buffer" } },
-          { "n", "gO", actions.view_windo(extern.resolve_file_ours), { desc = "Resolve file: ours" } },
-          { "n", "gP", actions.view_windo(extern.resolve_file_theirs), { desc = "Resolve file: theirs" } },
-          { "n", "gU", actions.view_windo(extern.resolve_file_union), { desc = "Resolve file: union" } },
-          { "n", "gR", actions.view_windo(extern.restore_conflict_markers), { desc = "Restore conflict markers" } },
-          
-          -- Save and stage current file from file panel
-          { 
-            { "n", "v", "i" }, 
-            "<leader>fS", 
-            actions.view_windo(function()
-              vim.cmd("write") -- Save the file first
-              actions.stage_all() -- Then stage the file
-            end), 
-            { desc = "Save & Stage file" } 
+          -- Pure diff operations from file panel using view_windo
+          {
+            "n",
+            "go",
+            actions.view_windo(pure_diff_get),
+            { desc = "Diff get from theirs" },
           },
-          
+          {
+            "n",
+            "gp",
+            actions.view_windo(pure_diff_put),
+            { desc = "Diff put to theirs" },
+          },
+          {
+            "n",
+            "gO",
+            actions.view_windo(smart_get_all),
+            { desc = "Get ALL hunks / restore file" },
+          },
+          {
+            "n",
+            "gP",
+            actions.view_windo(function()
+              vim.cmd("%diffput")
+            end),
+            { desc = "Put ALL hunks to theirs" },
+          },
+
+          -- Discrete conflict resolution hunk bindings from file panel
+          {
+            "n",
+            "gho",
+            actions.view_windo(actions.conflict_choose("ours")),
+            { desc = "Resolve hunk: OURS" },
+          },
+          {
+            "n",
+            "ghp",
+            actions.view_windo(actions.conflict_choose("theirs")),
+            { desc = "Resolve hunk: THEIRS" },
+          },
+          {
+            "n",
+            "ghu",
+            actions.view_windo(actions.conflict_choose("all")),
+            { desc = "Resolve hunk: UNION (both)" },
+          },
           -- Conflict navigation from file panel
           { "n", "]]", actions.view_windo(actions.next_conflict)({ desc = "Next conflict" }) },
           { "n", "[[", actions.view_windo(actions.prev_conflict), { desc = "Previous conflict" } },
@@ -255,30 +295,11 @@ return {
         file_history_panel = {
           ["g<C-x>"] = false, -- Disable default layout cycling
           ["<leader>."] = actions.cycle_layout,
-          ["<leader>q"] = "<Cmd>DiffviewClose<CR>",
+          ["q"] = "<Cmd>DiffviewClose<CR>",
           ["?"] = actions.help("file_history_panel"),
           -- Conflict navigation using diffview actions
           { "n", "]]", actions.view_windo(actions.next_conflict)({ desc = "Next conflict" }) },
           { "n", "[[", actions.view_windo(actions.prev_conflict), { desc = "Previous conflict" } },
-          
-          -- Centralized git operations (wrapped with view_windo for file history panels)
-          { "n", "go", actions.view_windo(extern.diff_get), { desc = "Get hunk from other buffer" } },
-          { "n", "gp", actions.view_windo(extern.diff_put), { desc = "Put hunk to other buffer" } },
-          { "n", "gO", actions.view_windo(extern.resolve_file_ours), { desc = "Resolve file: ours" } },
-          { "n", "gP", actions.view_windo(extern.resolve_file_theirs), { desc = "Resolve file: theirs" } },
-          { "n", "gU", actions.view_windo(extern.resolve_file_union), { desc = "Resolve file: union" } },
-          { "n", "gR", actions.view_windo(extern.restore_conflict_markers), { desc = "Restore conflict markers" } },
-          
-          -- Save and stage current file from history panel
-          { 
-            { "n", "v", "i" }, 
-            "<leader>fS", 
-            actions.view_windo(function()
-              vim.cmd("write") -- Save the file first
-              actions.stage_all() -- Then stage the file
-            end), 
-            { desc = "Save & Stage file" } 
-          },
 
           {
             "n",

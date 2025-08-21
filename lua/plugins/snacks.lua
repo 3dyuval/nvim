@@ -47,6 +47,12 @@ return {
           return false
         end
 
+        -- Check if current window is valid to prevent nvim_win_get_cursor errors
+        local winid = vim.api.nvim_get_current_win()
+        if not winid or not vim.api.nvim_win_is_valid(winid) then
+          return false
+        end
+
         -- Check buffer-local disable flags first
         if vim.b[bufnr].snacks_indent == false or vim.b[bufnr].miniindentscope_disable then
           return false
@@ -128,6 +134,12 @@ return {
 
         -- Check if buffer is valid
         if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+          return false
+        end
+
+        -- Check if current window is valid to prevent nvim_win_get_cursor errors
+        local winid = vim.api.nvim_get_current_win()
+        if not winid or not vim.api.nvim_win_is_valid(winid) then
           return false
         end
 
