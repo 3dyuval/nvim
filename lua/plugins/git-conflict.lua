@@ -1,6 +1,7 @@
 return {
   "akinsho/git-conflict.nvim",
   version = "*",
+  enabled = false,
   config = function()
     require("git-conflict").setup({
       default_mappings = false, -- Disable to avoid conflicts with global git keymaps

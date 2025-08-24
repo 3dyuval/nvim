@@ -1,6 +1,11 @@
 return {
   "NeogitOrg/neogit",
-  opts = {
+  config = function()
+    -- Load custom commands first
+    require("config.neogit-commands").setup()
+    
+    -- Then setup Neogit
+    require("neogit").setup({
     kind = "vsplit",
     graph_style = "kitty",
     integrations = {
@@ -12,6 +17,9 @@ return {
     commit_view = {
       kind = "vsplit",
     },
+    status = {
+      UU = "󱠿",
+    },
     mappings = {
       popup = {
         ["m"] = false,
@@ -21,17 +29,83 @@ return {
         ["C"] = "YankSelected",
         ["m"] = false, -- disable merge to use your custom binding
         ["<leader>q"] = "Close", -- Close Neogit
+        -- Custom conflict resolution popup (using E for rEsolve)
+        ["E"] = function()
+          require("config.neogit-commands").create_conflict_popup()
+        end,
         -- Git conflict resolution keybindings (matching keymaps.lua)
-        ["grO"] = function() require("git-resolve-conflict").resolve_ours() end,
-        ["grP"] = function() require("git-resolve-conflict").resolve_theirs() end,
-        ["grU"] = function() require("git-resolve-conflict").resolve_union() end,
+        ["gP"] = function()
+          local status = require("neogit.buffers.status").instance()
+          if not status then
+            return
+          end
+
+          local item = status.buffer.ui:get_item_under_cursor()
+          if item and item.absolute_path then
+            local success = require("git-resolve-conflict").resolve_ours(item.absolute_path)
+            if success then
+              status:refresh()
+            end
+          else
+            vim.notify("No file under cursor", vim.log.levels.WARN)
+          end
+        end,
+        ["gp"] = function()
+          local status = require("neogit.buffers.status").instance()
+          if not status then
+            return
+          end
+
+          local item = status.buffer.ui:get_item_under_cursor()
+          if item and item.absolute_path then
+            vim.cmd("edit " .. vim.fn.fnameescape(item.absolute_path))
+            require("git-conflict").choose("ours")
+          else
+            vim.notify("No file under cursor", vim.log.levels.WARN)
+          end
+        end,
+        ["gO"] = function()
+          local status = require("neogit.buffers.status").instance()
+          if not status then
+            return
+          end
+
+          local item = status.buffer.ui:get_item_under_cursor()
+          if item and item.absolute_path then
+            local success = require("git-resolve-conflict").resolve_theirs(item.absolute_path)
+            if success then
+              status:refresh()
+            end
+          else
+            vim.notify("No file under cursor", vim.log.levels.WARN)
+          end
+        end,
+        ["go"] = function()
+          local status = require("neogit.buffers.status").instance()
+          if not status then
+            return
+          end
+
+          local item = status.buffer.ui:get_item_under_cursor()
+          if item and item.absolute_path then
+            vim.cmd("edit " .. vim.fn.fnameescape(item.absolute_path))
+            require("git-conflict").choose("theirs")
+          else
+            vim.notify("No file under cursor", vim.log.levels.WARN)
+          end
+        end,
+        ["gU"] = function()
+          require("git-resolve-conflict").resolve_union()
+        end,
       },
     },
     autoinstall = true,
-  },
+    })
+  end,
   dependencies = {
     "nvim-lua/plenary.nvim",
     "sindrets/diffview.nvim",
     "folke/snacks.nvim",
+    "3dyuval/git-resolve-conflict.nvim",
   },
 }
