@@ -46,6 +46,52 @@ local function js_formatter(bufnr)
   end
 end
 
+-- Export organize imports function for use in keymaps
+local M = {}
+
+M.organize_imports = function()
+  -- Organize + Remove unused imports (Biome + TypeScript hybrid)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+
+  if filepath == "" or vim.fn.filereadable(filepath) == 0 then
+    vim.notify("No valid file to organize and clean imports", vim.log.levels.WARN)
+    return
+  end
+
+  local biome_available = vim.fn.executable("biome") == 1
+
+  if biome_available then
+    -- Use biome for both organize imports and remove unused imports
+    local cmd = {
+      "biome",
+      "check",
+      "--write",
+      "--unsafe", -- Enable unsafe fixes to remove unused imports
+      "--formatter-enabled=false", -- Only assist/linter actions
+      filepath,
+    }
+    vim.fn.system(cmd)
+    vim.cmd("silent! checktime")
+  else
+    -- Fallback: Use TypeScript tools for both actions
+    vim.cmd("TSToolsOrganizeImports")
+    vim.schedule(function()
+      vim.cmd("TSToolsRemoveUnusedImports")
+    end)
+  end
+end
+
+M.organize_imports_and_fix = function()
+  -- First organize imports
+  M.organize_imports()
+  
+  -- Then fix all diagnostics using TypeScript tools
+  vim.schedule(function()
+    vim.cmd("TSToolsFixAll")
+  end)
+end
+
 return {
   "stevearc/conform.nvim",
   dependencies = { "williamboman/mason.nvim" }, -- Ensure Mason loads first
@@ -132,4 +178,7 @@ return {
       },
     },
   },
+  -- Export functions for extern access
+  organize_imports = M.organize_imports,
+  organize_imports_and_fix = M.organize_imports_and_fix,
 }

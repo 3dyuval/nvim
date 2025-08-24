@@ -1,13 +1,14 @@
 return {
   "nvim-treesitter/nvim-treesitter-textobjects",
-  opts = {
-    textobjects = {
-      move = {
-        enable = true,
-        set_jumps = true,
-        goto_next_start = {
-          ["]f"] = "@function.outer",
-          ["]C"] = "@class.outer",
+  config = function()
+    require("nvim-treesitter.configs").setup({
+      textobjects = {
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_next_start = {
+            ["]f"] = "@function.outer",
+            ["]C"] = "@class.outer",
           ["]p"] = "@parameter.inner",
           ["]l"] = "@loop.*",
           ["]s"] = "@scope",
@@ -57,5 +58,15 @@ return {
         },
       },
     },
-  },
+    })
+    -- Unmap the default [c and ]c mappings in Neogit buffers
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = { "NeogitRebaseTodo", "NeogitStatus", "NeogitCommitMessage" },
+      callback = function()
+        -- Only unmap in Neogit buffers to preserve diff navigation elsewhere
+        pcall(vim.keymap.del, { "n", "o", "x" }, "[c", { buffer = true })
+        pcall(vim.keymap.del, { "n", "o", "x" }, "]c", { buffer = true })
+      end,
+    })
+  end,
 }

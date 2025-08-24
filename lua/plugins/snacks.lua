@@ -536,13 +536,13 @@ return {
     },
   },
   keys = {
-    {
-      "<leader>gc",
-      function()
-        require("utils.picker-extensions").actions.git_conflicts()
-      end,
-      desc = "Git Conflicts",
-    },
+    -- {
+    --   "<leader>gC",
+    --   function()
+    --     require("utils.picker-extensions").actions.git_conflicts()
+    --   end,
+    --   desc = "Git Conflicts",
+    -- },
     {
       "<leader>gC",
       function()
