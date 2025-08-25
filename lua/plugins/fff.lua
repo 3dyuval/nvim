@@ -62,7 +62,7 @@ return {
   config = function(_, opts)
     -- Setup fff.nvim with options
     require("fff").setup(opts)
-    
+
     -- Also make the snacks picker integration available
     _G.fff_snacks_picker = require("utils.fff").fff
   end,
