@@ -260,6 +260,18 @@ return {
       enabled = true,
       hidden = true,
       ignored = false,
+      -- Custom styles for specific pickers
+      styles = {
+        neogit = {
+          title = " Neogit ",
+          border = "rounded",
+          layout = {
+            preset = "telescope",
+            width = 0.8,
+            height = 0.8,
+          },
+        },
+      },
       win = {
         input = {
           keys = {

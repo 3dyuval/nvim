@@ -10,12 +10,9 @@ return {
     title = "FFF Files",
     ui_enabled = true,
 
-    width = 0.8,
-    height = 0.8,
-
     preview = {
       enabled = true,
-      width = 0.5,
+      preview_size = 0.8,
       max_lines = 5000,
       max_size = 10 * 1024 * 1024,
       line_numbers = false,
