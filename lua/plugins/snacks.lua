@@ -181,20 +181,6 @@ return {
         { section = "header", enabled = true },
         { section = "keys", gap = 1, padding = 1 },
         { section = "startup", enabled = false },
-        {
-          pane = 1,
-          icon = " ",
-          title = "Git Status",
-          section = "terminal",
-          enabled = function()
-            return Snacks.git.get_root() ~= nil
-          end,
-          cmd = "git diff HEAD --stat",
-          height = 5,
-          padding = 1,
-          ttl = 5 * 60,
-          indent = 3,
-        },
       },
       preset = {
         keys = {
@@ -226,7 +212,14 @@ return {
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
-          { key = "o", desc = "Octo Issues", action = ":Octo issue search" },
+          { icon = "", key = "L", desc = "Neogit", action = ":NeogitLogCurrent" },
+          {
+            key = "o",
+            desc = "Octo menu",
+            action = function()
+              require("utils.octo-menu").show()
+            end,
+          },
           {
             icon = "",
             key = "r",
