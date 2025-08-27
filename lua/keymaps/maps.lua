@@ -5,6 +5,8 @@ local opts = lil.flags.opts
 local M = {}
 
 local function which(m, l, r, o, _next)
+  -- Delete existing mapping first, then set new one (override behavior)
+  pcall(vim.keymap.del, m, l)
   vim.keymap.set(m, l, r, { desc = o and o.desc or nil })
 end
 

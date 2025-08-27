@@ -59,4 +59,11 @@ return {
     respect_gitignore = true, -- Respect .gitignore rules
     follow_symlinks = false, -- Follow symbolic links
   },
+  config = function(_, opts)
+    -- Setup fff.nvim with options
+    require("fff").setup(opts)
+    
+    -- Also make the snacks picker integration available
+    _G.fff_snacks_picker = require("utils.fff").fff
+  end,
 }
