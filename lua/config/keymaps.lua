@@ -1,21 +1,11 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
-local map = vim.keymap.set
--- Unset default LazyVim <leader>gd mapping to avoid conflicts
 pcall(vim.keymap.del, "n", "<leader>gd")
-
--- Load lil.nvim keymaps modules that need to override LazyVim defaults
--- These are loaded here to ensure they override plugin keymaps
-require("keymaps.files") -- Contains <leader>ff override for FFF.nvim
-require("keymaps.diff") -- Git diff operations
-require("keymaps.history") -- Git history operations  
-require("keymaps.code") -- TypeScript/code operations with extern functions
--- Helper function to safely override existing keymaps
-local function remap(mode, lhs, rhs, opts)
-  pcall(vim.keymap.del, mode, lhs)
-  map(mode, lhs, rhs, opts)
-end
+require("keymaps.f")
+require("keymaps.diff")
+local history_extern = require("keymaps.h")
+require("keymaps.g")
+require("keymaps.c")
+local map = vim.keymap.set
+local remap = require("keymaps.maps").remap
 
 -- Delete on 'x' (Graphite layout) - but allow surround plugin to handle 'xs'
 -- Note: surround plugin will handle 'xs' directly, this handles other 'x' operations
@@ -151,9 +141,7 @@ map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
-map({ "n" }, "<leader>gh", function()
-  Snacks.picker.git_diff()
-end, { desc = "Diff hunks" })
+-- <leader>gh moved to keymaps/diff.lua
 
 -- Lazygit
 map({ "n" }, "<leader>gz", function()
@@ -168,7 +156,6 @@ map({ "n" }, "<leader>gb", function()
   Snacks.picker.git_branches({ all = true })
 end, { desc = "Git branches (all)" })
 
-
 -- History keymap root
 
 map({ "n" }, "<leader>hu", "<Cmd>undolist<Cr>", { desc = "View undo list" })
@@ -182,32 +169,13 @@ map({ "n" }, "go", "<Cmd>GitConflictChooseTheirs<Cr>", { desc = "Choose theirs (
 map({ "n" }, "gp", "<Cmd>GitConflictChooseOurs<Cr>", { desc = "Choose ours (git conflict)" })
 map({ "n" }, "gu", "<Cmd>GitConflictChooseBoth<Cr>", { desc = "Choose both (git conflict)" })
 
--- Restore conflict markers (git checkout --conflict=merge file)
-map({ "n" }, "<leader>gR", function()
-  local file = vim.fn.expand("%:p")
-  if file == "" then
-    vim.notify("No file to restore", vim.log.levels.WARN)
-    return
-  end
-  
-  local cmd = "git checkout --conflict=merge " .. vim.fn.shellescape(file)
-  local result = vim.fn.system(cmd)
-  
-  if vim.v.shell_error == 0 then
-    vim.cmd("edit!") -- Reload the file
-    vim.notify("Restored conflict markers for: " .. vim.fn.expand("%:t"), vim.log.levels.INFO)
-  else
-    vim.notify("Failed to restore conflict markers: " .. result, vim.log.levels.ERROR)
-  end
-end, { desc = "Restore conflict markers" })
+-- <leader>gR moved to keymaps/diff.lua
 
 map({ "n" }, "<leader>hB", function()
   Snacks.picker.firefox_bookmarks()
 end, { desc = "Firefox bookmarks" })
 
-map({ "n" }, "<leader>hf", function()
-  Snacks.picker.firefox_history()
-end, { desc = "Firefox history" })
+-- <leader>hf moved to keymaps/history.lua
 
 -- File history keymaps (main keymaps are in plugin config file)
 -- Additional keymaps that extend the plugin functionality

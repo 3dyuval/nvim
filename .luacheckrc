@@ -15,7 +15,7 @@ std = "lua53+busted"
 ignore = {
   "211", -- Unused local
   "212", -- Unused argument
-  "213", -- Unused loop variable    
+  "213", -- Unused loop variable
   "314", -- Value of a field in a table literal is unused.
   "631", -- Line is too long
   "614", -- Trailing whitespace

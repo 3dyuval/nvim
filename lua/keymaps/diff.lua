@@ -1,25 +1,37 @@
+local maps = require("keymaps.maps")
 local git = require("keymaps.git-bundle")
-local lil = require("lil")
+local map = maps.map
+local func = maps.func
+local desc = maps.desc
+local which = maps.which
 
-lil.map({
+map({
+  [func] = which,
   ["<leader>g"] = {
-
-    p = git.vim_diffput, -- Put hunk to other buffer (native vim)
-    o = git.vim_diffget, -- Get hunk from other buffer (native vim)
+    -- Vim diff operations
+    p = desc("Put hunk to other buffer (native vim)", git.vim_diffput),
+    o = desc("Get hunk from other buffer (native vim)", git.vim_diffget),
 
     -- Conflict resolution (file-level - work everywhere)
-    P = git.resolve_file_ours, -- Resolve file: ours (put)
-    O = git.resolve_file_theirs, -- Resolve file: pick theirs (get)
-    U = git.resolve_file_union, -- Resolve file: union (both)
-    R = git.restore_conflict_markers, -- Restore conflict markers
+    P = desc("Resolve file: ours (put)", git.resolve_file_ours),
+    O = desc("Resolve file: pick theirs (get)", git.resolve_file_theirs),
+    U = desc("Resolve file: union (both)", git.resolve_file_union),
+    R = desc("Restore conflict markers", git.restore_conflict_markers),
 
-    -- Note: File navigation (f) handled by diffview directly
-    -- f = actions.goto_file_edit, -- Only works in diffview context
-
-    n = "<cmd>:Neogit cwd=%:p:h<CR>",
-    c = "<cmd>:Neogit commit<CR>",
-    d = "<Cmd>DiffviewOpen<Cr>", -- <leader>gd - Diff view open
-    s = "<Cmd>DiffviewFileHistory -g --range=stash<Cr>", -- <leader>gs - Diff view stash
-    h = ":DiffviewFileHistory %", -- <leader>gh - Current file history
+    -- Neogit and diffview commands
+    n = desc("Neogit in current dir", "<cmd>:Neogit cwd=%:p:h<CR>"),
+    c = desc("Neogit commit", "<cmd>:Neogit commit<CR>"),
+    d = desc("Diff view open", "<Cmd>DiffviewOpen<Cr>"),
+    S = desc("Diff view stash", "<Cmd>DiffviewFileHistory -g --range=stash<Cr>"),
+    h = desc("Current file history", ":DiffviewFileHistory %"),
+  },
+  
+  -- Gitsigns toggle commands under <leader>ug
+  ["<leader>ug"] = {
+    g = desc("Toggle Git Signs", "<leader>uG"), -- Maps to default LazyVim toggle
+    l = desc("Toggle line highlights", "<cmd>Gitsigns toggle_linehl<cr>"),
+    n = desc("Toggle number highlights", "<cmd>Gitsigns toggle_numhl<cr>"),
+    w = desc("Toggle word diff", "<cmd>Gitsigns toggle_word_diff<cr>"),
+    b = desc("Toggle current line blame", "<cmd>Gitsigns toggle_current_line_blame<cr>"),
   },
 })

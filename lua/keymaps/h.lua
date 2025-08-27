@@ -1,5 +1,7 @@
-local lil = require("lil")
-local extern = lil.extern
+local map = vim.keymap.set
+
+-- Create a table to hold our external functions (replacing lil.extern)
+local extern = {}
 
 -- ============================================================================
 -- CENTRALIZED HISTORY INTEGRATION FUNCTIONS
@@ -125,21 +127,24 @@ extern.file_history_key_bindings = {
 -- KEYBINDING MAPPINGS (History-specific operations)
 -- ============================================================================
 
-lil.map({
-  ["<leader>h"] = {
-    h = function()
-      require("file_history").history()
-    end, -- Local file history
-    a = function()
-      require("file_history").files()
-    end, -- All files in backup
-    s = extern.smart_file_history, -- Smart history picker
-    l = function()
-      require("snacks").picker.git_log()
-    end, -- Git log
-    f = function()
-      require("snacks").picker.git_log({ current = true })
-    end, -- File git log
-  },
-})
+map("n", "<leader>hh", function()
+  require("file_history").history()
+end, { desc = "Local file history" })
+
+map("n", "<leader>ha", function()
+  require("file_history").files()
+end, { desc = "All files in backup" })
+
+map("n", "<leader>hs", extern.smart_file_history, { desc = "Smart history picker" })
+
+map("n", "<leader>hl", function()
+  require("snacks").picker.git_log()
+end, { desc = "Git log" })
+
+map("n", "<leader>hf", function()
+  require("snacks").picker.git_log({ current = true })
+end, { desc = "File git log" })
+
+-- Export the extern table for use by other modules if needed
+return extern
 
