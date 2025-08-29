@@ -46,3 +46,11 @@ files["lua/utils/picker-extensions.lua"] = {
     "432", -- shadowing upvalue argument 'item' (intentional in format_item callbacks)
   },
 }
+
+-- Ignore forward declaration warnings in all keymap files
+files["lua/keymaps/**"] = {
+  ignore = {
+    "321", -- Accessing uninitialized variable (forward declarations)
+    "311", -- Value assigned to variable is unused (forward declarations)
+  },
+}
