@@ -1,11 +1,11 @@
 # Neovim Configuration Makefile
 
-.PHONY: check no-utils test format install-deps help
+.PHONY: lint no-utils test format install-deps help
 
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  check      - Run luacheck linter on Lua files"
+	@echo "  lint       - Run luacheck linter on Lua files"
 	@echo "  no-utils   - Check for errant util calls"
 	@echo "  test       - Run all tests"
 	@echo "  format     - Format code using stylua"
@@ -13,7 +13,7 @@ help:
 	@echo "  help       - Show this help message"
 
 # Run luacheck on all Lua files
-check:
+lint:
 	@echo "Running luacheck..."
 	@if command -v luacheck >/dev/null 2>&1; then \
 		luacheck lua/ --config .luacheckrc; \
@@ -33,8 +33,8 @@ no-utils:
 		echo "No errant util calls found"; \
 	fi
 
-# Run all tests
-test:
+# Run all tests (includes linting)
+test: lint no-utils
 	@echo "Running all tests..."
 	@if [ -f "test/ci.sh" ]; then \
 		./test/ci.sh; \
