@@ -1,0 +1,12 @@
+#!/bin/bash
+# Helper script to run nvim commands without dashboard interference
+# This ensures git and other commands have proper context
+
+# If no arguments, just open nvim without dashboard
+if [ $# -eq 0 ]; then
+    NO_DASHBOARD=1 exec nvim
+fi
+
+# If arguments are provided, treat them as command
+# This works with: nvc "SomeCommand" or echo "SomeCommand" | xargs nvc
+NO_DASHBOARD=1 exec nvim -c "$*"
