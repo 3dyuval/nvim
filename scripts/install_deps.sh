@@ -157,6 +157,27 @@ else
 fi
 
 echo ""
+echo "🔧 Setting up nvc command symlink..."
+NVC_SCRIPT="$HOME/.config/nvim/bin/nvc"
+NVC_SYMLINK="$HOME/.local/bin/nvc"
+
+if [ -f "$NVC_SCRIPT" ]; then
+    # Remove existing symlink if it exists
+    if [ -L "$NVC_SYMLINK" ]; then
+        rm "$NVC_SYMLINK"
+    fi
+    
+    # Create symlink
+    if ln -s "$NVC_SCRIPT" "$NVC_SYMLINK"; then
+        print_status "nvc command symlink created successfully"
+    else
+        print_warning "Failed to create nvc symlink"
+    fi
+else
+    print_warning "nvc script not found at $NVC_SCRIPT"
+fi
+
+echo ""
 echo "🎉 All dependencies installed successfully!"
 echo ""
 echo "Installed components:"
@@ -166,6 +187,7 @@ echo "  • js-debug: $([ -f ~/.local/share/js-debug/src/dapDebugServer.js ] && 
 echo "  • stylua: $(~/.local/bin/stylua --version > /dev/null 2>&1 && echo '✅ Available' || echo '❌ Not found')"
 echo "  • todo script: $([ -x ~/.config/nvim/lua/utils/todo.lua ] && echo '✅ Executable' || echo '❌ Not executable')"
 echo "  • smart-splits kittens: $([ -f ~/.config/kitty/neighboring_window.py ] && echo '✅ Available' || echo '❌ Not found')"
+echo "  • nvc command: $([ -L ~/.local/bin/nvc ] && echo '✅ Available' || echo '❌ Not found')"
 echo ""
 echo "ℹ️  Restart Neovim to use the new dependencies."
 echo "ℹ️  This script works across machines (lab, yuval) due to portable paths."
