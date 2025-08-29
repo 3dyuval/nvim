@@ -28,7 +28,7 @@ M.state = {}
 ---@type snacks.picker.finder
 ---@diagnostic disable-next-line: unused-local
 local function finder(opts, ctx)
-  local file_picker = require "fff.file_picker"
+  local file_picker = require("fff.file_picker")
 
   if not M.state.current_file_cache then
     local current_buf = vim.api.nvim_get_current_buf()
@@ -42,7 +42,8 @@ local function finder(opts, ctx)
     end
   end
 
-  local fff_result = file_picker.search_files(ctx.filter.search, 100, 4, M.state.current_file_cache, false)
+  local fff_result =
+    file_picker.search_files(ctx.filter.search, 100, 4, M.state.current_file_cache, false)
 
   ---@type snacks.picker.finder.Item[]
   local items = {}
@@ -72,7 +73,7 @@ local function format_file_git_status(item, picker)
   local ret = {} ---@type snacks.picker.Highlight[]
   local status = item.status
 
-  local hl = "SnacksPickerGitStatus"
+  local hl = "SnacksPickerGitStatus" -- luacheck: ignore 311
   if status.unmerged then
     hl = "SnacksPickerGitStatusUnmerged"
   elseif status.staged then
@@ -87,7 +88,9 @@ local function format_file_git_status(item, picker)
   end
 
   local text_icon = status.status:sub(1, 1):upper()
-  text_icon = status.status == "untracked" and "?" or status.status == "ignored" and "!" or text_icon
+  text_icon = status.status == "untracked" and "?"
+    or status.status == "ignored" and "!"
+    or text_icon
 
   ret[#ret + 1] = { icon, hl }
   ret[#ret + 1] = { " ", virtual = true }
@@ -126,20 +129,20 @@ local function format(item, picker)
 end
 
 function M.fff()
-  local file_picker = require "fff.file_picker"
+  local file_picker = require("fff.file_picker")
   if not file_picker.is_initialized() then
     local setup_success = file_picker.setup()
     if not setup_success then
       vim.notify("Failed to initialize file picker", vim.log.levels.ERROR)
     end
   end
-  Snacks.picker {
+  Snacks.picker({
     title = "FFFiles",
     finder = finder,
     on_close = on_close,
     format = format,
     live = true,
-  }
+  })
 end
 
 return M

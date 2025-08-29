@@ -21,7 +21,7 @@ return {
         },
         merge_tool = {
           layout = "diff1_plain",
-          disable_diagnostics = false,  -- Keep diagnostics enabled for conflict highlights
+          disable_diagnostics = false, -- Keep diagnostics enabled for conflict highlights
         },
         file_history = {
           layout = "diff2_horizontal",

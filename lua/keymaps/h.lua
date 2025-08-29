@@ -147,4 +147,3 @@ end, { desc = "File git log" })
 
 -- Export the extern table for use by other modules if needed
 return extern
-

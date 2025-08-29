@@ -105,17 +105,17 @@ return {
         autoinstall = true,
       },
     })
-    
+
     -- Explicit buffer-local mapping override for neogit
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "NeogitStatus",
       callback = function(args)
         vim.keymap.set("n", "E", function()
           require("config.neogit-commands").create_conflict_popup()
-        end, { 
-          buffer = args.buf, 
+        end, {
+          buffer = args.buf,
           desc = "File resolution popup",
-          nowait = true  -- Override global mapping immediately
+          nowait = true, -- Override global mapping immediately
         })
       end,
     })

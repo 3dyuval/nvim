@@ -9,7 +9,7 @@ return {
       cmdline_popup = {
         relative = "editor",
         position = {
-          row = -2,  -- 2 rows from bottom
+          row = -2, -- 2 rows from bottom
           col = "50%",
         },
         size = {
@@ -25,7 +25,7 @@ return {
       cmdline_popupmenu = {
         relative = "editor",
         position = {
-          row = -5,  -- 5 rows from bottom (more space above cmdline)
+          row = -5, -- 5 rows from bottom (more space above cmdline)
           col = "50%",
         },
         size = {
@@ -49,19 +49,19 @@ return {
       popup = {
         relative = "editor",
         position = {
-          row = -10,  -- Messages popup at bottom
+          row = -10, -- Messages popup at bottom
           col = "50%",
         },
       },
       confirm = {
         relative = "editor",
         position = {
-          row = -8,  -- Confirmation messages near bottom
+          row = -8, -- Confirmation messages near bottom
           col = "50%",
         },
       },
       hover = {
-        relative = "cursor",  -- Keep hover at cursor
+        relative = "cursor", -- Keep hover at cursor
         position = { row = 1, col = 0 },
       },
     },
@@ -70,15 +70,15 @@ return {
       command_palette = true,
       long_message_to_split = true,
     },
-      routes = {
-        {
-          filter = {
-            event = "msg_show",
-            kind = "emsg",
-            find = "E21",
-          },
-          opts = { skip = true },
+    routes = {
+      {
+        filter = {
+          event = "msg_show",
+          kind = "emsg",
+          find = "E21",
         },
+        opts = { skip = true },
       },
     },
+  },
 }

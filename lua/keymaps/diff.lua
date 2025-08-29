@@ -1,5 +1,5 @@
-local maps = require("keymaps.maps")
 local git = require("keymaps.git-bundle")
+local maps = require("keymaps.maps")
 local map = maps.map
 local func = maps.func
 local desc = maps.desc
@@ -25,7 +25,7 @@ map({
     S = desc("Diff view stash", "<Cmd>DiffviewFileHistory -g --range=stash<Cr>"),
     h = desc("Current file history", ":DiffviewFileHistory %"),
   },
-  
+
   -- Gitsigns toggle commands under <leader>ug
   ["<leader>ug"] = {
     g = desc("Toggle Git Signs", "<leader>uG"), -- Maps to default LazyVim toggle

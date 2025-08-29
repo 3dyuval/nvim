@@ -85,7 +85,7 @@ end
 M.organize_imports_and_fix = function()
   -- First organize imports
   M.organize_imports()
-  
+
   -- Then fix all diagnostics using TypeScript tools
   vim.schedule(function()
     vim.cmd("TSToolsFixAll")
