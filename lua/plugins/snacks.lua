@@ -604,36 +604,36 @@ return {
   },
   config = function(_, opts)
     require("snacks").setup(opts)
-    
+
     -- Manual dashboard control based on conditions
     vim.api.nvim_create_autocmd("UIEnter", {
       once = true,
       callback = function()
         -- Check conditions for showing dashboard
         local should_show = true
-        
+
         -- Don't show if there are file arguments
         if vim.fn.argc() > 0 then
           should_show = false
         end
-        
+
         -- Don't show if NO_DASHBOARD env var is set
         if vim.env.NO_DASHBOARD == "1" then
           should_show = false
         end
-        
+
         -- Don't show if current buffer already has content
         if vim.api.nvim_buf_get_name(0) ~= "" then
           should_show = false
         end
-        
+
         if should_show then
           -- Temporarily enable dashboard for this one setup call
           require("snacks").config.dashboard.enabled = true
           require("snacks.dashboard").setup()
           require("snacks").config.dashboard.enabled = false -- Reset
         end
-      end
+      end,
     })
   end,
 }

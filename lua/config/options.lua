@@ -74,7 +74,7 @@ vim.opt.startofline = false
 
 -- Configure how tabs and spaces are displayed
 vim.opt.listchars = {
-  tab = "  ",  -- Show tabs as spaces instead of > > >
+  tab = "  ", -- Show tabs as spaces instead of > > >
   trail = "·",
   extends = "→",
   precedes = "←",

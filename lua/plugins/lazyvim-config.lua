@@ -13,7 +13,7 @@ return {
       })
     end,
   },
-  
+
   -- Disable unwanted default colorschemes (keep only tokyonight and catppuccin)
   { "folke/tokyonight.nvim", enabled = true },
   { "catppuccin/nvim", name = "catppuccin", enabled = true },

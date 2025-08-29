@@ -1765,7 +1765,7 @@ end
 M.toggle_conflict_filter = function(picker)
   -- Toggle the conflict filter state
   picker._conflict_filter_active = not picker._conflict_filter_active
-  
+
   if picker._conflict_filter_active then
     vim.notify("Showing only conflicted files", vim.log.levels.INFO)
     -- Store original filter search
@@ -1782,7 +1782,7 @@ M.toggle_conflict_filter = function(picker)
     picker.filter.search = picker._original_filter_search or ""
     picker.filter.opts.fields = nil
   end
-  
+
   -- Update the filter
   picker:update_filter()
 end

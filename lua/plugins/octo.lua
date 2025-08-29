@@ -30,7 +30,7 @@ return {
         vim.opt_local.writebackup = false
       end,
     })
-    
+
     -- Also disable swap files for Octo picker buffers
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "OctoPanel",
