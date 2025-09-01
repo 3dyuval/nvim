@@ -7,6 +7,12 @@ M.copy_file_path = function()
   vim.notify("Copied path: " .. file_path)
 end
 
+M.copy_file_path_from_home = function()
+  local file_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":~")
+  vim.fn.setreg("+", file_path)
+  vim.notify("Copied path: " .. file_path)
+end
+
 M.copy_file_contents = function()
   local file_path = vim.fn.expand("%:p")
   if vim.fn.filereadable(file_path) == 0 then
