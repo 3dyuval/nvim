@@ -1,4 +1,4 @@
-local git = require("keymaps.git-bundle")
+local git = require("keymaps.git")
 local maps = require("keymaps.maps")
 local map = maps.map
 local func = maps.func
