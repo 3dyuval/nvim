@@ -1,11 +1,151 @@
+-- ============================================================================
+-- UTILITY FUNCTIONS (from keymaps.maps)
+-- ============================================================================
+
+local lil = require("lil")
+local func = lil.flags.func
+local opts = lil.flags.opts
+
+local function which(m, l, r, o, _next)
+  -- Delete existing mapping first, then set new one (override behavior)
+  pcall(vim.keymap.del, m, l)
+  vim.keymap.set(m, l, r, { desc = o and o.desc or nil })
+end
+
+local function desc(d, value)
+  return {
+    value,
+    [func] = which,
+    [opts] = { desc = d },
+  }
+end
+
+local function remap(mode, lhs, rhs, opts)
+  pcall(vim.keymap.del, mode, lhs)
+  vim.keymap.set(mode, lhs, rhs, opts)
+end
+
+-- ============================================================================
+-- FUNCTION IMPORTS
+-- ============================================================================
+
+local code = require("utils.code")
+local files = require("utils.files")
+local git = require("utils.git")
+local history = require("utils.history")
+
+-- ============================================================================
+-- KEYMAPS FROM keymaps/ DIRECTORY
+-- ============================================================================
+
+-- Remove legacy imports
 pcall(vim.keymap.del, "n", "<leader>gd")
-require("keymaps.git")
-require("keymaps.diff")
-require("keymaps.f")
-require("keymaps.g")
-require("keymaps.c")
+
+-- ============================================================================
+-- GIT AND DIFF OPERATIONS (from keymaps/diff.lua)
+-- ============================================================================
+
+lil.map({
+  [func] = which,
+  ["<leader>g"] = {
+    -- Vim diff operations
+    p = desc("Put hunk to other buffer (native vim)", git.vim_diffput),
+    o = desc("Get hunk from other buffer (native vim)", git.vim_diffget),
+
+    -- Conflict resolution (file-level - work everywhere)
+    P = desc("Resolve file: ours (put)", git.resolve_file_ours),
+    O = desc("Resolve file: pick theirs (get)", git.resolve_file_theirs),
+    U = desc("Resolve file: union (both)", git.resolve_file_union),
+    R = desc("Restore conflict markers", git.restore_conflict_markers),
+
+    -- Neogit and diffview commands
+    n = desc("Neogit in current dir", "<cmd>:Neogit cwd=%:p:h<CR>"),
+    c = desc("Neogit commit", "<cmd>:Neogit commit<CR>"),
+    d = desc("Diff view open", "<Cmd>DiffviewOpen<Cr>"),
+    S = desc("Diff view stash", "<Cmd>DiffviewFileHistory -g --range=stash<Cr>"),
+    h = desc("Current file history", ":DiffviewFileHistory %"),
+  },
+
+  -- Gitsigns toggle commands under <leader>ug
+  ["<leader>ug"] = {
+    g = desc("Toggle Git Signs", "<leader>uG"), -- Maps to default LazyVim toggle
+    l = desc("Toggle line highlights", "<cmd>Gitsigns toggle_linehl<cr>"),
+    n = desc("Toggle number highlights", "<cmd>Gitsigns toggle_numhl<cr>"),
+    w = desc("Toggle word diff", "<cmd>Gitsigns toggle_word_diff<cr>"),
+    b = desc("Toggle current line blame", "<cmd>Gitsigns toggle_current_line_blame<cr>"),
+  },
+})
+
+-- ============================================================================
+-- CODE OPERATIONS (from keymaps/g.lua and keymaps/c.lua)
+-- ============================================================================
+
+lil.map({
+  [func] = which,
+  g = {
+    D = desc("Go to source definition", code.go_to_source_definition),
+    R = desc("File references", code.file_references),
+  },
+})
+
+lil.map({
+  [func] = which,
+  ["<leader>c"] = {
+    o = desc("Organize + Remove Unused Imports", code.organize_imports),
+    O = desc("Organize Imports + Fix All Diagnostics", code.organize_imports_and_fix),
+    I = desc("Add missing imports", code.add_missing_imports),
+    u = desc("Remove unused imports", code.remove_unused_imports),
+    F = desc("Fix all diagnostics", code.fix_all),
+    V = desc("Select TS workspace version", code.select_ts_version),
+  },
+})
+
+-- ============================================================================
+-- FILE OPERATIONS (from keymaps/f.lua)
+-- ============================================================================
+
+lil.map({
+  [func] = which,
+  ["<leader>"] = {
+    [" "] = desc("Find files (fff.nvim)", files.find_files),
+    f = {
+      f = desc("Find files (snacks + fff)", files.find_files_snacks),
+      s = desc("Save file", files.save_file),
+      S = desc("Save and stage file", files.save_and_stage_file),
+    },
+  },
+})
+
+-- Override the default <leader><space> mapping after lil.map
+remap("n", "<leader><space>", files.find_files, { desc = "Find files (fff.nvim)" })
+
+-- ============================================================================
+-- HISTORY OPERATIONS (from keymaps/h.lua)
+-- ============================================================================
+
 local map = vim.keymap.set
-local remap = require("keymaps.maps").remap
+
+map("n", "<leader>hh", function()
+  require("file_history").history()
+end, { desc = "Local file history" })
+
+map("n", "<leader>ha", function()
+  require("file_history").files()
+end, { desc = "All files in backup" })
+
+map("n", "<leader>hs", history.smart_file_history, { desc = "Smart history picker" })
+
+map("n", "<leader>hl", function()
+  require("snacks").picker.git_log()
+end, { desc = "Git log" })
+
+map("n", "<leader>hf", function()
+  require("snacks").picker.git_log({ current = true })
+end, { desc = "File git log" })
+
+-- ============================================================================
+-- ORIGINAL KEYMAPS (existing configuration)
+-- ============================================================================
 
 -- Delete on 'x' (Graphite layout) - but allow surround plugin to handle 'xs'
 -- Note: surround plugin will handle 'xs' directly, this handles other 'x' operations
@@ -475,3 +615,4 @@ map("n", "<leader>sR", function()
     },
   })
 end, { desc = "Search/Replace in current directory (Grug-far)" })
+
