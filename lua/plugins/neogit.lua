@@ -1,6 +1,11 @@
 return {
   "NeogitOrg/neogit",
-  config = function()
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "sindrets/diffview.nvim",
+    "folke/snacks.nvim",
+  },
+  config = function(_, opts)
     require("utils.neogit-commands").setup()
 
     vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
@@ -31,14 +36,6 @@ return {
       end,
     })
 
-    require("neogit").setup(opts)
-  end,
-  dependencies = {
-    "nvim-lua/plenary.nvim",
-    "sindrets/diffview.nvim",
-    "folke/snacks.nvim",
-  },
-  config = function(_, opts)
     require("neogit").setup(opts)
   end,
 
@@ -85,7 +82,9 @@ return {
         ["m"] = false, -- disable merge to use your custom binding
         ["s"] = "Stage", -- override 's' key to stage files
         ["<leader>q"] = "Close", -- Close Neogit
-        ["E"] = "NeogitConflictResolve",
+        ["E"] = function()
+          require("utils.neogit-commands").create_conflict_popup()
+        end,
       },
     },
   },
