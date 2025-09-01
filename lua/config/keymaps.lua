@@ -25,6 +25,10 @@ local function remap(mode, lhs, rhs, opts)
   vim.keymap.set(mode, lhs, rhs, opts)
 end
 
+local function cmd(command)
+  return "<Cmd>" .. command .. "<Cr>"
+end
+
 -- ============================================================================
 -- FUNCTION IMPORTS
 -- ============================================================================
@@ -63,20 +67,32 @@ lil.map({
     R = desc("Restore conflict markers", git.restore_conflict_markers),
 
     -- Neogit and diffview commands
-    n = desc("Neogit in current dir", "<cmd>:Neogit cwd=%:p:h<CR>"),
-    c = desc("Neogit commit", "<cmd>:Neogit commit<CR>"),
-    d = desc("Diff view open", "<Cmd>DiffviewOpen<Cr>"),
-    S = desc("Diff view stash", "<Cmd>DiffviewFileHistory -g --range=stash<Cr>"),
+    n = desc("Neogit in current dir", cmd(":Neogit cwd=%:p:h")),
+    c = desc("Neogit commit", cmd(":Neogit commit")),
+    d = desc("Diff view open", cmd("DiffviewOpen")),
+    S = desc("Diff view stash", cmd("DiffviewFileHistory -g --range=stash")),
     h = desc("Current file history", ":DiffviewFileHistory %"),
+
+    -- Git tools
+    z = desc("Lazygit (Root Dir)", git.lazygit_root),
+    Z = desc("Lazygit (cwd)", git.lazygit_cwd),
+    b = desc("Git branches (all)", git.git_branches_picker),
+  },
+
+  -- Git conflict resolution (top-level g keymaps)
+  g = {
+    o = desc("Choose theirs (git conflict)", cmd("GitConflictChooseTheirs")),
+    p = desc("Choose ours (git conflict)", cmd("GitConflictChooseOurs")),
+    u = desc("Choose both (git conflict)", cmd("GitConflictChooseBoth")),
   },
 
   -- Gitsigns toggle commands under <leader>ug
   ["<leader>ug"] = {
     g = desc("Toggle Git Signs", "<leader>uG"), -- Maps to default LazyVim toggle
-    l = desc("Toggle line highlights", "<cmd>Gitsigns toggle_linehl<cr>"),
-    n = desc("Toggle number highlights", "<cmd>Gitsigns toggle_numhl<cr>"),
-    w = desc("Toggle word diff", "<cmd>Gitsigns toggle_word_diff<cr>"),
-    b = desc("Toggle current line blame", "<cmd>Gitsigns toggle_current_line_blame<cr>"),
+    l = desc("Toggle line highlights", cmd("Gitsigns toggle_linehl")),
+    n = desc("Toggle number highlights", cmd("Gitsigns toggle_numhl")),
+    w = desc("Toggle word diff", cmd("Gitsigns toggle_word_diff")),
+    b = desc("Toggle current line blame", cmd("Gitsigns toggle_current_line_blame")),
   },
 })
 
@@ -101,6 +117,7 @@ lil.map({
     u = desc("Remove unused imports", code.remove_unused_imports),
     F = desc("Fix all diagnostics", code.fix_all),
     V = desc("Select TS workspace version", code.select_ts_version),
+    t = desc("TypeScript type check", editor.typescript_check),
   },
 })
 
@@ -137,6 +154,11 @@ lil.map({
     s = desc("Smart history picker", history.smart_file_history),
     l = desc("Git log", history.git_log_picker),
     f = desc("File git log", history.file_git_log_picker),
+    u = desc("View undo list", cmd("undolist")),
+    B = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
+    A = desc("Query file history by time range", history.query_file_history_by_time),
+    T = desc("Manual backup with tag", history.manual_backup_with_tag),
+    p = desc("Project files history", history.project_files_history),
   },
 })
 
@@ -280,39 +302,9 @@ map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
 -- <leader>gh moved to keymaps/diff.lua
 
-lil.map({
-  [func] = which,
-  ["<leader>g"] = {
-    z = desc("Lazygit (Root Dir)", git.lazygit_root),
-    Z = desc("Lazygit (cwd)", git.lazygit_cwd),
-    b = desc("Git branches (all)", git.git_branches_picker),
-  },
-})
-
--- History keymap root
-
-map({ "n" }, "<leader>hu", "<Cmd>undolist<Cr>", { desc = "View undo list" })
-
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
 remap("n", "]]", "]x", { desc = "Next git conflict" })
-
--- Git conflict resolution keymaps
-map({ "n" }, "go", "<Cmd>GitConflictChooseTheirs<Cr>", { desc = "Choose theirs (git conflict)" })
-map({ "n" }, "gp", "<Cmd>GitConflictChooseOurs<Cr>", { desc = "Choose ours (git conflict)" })
-map({ "n" }, "gu", "<Cmd>GitConflictChooseBoth<Cr>", { desc = "Choose both (git conflict)" })
-
--- <leader>gR moved to keymaps/diff.lua
-
-lil.map({
-  [func] = which,
-  ["<leader>h"] = {
-    B = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
-    A = desc("Query file history by time range", history.query_file_history_by_time),
-    T = desc("Manual backup with tag", history.manual_backup_with_tag),
-    p = desc("Project files history", history.project_files_history),
-  },
-})
 -- 'til
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
@@ -366,8 +358,8 @@ map({ "n" }, "<M-C-i>", navigation.move_split("right", "resize"), { noremap = tr
 -- map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
 
 -- Buffer navigation - using Tab keys
-map({ "n" }, "<C-p>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
-map({ "n" }, "<C-.>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+map({ "n" }, "<C-p>", cmd("bprevious"), { desc = "Previous buffer" })
+map({ "n" }, "<C-.>", cmd("bnext"), { desc = "Next buffer" })
 
 -- Add some commonly used editor operations
 map({ "n" }, "<leader>q", ":q<CR>", { desc = "Quit" })
@@ -377,10 +369,7 @@ lil.map({
   ["<leader>r"] = {
     c = desc("Reload config", editor.reload_config),
     r = desc("Reload keymaps", editor.reload_keymaps),
-    l = desc("Lazy sync plugins", "<cmd>Lazy sync<cr>"),
-  },
-  ["<leader>c"] = {
-    t = desc("TypeScript type check", editor.typescript_check),
+    l = desc("Lazy sync plugins", cmd("Lazy sync")),
   },
 })
 
@@ -506,12 +495,10 @@ vim.keymap.set(
   { silent = true, desc = "Treewalker SwapRight" }
 )
 
--- Project-wide diagnostics keymap
-remap("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
-
 lil.map({
   [func] = which,
   ["<leader>s"] = {
+    D = desc("Project Diagnostics", cmd("ProjectDiagnostics")),
     r = desc("Search/Replace within range (Grug-far)", search.grug_far_range),
     F = desc("Search/Replace in current file (Grug-far)", search.grug_far_current_file),
     R = desc("Search/Replace in current directory (Grug-far)", search.grug_far_current_directory),
