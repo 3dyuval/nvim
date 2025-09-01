@@ -89,4 +89,37 @@ M.file_history_key_bindings = {
   purge_history = "<M-p>", -- Purge: Alt+p (purge/permanent)
 }
 
+-- Simple history operations
+M.local_file_history = function()
+  require("file_history").history()
+end
+
+M.all_files_in_backup = function()
+  require("file_history").files()
+end
+
+M.git_log_picker = function()
+  require("snacks").picker.git_log()
+end
+
+M.file_git_log_picker = function()
+  require("snacks").picker.git_log({ current = true })
+end
+
+M.firefox_bookmarks_picker = function()
+  Snacks.picker.firefox_bookmarks()
+end
+
+M.query_file_history_by_time = function()
+  require("file_history").query()
+end
+
+M.manual_backup_with_tag = function()
+  require("file_history").backup()
+end
+
+M.project_files_history = function()
+  require("file_history").project_files()
+end
+
 return M

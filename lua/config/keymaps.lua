@@ -33,6 +33,10 @@ local code = require("utils.code")
 local files = require("utils.files")
 local git = require("utils.git")
 local history = require("utils.history")
+local clipboard = require("utils.clipboard")
+local editor = require("utils.editor")
+local navigation = require("utils.navigation")
+local search = require("utils.search")
 
 -- ============================================================================
 -- KEYMAPS FROM keymaps/ DIRECTORY
@@ -125,23 +129,16 @@ remap("n", "<leader><space>", files.find_files, { desc = "Find files (fff.nvim)"
 
 local map = vim.keymap.set
 
-map("n", "<leader>hh", function()
-  require("file_history").history()
-end, { desc = "Local file history" })
-
-map("n", "<leader>ha", function()
-  require("file_history").files()
-end, { desc = "All files in backup" })
-
-map("n", "<leader>hs", history.smart_file_history, { desc = "Smart history picker" })
-
-map("n", "<leader>hl", function()
-  require("snacks").picker.git_log()
-end, { desc = "Git log" })
-
-map("n", "<leader>hf", function()
-  require("snacks").picker.git_log({ current = true })
-end, { desc = "File git log" })
+lil.map({
+  [func] = which,
+  ["<leader>h"] = {
+    h = desc("Local file history", history.local_file_history),
+    a = desc("All files in backup", history.all_files_in_backup),
+    s = desc("Smart history picker", history.smart_file_history),
+    l = desc("Git log", history.git_log_picker),
+    f = desc("File git log", history.file_git_log_picker),
+  },
+})
 
 -- ============================================================================
 -- ORIGINAL KEYMAPS (existing configuration)
@@ -283,18 +280,14 @@ map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
 -- <leader>gh moved to keymaps/diff.lua
 
--- Lazygit
-map({ "n" }, "<leader>gz", function()
-  Snacks.lazygit()
-end, { desc = "Lazygit (Root Dir)" })
-map({ "n" }, "<leader>gZ", function()
-  Snacks.lazygit({ cwd = LazyVim.root.get() })
-end, { desc = "Lazygit (cwd)" })
-
--- Git branches picker
-map({ "n" }, "<leader>gb", function()
-  Snacks.picker.git_branches({ all = true })
-end, { desc = "Git branches (all)" })
+lil.map({
+  [func] = which,
+  ["<leader>g"] = {
+    z = desc("Lazygit (Root Dir)", git.lazygit_root),
+    Z = desc("Lazygit (cwd)", git.lazygit_cwd),
+    b = desc("Git branches (all)", git.git_branches_picker),
+  },
+})
 
 -- History keymap root
 
@@ -311,54 +304,27 @@ map({ "n" }, "gu", "<Cmd>GitConflictChooseBoth<Cr>", { desc = "Choose both (git 
 
 -- <leader>gR moved to keymaps/diff.lua
 
-map({ "n" }, "<leader>hB", function()
-  Snacks.picker.firefox_bookmarks()
-end, { desc = "Firefox bookmarks" })
-
--- <leader>hf moved to keymaps/history.lua
-
--- File history keymaps (main keymaps are in plugin config file)
--- Additional keymaps that extend the plugin functionality
-map({ "n" }, "<leader>hA", function()
-  require("file_history").query()
-end, { desc = "Query file history by time range" })
-
-map({ "n" }, "<leader>hT", function()
-  require("file_history").backup()
-end, { desc = "Manual backup with tag" })
-
-map({ "n" }, "<leader>hp", function()
-  require("file_history").project_files()
-end, { desc = "Project files history" })
+lil.map({
+  [func] = which,
+  ["<leader>h"] = {
+    B = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
+    A = desc("Query file history by time range", history.query_file_history_by_time),
+    T = desc("Manual backup with tag", history.manual_backup_with_tag),
+    p = desc("Project files history", history.project_files_history),
+  },
+})
 -- 'til
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 
-map({ "n" }, "<leader>cpp", function()
-  local file_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":.")
-  vim.fn.setreg("+", file_path)
-  vim.notify("Copied path: " .. file_path)
-end, { desc = "Copy file path (relative to cwd)" })
-
-map({ "n" }, "<leader>cpc", function()
-  local file_path = vim.fn.expand("%:p")
-  if vim.fn.filereadable(file_path) == 0 then
-    vim.notify("File not readable: " .. file_path, vim.log.levels.ERROR)
-    return
-  end
-  local content = vim.fn.readfile(file_path)
-  local content_str = table.concat(content, "\n")
-  vim.fn.setreg("+", content_str)
-  vim.notify("Copied file contents (" .. #content .. " lines)")
-end, { desc = "Copy file contents" })
-
-map({ "n" }, "<leader>cpl", function()
-  local file_path = vim.fn.expand("%:p")
-  local line_number = vim.fn.line(".")
-  local path_with_line = file_path .. ":" .. line_number
-  vim.fn.setreg("+", path_with_line)
-  vim.notify("Copied: " .. path_with_line)
-end, { desc = "Copy file path with line number" })
+lil.map({
+  [func] = which,
+  ["<leader>cp"] = {
+    p = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
+    c = desc("Copy file contents", clipboard.copy_file_contents),
+    l = desc("Copy file path with line number", clipboard.copy_file_path_with_line),
+  },
+})
 
 -- map(
 --   "n",
@@ -382,48 +348,19 @@ map({ "n", "x" }, "gh", "K", { desc = "Lookup keyword" })
 vim.api.nvim_create_autocmd("User", {
   pattern = "BufferClose",
   callback = function()
-    local bufs = vim.tbl_filter(function(buf)
-      return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
-    end, vim.api.nvim_list_bufs())
-
-    if #bufs == 0 then
-      vim.schedule(function()
-        require("snacks").dashboard()
-      end)
-    end
+    navigation.buffer_close_callback()
   end,
 })
 
---- Helper to produce a lambda for smart-splits movement with default opts
----@param dir "left"|"down"|"up"|"right"
----@para op "move" | "resize"
-local function move_split(dir, op)
-  return function()
-    if op == "move" then
-      -- Check if we're currently in a snacks explorer buffer
-      local buf_name = vim.api.nvim_buf_get_name(0)
-      local is_snacks_explorer = buf_name:match("snacks://") or vim.bo.filetype == "snacks_picker"
+map({ "n" }, "<C-h>", navigation.move_split("left", "move"), { noremap = true, desc = "Left window" })
+map({ "n" }, "<C-a>", navigation.move_split("down", "move"), { noremap = true, desc = "Window down" })
+map({ "n" }, "<C-e>", navigation.move_split("up", "move"), { noremap = true, desc = "Window up" })
+map({ "n" }, "<C-i>", navigation.move_split("right", "move"), { noremap = true, desc = "Right window" })
 
-      require("smart-splits")["move_cursor_" .. dir]({
-        same_row = false,
-        at_edge = "stop",
-      })
-    end
-    if op == "resize" then
-      require("smart-splits")["resize_" .. dir](5)
-    end
-  end
-end
-
-map({ "n" }, "<C-h>", move_split("left", "move"), { noremap = true, desc = "Left window" })
-map({ "n" }, "<C-a>", move_split("down", "move"), { noremap = true, desc = "Window down" })
-map({ "n" }, "<C-e>", move_split("up", "move"), { noremap = true, desc = "Window up" })
-map({ "n" }, "<C-i>", move_split("right", "move"), { noremap = true, desc = "Right window" })
-
-map({ "n" }, "<M-C-h>", move_split("left", "resize"), { noremap = true, desc = "Left window" })
-map({ "n" }, "<M-C-a>", move_split("down", "resize"), { noremap = true, desc = "Window down" })
-map({ "n" }, "<M-C-e>", move_split("up", "resize"), { noremap = true, desc = "Window up" })
-map({ "n" }, "<M-C-i>", move_split("right", "resize"), { noremap = true, desc = "Right window" })
+map({ "n" }, "<M-C-h>", navigation.move_split("left", "resize"), { noremap = true, desc = "Left window" })
+map({ "n" }, "<M-C-a>", navigation.move_split("down", "resize"), { noremap = true, desc = "Window down" })
+map({ "n" }, "<M-C-e>", navigation.move_split("up", "resize"), { noremap = true, desc = "Window up" })
+map({ "n" }, "<M-C-i>", navigation.move_split("right", "resize"), { noremap = true, desc = "Right window" })
 
 -- Cycle through windows with Alt+Tab
 -- map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
@@ -435,20 +372,17 @@ map({ "n" }, "<C-.>", "<cmd>bnext<cr>", { desc = "Next buffer" })
 -- Add some commonly used editor operations
 map({ "n" }, "<leader>q", ":q<CR>", { desc = "Quit" })
 map({ "n" }, "<leader>Q", ":qa<CR>", { desc = "Quit all" })
-map({ "n" }, "<leader>rc", function()
-  vim.cmd(":source $MYVIMRC")
-  vim.notify("Config reloaded")
-end, { desc = "Reload config" })
-
-map({ "n" }, "<leader>rr", function()
-  vim.cmd("source " .. vim.fn.stdpath("config") .. "/lua/config/keymaps.lua")
-  vim.notify("keymaps reloaded")
-end, { desc = "Reload keymaps" })
-
-map({ "n" }, "<leader>rl", "<cmd>Lazy sync<cr>", { desc = "Lazy sync plugins" })
-map({ "n" }, "<leader>ct", function()
-  vim.cmd("split | terminal tsc --noEmit")
-end, { desc = "TypeScript type check" })
+lil.map({
+  [func] = which,
+  ["<leader>r"] = {
+    c = desc("Reload config", editor.reload_config),
+    r = desc("Reload keymaps", editor.reload_keymaps),
+    l = desc("Lazy sync plugins", "<cmd>Lazy sync<cr>"),
+  },
+  ["<leader>c"] = {
+    t = desc("TypeScript type check", editor.typescript_check),
+  },
+})
 
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
@@ -458,16 +392,7 @@ map({ "n", "o", "x" }, "<C-/>", function()
 end, { desc = "Toggle Terminal" })
 
 -- Inline paste (avoids creating new lines)
-local function paste_inline()
-  local reg_type = vim.fn.getregtype('"')
-  if reg_type == "V" then -- line-wise register
-    vim.cmd("normal! gp")
-  else
-    vim.cmd("normal! p")
-  end
-end
-
-map({ "n", "x" }, "-", paste_inline, { desc = "Paste inline" })
+map({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" })
 -- Visual mode treesitter text objects (explicit mappings)
 map({ "x", "o" }, "rf", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@function.inner", "textobjects")
@@ -584,35 +509,15 @@ vim.keymap.set(
 -- Project-wide diagnostics keymap
 remap("n", "<leader>sD", "<cmd>ProjectDiagnostics<cr>", { desc = "Project Diagnostics" })
 
--- Grug-far search within range
-map({ "v" }, "<leader>sr", function()
-  require("grug-far").open({ visualSelectionUsage = "operate-within-range" })
-end, { desc = "Search/Replace within range (Grug-far)" })
+lil.map({
+  [func] = which,
+  ["<leader>s"] = {
+    r = desc("Search/Replace within range (Grug-far)", search.grug_far_range),
+    F = desc("Search/Replace in current file (Grug-far)", search.grug_far_current_file),
+    R = desc("Search/Replace in current directory (Grug-far)", search.grug_far_current_directory),
+  },
+})
 
--- Grug-far search in current file only
-map("n", "<leader>sF", function()
-  require("grug-far").open({
-    prefills = {
-      paths = vim.fn.expand("%"), -- Current file path
-    },
-  })
-end, { desc = "Search/Replace in current file (Grug-far)" })
-
--- Grug-far search selected text in current file
-map("v", "<leader>sF", function()
-  require("grug-far").with_visual_selection({
-    prefills = {
-      paths = vim.fn.expand("%"), -- Current file path
-    },
-  })
-end, { desc = "Search/Replace selection in current file (Grug-far)" })
-
--- Grug-far search in current directory
-map("n", "<leader>sR", function()
-  require("grug-far").open({
-    prefills = {
-      paths = vim.fn.expand("%:h"), -- Current file's directory
-    },
-  })
-end, { desc = "Search/Replace in current directory (Grug-far)" })
+-- Visual mode override for sF
+map("v", "<leader>sF", search.grug_far_selection_current_file, { desc = "Search/Replace selection in current file (Grug-far)" })
 
