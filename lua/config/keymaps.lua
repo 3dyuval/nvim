@@ -67,10 +67,10 @@ lil.map({
     R = desc("Restore conflict markers", git.restore_conflict_markers),
 
     -- Neogit and diffview commands
-    n = desc("Neogit in current dir", cmd(":Neogit cwd=%:p:h")),
-    c = desc("Neogit commit", cmd(":Neogit commit")),
-    d = desc("Diff view open", cmd("DiffviewOpen")),
-    S = desc("Diff view stash", cmd("DiffviewFileHistory -g --range=stash")),
+    n = desc("Neogit in current dir", cmd ":Neogit cwd=%:p:h"),
+    c = desc("Neogit commit", cmd ":Neogit commit"),
+    d = desc("Diff view open", cmd "DiffviewOpen"),
+    S = desc("Diff view stash", cmd "DiffviewFileHistory -g --range=stash"),
     h = desc("Current file history", ":DiffviewFileHistory %"),
 
     -- Git tools
@@ -81,18 +81,18 @@ lil.map({
 
   -- Git conflict resolution (top-level g keymaps)
   g = {
-    o = desc("Choose theirs (git conflict)", cmd("GitConflictChooseTheirs")),
-    p = desc("Choose ours (git conflict)", cmd("GitConflictChooseOurs")),
-    u = desc("Choose both (git conflict)", cmd("GitConflictChooseBoth")),
+    o = desc("Choose theirs (git conflict)", cmd "GitConflictChooseTheirs"),
+    p = desc("Choose ours (git conflict)", cmd "GitConflictChooseOurs"),
+    u = desc("Choose both (git conflict)", cmd "GitConflictChooseBoth"),
   },
 
   -- Gitsigns toggle commands under <leader>ug
   ["<leader>ug"] = {
     g = desc("Toggle Git Signs", "<leader>uG"), -- Maps to default LazyVim toggle
-    l = desc("Toggle line highlights", cmd("Gitsigns toggle_linehl")),
-    n = desc("Toggle number highlights", cmd("Gitsigns toggle_numhl")),
-    w = desc("Toggle word diff", cmd("Gitsigns toggle_word_diff")),
-    b = desc("Toggle current line blame", cmd("Gitsigns toggle_current_line_blame")),
+    l = desc("Toggle line highlights", cmd "Gitsigns toggle_linehl"),
+    n = desc("Toggle number highlights", cmd "Gitsigns toggle_numhl"),
+    w = desc("Toggle word diff", cmd "Gitsigns toggle_word_diff"),
+    b = desc("Toggle current line blame", cmd "Gitsigns toggle_current_line_blame"),
   },
 })
 
@@ -154,7 +154,7 @@ lil.map({
     s = desc("Smart history picker", history.smart_file_history),
     l = desc("Git log", history.git_log_picker),
     f = desc("File git log", history.file_git_log_picker),
-    u = desc("View undo list", cmd("undolist")),
+    u = desc("View undo list", cmd "undolist"),
     B = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
     A = desc("Query file history by time range", history.query_file_history_by_time),
     T = desc("Manual backup with tag", history.manual_backup_with_tag),
@@ -358,8 +358,8 @@ map({ "n" }, "<M-C-i>", navigation.move_split("right", "resize"), { noremap = tr
 -- map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
 
 -- Buffer navigation - using Tab keys
-map({ "n" }, "<C-p>", cmd("bprevious"), { desc = "Previous buffer" })
-map({ "n" }, "<C-.>", cmd("bnext"), { desc = "Next buffer" })
+map({ "n" }, "<C-p>", cmd "bprevious", { desc = "Previous buffer" })
+map({ "n" }, "<C-.>", cmd "bnext", { desc = "Next buffer" })
 
 -- Add some commonly used editor operations
 map({ "n" }, "<leader>q", ":q<CR>", { desc = "Quit" })
@@ -369,7 +369,7 @@ lil.map({
   ["<leader>r"] = {
     c = desc("Reload config", editor.reload_config),
     r = desc("Reload keymaps", editor.reload_keymaps),
-    l = desc("Lazy sync plugins", cmd("Lazy sync")),
+    l = desc("Lazy sync plugins", cmd "Lazy sync"),
   },
 })
 
@@ -473,32 +473,32 @@ end, { desc = "Select JSX self-closing element" })
 vim.keymap.set(
   "n",
   "<M-e>",
-  "<cmd>Treewalker SwapUp<cr>",
+  cmd "Treewalker SwapUp",
   { silent = true, desc = "Treewalker SwapUp" }
 )
 vim.keymap.set(
   "n",
   "<M-a>",
-  "<cmd>Treewalker SwapDown<cr>",
+  cmd "Treewalker SwapDown",
   { silent = true, desc = "Treewalker SwapDown" }
 )
 vim.keymap.set(
   "n",
   "<M-h>",
-  "<cmd>Treewalker SwapLeft<cr>",
+  cmd "Treewalker SwapLeft",
   { silent = true, desc = "Treewalker SwapLeft" }
 )
 vim.keymap.set(
   "n",
   "<M-i>",
-  "<cmd>Treewalker SwapRight<cr>",
+  cmd "Treewalker SwapRight",
   { silent = true, desc = "Treewalker SwapRight" }
 )
 
 lil.map({
   [func] = which,
   ["<leader>s"] = {
-    D = desc("Project Diagnostics", cmd("ProjectDiagnostics")),
+    D = desc("Project Diagnostics", cmd "ProjectDiagnostics"),
     r = desc("Search/Replace within range (Grug-far)", search.grug_far_range),
     F = desc("Search/Replace in current file (Grug-far)", search.grug_far_current_file),
     R = desc("Search/Replace in current directory (Grug-far)", search.grug_far_current_directory),
