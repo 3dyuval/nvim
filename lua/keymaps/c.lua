@@ -4,13 +4,22 @@ local func = maps.func
 local desc = maps.desc
 local which = maps.which
 
--- Forward declarations
-local organize_imports
-local organize_imports_and_fix
-local add_missing_imports
-local remove_unused_imports
-local fix_all
-local select_ts_version
+-- Implementations
+local organize_imports = function()
+  vim.cmd("TSToolsOrganizeImports")
+  vim.cmd("TSToolsRemoveUnusedImports")
+end
+
+local organize_imports_and_fix = function()
+  vim.cmd("TSToolsOrganizeImports")
+  vim.cmd("TSToolsRemoveUnusedImports")
+  vim.cmd("TSToolsFixAll")
+end
+
+local add_missing_imports = "<cmd>TSToolsAddMissingImports<cr>"
+local remove_unused_imports = "<cmd>TSToolsRemoveUnusedImports<cr>"
+local fix_all = "<cmd>TSToolsFixAll<cr>"
+local select_ts_version = "<cmd>TSToolsSelectTsVersion<cr>"
 
 -- Keymaps
 map({
@@ -24,20 +33,3 @@ map({
     V = desc("Select TS workspace version", select_ts_version),
   },
 })
-
--- Implementations
-organize_imports = function()
-  vim.cmd("TSToolsOrganizeImports")
-  vim.cmd("TSToolsRemoveUnusedImports")
-end
-
-organize_imports_and_fix = function()
-  vim.cmd("TSToolsOrganizeImports")
-  vim.cmd("TSToolsRemoveUnusedImports")
-  vim.cmd("TSToolsFixAll")
-end
-
-add_missing_imports = "<cmd>TSToolsAddMissingImports<cr>"
-remove_unused_imports = "<cmd>TSToolsRemoveUnusedImports<cr>"
-fix_all = "<cmd>TSToolsFixAll<cr>"
-select_ts_version = "<cmd>TSToolsSelectTsVersion<cr>"

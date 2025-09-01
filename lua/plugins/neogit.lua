@@ -1,12 +1,26 @@
+-- In your neogit.lua config
+vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
+  pattern = "NeogitStatus",
+  callback = function(args)
+    -- Force override any conflicting global mappings
+    vim.keymap.set("n", "s", "Stage", {
+      buffer = args.buf,
+      desc = "Stage item under cursor",
+      nowait = true,
+      remap = true, -- Allow Neogit's internal mapping to work
+    })
+  end,
+})
+
 return {
   "NeogitOrg/neogit",
   config = function()
     require("config.neogit-commands").setup()
     require("neogit").setup({
-      opts = {
-        auto_refresh = true,
-        kind = "vsplit",
+      auto_refresh = true,
+      kind = "vsplit",
         graph_style = "kitty",
+        remember_settings = false,
         integrations = {
           diffview = true,
         },
@@ -30,7 +44,7 @@ return {
           },
           status = {
             ["C"] = "YankSelected",
-            ["m"] = false, -- disable merge to use your custom binding
+            ["m"] = function() end, -- disable merge to use your custom binding
             ["<leader>q"] = "Close", -- Close Neogit
             -- Custom conflict resolution popup (using E for rEsolve)
             ["E"] = function()
@@ -103,7 +117,6 @@ return {
           },
         },
         autoinstall = true,
-      },
     })
 
     -- Explicit buffer-local mapping override for neogit
@@ -117,6 +130,9 @@ return {
           desc = "File resolution popup",
           nowait = true, -- Override global mapping immediately
         })
+
+        -- Force disable 'm' key in Neogit
+        pcall(vim.keymap.del, "n", "m", { buffer = args.buf })
       end,
     })
   end,

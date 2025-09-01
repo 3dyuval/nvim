@@ -1,7 +1,7 @@
 pcall(vim.keymap.del, "n", "<leader>gd")
-require("keymaps.f")
+require("keymaps.git")
 require("keymaps.diff")
-local history_extern = require("keymaps.h")
+require("keymaps.f")
 require("keymaps.g")
 require("keymaps.c")
 local map = vim.keymap.set
