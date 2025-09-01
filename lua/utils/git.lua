@@ -36,4 +36,17 @@ M.restore_conflict_markers = function()
   vim.cmd("edit!") -- Reload the file
 end
 
+-- Git picker operations
+M.lazygit_root = function()
+  Snacks.lazygit()
+end
+
+M.lazygit_cwd = function()
+  Snacks.lazygit({ cwd = LazyVim.root.get() })
+end
+
+M.git_branches_picker = function()
+  Snacks.picker.git_branches({ all = true })
+end
+
 return M
