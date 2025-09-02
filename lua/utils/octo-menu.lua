@@ -10,19 +10,20 @@ function M.show()
       desc = "View GitHub notifications",
       action = "notification list",
     },
-    -- Search
+    {
+      label = "󰚔  My Issues",
+      desc = "Search my issues across repos",
+      action = "issue search author:@me",
+    },
     {
       label = "󰚔  All Issues",
       desc = "Search all issues across repos",
       action = "issue search",
     },
     { label = "  Search PRs", desc = "Search pull requests across repos", action = "pr search" },
-    -- Create
     { label = "󰚔  Create Issue", desc = "Create a new issue", action = "issue create" },
     { label = "  Create PR", desc = "Create a new pull request", action = "pr create" },
-    -- Repository
     { label = "󰊢  List Repos", desc = "List your repositories", action = "repo list" },
-    -- Review
     { label = "  Start Review", desc = "Start a code review", action = "review start" },
     { label = "󰁯  Resume Review", desc = "Resume a code review", action = "review resume" },
   }
@@ -63,16 +64,30 @@ function M.show()
     end
   end
 
-  require("snacks").picker.select(items, {
-    prompt = "Select Octo Action",
-    format_item = function(item)
-      return item.label .. (item.desc and (" - " .. item.desc) or "")
-    end,
-  }, function(selected)
-    if selected and selected.action then
-      vim.cmd("Octo " .. selected.action)
-    end
-  end)
+  local picker_items = {}
+  for _, item in ipairs(items) do
+    table.insert(picker_items, {
+      text = item.label .. (item.desc and (" - " .. item.desc) or ""),
+      action = item.action,
+      label = item.label,
+      desc = item.desc,
+    })
+  end
+
+  require("snacks").picker.pick({
+    source = "select",
+    items = picker_items,
+    prompt = "Octo menu",
+    layout = { preset = "vscode" },
+    actions = {
+      confirm = function(picker, item)
+        picker:close()
+        if item and item.action then
+          vim.cmd("Octo " .. item.action)
+        end
+      end,
+    },
+  })
 end
 
 return M
