@@ -226,7 +226,14 @@ return {
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
-          { key = "o", desc = "Octo Issues", action = ":Octo issue search" },
+          {
+            icon = "",
+            key = "o",
+            desc = "Octo Menu",
+            action = function()
+              require("utils.octo").show_menu()
+            end,
+          },
           {
             icon = "",
             key = "r",

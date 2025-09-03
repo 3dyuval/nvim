@@ -40,7 +40,7 @@ local files = require("utils.files")
 local git = require("utils.git")
 local history = require("utils.history")
 local navigation = require("utils.navigation")
-local octo = require("utils.octo-menu")
+local octo = require("utils.octo")
 local search = require("utils.search")
 
 -- ============================================================================
@@ -62,9 +62,6 @@ lil.map({
   },
   ["<leader>g"] = {
     -- Vim diff operations
-    o = desc(" Octo Menu", octo.show),
-    i = desc(" Octo: All issues", cmd(":Octo issue search")),
-    I = desc(" Octo: My issues", cmd("Octo issue search author:@me")),
 
     -- Conflict resolution (file-level - work everywhere)
     P = desc("Resolve file: ours (put)", git.resolve_file_ours),
@@ -547,3 +544,24 @@ map(
   search.grug_far_selection_current_file,
   { desc = "Search/Replace selection in current file (Grug-far)" }
 )
+
+-- ============================================================================
+-- OCTO KEYMAPS (GitHub operations)
+-- ============================================================================
+
+lil.map({
+  [func] = which,
+  ["<leader>o"] = {
+    r = desc(octo.menu_items[1].desc, cmd(octo.menu_items[1].action)),
+    p = desc(octo.menu_items[2].desc, cmd(octo.menu_items[2].action)),
+    n = desc(octo.menu_items[3].desc, cmd(octo.menu_items[3].action)),
+    I = desc(octo.menu_items[4].desc, cmd(octo.menu_items[4].action)),
+    i = desc(octo.menu_items[5].desc, cmd(octo.menu_items[5].action)),
+    P = desc(octo.menu_items[6].desc, cmd(octo.search_all_prs())),
+    c = desc(octo.menu_items[7].desc, cmd(octo.menu_items[7].action)),
+    C = desc(octo.menu_items[8].desc, cmd(octo.menu_items[8].action)),
+    l = desc(octo.menu_items[9].desc, cmd(octo.menu_items[9].action)),
+    s = desc(octo.menu_items[10].desc, cmd(octo.menu_items[10].action)),
+    R = desc(octo.menu_items[11].desc, cmd(octo.menu_items[11].action)),
+  },
+})

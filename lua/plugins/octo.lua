@@ -73,7 +73,6 @@ return {
     })
   end,
   keys = {
-
     { "<localleader>a", "", desc = "+assignee", ft = "octo" },
     { "<localleader>c", "", desc = "+comment/code", ft = "octo" },
     { "<localleader>l", "", desc = "+label", ft = "octo" },
@@ -85,7 +84,7 @@ return {
     { "<localleader>v", "", desc = "+review", ft = "octo" },
     { "<localleader>g", "", desc = "+goto_issue", ft = "octo" },
     { "<localleader>b", "<cmd>Octo issue browser<cr>", desc = "Open in browser", ft = "octo" },
-    { "@", "@<C-x><C-o>", mode = "i", ft = "octo", silent = true },
-    { "#", "#<C-x><C-o>", mode = "i", ft = "octo", silent = true },
+    { "@", "@<C-x><C-o>", mode = "i", ft = "octo", silent = true }, -- auto complete for @
+    { "#", "#<C-x><C-o>", mode = "i", ft = "octo", silent = true }, -- autocompletion for #
   },
 }
