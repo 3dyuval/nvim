@@ -110,6 +110,10 @@ M.firefox_bookmarks_picker = function()
   Snacks.picker.firefox_bookmarks()
 end
 
+M.firefox_search = function()
+  Snacks.picker.firefox_search()
+end
+
 M.query_file_history_by_time = function()
   require("file_history").query()
 end

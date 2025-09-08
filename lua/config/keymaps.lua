@@ -134,13 +134,12 @@ lil.map({
   [func] = func_map,
   ["<leader>h"] = {
     h = desc("Local file history", history.local_file_history),
-    a = desc("All files in backup", history.all_files_in_backup),
+    H = desc("All files in backup", history.all_files_in_backup),
+    F = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
+    f = desc("Firefox bookmarks", history.firefox_search),
     s = desc("Smart history picker", history.smart_file_history),
     l = desc("Git log", history.git_log_picker),
-    f = desc("File git log", history.file_git_log_picker),
     u = desc("View undo list", cmd("undolist")),
-    B = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
-    A = desc("Query file history by time range", history.query_file_history_by_time),
     T = desc("Manual backup with tag", history.manual_backup_with_tag),
     p = desc("Project files history", history.project_files_history),
   },
@@ -162,19 +161,31 @@ remap({ "n" }, "x", function()
   return count == 1 and "d" or (count .. "d")
 end, { desc = "Delete", expr = true })
 
-map({ "n", "o", "x" }, "h", "h", { desc = "Left (h)" })
-map({ "n", "o", "x" }, "e", "k", { desc = "Up (k)" })
-map({ "n", "o", "x" }, "a", "j", { desc = "Down (j)" })
-map({ "n", "o", "x" }, "i", "l", { desc = "Right (l)" })
+lil.map({
+  [func] = func_map,
+  [mode] = { "n", "o", "x" },
+  h = desc("Left", "h"),
+  e = desc("Up", "k"),
+  a = desc("Down", "j"),
+  i = desc("Right", "l"),
+  p = desc("First non-blank character", "^"),
+  ["0"] = desc("Beginning of line", "0"),
+  ["."] = desc("End of line", "$"),
+})
+
+-- map({ "n", "o", "x" }, "h", "h", { desc = "Left (h)" })
+-- map({ "n", "o", "x" }, "e", "k", { desc = "Up (k)" })
+-- map({ "n", "o", "x" }, "a", "j", { desc = "Down (j)" })
+-- map({ "n", "o", "x" }, "i", "l", { desc = "Right (l)" })
 
 -- E/A moved to smart context-aware functions below (lines 124-125)
 
 -- Override HAEI navigation in visual modes (including visual line mode)
 -- Use noremap to fully override default vim behavior including text objects
-map("x", "e", "k", { noremap = true, desc = "Up in visual modes" })
-map("x", "a", "j", { noremap = true, desc = "Down in visual modes" })
-map("x", "h", "h", { noremap = true, desc = "Left in visual modes" })
-map("x", "i", "l", { noremap = true, desc = "Right in visual modes" })
+-- map("x", "e", "k", { noremap = true, desc = "Up in visual modes" })
+-- map("x", "a", "j", { noremap = true, desc = "Down in visual modes" })
+-- map("x", "h", "h", { noremap = true, desc = "Left in visual modes" })
+-- map("x", "i", "l", { noremap = true, desc = "Right in visual modes" })
 
 -- Line operations and find
 map({ "n" }, "j", "o", { desc = "Open line below" })

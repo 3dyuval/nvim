@@ -185,9 +185,9 @@ return {
       preset = {
         keys = {
           {
-            icon = "",
-            key = "E",
-            desc = "Explorer",
+            icon = "󰈞",
+            key = "f",
+            desc = "Find files (Sticky Explorer)",
             action = function()
               -- Set shortmess to avoid swap file prompts
               local old_shortmess = vim.o.shortmess
@@ -195,6 +195,7 @@ return {
 
               open_explorer({
                 auto_close = false,
+                focus = "input",
                 layout = {
                   preset = "left",
                   preview = false,
@@ -206,9 +207,9 @@ return {
             end,
           },
           {
-            icon = "󰈞",
+            icon = "󱎸",
             key = "/",
-            desc = "Find Text",
+            desc = "Live Grep (Find Text)",
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
