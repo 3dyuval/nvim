@@ -25,8 +25,13 @@ local function remap(mode, lhs, rhs, opts)
   vim.keymap.set(mode, lhs, rhs, opts)
 end
 
-local function cmd(command)
-  return "<Cmd>" .. command .. "<Cr>"
+local function cmd(command, exec)
+  if exec == false then
+    -- Open command line with command pre-filled (no execution)
+    return ":" .. command
+  end
+  exec = exec or "<Cr>"
+  return "<Cmd>" .. command .. exec
 end
 
 -- ============================================================================
@@ -40,9 +45,31 @@ local files = require("utils.files")
 local git = require("utils.git")
 local history = require("utils.history")
 local navigation = require("utils.navigation")
-local octo = require("utils.octo")
 local search = require("utils.search")
 
+-- ============================================================================
+-- OCTO KEYMAPS (GitHub operations)
+-- ============================================================================
+--[[
+lil.map({
+  [func] = which,
+  ["<leader>o"] = {
+    r = desc(octo.menu_items[1].desc, cmd(octo.menu_items[1].action)),
+    p = desc(octo.menu_items[2].desc, cmd(octo.menu_items[2].action)),
+    n = desc(octo.menu_items[3].desc, cmd(octo.menu_items[3].action)),
+    I = desc(octo.menu_items[4].desc, cmd(octo.menu_items[4].action)),
+    i = desc(octo.menu_items[5].desc, cmd(octo.menu_items[5].action)),
+    P = desc(octo.menu_items[6].desc, cmd(octo.search_all_prs())),
+    c = desc(octo.menu_items[7].desc, cmd(octo.menu_items[7].action)),
+    C = desc(octo.menu_items[8].desc, cmd(octo.menu_items[8].action)),
+    l = desc(octo.menu_items[9].desc, cmd(octo.menu_items[9].action)),
+    s = desc(octo.menu_items[10].desc, cmd(octo.menu_items[10].action)),
+    R = desc(octo.menu_items[11].desc, cmd(octo.menu_items[11].action)),
+  },
+}}
+
+  ]]
+--
 -- ============================================================================
 -- KEYMAPS FROM keymaps/ DIRECTORY
 -- ============================================================================
@@ -393,9 +420,6 @@ map(
 map({ "n" }, "<C-p>", cmd("bprevious"), { desc = "Previous buffer" })
 map({ "n" }, "<C-.>", cmd("bnext"), { desc = "Next buffer" })
 
--- Add some commonly used editor operations
-map({ "n" }, "<leader>q", ":q<CR>", { desc = "Quit" })
-map({ "n" }, "<leader>Q", ":qa<CR>", { desc = "Quit all" })
 lil.map({
   [func] = which,
   ["<leader>r"] = {
@@ -529,11 +553,19 @@ vim.keymap.set(
 
 lil.map({
   [func] = which,
-  ["<leader>s"] = {
-    D = desc("Project Diagnostics", cmd("ProjectDiagnostics")),
-    r = desc("Search/Replace within range (Grug-far)", search.grug_far_range),
-    F = desc("Search/Replace in current file (Grug-far)", search.grug_far_current_file),
-    R = desc("Search/Replace in current directory (Grug-far)", search.grug_far_current_directory),
+  ["<leader>"] = {
+    s = {
+      D = desc("Project Diagnostics", cmd("ProjectDiagnostics")),
+    },
+    r = {
+      r = desc("Search/Replace within range", search.grug_far_range),
+      s = desc(
+        "Search/Replace within selection current file",
+        search.grug_far_selection_current_file
+      ),
+      F = desc("Search/Replace in current file", search.grug_far_current_file),
+      R = desc("Search/Replace in current directory", search.grug_far_current_directory),
+    },
   },
 })
 
@@ -546,22 +578,38 @@ map(
 )
 
 -- ============================================================================
--- OCTO KEYMAPS (GitHub operations)
+-- OCTO KEYMAPS (GitHub operations - following gh-alias structure)
 -- ============================================================================
 
 lil.map({
   [func] = which,
   ["<leader>o"] = {
-    r = desc(octo.menu_items[1].desc, cmd(octo.menu_items[1].action)),
-    p = desc(octo.menu_items[2].desc, cmd(octo.menu_items[2].action)),
-    n = desc(octo.menu_items[3].desc, cmd(octo.menu_items[3].action)),
-    I = desc(octo.menu_items[4].desc, cmd(octo.menu_items[4].action)),
-    i = desc(octo.menu_items[5].desc, cmd(octo.menu_items[5].action)),
-    P = desc(octo.menu_items[6].desc, cmd(octo.search_all_prs())),
-    c = desc(octo.menu_items[7].desc, cmd(octo.menu_items[7].action)),
-    C = desc(octo.menu_items[8].desc, cmd(octo.menu_items[8].action)),
-    l = desc(octo.menu_items[9].desc, cmd(octo.menu_items[9].action)),
-    s = desc(octo.menu_items[10].desc, cmd(octo.menu_items[10].action)),
-    R = desc(octo.menu_items[11].desc, cmd(octo.menu_items[11].action)),
+    r = {
+      w = desc("Browse repo", cmd("Octo repo browser")),
+      i = desc("My repositories", cmd("Octo repo list")),
+      l = desc("Copy url", cmd("Octo repo url")),
+    },
+    -- First level: category selection
+    i = {
+      -- Issues submenu
+      v = desc("View issue", cmd("Octo issue edit ", false)),
+      c = desc("Create issue", cmd("Octo issue create")),
+      x = desc("Close issue", cmd("Octo issue close")),
+      b = desc("List issues by author", cmd("Octo issue search state:open author:", false)),
+      l = desc("List issues", cmd("Octo issue list")),
+      i = desc("My issues", cmd("Octo issue search state:open involves:@me")),
+      w = desc("My issues", cmd("Octo issue browser")),
+    },
+    p = {
+      -- Pull Requests submenu
+      v = desc("View PR", cmd("Octo pr ", false)),
+      c = desc("Create PR", cmd("Octo pr create")),
+      l = desc("List PRs", cmd("Octo pr list")),
+      s = desc("Search PRs", cmd("Octo pr search")),
+      r = desc("Start review", cmd("Octo review start")),
+      R = desc("Resume review", cmd("Octo review resume")),
+    },
+    -- Direct actions (no submenu)
+    n = desc("Notifications", cmd("Octo notifications")),
   },
 })

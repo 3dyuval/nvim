@@ -15,9 +15,11 @@ return {
       picker = "snacks",
       picker_config = {
         snacks = {
+          auto_close = false,
           layout = {
             preset = "sidebar",
           },
+          focus = "list",
         },
       },
       enable_builtin = true,

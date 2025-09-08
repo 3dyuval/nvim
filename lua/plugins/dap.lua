@@ -56,16 +56,27 @@ return {
         virt_text_win_col = nil,
       })
 
-      -- Use js-debug (now with RPC fix) - portable path for shared config
-      local js_debug_path = vim.fn.expand("~/.local/share/js-debug/src/dapDebugServer.js")
+      -- Use js-debug from Mason installation
+      local js_debug_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
 
       if vim.fn.filereadable(js_debug_path) == 0 then
-        vim.notify("DAP: js-debug not found", vim.log.levels.ERROR)
+        vim.notify("DAP: js-debug-adapter not found at " .. js_debug_path, vim.log.levels.ERROR)
         return
       end
 
       -- Configure js-debug adapter
       dap.adapters["pwa-node"] = {
+        type = "server",
+        host = "localhost",
+        port = "${port}",
+        executable = {
+          command = "node",
+          args = { js_debug_path, "${port}" },
+        },
+      }
+
+      -- Configure pwa-chrome adapter (same as pwa-node but for Chrome debugging)
+      dap.adapters["pwa-chrome"] = {
         type = "server",
         host = "localhost",
         port = "${port}",
@@ -136,12 +147,16 @@ return {
       local function load_launch_json()
         local launch_json_path = vim.fn.getcwd() .. "/.vscode/launch.json"
         if vim.fn.filereadable(launch_json_path) == 0 then
-          -- Silently return if no launch.json found (common case)
+          -- No launch.json found, keep default configurations
           return
         end
 
+        -- Always start with empty configurations when launch.json exists
+        dap.configurations.javascript = {}
+        dap.configurations.typescript = {}
+
         local ok, err = pcall(function()
-          require("dap.ext.vscode").load_launchjs(nil, {
+          require("dap.ext.vscode").load_launchjs(launch_json_path, {
             ["pwa-node"] = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
             ["pwa-chrome"] = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
             ["node"] = { "javascript", "typescript" }, -- Fallback for older configs
@@ -167,7 +182,7 @@ return {
       -- Override Chrome executable globally for all configurations (WORKING - keep)
       local function override_chrome_executable()
         local chrome_path = "/usr/bin/google-chrome-stable"
-        local user_data_dir = vim.fn.expand("~")
+        local user_data_dir = os.getenv("LOCALDATADIR") or "/tmp/chrome-debug-profile"
 
         -- Check if Chrome exists
         if vim.fn.executable(chrome_path) == 0 then

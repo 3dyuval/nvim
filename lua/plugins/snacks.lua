@@ -229,10 +229,8 @@ return {
           {
             icon = "",
             key = "o",
-            desc = "Octo Menu",
-            action = function()
-              require("utils.octo").show_menu()
-            end,
+            desc = "Octo: My Issues",
+            action = ":Octo search is:issue involves:@me",
           },
           {
             icon = "",
@@ -342,7 +340,8 @@ return {
               keys = {
                 ["<BS>"] = false, -- Disable backspace navigation
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
-                ["c"] = "create", -- Remap 'c' to create file/folder
+                ["c"] = "explorer_copy", -- Copy file/folder
+                ["C"] = "create", -- Create file/folder
                 ["/"] = "toggle_focus",
                 ["<C-c>"] = "focus_input",
                 ["<C-a>"] = false, -- Disable select all - it's distracting
