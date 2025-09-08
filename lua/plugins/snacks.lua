@@ -181,20 +181,6 @@ return {
         { section = "header", enabled = true },
         { section = "keys", gap = 1, padding = 1 },
         { section = "startup", enabled = false },
-        {
-          pane = 1,
-          icon = " ",
-          title = "Git Status",
-          section = "terminal",
-          enabled = function()
-            return Snacks.git.get_root() ~= nil
-          end,
-          cmd = "git diff HEAD --stat",
-          height = 5,
-          padding = 1,
-          ttl = 5 * 60,
-          indent = 3,
-        },
       },
       preset = {
         keys = {
@@ -232,6 +218,7 @@ return {
             desc = "Octo: My Issues",
             action = ":Octo search is:issue involves:@me",
           },
+          { icon = "", key = "L", desc = "Neogit", action = ":NeogitLogCurrent" },
           {
             icon = "",
             key = "r",

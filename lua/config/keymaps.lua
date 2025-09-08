@@ -1,22 +1,29 @@
--- ============================================================================
--- UTILITY FUNCTIONS (from keymaps.maps)
--- ============================================================================
+local clipboard = require("utils.clipboard")
+local code = require("utils.code")
+local editor = require("utils.editor")
+local files = require("utils.files")
+local git = require("utils.git")
+local history = require("utils.history")
+local navigation = require("utils.navigation")
+local search = require("utils.search")
 
 local lil = require("lil")
 local func = lil.flags.func
 local opts = lil.flags.opts
+local mode = lil.flags.mode
+local x = lil.mod("x")
+local n = lil.mod("n")
 
-local function which(m, l, r, o, _next)
-  -- Delete existing mapping first, then set new one (override behavior)
+local function func_map(m, l, r, o, _next)
   pcall(vim.keymap.del, m, l)
-  vim.keymap.set(m, l, r, { desc = o and o.desc or nil })
+  vim.keymap.set(m, l, r, o) -- o already contains desc and expr from [opts]
 end
 
-local function desc(d, value)
+local function desc(d, value, expr)
   return {
     value,
-    [func] = which,
-    [opts] = { desc = d },
+    [func] = func_map,
+    [opts] = { desc = d, expr = expr },
   }
 end
 
@@ -34,55 +41,10 @@ local function cmd(command, exec)
   return "<Cmd>" .. command .. exec
 end
 
--- ============================================================================
--- FUNCTION IMPORTS
--- ============================================================================
-
-local clipboard = require("utils.clipboard")
-local code = require("utils.code")
-local editor = require("utils.editor")
-local files = require("utils.files")
-local git = require("utils.git")
-local history = require("utils.history")
-local navigation = require("utils.navigation")
-local search = require("utils.search")
-
--- ============================================================================
--- OCTO KEYMAPS (GitHub operations)
--- ============================================================================
---[[
-lil.map({
-  [func] = which,
-  ["<leader>o"] = {
-    r = desc(octo.menu_items[1].desc, cmd(octo.menu_items[1].action)),
-    p = desc(octo.menu_items[2].desc, cmd(octo.menu_items[2].action)),
-    n = desc(octo.menu_items[3].desc, cmd(octo.menu_items[3].action)),
-    I = desc(octo.menu_items[4].desc, cmd(octo.menu_items[4].action)),
-    i = desc(octo.menu_items[5].desc, cmd(octo.menu_items[5].action)),
-    P = desc(octo.menu_items[6].desc, cmd(octo.search_all_prs())),
-    c = desc(octo.menu_items[7].desc, cmd(octo.menu_items[7].action)),
-    C = desc(octo.menu_items[8].desc, cmd(octo.menu_items[8].action)),
-    l = desc(octo.menu_items[9].desc, cmd(octo.menu_items[9].action)),
-    s = desc(octo.menu_items[10].desc, cmd(octo.menu_items[10].action)),
-    R = desc(octo.menu_items[11].desc, cmd(octo.menu_items[11].action)),
-  },
-}}
-
-  ]]
---
--- ============================================================================
--- KEYMAPS FROM keymaps/ DIRECTORY
--- ============================================================================
-
--- Remove legacy imports
 pcall(vim.keymap.del, "n", "<leader>gd")
 
--- ============================================================================
--- GIT AND DIFF OPERATIONS (from keymaps/diff.lua)
--- ============================================================================
-
 lil.map({
-  [func] = which,
+  [func] = func_map,
   g = {
     o = desc("Get hunk from other buffer (native vim)", git.vim_diffget),
     p = desc("Put hunk to other buffer (native vim)", git.vim_diffput),
@@ -124,7 +86,7 @@ lil.map({
 -- ============================================================================
 
 lil.map({
-  [func] = which,
+  [func] = func_map,
   g = {
     D = desc("Go to source definition", code.go_to_source_definition),
     R = desc("File references", code.file_references),
@@ -132,7 +94,7 @@ lil.map({
 })
 
 lil.map({
-  [func] = which,
+  [func] = func_map,
   ["<leader>c"] = {
     o = desc("Organize + Remove Unused Imports", code.organize_imports),
     O = desc("Organize Imports + Fix All Diagnostics", code.organize_imports_and_fix),
@@ -149,7 +111,7 @@ lil.map({
 -- ============================================================================
 
 lil.map({
-  [func] = which,
+  [func] = func_map,
   ["<leader>"] = {
     [" "] = desc("Find files (fff.nvim)", files.find_files),
     f = {
@@ -170,7 +132,7 @@ remap("n", "<leader><space>", files.find_files, { desc = "Find files (fff.nvim)"
 local map = vim.keymap.set
 
 lil.map({
-  [func] = which,
+  [func] = func_map,
   ["<leader>h"] = {
     h = desc("Local file history", history.local_file_history),
     a = desc("All files in backup", history.all_files_in_backup),
@@ -185,29 +147,22 @@ lil.map({
   },
 })
 
--- ============================================================================
--- ORIGINAL KEYMAPS (existing configuration)
--- ============================================================================
+lil.map({
+  [func] = func_map,
+  x = {
+    x = desc("Delete line", "dd"), -- xx → dd
+  },
+  [x] = {
+    x = desc("Delete", "d"), -- Visual mode x → d
+  },
+})
 
--- Delete on 'x' (Graphite layout) - but allow surround plugin to handle 'xs'
--- Note: surround plugin will handle 'xs' directly, this handles other 'x' operations
--- Use function to ensure xx behaves like dd (delete line and yank)
-map({ "n" }, "x", function()
+-- Handle count-aware 'x' separately (needs different logic than nested xx)
+remap({ "n" }, "x", function()
   local count = vim.v.count1
-  if count == 1 then
-    return "d"
-  else
-    return count .. "d"
-  end
+  return count == 1 and "d" or (count .. "d")
 end, { desc = "Delete", expr = true })
 
--- Special case: xx should behave like dd (delete line and yank)
-map({ "n" }, "xx", "dd", { desc = "Delete line (and yank)" })
-
--- Visual mode: x still maps to d
-map({ "x" }, "x", "d", { desc = "Delete" })
-
--- Up/down/left/right
 map({ "n", "o", "x" }, "h", "h", { desc = "Left (h)" })
 map({ "n", "o", "x" }, "e", "k", { desc = "Up (k)" })
 map({ "n", "o", "x" }, "a", "j", { desc = "Down (j)" })
@@ -333,7 +288,7 @@ map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 
 lil.map({
-  [func] = which,
+  [func] = func_map,
   ["<leader>cp"] = {
     P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
@@ -421,7 +376,7 @@ map({ "n" }, "<C-p>", cmd("bprevious"), { desc = "Previous buffer" })
 map({ "n" }, "<C-.>", cmd("bnext"), { desc = "Next buffer" })
 
 lil.map({
-  [func] = which,
+  [func] = func_map,
   ["<leader>r"] = {
     c = desc("Reload config", editor.reload_config),
     r = desc("Reload keymaps", editor.reload_keymaps),
@@ -552,20 +507,12 @@ vim.keymap.set(
 )
 
 lil.map({
-  [func] = which,
-  ["<leader>"] = {
-    s = {
-      D = desc("Project Diagnostics", cmd("ProjectDiagnostics")),
-    },
-    r = {
-      r = desc("Search/Replace within range", search.grug_far_range),
-      s = desc(
-        "Search/Replace within selection current file",
-        search.grug_far_selection_current_file
-      ),
-      F = desc("Search/Replace in current file", search.grug_far_current_file),
-      R = desc("Search/Replace in current directory", search.grug_far_current_directory),
-    },
+  [func] = func_map,
+  ["<leader>s"] = {
+    D = desc("Project Diagnostics", cmd("ProjectDiagnostics")),
+    r = desc("Search/Replace within range (Grug-far)", search.grug_far_range),
+    F = desc("Search/Replace in current file (Grug-far)", search.grug_far_current_file),
+    R = desc("Search/Replace in current directory (Grug-far)", search.grug_far_current_directory),
   },
 })
 
@@ -582,7 +529,7 @@ map(
 -- ============================================================================
 
 lil.map({
-  [func] = which,
+  [func] = func_map,
   ["<leader>o"] = {
     r = {
       w = desc("Browse repo", cmd("Octo repo browser")),
