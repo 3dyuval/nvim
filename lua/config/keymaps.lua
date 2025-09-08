@@ -7,6 +7,7 @@ local history = require("utils.history")
 local navigation = require("utils.navigation")
 local octo = require("utils.octo-menu")
 local search = require("utils.search")
+local smart_diff = require("utils.smart-diff")
 
 local lil = require("lil")
 local func = lil.flags.func
@@ -41,9 +42,10 @@ pcall(vim.keymap.del, "n", "<leader>gd")
 
 lil.map({
   [func] = func_map,
+  -- Smart context-aware diff operations (lowercase)
   g = {
-    o = desc("Get hunk from other buffer (native vim)", git.vim_diffget),
-    p = desc("Put hunk to other buffer (native vim)", git.vim_diffput),
+    o = desc("Get hunk (smart)", smart_diff.smart_diffget),
+    p = desc("Put hunk (smart)", smart_diff.smart_diffput),
   },
   ["<leader>g"] = {
     -- Vim diff operations
@@ -51,11 +53,11 @@ lil.map({
     i = desc(" Octo: All issues", cmd(":Octo issue search")),
     I = desc(" Octo: My issues", cmd("Octo issue search author:@me")),
 
-    -- Conflict resolution (file-level - work everywhere)
-    P = desc("Resolve file: ours (put)", git.resolve_file_ours),
-    O = desc("Resolve file: pick theirs (get)", git.resolve_file_theirs),
-    U = desc("Resolve file: union (both)", git.resolve_file_union),
-    R = desc("Restore conflict markers", git.restore_conflict_markers),
+    -- Git conflict resolution (uppercase - file-level operations)
+    P = desc("Resolve file: ours", smart_diff.smart_resolve_ours),
+    O = desc("Resolve file: theirs", smart_diff.smart_resolve_theirs),
+    U = desc("Resolve file: union (both)", smart_diff.smart_resolve_union),
+    R = desc("Restore conflict markers", smart_diff.smart_restore_conflicts),
 
     -- Neogit and diffview commands
     n = desc("Neogit in current dir", cmd(":Neogit cwd=%:p:h")),
@@ -63,6 +65,12 @@ lil.map({
     d = desc("Diff view open", cmd("DiffviewOpen")),
     S = desc("Diff view stash", cmd("DiffviewFileHistory -g --range=stash")),
     h = desc("Current file history", ":DiffviewFileHistory %"),
+    D = desc("Compare current file with", function()
+      local target = vim.fn.input("Compare with: ", "HEAD~1")
+      if target ~= "" then
+        vim.cmd("DiffviewOpen " .. target .. " -- %")
+      end
+    end),
 
     -- Git tools
     z = desc("Lazygit (Root Dir)", git.lazygit_root),

@@ -64,6 +64,22 @@ return {
         relative = "cursor", -- Keep hover at cursor
         position = { row = 1, col = 0 },
       },
+      input = {
+        relative = "editor",
+        position = {
+          row = -2, -- Same position as cmdline
+          col = "50%",
+        },
+        size = {
+          min_width = 60, -- Same min_width as cmdline
+          width = "auto",
+          height = "auto",
+        },
+        border = {
+          style = "rounded", -- Same border style as cmdline
+          padding = { 0, 1 }, -- Same padding as cmdline
+        },
+      },
     },
     presets = {
       bottom_search = true,
@@ -78,6 +94,14 @@ return {
           find = "E21",
         },
         opts = { skip = true },
+      },
+    },
+    lsp = {
+      -- Disable default Noice LSP config to avoid conflicts
+      override = {
+        ["vim.lsp.util.convert_input_to_markdown_lines"] = false,
+        ["vim.lsp.util.stylize_markdown"] = false,
+        ["cmp.entry.get_documentation"] = false,
       },
     },
   },

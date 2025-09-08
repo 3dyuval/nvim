@@ -35,57 +35,67 @@ return {
           folder_statuses = "only_folded",
         },
       },
-      keys = {
+      keymaps = {
+        disable_defaults = true, -- Disable all default keymaps
         view = {
-
-          ["gO"] = function()
-            local file = vim.fn.expand("%")
-            vim.cmd("update") -- Save any changes first
-            vim.cmd("!git checkout --theirs -- " .. vim.fn.shellescape(file))
-            vim.cmd("edit!")
-          end,
-          ["gP"] = function()
-            local file = vim.fn.expand("%")
-            vim.cmd("update")
-            vim.cmd("!git checkout --ours -- " .. vim.fn.shellescape(file))
-            vim.cmd("edit!")
-          end,
-          ["gR"] = function()
-            -- restore conflict markers
-            local file = vim.fn.expand("%")
-            vim.cmd("update")
-            vim.cmd("!git checkout --merge -- " .. vim.fn.shellescape(file))
-            vim.cmd("edit!")
-          end,
-          ["gp"] = function()
-            actions.diffget("local")
-          end,
-          ["go"] = function()
-            actions.diffget("ours")
-          end,
-          ["gu"] = function()
-            actions.diffget("theirs")
-          end,
-          ["<leader>."] = actions.cycle_layout,
-          ["<leader>q"] = actions.close,
-          ["<leader>gf"] = actions.goto_file_edit,
-          ["]]"] = actions.next_conflict,
-          ["[["] = actions.prev_conflict,
-          ["A"] = "]c",
-          ["E"] = "[c",
-          ["<C-s>"] = actions.stage_all,
-          ["g<C-x>"] = false,
-          ["<leader>co"] = false,
-          ["<leader>ct"] = false,
-          ["<leader>cb"] = false,
-          ["<leader>ca"] = false,
-          ["<leader>cO"] = false,
-          ["<leader>cT"] = false,
-          ["<leader>cB"] = false,
-          ["<leader>cA"] = false,
-          ["dx"] = false,
-          ["dX"] = false,
-          ["?"] = actions.help("view"),
+          -- Smart diff operations (consistent with keymaps.lua)  
+          { "n", "go", function() 
+            local smart_diff = require("utils.smart-diff")
+            smart_diff.smart_diffget()
+          end, { desc = "Get hunk (smart)" } },
+          { "n", "gp", function() 
+            local smart_diff = require("utils.smart-diff")
+            smart_diff.smart_diffput()
+          end, { desc = "Put hunk (smart)" } },
+          
+          -- Git conflict resolution (consistent with keymaps.lua)
+          { "n", "gO", function() 
+            local smart_diff = require("utils.smart-diff")
+            smart_diff.smart_resolve_theirs()
+          end, { desc = "Resolve file: theirs" } },
+          { "n", "gP", function() 
+            local smart_diff = require("utils.smart-diff")
+            smart_diff.smart_resolve_ours()
+          end, { desc = "Resolve file: ours" } },
+          { "n", "gU", function() 
+            local smart_diff = require("utils.smart-diff")
+            smart_diff.smart_resolve_union()
+          end, { desc = "Resolve file: union" } },
+          { "n", "gR", function() 
+            local smart_diff = require("utils.smart-diff")
+            smart_diff.smart_restore_conflicts()
+          end, { desc = "Restore conflict markers" } },
+          
+          -- Navigation (HAEI compatible)
+          { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
+          { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
+          { "n", "A", "]c", { desc = "Next diff hunk" } },
+          { "n", "E", "[c", { desc = "Previous diff hunk" } },
+          
+          -- Common actions
+          { "n", "<leader>.", actions.cycle_layout, { desc = "Cycle layout" } },
+          { "n", "q", actions.close, { desc = "Close diffview" } },
+          { "n", "<tab>", actions.select_next_entry, { desc = "Open diff for next file" } },
+          { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open diff for previous file" } },
+          { "n", "<leader>gf", actions.goto_file_edit, { desc = "Go to file" } },
+          { "n", "<C-s>", actions.stage_all, { desc = "Stage all" } },
+          { "n", "?", actions.help("view"), { desc = "Help" } },
+        },
+        file_panel = {
+          { "n", "<cr>", actions.select_entry, { desc = "Open diff" } },
+          { "n", "o", actions.select_entry, { desc = "Open diff" } },
+          { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close diffview" } },
+          { "n", "?", actions.help("file_panel"), { desc = "Help" } },
+        },
+        file_history_panel = {
+          { "n", "<cr>", actions.select_entry, { desc = "Open diff" } },
+          { "n", "o", actions.select_entry, { desc = "Open diff" } },
+          { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close diffview" } },
+          { "n", "?", actions.help("file_history_panel"), { desc = "Help" } },
+        },
+        help_panel = {
+          { "n", "q", actions.close, { desc = "Close help menu" } },
+          { "n", "<esc>", actions.close, { desc = "Close help menu" } },
         },
       },
       hooks = {
