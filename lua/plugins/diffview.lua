@@ -38,40 +38,70 @@ return {
       keymaps = {
         disable_defaults = true, -- Disable all default keymaps
         view = {
-          -- Smart diff operations (consistent with keymaps.lua)  
-          { "n", "go", function() 
-            local smart_diff = require("utils.smart-diff")
-            smart_diff.smart_diffget()
-          end, { desc = "Get hunk (smart)" } },
-          { "n", "gp", function() 
-            local smart_diff = require("utils.smart-diff")
-            smart_diff.smart_diffput()
-          end, { desc = "Put hunk (smart)" } },
-          
+          -- Smart diff operations (consistent with keymaps.lua)
+          {
+            "n",
+            "go",
+            function()
+              local smart_diff = require("utils.smart-diff")
+              smart_diff.smart_diffget()
+            end,
+            { desc = "Get hunk (smart)" },
+          },
+          {
+            "n",
+            "gp",
+            function()
+              local smart_diff = require("utils.smart-diff")
+              smart_diff.smart_diffput()
+            end,
+            { desc = "Put hunk (smart)" },
+          },
+
           -- Git conflict resolution (consistent with keymaps.lua)
-          { "n", "gO", function() 
-            local smart_diff = require("utils.smart-diff")
-            smart_diff.smart_resolve_theirs()
-          end, { desc = "Resolve file: theirs" } },
-          { "n", "gP", function() 
-            local smart_diff = require("utils.smart-diff")
-            smart_diff.smart_resolve_ours()
-          end, { desc = "Resolve file: ours" } },
-          { "n", "gU", function() 
-            local smart_diff = require("utils.smart-diff")
-            smart_diff.smart_resolve_union()
-          end, { desc = "Resolve file: union" } },
-          { "n", "gR", function() 
-            local smart_diff = require("utils.smart-diff")
-            smart_diff.smart_restore_conflicts()
-          end, { desc = "Restore conflict markers" } },
-          
+          {
+            "n",
+            "gO",
+            function()
+              local smart_diff = require("utils.smart-diff")
+              smart_diff.smart_resolve_theirs()
+            end,
+            { desc = "Resolve file: theirs" },
+          },
+          {
+            "n",
+            "gP",
+            function()
+              local smart_diff = require("utils.smart-diff")
+              smart_diff.smart_resolve_ours()
+            end,
+            { desc = "Resolve file: ours" },
+          },
+          {
+            "n",
+            "gU",
+            function()
+              local smart_diff = require("utils.smart-diff")
+              smart_diff.smart_resolve_union()
+            end,
+            { desc = "Resolve file: union" },
+          },
+          {
+            "n",
+            "gR",
+            function()
+              local smart_diff = require("utils.smart-diff")
+              smart_diff.smart_restore_conflicts()
+            end,
+            { desc = "Restore conflict markers" },
+          },
+
           -- Navigation (HAEI compatible)
           { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
           { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
           { "n", "A", "]c", { desc = "Next diff hunk" } },
           { "n", "E", "[c", { desc = "Previous diff hunk" } },
-          
+
           -- Common actions
           { "n", "<leader>.", actions.cycle_layout, { desc = "Cycle layout" } },
           { "n", "q", actions.close, { desc = "Close diffview" } },

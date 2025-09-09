@@ -98,6 +98,7 @@ return {
   opts = {
     formatters_by_ft = {
       lua = { "stylua" },
+      dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
       typescript = function(bufnr)
         return js_formatter(bufnr)
       end,
@@ -175,6 +176,20 @@ return {
           end
           return {}
         end,
+      },
+      -- Custom ZMK keymap formatter
+      zmk_keymap_formatter = {
+        command = function()
+          -- Look for format_keymap.py in the current project root
+          local root = vim.fs.find({"format_keymap.py"}, {upward = true})[1]
+          if root then
+            return vim.fs.dirname(root) .. "/format_keymap.py"
+          end
+          -- Fallback to clang-format if custom formatter not found
+          return "clang-format"
+        end,
+        stdin = true,
+        args = {},
       },
     },
   },

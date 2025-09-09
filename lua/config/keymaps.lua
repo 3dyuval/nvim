@@ -40,6 +40,10 @@ end
 
 pcall(vim.keymap.del, "n", "<leader>gd")
 
+-- Disable LazyVim default keymaps
+pcall(vim.keymap.del, "n", "<leader> ")
+pcall(vim.keymap.del, "n", "<leader><space>")
+
 lil.map({
   [func] = func_map,
   -- Smart context-aware diff operations (lowercase)
@@ -119,18 +123,12 @@ lil.map({
 
 lil.map({
   [func] = func_map,
-  ["<leader>"] = {
-    [" "] = desc("Find files (fff.nvim)", files.find_files),
-    f = {
-      f = desc("Find files (snacks + fff)", files.find_files_snacks),
-      s = desc("Save file", files.save_file),
-      S = desc("Save and stage file", files.save_and_stage_file),
-    },
+  ["<leader>f"] = {
+    f = desc("Find files (snacks + fff)", files.find_files_snacks),
+    s = desc("Save file", files.save_file),
+    S = desc("Save and stage file", files.save_and_stage_file),
   },
 })
-
--- Override the default <leader><space> mapping after lil.map
-remap("n", "<leader><space>", files.find_files, { desc = "Find files (fff.nvim)" })
 
 -- ============================================================================
 -- HISTORY OPERATIONS (from keymaps/h.lua)

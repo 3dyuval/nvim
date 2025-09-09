@@ -163,4 +163,3 @@ return {
     { "<leader>cV", "<cmd>TSToolsSelectTsVersion<cr>", desc = "Select TS workspace version" },
   },
 }
-

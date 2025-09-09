@@ -40,9 +40,13 @@ return {
       tailwindcss = {
         capabilities = { positionEncoding = "utf-8" },
         filetypes = {
-          "html", "css", "scss",
-          "javascript", "javascriptreact",
-          "typescript", "typescriptreact",
+          "html",
+          "css",
+          "scss",
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact",
         },
         settings = {
           tailwindCSS = {
