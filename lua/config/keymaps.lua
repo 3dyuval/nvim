@@ -5,7 +5,6 @@ local files = require("utils.files")
 local git = require("utils.git")
 local history = require("utils.history")
 local navigation = require("utils.navigation")
-local octo = require("utils.octo-menu")
 local search = require("utils.search")
 local smart_diff = require("utils.smart-diff")
 
@@ -34,8 +33,13 @@ local function remap(mode, lhs, rhs, opts)
   vim.keymap.set(mode, lhs, rhs, opts)
 end
 
-local function cmd(command)
-  return "<Cmd>" .. command .. "<Cr>"
+local function cmd(command, exec)
+  if exec == false then
+    -- Open command line with command pre-filled (no execution)
+    return ":" .. command
+  end
+  exec = exec or "<Cr>"
+  return "<Cmd>" .. command .. exec
 end
 
 pcall(vim.keymap.del, "n", "<leader>gd")
@@ -53,9 +57,6 @@ lil.map({
   },
   ["<leader>g"] = {
     -- Vim diff operations
-    o = desc(" Octo Menu", octo.show),
-    i = desc(" Octo: All issues", cmd(":Octo issue search")),
-    I = desc(" Octo: My issues", cmd("Octo issue search author:@me")),
 
     -- Git conflict resolution (uppercase - file-level operations)
     P = desc("Resolve file: ours", smart_diff.smart_resolve_ours),
@@ -391,9 +392,6 @@ map(
 map({ "n" }, "<C-p>", cmd("bprevious"), { desc = "Previous buffer" })
 map({ "n" }, "<C-.>", cmd("bnext"), { desc = "Next buffer" })
 
--- Add some commonly used editor operations
-map({ "n" }, "<leader>q", ":q<CR>", { desc = "Quit" })
-map({ "n" }, "<leader>Q", ":qa<CR>", { desc = "Quit all" })
 lil.map({
   [func] = func_map,
   ["<leader>r"] = {
@@ -542,3 +540,40 @@ map(
   search.grug_far_selection_current_file,
   { desc = "Search/Replace selection in current file (Grug-far)" }
 )
+
+-- ============================================================================
+-- OCTO KEYMAPS (GitHub operations - following gh-alias structure)
+-- ============================================================================
+
+lil.map({
+  [func] = func_map,
+  ["<leader>o"] = {
+    r = {
+      w = desc("Browse repo", cmd("Octo repo browser")),
+      i = desc("My repositories", cmd("Octo repo list")),
+      l = desc("Copy url", cmd("Octo repo url")),
+    },
+    -- First level: category selection
+    i = {
+      -- Issues submenu
+      v = desc("View issue", cmd("Octo issue edit ", false)),
+      c = desc("Create issue", cmd("Octo issue create")),
+      x = desc("Close issue", cmd("Octo issue close")),
+      b = desc("List issues by author", cmd("Octo issue search state:open author:", false)),
+      l = desc("List issues", cmd("Octo issue list")),
+      i = desc("My issues", cmd("Octo issue search state:open involves:@me")),
+      w = desc("My issues", cmd("Octo issue browser")),
+    },
+    p = {
+      -- Pull Requests submenu
+      v = desc("View PR", cmd("Octo pr ", false)),
+      c = desc("Create PR", cmd("Octo pr create")),
+      l = desc("List PRs", cmd("Octo pr list")),
+      s = desc("Search PRs", cmd("Octo pr search")),
+      r = desc("Start review", cmd("Octo review start")),
+      R = desc("Resume review", cmd("Octo review resume")),
+    },
+    -- Direct actions (no submenu)
+    n = desc("Notifications", cmd("Octo notifications")),
+  },
+})

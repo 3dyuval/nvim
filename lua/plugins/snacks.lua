@@ -213,14 +213,13 @@ return {
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
-          { icon = "", key = "L", desc = "Neogit", action = ":NeogitLogCurrent" },
           {
+            icon = "",
             key = "o",
-            desc = "Octo menu",
-            action = function()
-              require("utils.octo-menu").show()
-            end,
+            desc = "Octo: My Issues",
+            action = ":Octo search is:issue involves:@me",
           },
+          { icon = "", key = "L", desc = "Neogit", action = ":NeogitLogCurrent" },
           {
             icon = "",
             key = "r",
@@ -329,7 +328,8 @@ return {
               keys = {
                 ["<BS>"] = false, -- Disable backspace navigation
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
-                ["c"] = "create", -- Remap 'c' to create file/folder
+                ["c"] = "explorer_copy", -- Copy file/folder
+                ["C"] = "create", -- Create file/folder
                 ["/"] = "toggle_focus",
                 ["<C-c>"] = "focus_input",
                 ["<C-a>"] = false, -- Disable select all - it's distracting

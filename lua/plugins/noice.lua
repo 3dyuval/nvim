@@ -104,5 +104,13 @@ return {
         ["cmp.entry.get_documentation"] = false,
       },
     },
+    commands = {
+      all = {
+        view = "split",
+        opts = { enter = true, format = "details" },
+        filter = {},
+        filter_opts = { reverse = true },
+      },
+    },
   },
 }
