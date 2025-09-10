@@ -35,6 +35,7 @@
 - [ ] categorize TreeSitter text object operations (rf/tf/rc/tc functions)
 - [ ] organize TreeSitter JSX element selection (te function)
 - [ ] consider extracting TreeSitter operations to utils/treesitter.lua
+- [x] ~~configure ]c and [c to navigate class methods only~~ (attempted but not feasible - TreeSitter JS grammar lacks class member filtering, would require custom Lua function with parent node context checking)
 
 ## Surround
 

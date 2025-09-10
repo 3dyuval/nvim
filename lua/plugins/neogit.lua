@@ -71,6 +71,27 @@ return {
           end
         end
       end,
+      NeogitCommitPopup = function(popup)
+        -- Add AI commit message generation action
+        popup:action("J", "AI Commit", function()
+          local ai = require("utils.ai_commit")
+          local message = ai.generateCommitMessage()
+
+          if message then
+            -- Simplest approach: write to COMMIT_EDITMSG and open editor
+            vim.fn.system("git config --local commit.template .git/COMMIT_EDITMSG")
+            vim.fn.writefile({ message, "" }, ".git/COMMIT_EDITMSG")
+
+            -- Open the commit editor
+            require("neogit.popups.commit.actions").commit(popup)
+
+            -- Clean up the template config after
+            vim.defer_fn(function()
+              vim.fn.system("git config --local --unset commit.template")
+            end, 1000)
+          end
+        end)
+      end,
     },
     mappings = {
       popup = {

@@ -419,14 +419,6 @@ map({ "x", "o" }, "tf", function()
   require("nvim-treesitter.textobjects.select").select_textobject("@function.outer", "textobjects")
 end, { desc = "Select outer function" })
 
-map({ "x", "o" }, "rc", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@class.inner", "textobjects")
-end, { desc = "Select inner class" })
-
-map({ "x", "o" }, "tc", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@class.outer", "textobjects")
-end, { desc = "Select outer class" })
-
 map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 

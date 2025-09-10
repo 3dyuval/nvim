@@ -1,6 +1,10 @@
 return {
   "nvim-treesitter/nvim-treesitter-textobjects",
   config = function()
+    -- Class member navigation uses @function.outer which includes:
+    -- - constructor, regular methods, static methods, getters, setters
+    -- - This covers most class member navigation needs
+    
     require("nvim-treesitter.configs").setup({
       textobjects = {
         move = {
@@ -8,7 +12,8 @@ return {
           set_jumps = true,
           goto_next_start = {
             ["]f"] = "@function.outer",
-            ["]C"] = "@class.outer",
+            ["]c"] = "@function.outer",  -- Navigate to next class member (includes all methods)
+            ["]C"] = "@class.outer",         -- Navigate to next class
             ["]p"] = "@parameter.inner",
             ["]l"] = "@loop.*",
             ["]s"] = "@scope",
@@ -19,7 +24,8 @@ return {
           },
           goto_previous_start = {
             ["[f"] = "@function.outer",
-            ["[C"] = "@class.outer",
+            ["[c"] = "@function.outer",  -- Navigate to previous class member (includes all methods)
+            ["[C"] = "@class.outer",         -- Navigate to previous class
             ["[p"] = "@parameter.inner",
             ["[l"] = "@loop.*",
             ["[s"] = "@scope",
@@ -34,12 +40,12 @@ return {
           keymaps = {
             ["rf"] = "@function.inner",
             ["tf"] = "@function.outer",
-            ["rc"] = "@class.inner",
-            ["tc"] = "@class.outer",
-            ["rp"] = "@parameter.inner",
-            ["tp"] = "@parameter.outer",
-            ["ro"] = "@loop.inner",
-            ["to"] = "@loop.outer",
+            -- ["rc"] = "@class.inner",
+            -- ["tc"] = "@class.outer",
+            -- ["rp"] = "@parameter.inner",
+            -- ["tp"] = "@parameter.outer",
+            -- ["ro"] = "@loop.inner",
+            -- ["to"] = "@loop.outer",
             ["rs"] = "@scope",
             ["rt"] = "@tag.inner",
             ["tt"] = "@tag.outer",
