@@ -6,11 +6,7 @@ return {
   },
   config = function()
     local firefox = require("firefox")
-    firefox.setup({
-      -- Configuration for Zen browser (Firefox-based)
-      url_open_command = "xdg-open",
-      firefox_profile_dir = "~/.var/app/app.zen_browser.zen/.zen",
-      firefox_profile_glob = "*.Default*",
-    })
+    -- Let the plugin auto-detect OS and browser paths
+    firefox.setup()
   end,
 }
