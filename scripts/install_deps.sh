@@ -102,6 +102,38 @@ else
 fi
 
 echo ""
+echo "📦 Installing Rust/Cargo (for fff.nvim and other Rust-based plugins)..."
+
+# Check if cargo is already installed
+if command -v cargo &> /dev/null; then
+    print_status "Cargo is already installed ($(cargo --version))"
+else
+    print_warning "Cargo not found. Installing Rust..."
+
+    # Install Rust using rustup
+    if curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; then
+        print_status "Rust installed successfully"
+        # Source cargo env for current session
+        source "$HOME/.cargo/env"
+    else
+        print_error "Failed to install Rust. Please install manually from https://rustup.rs"
+    fi
+fi
+
+# Build fff.nvim Rust backend if the plugin exists
+FFF_PLUGIN_PATH="$HOME/.local/share/nvim/lazy/fff.nvim"
+if [ -d "$FFF_PLUGIN_PATH" ]; then
+    echo "Building fff.nvim Rust backend..."
+    if cd "$FFF_PLUGIN_PATH" && cargo build --release 2>/dev/null; then
+        print_status "fff.nvim Rust backend built successfully"
+    else
+        print_warning "Failed to build fff.nvim backend - will retry on next plugin load"
+    fi
+else
+    print_warning "fff.nvim plugin not found - will build on first install"
+fi
+
+echo ""
 echo "🔧 Installing smart-splits kittens for Kitty integration..."
 SMART_SPLITS_PATH="$HOME/.local/share/nvim/lazy/smart-splits.nvim"
 if [ -d "$SMART_SPLITS_PATH" ]; then
@@ -185,6 +217,8 @@ echo "  • git-resolve-conflict: ✅ Built-in (pure Lua)"
 echo "  • git-filter-repo: $(which git-filter-repo > /dev/null && echo '✅ Available' || echo '❌ Not found')"
 echo "  • js-debug: $([ -f ~/.local/share/js-debug/src/dapDebugServer.js ] && echo '✅ Available' || echo '❌ Not found')"
 echo "  • stylua: $(~/.local/bin/stylua --version > /dev/null 2>&1 && echo '✅ Available' || echo '❌ Not found')"
+echo "  • cargo/rust: $(command -v cargo > /dev/null && echo '✅ Available' || echo '❌ Not found')"
+echo "  • fff.nvim backend: $([ -f ~/.local/share/nvim/lazy/fff.nvim/target/release/libfff_lib.dylib ] || [ -f ~/.local/share/nvim/lazy/fff.nvim/target/release/libfff_lib.so ] && echo '✅ Built' || echo '❌ Not built')"
 echo "  • todo script: $([ -x ~/.config/nvim/lua/utils/todo.lua ] && echo '✅ Executable' || echo '❌ Not executable')"
 echo "  • smart-splits kittens: $([ -f ~/.config/kitty/neighboring_window.py ] && echo '✅ Available' || echo '❌ Not found')"
 echo "  • nvc command: $([ -L ~/.local/bin/nvc ] && echo '✅ Available' || echo '❌ Not found')"
