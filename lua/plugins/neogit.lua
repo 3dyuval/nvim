@@ -8,6 +8,19 @@ return {
   config = function(_, opts)
     require("utils.neogit-commands").setup()
 
+    -- Autocmd to insert AI-generated commit message
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "gitcommit",
+      callback = function(args)
+        if vim.g.neogit_ai_message then
+          -- Insert the AI message at the beginning of the buffer
+          vim.api.nvim_buf_set_lines(args.buf, 0, 0, false, { vim.g.neogit_ai_message, "" })
+          -- Clear the message so it doesn't get reused
+          vim.g.neogit_ai_message = nil
+        end
+      end,
+    })
+
     vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
       pattern = "NeogitStatus",
       callback = function(args)
@@ -71,27 +84,6 @@ return {
           end
         end
       end,
-      NeogitCommitPopup = function(popup)
-        -- Add AI commit message generation action
-        popup:action("J", "AI Commit", function()
-          local ai = require("utils.ai_commit")
-          local message = ai.generateCommitMessage()
-
-          if message then
-            -- Simplest approach: write to COMMIT_EDITMSG and open editor
-            vim.fn.system("git config --local commit.template .git/COMMIT_EDITMSG")
-            vim.fn.writefile({ message, "" }, ".git/COMMIT_EDITMSG")
-
-            -- Open the commit editor
-            require("neogit.popups.commit.actions").commit(popup)
-
-            -- Clean up the template config after
-            vim.defer_fn(function()
-              vim.fn.system("git config --local --unset commit.template")
-            end, 1000)
-          end
-        end)
-      end,
     },
     mappings = {
       popup = {
@@ -103,6 +95,9 @@ return {
         ["m"] = false, -- disable merge to use your custom binding
         ["s"] = "Stage", -- override 's' key to stage files
         ["<leader>q"] = "Close", -- Close Neogit
+        ["I"] = function()
+          require("utils.ai_popup").create()
+        end,
         ["E"] = function()
           require("utils.neogit-commands").create_conflict_popup()
         end,

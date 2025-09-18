@@ -14,7 +14,7 @@ return {
 
       -- Standard LSP keymaps
       keys[#keys + 1] = { "<leader>cL", "<cmd>LspInfo<cr>", desc = "LSP Info" }
-      keys[#keys + 1] = { "<leader>cc", vim.lsp.buf.references, desc = "Show References" }
+      -- keys[#keys + 1] = { "<leader>cc", vim.lsp.buf.references, desc = "Show References" }
       keys[#keys + 1] = { "<leader>cr", vim.lsp.buf.rename, desc = "Rename Symbol" }
       keys[#keys + 1] = { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action" }
     end,

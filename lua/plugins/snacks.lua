@@ -329,7 +329,7 @@ return {
                 ["<BS>"] = false, -- Disable backspace navigation
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
                 ["c"] = "explorer_copy", -- Copy file/folder
-                ["C"] = "create", -- Create file/folder
+                ["C"] = "explorer_copy", -- Copy file/folder
                 ["/"] = "toggle_focus",
                 ["<C-c>"] = "focus_input",
                 ["<C-a>"] = false, -- Disable select all - it's distracting

@@ -263,7 +263,7 @@ return {
     -- keys[#keys + 1] = { "<leader>cr", run_codelens_action, desc = "Run Codelens Action" } -- Disabled: conflicts with references binding
     keys[#keys + 1] =
       { "<leader>cR", vim.lsp.buf.references, desc = "Show References (LSP)", mode = { "n" } }
-    keys[#keys + 1] = { "<leader>cC", "<cmd>LspInfo<cr>", desc = "LSP Info" }
+    -- keys[#keys + 1] = { "<leader>cC", "<cmd>LspInfo<cr>", desc = "LSP Info" }
 
     return opts
   end,

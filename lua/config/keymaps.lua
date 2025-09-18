@@ -108,6 +108,7 @@ lil.map({
 lil.map({
   [func] = func_map,
   ["<leader>c"] = {
+    -- TypeScript/Import operations
     o = desc("Organize + Remove Unused Imports", code.organize_imports),
     O = desc("Organize Imports + Fix All Diagnostics", code.organize_imports_and_fix),
     I = desc("Add missing imports", code.add_missing_imports),
@@ -115,6 +116,11 @@ lil.map({
     F = desc("Fix all diagnostics", code.fix_all),
     V = desc("Select TS workspace version", code.select_ts_version),
     t = desc("TypeScript type check", editor.typescript_check),
+
+    -- AI/Claude Code operations
+    c = desc("Claude Code (continue)", cmd("ClaudeCodeContinue")),
+    C = desc("Claude Code", cmd("ClaudeCode")),
+    B = desc("Claude Code (verbose)", cmd("ClaudeCodeVerbose")),
   },
 })
 
@@ -294,8 +300,6 @@ map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
 map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
-
--- <leader>gh moved to keymaps/diff.lua
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })

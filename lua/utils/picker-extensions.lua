@@ -1791,6 +1791,69 @@ end
 -- PUBLIC API
 -- ============================================================================
 
+-- Explorer: Duplicate file/folder
+M.duplicate_file = function(picker, item)
+  if not item then
+    vim.notify("No item provided", vim.log.levels.WARN)
+    return
+  end
+
+  local source = item.file
+  local source_name = vim.fn.fnamemodify(source, ":t")
+  local source_dir = vim.fn.fnamemodify(source, ":h")
+  local source_ext = vim.fn.fnamemodify(source, ":e")
+  local source_base = vim.fn.fnamemodify(source, ":t:r")
+
+  -- Generate default duplicate name
+  local default_name
+  if item.dir then
+    default_name = source_name .. "_copy"
+  else
+    if source_ext ~= "" then
+      default_name = source_base .. "_copy." .. source_ext
+    else
+      default_name = source_name .. "_copy"
+    end
+  end
+
+  local new_name = vim.fn.input("Duplicate as: ", default_name)
+  if new_name and new_name ~= "" then
+    local target = source_dir .. "/" .. new_name
+
+    -- Check if target already exists
+    if vim.fn.filereadable(target) == 1 or vim.fn.isdirectory(target) == 1 then
+      vim.notify("Target already exists: " .. new_name, vim.log.levels.ERROR)
+      return
+    end
+
+    if item.dir then
+      -- Duplicate directory
+      local cmd = { "cp", "-r", source, target }
+      local result = vim.fn.system(cmd)
+      if vim.v.shell_error == 0 then
+        vim.notify("Duplicated directory: " .. new_name)
+        if picker.refresh then
+          picker:refresh()
+        end
+      else
+        vim.notify("Failed to duplicate directory: " .. (result or "unknown error"), vim.log.levels.ERROR)
+      end
+    else
+      -- Duplicate file
+      local cmd = { "cp", source, target }
+      local result = vim.fn.system(cmd)
+      if vim.v.shell_error == 0 then
+        vim.notify("Duplicated file: " .. new_name)
+        if picker.refresh then
+          picker:refresh()
+        end
+      else
+        vim.notify("Failed to duplicate file: " .. (result or "unknown error"), vim.log.levels.ERROR)
+      end
+    end
+  end
+end
+
 -- Export all picker action functions for use in snacks.lua
 M.actions = {
   open_multiple_buffers = M.open_multiple_buffers,
@@ -1804,6 +1867,7 @@ M.actions = {
   git_conflicts_explorer = M.git_conflicts_explorer,
   filter_conflicts = M.filter_conflicts,
   filter_conflicts_explorer = M.filter_conflicts_explorer,
+  duplicate_file = M.duplicate_file,
   -- Context menu actions (which-key based)
   context_menu = M.context_menu,
   git_context_menu = M.git_context_menu,
