@@ -94,7 +94,7 @@ end
 
 return {
   "stevearc/conform.nvim",
-  dependencies = { "williamboman/mason.nvim" }, -- Ensure Mason loads first
+  dependencies = { "mason-org/mason.nvim" }, -- Ensure Mason loads first
   opts = {
     formatters_by_ft = {
       lua = { "stylua" },
