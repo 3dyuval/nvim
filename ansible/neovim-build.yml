@@ -1,0 +1,56 @@
+---
+- name: Build and Install Neovim from Source (ThePrimeagen style)
+  hosts: localhost
+  connection: local
+  become: false
+  vars:
+    neovim_version: "v0.11.2"
+    neovim_dir: "{{ ansible_env.HOME }}/personal/neovim"
+
+  tasks:
+    - name: Install build dependencies
+      become: true
+      apt:
+        name:
+          - ninja-build
+          - gettext
+          - cmake
+          - unzip
+          - curl
+          - build-essential
+        state: present
+        update_cache: true
+
+    - name: Remove existing neovim directory if it exists
+      file:
+        path: "{{ neovim_dir }}"
+        state: absent
+
+    - name: Clone Neovim repository with specific branch
+      git:
+        repo: https://github.com/neovim/neovim.git
+        dest: "{{ neovim_dir }}"
+        version: "{{ neovim_version }}"
+        single_branch: true
+        depth: 1
+
+    - name: Change to neovim directory and build
+      make:
+        chdir: "{{ neovim_dir }}"
+        target: CMAKE_BUILD_TYPE=RelWithDebInfo
+        jobs: "{{ ansible_processor_vcpus }}"
+
+    - name: Install neovim
+      become: true
+      make:
+        chdir: "{{ neovim_dir }}"
+        target: install
+
+    - name: Verify neovim installation
+      command: nvim --version
+      register: nvim_version_check
+      changed_when: false
+
+    - name: Display neovim version
+      debug:
+        msg: "{{ nvim_version_check.stdout_lines }}"
