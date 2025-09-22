@@ -103,7 +103,10 @@ lil.map({
     P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
     c = desc("Copy file contents", clipboard.copy_file_contents),
-    l = desc("Copy file path with line number", clipboard.copy_file_path_with_line),
+    w = desc("Open file in web browser", cmd("OpenFileInRepo")),
+    W = desc("Open file in web browser (with line)", cmd("OpenLineInRepo")),
+    l = desc("Copy file URL to clipboard", cmd("YankFileUrl +")),
+    L = desc("Copy file URL with line to clipboard", cmd("YankLineUrl +")),
   },
 })
 
