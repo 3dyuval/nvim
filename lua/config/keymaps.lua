@@ -94,6 +94,20 @@ lil.map({
 })
 
 -- ============================================================================
+-- COPY FILE TO CLIPBOARD
+-- ============================================================================
+
+lil.map({
+  [func] = func_map,
+  ["<leader>p"] = {
+    P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
+    p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
+    c = desc("Copy file contents", clipboard.copy_file_contents),
+    l = desc("Copy file path with line number", clipboard.copy_file_path_with_line),
+  },
+})
+
+-- ============================================================================
 -- CODE OPERATIONS (from keymaps/g.lua and keymaps/c.lua)
 -- ============================================================================
 
@@ -307,16 +321,6 @@ remap("n", "]]", "]x", { desc = "Next git conflict" })
 -- 'til
 map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
-
-lil.map({
-  [func] = func_map,
-  ["<leader>cp"] = {
-    P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
-    p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
-    c = desc("Copy file contents", clipboard.copy_file_contents),
-    l = desc("Copy file path with line number", clipboard.copy_file_path_with_line),
-  },
-})
 
 -- map(
 --   "n",
@@ -571,5 +575,58 @@ lil.map({
     },
     -- Direct actions (no submenu)
     n = desc("Notifications", cmd("Octo notifications")),
+  },
+})
+
+-- ============================================================================
+-- TODO/CHECKMATE KEYMAPS
+-- ============================================================================
+
+lil.map({
+  [func] = func_map,
+  ["<leader>t"] = {
+    -- Core todo operations (following snacks explorer pattern)
+    r = desc("Todo: Create new", cmd("Checkmate create")),
+    n = desc("Todo: Toggle state", cmd("Checkmate toggle")),
+    c = desc("Todo: Check (mark done)", cmd("Checkmate check")),
+    u = desc("Todo: Uncheck", cmd("Checkmate uncheck")),
+    a = desc("Todo: Archive completed", cmd("Checkmate archive")),
+
+    -- Cycle through states
+    ["="] = desc("Todo: Next state", cmd("Checkmate cycle_next")),
+    ["-"] = desc("Todo: Previous state", cmd("Checkmate cycle_previous")),
+
+    -- Linting
+    l = desc("Todo: Lint buffer", cmd("Checkmate lint")),
+
+    -- Metadata navigation
+    ["]"] = desc("Todo: Jump to next metadata", cmd("Checkmate metadata jump_next")),
+    ["["] = desc("Todo: Jump to previous metadata", cmd("Checkmate metadata jump_previous")),
+    v = desc("Todo: Select metadata value", cmd("Checkmate metadata select_value")),
+
+    -- Nested metadata operations under 't' (consistent with top-level pattern)
+    t = {
+      -- Create/add metadata (r pattern)
+      r = {
+        s = desc("Todo Metadata: Add @started", cmd("Checkmate metadata add started")),
+        d = desc("Todo Metadata: Add @done", cmd("Checkmate metadata add done")),
+        p = desc("Todo Metadata: Add @priority", cmd("Checkmate metadata add priority")),
+      },
+
+      -- Toggle/cycle metadata (n pattern)
+      n = {
+        s = desc("Todo Metadata: Toggle @started", cmd("Checkmate metadata toggle started")),
+        d = desc("Todo Metadata: Toggle @done", cmd("Checkmate metadata toggle done")),
+        p = desc("Todo Metadata: Toggle @priority", cmd("Checkmate metadata toggle priority")),
+      },
+
+      -- Remove operations
+      x = desc("Todo Metadata: Remove all", cmd("Checkmate remove_all_metadata")),
+
+      -- Direct shortcuts for common metadata
+      s = desc("Todo Metadata: Add @started", cmd("Checkmate metadata add started")),
+      d = desc("Todo Metadata: Add @done", cmd("Checkmate metadata add done")),
+      p = desc("Todo Metadata: Add @priority", cmd("Checkmate metadata add priority")),
+    },
   },
 })

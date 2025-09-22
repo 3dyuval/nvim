@@ -347,7 +347,7 @@ return {
                 ["[["] = "explorer_error_prev", -- Previous conflict/error
                 ["D"] = "diff",
                 ["r"] = "explorer_add", -- Create file/folder
-                ["x"] = false, -- Disable default x binding
+                ["x"] = "explorer_delete", -- Delete file/folder (Graphite layout)
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
                 ["f"] = "context_menu",

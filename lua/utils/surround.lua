@@ -1,7 +1,6 @@
 local M = {}
-
 ---@type user_options
-M.default_opts = {
+M.opts = {
   keymaps = {
     insert = "<C-g>s",
     insert_line = "<C-g>S",
@@ -287,33 +286,4 @@ M.get_selections = function(args)
   end
 end
 
-return {
-  "kylechui/nvim-surround",
-  version = "^3.0.0",
-  event = "VeryLazy",
-  config = function()
-    require("nvim-surround").setup(M.default_opts)
-
-    -- Disable nvim-surround for non-modifiable and special buffers
-    vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-      pattern = "*",
-      callback = function()
-        local bufname = vim.api.nvim_buf_get_name(0)
-        local should_disable = not vim.bo.modifiable
-          or vim.bo.buftype ~= ""
-          or bufname:match("^diffview://")
-          or (bufname:match("^git://") and not bufname:match("^neogit://"))
-          or bufname == ""
-
-        if should_disable then
-          -- Unmap nvim-surround keymaps for this buffer
-          local keymaps_to_disable = { "s", "S", "ys", "yss", "yS", "ySS", "xs", "ws", "cS" }
-          for _, key in ipairs(keymaps_to_disable) do
-            pcall(vim.keymap.del, "v", key, { buffer = 0 })
-            pcall(vim.keymap.del, "n", key, { buffer = 0 })
-          end
-        end
-      end,
-    })
-  end,
-}
+return M

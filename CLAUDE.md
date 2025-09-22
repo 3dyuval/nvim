@@ -1,93 +1,100 @@
-# AGENTS.md - Neovim Configuration Manager
+## Neovim Graphite Custom Setup
 
-## Documentation and Plugin References
+## Project Goals & Development Patterns
 
-> [!IMPORTANT]
->
-> - When handing plugin which require implementations details you need to directly docs you can use lazy local to see all relevant details at `/home/yuval/.config/lazygit`
+### Architecture Philosophy
+- **Modular utils pattern**: Each utility lives in `/lua/utils/` as a focused module
+- **Consistent keymap structure**: Using `lil.map` with descriptive functions
+- **Separation of concerns**: Utils handle logic, keymaps just map to utils functions
+- **Auto-formatting enforcement**: Always run `make format` before commits
 
-## Role & Workflow
-
-You are a Neovim configuration manager. Tasks come from GitHub CLI (`gh issue list`, `gh pr list`). Main focus: keymaps and plugins. **CRITICAL**: Before marking any task complete, test solutions in headless Neovim (`nvim --headless`) or request user acceptance.
-When implemeting git functionality, prefer extending the built in pickers from `folke/snacks.nvim` sources such
-
-```lua
-{
-  "folke/snacks.nvim",
-  opts = {
-    picker = {
-      sources = {
-        git_branches = {
- ...
+### Code Formatting & Quality Commands
+```bash
+# ALWAYS run these before making changes:
+make format    # Auto-format all code (stylua for Lua, prettier for JS/TS)
+make check     # Check code quality
+make test      # Run test suite for keymap conflicts
 ```
 
-When implementing custom Github functionality use `pwntester/octo.nvim`.
+### Keymap Pattern Structure
+All keymaps follow this pattern:
+1. Import relevant utils at top: `local module = require("utils.module")`
+2. Use `lil.map` with descriptive functions
+3. Group related keymaps under leader sequences
+4. Always provide `desc` for discoverability
 
-**MANDATORY**: Before making ANY implementation changes, you MUST:
+#### Consistent Action Keys (Snacks Explorer Pattern)
+My keymaps follow a consistent pattern inspired by snacks explorer and aligned with Graphite layout:
+- **r** = create/add new (consistent with "r" for "inneR"/insert mode)
+- **n** = toggle/change state (cycle between options)
+- **a** = archive/accept/apply action
+- **x** = delete/remove
+- **R** = rename/refactor (uppercase for modify existing)
+- **p** = path/print operations (copy path, show info)
+- **v** = view/visual operations (select value, diff view)
 
-1. Test for conflicts using test_keymaps_conflicts.lua
-2. Ask for explicit permission to proceed with changes
-3. Only make changes when explicitly authorized
+This pattern is used consistently across:
+- File explorer: `r` creates files, `R` renames
+- Todo/Checkmate: `<leader>tr` creates todos, `<leader>tn` toggles state
+- Git operations: Following similar patterns for consistency
 
-## Build/Lint/Test Commands
+#### Nested Command Structure
+Complex commands use nested mappings for organization:
+```lua
+-- Example: Todo commands with metadata nesting
+["<leader>t"] = {
+  r = desc("Todo: Create new", cmd("Checkmate create")),
+  n = desc("Todo: Toggle state", cmd("Checkmate toggle")),
+  t = {  -- Nested metadata operations
+    r = {  -- Create pattern
+      s = desc("Add @started", ...),
+      d = desc("Add @done", ...),
+    },
+    n = {  -- Toggle pattern
+      s = desc("Toggle @started", ...),
+    },
+  },
+}
+```
 
-- **Lua formatting**: `stylua .` (2 spaces, 120 column width)
-- **JS/TS formatting**: `biome format --write .` or `prettier --write .`
-- **Headless testing**: `nvim --headless -u NONE -c 'source test.lua'`
-- **Keymap conflict check**:
-  - Location: `lua/config/test-utils/test_keymaps.lua`
-  - Usage: `echo 'lua_table' | lua lua/config/test-utils/test_keymaps.lua`
-  - Format: Lua table with mode, lhs, rhs, desc fields
-  - Example:
+Example pattern from keymaps.lua:
+```lua
+lil.map({
+  [func] = func_map,
+  ["<leader>g"] = {
+    o = desc("Get hunk (smart)", smart_diff.smart_diffget),
+    p = desc("Put hunk (smart)", smart_diff.smart_diffput),
+  },
+})
+```
 
-    ```bash
-    echo '{
-      { mode = "n", lhs = "<leader>hf", rhs = "function() vim.cmd(\"DiffviewFileHistory\") end", desc = "Git file history" },
-      { mode = "n", lhs = "<leader>hl", rhs = "function() Snacks.picker.git_log() end", desc = "Git log" }
-    }' | lua lua/config/tests/test_keymaps_conflicts.lua
-    ```
+### Utils Module Pattern
+Each util module exports focused functions:
+- Single responsibility per function
+- Clear, descriptive names (e.g., `smart_diffget`, `copy_file_path`)
+- No direct keymaps in utils - separation of concerns
+- Utils should be reusable and testable
 
-  - Output: "NO CONFLICTS FOUND" or detailed conflict list
-  - Tests against actual loaded Neovim keymaps in headless mode
-- **Plugin sync**: `nvim +Lazy sync +qa` or `<leader>rl` keymap
-- **Config reload**: `:source $MYVIMRC` or `<leader>rr` keymap
-- **Health check**: `:checkhealth` for plugin verification
+## Context
+I'm using a Graphite keyboard layout with custom neovim keybindings that remap standard QWERTY navigation to HAEI (H-left, A-down, E-up, I-right). My configuration replaces Vim's standard `hjkl` navigation and `ia` text objects with a more ergonomic and logical system.
 
-## Code Style & Standards
+## My Custom Layout Overview
 
-> [!IMPORTANT]
-> **ALWAYS look for established patterns in a file you are about to write to.** Study existing code conventions, helper functions, and patterns before making changes. For example:
->
-> - If a file has an `override_map` function, use it instead of manual `pcall(vim.keymap.del)`
-> - Follow existing naming conventions and code organization
-> - Use established helper functions rather than reimplementing functionality
+### Core Navigation (HAEI)
+- **H** = left (replaces `h`)
+- **A** = down (replaces `j`) 
+- **E** = up (replaces `k`)
+- **I** = right (replaces `l`)
 
-- **Lua**: 2-space indent, snake_case vars/funcs, PascalCase modules, `local` scope, `pcall()` errors
-- **JS/TS**: Single quotes, no semicolons, biome formatting, organize imports on save
-- **Keymaps**: Use `vim.keymap.set()`, descriptive `desc`, check conflicts before adding
-- **Plugins**: LazyVim base + overrides in `lua/plugins/`, lazy loading, proper dependencies
+### Text Objects Revolution
+- **R** = inner (replaces `i`) - "r" for "inneR"
+- **T** = around (replaces `a`) - "t" for "around/exTernal"
 
-## Utils Tooling (`/utils` & `/lua/utils`)
+### Other Key Remappings
+- **X** = delete (replaces `d`)
+- **W** = change (replaces `c`)
+- **C** = yank/copy (replaces `y`)
+- **V** = paste (replaces `p`)
+- **N** = visual mode (replaces `v`)
+- **Z** = undo (replaces `u`)
 
-- **test_keymaps.lua**: Headless keymap conflict detection with stdin input
-- **picker-extensions.lua**: Snacks.nvim picker actions, context menus, file operations
-- **save-patterns.lua**: Auto-format/organize on save for TS/JS/Lua files
-- Update these tools for specific implementation shortcuts and testing utilities
-
-## Test Structure
-
-- **Test directories**: `/lua/plugins/tests/` and `/lua/config/tests/`
-- **Test directive**: Save all tests in appropriate test folders, reuse utils from `/utils` and `/lua/utils`
-- **Test utilities**: Import and reuse existing tools from utils for consistent testing patterns
-
-## Custom Layout (Graphite)
-
-- **HAEI navigation**: h=left, a=down, e=up, i=right (NOT hjkl)
-- **Text objects**: r=inner, t=around (NOT ia) - "inneR"/"exTernal"
-- **Operations**: x=delete, w=change, c=yank, v=paste, n=visual, z=undo
-- **Tree-sitter**: rf/Tf=function, rc/Tc=class, ry/Ty=element
-- **NEVER** use standard Vim keys (hjkl, ia) - always use Graphite equivalents
-
-## Local Configuration
-
-- Use the local `/home/yuval/.local/share/nvim` instead of getting blobs from github
