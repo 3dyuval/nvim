@@ -18,13 +18,16 @@ return {
       view = {
         default = {
           layout = "diff2_horizontal",
+          winbar_info = true, -- Show commit hash and info in window bar
         },
         merge_tool = {
           layout = "diff1_plain",
           disable_diagnostics = false, -- Keep diagnostics enabled for conflict highlights
+          winbar_info = true,
         },
         file_history = {
           layout = "diff2_horizontal",
+          winbar_info = true,
         },
       },
       diff_binaries = false,

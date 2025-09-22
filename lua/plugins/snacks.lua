@@ -283,7 +283,7 @@ return {
       },
       sources = {
         explorer = {
-          auto_close = false,
+          auto_close = true,
           hidden = true,
           git = {
             enabled = true, -- Enable git status display (enabled by default in 2.18.0+)
