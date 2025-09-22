@@ -32,7 +32,7 @@ return {
     end,
   },
   {
-    "arronik/treewalker.nvim",
+    "aaronik/treewalker.nvim",
     opts = {
       highlight = true,
       highlight_duration = 250,

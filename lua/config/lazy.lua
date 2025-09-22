@@ -20,6 +20,7 @@ require("lazy").setup({
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
     -- { import = "lazyvim.plugins.extras.lang.typescript" }, -- Disabled to prevent conflicts with custom vtsls config
     { import = "lazyvim.plugins.extras.lang.vue" },
+    { import = "lazyvim.plugins.extras.dap.core" }, -- Enable LazyVim DAP support
     { import = "plugins" },
   },
   defaults = {
