@@ -345,9 +345,10 @@ return {
                 -- Conflict navigation (using error navigation as proxy for conflicts)
                 ["]]"] = "explorer_warn_next", -- Next conflict/error
                 ["[["] = "explorer_error_prev", -- Previous conflict/error
+                ["d"] = false, -- Disable default 'd' delete binding
                 ["D"] = "diff",
                 ["r"] = "explorer_add", -- Create file/folder
-                ["x"] = "explorer_delete", -- Delete file/folder (Graphite layout)
+                ["x"] = "explorer_del", -- Delete file/folder (Graphite layout)
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
                 ["f"] = "context_menu",

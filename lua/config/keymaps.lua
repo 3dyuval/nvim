@@ -620,8 +620,13 @@ lil.map({
         p = desc("Todo Metadata: Toggle @priority", cmd("Checkmate metadata toggle priority")),
       },
 
-      -- Remove operations
-      x = desc("Todo Metadata: Remove all", cmd("Checkmate remove_all_metadata")),
+      -- Remove operations (x pattern for delete)
+      x = {
+        a = desc("Todo Metadata: Remove all", cmd("Checkmate remove_all_metadata")),
+        s = desc("Todo Metadata: Remove @started", cmd("Checkmate metadata remove started")),
+        d = desc("Todo Metadata: Remove @done", cmd("Checkmate metadata remove done")),
+        p = desc("Todo Metadata: Remove @priority", cmd("Checkmate metadata remove priority")),
+      },
 
       -- Direct shortcuts for common metadata
       s = desc("Todo Metadata: Add @started", cmd("Checkmate metadata add started")),

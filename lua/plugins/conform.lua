@@ -181,7 +181,7 @@ return {
       zmk_keymap_formatter = {
         command = function()
           -- Look for format_keymap.py in the current project root
-          local root = vim.fs.find({"format_keymap.py"}, {upward = true})[1]
+          local root = vim.fs.find({ "format_keymap.py" }, { upward = true })[1]
           if root then
             return vim.fs.dirname(root) .. "/format_keymap.py"
           end

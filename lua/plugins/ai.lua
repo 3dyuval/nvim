@@ -81,7 +81,13 @@ return {
         vim.api.nvim_buf_set_keymap(buf, "t", "<Esc>", "<Nop>", { noremap = true, silent = true })
 
         -- Disable any other common keys that might switch modes
-        vim.api.nvim_buf_set_keymap(buf, "t", "<C-\\><C-n>", "<Nop>", { noremap = true, silent = true })
+        vim.api.nvim_buf_set_keymap(
+          buf,
+          "t",
+          "<C-\\><C-n>",
+          "<Nop>",
+          { noremap = true, silent = true }
+        )
       end
     end
   end,

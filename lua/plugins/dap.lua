@@ -57,7 +57,8 @@ return {
       })
 
       -- Use js-debug from Mason installation
-      local js_debug_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
+      local js_debug_path = vim.fn.stdpath("data")
+        .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
 
       if vim.fn.filereadable(js_debug_path) == 0 then
         vim.notify("DAP: js-debug-adapter not found at " .. js_debug_path, vim.log.levels.ERROR)

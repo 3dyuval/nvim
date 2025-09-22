@@ -1836,7 +1836,10 @@ M.duplicate_file = function(picker, item)
           picker:refresh()
         end
       else
-        vim.notify("Failed to duplicate directory: " .. (result or "unknown error"), vim.log.levels.ERROR)
+        vim.notify(
+          "Failed to duplicate directory: " .. (result or "unknown error"),
+          vim.log.levels.ERROR
+        )
       end
     else
       -- Duplicate file
@@ -1848,7 +1851,10 @@ M.duplicate_file = function(picker, item)
           picker:refresh()
         end
       else
-        vim.notify("Failed to duplicate file: " .. (result or "unknown error"), vim.log.levels.ERROR)
+        vim.notify(
+          "Failed to duplicate file: " .. (result or "unknown error"),
+          vim.log.levels.ERROR
+        )
       end
     end
   end

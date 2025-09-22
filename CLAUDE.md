@@ -23,51 +23,6 @@ All keymaps follow this pattern:
 3. Group related keymaps under leader sequences
 4. Always provide `desc` for discoverability
 
-#### Consistent Action Keys (Snacks Explorer Pattern)
-My keymaps follow a consistent pattern inspired by snacks explorer and aligned with Graphite layout:
-- **r** = create/add new (consistent with "r" for "inneR"/insert mode)
-- **n** = toggle/change state (cycle between options)
-- **a** = archive/accept/apply action
-- **x** = delete/remove
-- **R** = rename/refactor (uppercase for modify existing)
-- **p** = path/print operations (copy path, show info)
-- **v** = view/visual operations (select value, diff view)
-
-This pattern is used consistently across:
-- File explorer: `r` creates files, `R` renames
-- Todo/Checkmate: `<leader>tr` creates todos, `<leader>tn` toggles state
-- Git operations: Following similar patterns for consistency
-
-#### Nested Command Structure
-Complex commands use nested mappings for organization:
-```lua
--- Example: Todo commands with metadata nesting
-["<leader>t"] = {
-  r = desc("Todo: Create new", cmd("Checkmate create")),
-  n = desc("Todo: Toggle state", cmd("Checkmate toggle")),
-  t = {  -- Nested metadata operations
-    r = {  -- Create pattern
-      s = desc("Add @started", ...),
-      d = desc("Add @done", ...),
-    },
-    n = {  -- Toggle pattern
-      s = desc("Toggle @started", ...),
-    },
-  },
-}
-```
-
-Example pattern from keymaps.lua:
-```lua
-lil.map({
-  [func] = func_map,
-  ["<leader>g"] = {
-    o = desc("Get hunk (smart)", smart_diff.smart_diffget),
-    p = desc("Put hunk (smart)", smart_diff.smart_diffput),
-  },
-})
-```
-
 ### Utils Module Pattern
 Each util module exports focused functions:
 - Single responsibility per function
@@ -97,4 +52,3 @@ I'm using a Graphite keyboard layout with custom neovim keybindings that remap s
 - **V** = paste (replaces `p`)
 - **N** = visual mode (replaces `v`)
 - **Z** = undo (replaces `u`)
-

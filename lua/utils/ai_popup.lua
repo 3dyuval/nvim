@@ -50,7 +50,7 @@ function M.create()
         end,
         on_error = function(error_msg)
           vim.notify(error_msg, vim.log.levels.ERROR)
-        end
+        end,
       })
     end)
     :build()
