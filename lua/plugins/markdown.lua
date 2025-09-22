@@ -13,6 +13,7 @@ return {
   },
   {
     "tadmccorkle/markdown.nvim",
+    enabled = false, -- Temporarily disabled due to treesitter compatibility issue
     ft = text_filetypes,
     opts = {},
     keys = {
