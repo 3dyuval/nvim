@@ -1,332 +1,494 @@
-#!/usr/bin/env lua
+-- Neovim Plugin & Keymap Testing Utility
+-- Comprehensive testing framework for headless Neovim plugin and keymap validation
 
--- keymap_tester.lua
--- Usage: echo 'keymaps_lua_table' | lua keymap_tester.lua
--- Or: lua keymap_tester.lua < keymaps.lua
+local M = {}
 
--- Simple table serializer (replacement for vim.inspect)
-local function serialize_table(t, indent)
-  indent = indent or 0
-  local spaces = string.rep("  ", indent)
+-- Example Use Cases: File-specific testing in headless mode
 
-  if type(t) ~= "table" then
-    if type(t) == "string" then
-      return string.format('"%s"', t:gsub('"', '\\"'))
-    else
-      return tostring(t)
-    end
-  end
+-- CASE 1: Markdown File (README.md)
+-- When opening README.md in headless mode:
+--   1. File detection triggers (FileType markdown)
+--   2. Markdown LSP/language server attaches
+--   3. Treesitter parser loads for markdown
+--   4. Checkmate.nvim todo plugin activates (<leader>t keymaps)
+--   5. Markdown-specific surround rules load (*, _, ~ for bold/italic/strikethrough)
+--   6. Potential plugins: render-markdown, markdown-preview, glow
+-- Test command:
+--   nvim --headless README.md -c "lua require('utils.test_keymaps').test_markdown_case()" -c "qa"
 
-  local result = "{\n"
-  for k, v in pairs(t) do
-    local key_str
-    if type(k) == "string" then
-      key_str = string.format("%s = ", k)
-    else
-      key_str = string.format("[%s] = ", k)
-    end
+-- CASE 2: JSON Configuration (biome.json)
+-- When opening biome.json in headless mode:
+--   1. File detection triggers (FileType json)
+--   2. JSON LSP server attaches (likely TypeScript/JSON LSP)
+--   3. Treesitter parser loads for JSON
+--   4. Schema validation activates
+--   5. JSON-specific formatting and validation
+-- Test command:
+--   nvim --headless biome.json -c "lua require('utils.test_keymaps').test_json_case()" -c "qa"
 
-    result = result .. spaces .. "  " .. key_str .. serialize_table(v, indent + 1) .. ",\n"
-  end
-  result = result .. spaces .. "}"
+-- CASE 3: Lua Configuration (init.lua)
+-- When opening init.lua in headless mode:
+--   1. File detection triggers (FileType lua)
+--   2. Lua LSP server attaches (lua-language-server)
+--   3. Treesitter parser loads for Lua
+--   4. Nvim Lua API completion activates
+--   5. Stylua formatting integration
+--   6. Lua-specific text objects and navigation
+-- Test command:
+--   nvim --headless init.lua -c "lua require('utils.test_keymaps').test_lua_case()" -c "qa"
 
-  return result
+-- CASE 4: HTML Template (index.html)
+-- When opening index.html in headless mode:
+--   1. File detection triggers (FileType html)
+--   2. HTML LSP server attaches (likely vscode-html-languageserver)
+--   3. Treesitter parsers load for HTML, CSS, JavaScript
+--   4. Emmet expansion keymaps activate
+--   5. HTML tag surround functionality
+--   6. Auto-closing tags and attribute completion
+-- Test command:
+--   nvim --headless index.html -c "lua require('utils.test_keymaps').test_html_case()" -c "qa"
+
+-- General Test Command:
+--   nvim --headless [filename] -c "lua require('utils.test_keymaps').run_diagnostic()" -c "qa"
+
+-- PHASE 1: Plugin Loading Analysis
+-- TODO: Implement plugin_diagnostic()
+--   - Check which plugins loaded vs configured
+--   - Identify lazy-loading triggers that fired
+--   - Report loading times and dependencies
+--   - Detect missing or failed plugins
+
+-- PHASE 2: Keymap Conflict Detection
+-- TODO: Implement keymap_conflict_analysis()
+--   - Compare all active keymaps against builtin Vim commands
+--   - Detect overlapping plugin keymaps
+--   - Check Graphite layout conflicts (H-A-E-I navigation)
+--   - Validate leader key sequences and nesting
+
+-- PHASE 3: LSP Integration Testing
+-- TODO: Implement lsp_diagnostic()
+--   - Check LSP server attachment for file types
+--   - Validate completion sources are active
+--   - Test diagnostic providers
+--   - Verify formatting and code action availability
+
+-- PHASE 4: Treesitter Validation
+-- TODO: Implement treesitter_diagnostic()
+--   - Check parser installation and activation
+--   - Validate syntax highlighting queries
+--   - Test incremental parsing performance
+--   - Verify text objects and navigation
+
+-- PHASE 5: File-Type Specific Testing
+-- TODO: Implement filetype_diagnostic()
+--   - Test file detection accuracy
+--   - Validate filetype-specific plugins
+--   - Check indentation and formatting rules
+--   - Verify syntax and semantic features
+
+function M.run_diagnostic()
+  print("=== Neovim Diagnostic Suite ===")
+  -- Entry point for comprehensive testing
+  -- Will orchestrate all diagnostic phases
 end
 
-local function test_keymaps(keymaps)
-  -- Create a temporary test file
-  local test_file = "/tmp/nvim_keymap_test.lua"
+function M.plugin_status()
+  -- Quick plugin loading status check
+end
 
-  -- Generate test script content
-  local test_content = [[
--- Keymap conflict tester
-local conflicts = {}
-local existing_keymaps = {}
+function M.keymap_conflicts()
+  -- Focused keymap conflict detection
+end
 
--- Built-in Vim commands database
-local builtin_commands = {
-    n = {
-        ['<C-a>'] = { desc = 'Increment number under cursor', severity = 'WARNING' },
-        ['<C-x>'] = { desc = 'Decrement number under cursor', severity = 'WARNING' },
-        ['<C-i>'] = { desc = 'Jump forward in jumplist (same as Tab)', severity = 'INFO' },
-        ['<C-o>'] = { desc = 'Jump backward in jumplist', severity = 'WARNING' },
-        ['<C-u>'] = { desc = 'Scroll up half page', severity = 'INFO' },
-        ['<C-d>'] = { desc = 'Scroll down half page', severity = 'INFO' },
-        ['<C-f>'] = { desc = 'Scroll forward full page', severity = 'INFO' },
-        ['<C-b>'] = { desc = 'Scroll backward full page', severity = 'INFO' },
-        ['<C-e>'] = { desc = 'Scroll window down one line', severity = 'INFO' },
-        ['<C-y>'] = { desc = 'Scroll window up one line', severity = 'INFO' },
-        ['<C-h>'] = { desc = 'Move cursor left / backspace', severity = 'INFO' },
-        ['<C-j>'] = { desc = 'Move cursor down / line feed', severity = 'INFO' },
-        ['<C-k>'] = { desc = 'Move cursor up / kill line', severity = 'INFO' },
-        ['<C-l>'] = { desc = 'Move cursor right / clear screen', severity = 'INFO' },
-        ['<C-w>'] = { desc = 'Window commands prefix', severity = 'WARNING' },
-        ['<C-r>'] = { desc = 'Redo', severity = 'WARNING' },
-        ['<C-z>'] = { desc = 'Suspend vim', severity = 'INFO' },
-        ['<C-c>'] = { desc = 'Cancel/interrupt', severity = 'WARNING' },
-        ['<C-v>'] = { desc = 'Visual block mode', severity = 'WARNING' },
-        ['<C-n>'] = { desc = 'Next match in completion', severity = 'INFO' },
-        ['<C-p>'] = { desc = 'Previous match in completion', severity = 'INFO' },
-        ['<Tab>'] = { desc = 'Jump forward in jumplist / indent', severity = 'INFO' },
-        ['<S-Tab>'] = { desc = 'Previous match in completion', severity = 'INFO' },
-    },
-    i = {
-        ['<C-a>'] = { desc = 'Insert previously inserted text', severity = 'INFO' },
-        ['<C-x>'] = { desc = 'Completion mode prefix', severity = 'WARNING' },
-        ['<C-h>'] = { desc = 'Backspace', severity = 'WARNING' },
-        ['<C-w>'] = { desc = 'Delete word before cursor', severity = 'WARNING' },
-        ['<C-u>'] = { desc = 'Delete line before cursor', severity = 'WARNING' },
-        ['<C-t>'] = { desc = 'Insert one shiftwidth of indent', severity = 'INFO' },
-        ['<C-d>'] = { desc = 'Delete one shiftwidth of indent', severity = 'INFO' },
-        ['<C-n>'] = { desc = 'Next match in completion', severity = 'WARNING' },
-        ['<C-p>'] = { desc = 'Previous match in completion', severity = 'WARNING' },
-        ['<C-y>'] = { desc = 'Accept selected completion', severity = 'INFO' },
-        ['<C-e>'] = { desc = 'Cancel completion', severity = 'INFO' },
-        ['<C-r>'] = { desc = 'Insert register contents', severity = 'WARNING' },
-        ['<C-o>'] = { desc = 'Execute normal mode command', severity = 'INFO' },
-        ['<C-v>'] = { desc = 'Insert literal character', severity = 'INFO' },
-        ['<Tab>'] = { desc = 'Insert tab / trigger completion', severity = 'WARNING' },
-        ['<S-Tab>'] = { desc = 'Previous match in completion', severity = 'INFO' },
-    },
-    v = {
-        ['<C-a>'] = { desc = 'Increment numbers in selection', severity = 'WARNING' },
-        ['<C-x>'] = { desc = 'Decrement numbers in selection', severity = 'WARNING' },
-        ['<C-h>'] = { desc = 'Move cursor left', severity = 'INFO' },
-        ['<C-j>'] = { desc = 'Move cursor down', severity = 'INFO' },
-        ['<C-k>'] = { desc = 'Move cursor up', severity = 'INFO' },
-        ['<C-l>'] = { desc = 'Move cursor right', severity = 'INFO' },
-        ['<C-v>'] = { desc = 'Switch to visual block mode', severity = 'WARNING' },
-        ['<C-c>'] = { desc = 'Cancel selection', severity = 'WARNING' },
-    },
-    x = {
-        ['<C-a>'] = { desc = 'Increment numbers in selection', severity = 'WARNING' },
-        ['<C-x>'] = { desc = 'Decrement numbers in selection', severity = 'WARNING' },
-    },
-    o = {
-        ['<C-c>'] = { desc = 'Cancel operator', severity = 'WARNING' },
-    },
-    c = {
-        ['<C-a>'] = { desc = 'Insert all matches', severity = 'INFO' },
-        ['<C-h>'] = { desc = 'Backspace', severity = 'WARNING' },
-        ['<C-w>'] = { desc = 'Delete word before cursor', severity = 'WARNING' },
-        ['<C-u>'] = { desc = 'Delete line before cursor', severity = 'WARNING' },
-        ['<C-r>'] = { desc = 'Insert register contents', severity = 'WARNING' },
-        ['<C-n>'] = { desc = 'Next match in history', severity = 'INFO' },
-        ['<C-p>'] = { desc = 'Previous match in history', severity = 'INFO' },
-        ['<C-f>'] = { desc = 'Open command-line window', severity = 'INFO' },
-        ['<Tab>'] = { desc = 'Command completion', severity = 'WARNING' },
-    },
-    t = {
-        ['<C-\\><C-n>'] = { desc = 'Exit terminal mode', severity = 'WARNING' },
-        ['<C-h>'] = { desc = 'Send backspace to terminal', severity = 'INFO' },
-        ['<C-w>'] = { desc = 'Window commands in terminal', severity = 'WARNING' },
-    }
+function M.test_graphite_layout()
+  -- Specific test for custom Graphite keyboard layout
+end
+
+-- Keymap Introspection Functions (leveraging lil.nvim)
+function M.get_all_keymaps()
+  -- Load the keymap utils module
+  local keymap_utils = require("keymap-utils")
+
+  -- Clear any previous collected data
+  keymap_utils.clear_collected_keymaps()
+
+  -- Local collection for vim.keymap.set interception
+  local collected_keymaps = {}
+
+  -- Create a mock environment that mimics keymaps.lua dependencies
+  local test_env = {
+    -- Core lil components
+    lil = keymap_utils.lil,
+    func = keymap_utils.func,
+    opts = keymap_utils.opts,
+    mode = keymap_utils.mode,
+    x = require("lil").mod("x"),
+    n = require("lil").mod("n"),
+
+    -- Mock utility modules that keymaps.lua requires
+    clipboard = {},
+    code = {},
+    editor = {},
+    files = {},
+    git = {},
+    history = {},
+    navigation = {},
+    search = {},
+    smart_diff = {}
+  }
+
+  -- Create mock functions for all utility methods
+  local function mock_function() return function() end end
+  for module_name, module_table in pairs(test_env) do
+    if type(module_table) == "table" and module_name ~= "lil" then
+      setmetatable(module_table, {
+        __index = function() return mock_function end
+      })
+    end
+  end
+
+  -- Store original requires and globals
+  local original_require = require
+  local original_lil = _G.lil
+  local original_func = _G.func
+  local original_opts = _G.opts
+  local original_mode = _G.mode
+  local original_x = _G.x
+  local original_n = _G.n
+
+  -- BETTER APPROACH: Intercept vim.keymap.set directly!
+  -- This catches ALL keymap setting, regardless of local function overrides
+  local original_keymap_set = vim.keymap.set
+  vim.keymap.set = function(mode, key, action, opts)
+    -- Capture debug info using Lua's debug library
+    local info = debug.getinfo(2, "Sl")  -- Get caller info (2 levels up)
+
+    -- Helper function to get clean filename
+    local function get_clean_filename(source)
+      if not source then return "unknown" end
+
+      -- Handle different source formats
+      local file = source:match("@(.+)") or source
+
+      -- Get just the filename (not full path)
+      local filename = file:match("[^/]+$") or file
+
+      -- Handle config-relative paths
+      if filename:match("%.config/nvim/") then
+        filename = filename:gsub(".*%.config/nvim/", "")
+      end
+
+      return filename
+    end
+
+    -- Collect keymap data with source location
+    table.insert(collected_keymaps, {
+      mode = mode,
+      key = key,
+      action = action,
+      opts = opts or {},
+      -- NEW: Source location metadata
+      source = {
+        file = info.source and get_clean_filename(info.source) or "unknown",
+        line = info.currentline or 0,
+        short_src = info.short_src or "unknown"
+      }
+    })
+    -- Don't actually set the keymap in test mode
+  end
+
+  -- Mock require function to return our test environment
+  _G.require = function(module_name)
+    -- Return mock modules for utility requires
+    if module_name:match("^utils%.") then
+      local util_name = module_name:match("^utils%.(.+)")
+      return test_env[util_name:gsub("%-", "_")] or {}
+    end
+    -- Use original require for everything else
+    return original_require(module_name)
+  end
+
+  -- Replace globals normally (keeping original lil, but with mocked utils)
+  _G.lil = require("lil") -- Use original lil, but vim.keymap.set is intercepted
+  _G.func = test_env.func
+  _G.opts = test_env.opts
+  _G.mode = test_env.mode
+  _G.x = test_env.x
+  _G.n = test_env.n
+
+  -- Reload keymaps.lua to collect data
+  package.loaded['config.keymaps'] = nil
+  local success, err = pcall(function()
+    require('config.keymaps')
+  end)
+
+  -- Restore everything
+  _G.require = original_require
+  _G.lil = original_lil
+  _G.func = original_func
+  _G.opts = original_opts
+  _G.mode = original_mode
+  _G.x = original_x
+  _G.n = original_n
+  vim.keymap.set = original_keymap_set
+
+  if not success then
+    print("Error loading keymaps:", err)
+    return {}
+  end
+
+  -- Return keymaps collected by intercepting vim.keymap.set
+  return collected_keymaps
+end
+
+function M.print_keymap_table()
+  local keymaps = M.get_all_keymaps()
+
+  print("=== Collected Keymaps ===")
+  print(string.format("Total keymaps: %d", #keymaps))
+  print("")
+
+  -- Group by mode
+  local by_mode = {}
+  for _, keymap in ipairs(keymaps) do
+    if not by_mode[keymap.mode] then
+      by_mode[keymap.mode] = {}
+    end
+    table.insert(by_mode[keymap.mode], keymap)
+  end
+
+  -- Print by mode
+  for mode, mode_keymaps in pairs(by_mode) do
+    print(string.format("=== Mode: %s (%d keymaps) ===", mode, #mode_keymaps))
+    for _, keymap in ipairs(mode_keymaps) do
+      local desc = keymap.opts.desc or "No description"
+      local action_str = type(keymap.action) == "string" and keymap.action or "[function]"
+      print(string.format("  %-20s -> %-30s | %s", keymap.key, action_str, desc))
+    end
+    print("")
+  end
+
+  return keymaps
+end
+
+-- Built-in Vim keymaps that don't show up in vim.keymap but exist
+local builtin_keymaps = {
+  -- Normal mode built-ins
+  n = {
+    -- Movement
+    ['h'] = { desc = 'Left', action = 'cursor left' },
+    ['j'] = { desc = 'Down', action = 'cursor down' },
+    ['k'] = { desc = 'Up', action = 'cursor up' },
+    ['l'] = { desc = 'Right', action = 'cursor right' },
+    ['w'] = { desc = 'Word forward', action = 'next word' },
+    ['b'] = { desc = 'Word backward', action = 'previous word' },
+    ['e'] = { desc = 'End of word', action = 'end of word' },
+    ['0'] = { desc = 'Beginning of line', action = 'start of line' },
+    ['^'] = { desc = 'First non-blank character', action = 'first non-blank' },
+    ['$'] = { desc = 'End of line', action = 'end of line' },
+    ['gg'] = { desc = 'Go to top', action = 'first line' },
+    ['G'] = { desc = 'Go to bottom', action = 'last line' },
+
+    -- Text objects and operations
+    ['d'] = { desc = 'Delete', action = 'delete operator' },
+    ['c'] = { desc = 'Change', action = 'change operator' },
+    ['y'] = { desc = 'Yank', action = 'yank operator' },
+    ['p'] = { desc = 'Paste after', action = 'paste after cursor' },
+    ['P'] = { desc = 'Paste before', action = 'paste before cursor' },
+    ['u'] = { desc = 'Undo', action = 'undo last change' },
+    ['r'] = { desc = 'Replace character', action = 'replace single char' },
+    ['x'] = { desc = 'Delete character', action = 'delete char under cursor' },
+    ['X'] = { desc = 'Delete character before', action = 'delete char before cursor' },
+    ['s'] = { desc = 'Substitute character', action = 'substitute char' },
+    ['S'] = { desc = 'Substitute line', action = 'substitute line' },
+
+    -- Modes
+    ['i'] = { desc = 'Insert mode', action = 'enter insert mode' },
+    ['I'] = { desc = 'Insert at beginning', action = 'insert at line start' },
+    ['a'] = { desc = 'Append', action = 'enter insert after cursor' },
+    ['A'] = { desc = 'Append at end', action = 'insert at line end' },
+    ['o'] = { desc = 'Open line below', action = 'new line below' },
+    ['O'] = { desc = 'Open line above', action = 'new line above' },
+    ['v'] = { desc = 'Visual mode', action = 'enter visual mode' },
+    ['V'] = { desc = 'Visual line mode', action = 'enter visual line mode' },
+
+    -- Search and navigation
+    ['/'] = { desc = 'Search forward', action = 'forward search' },
+    ['?'] = { desc = 'Search backward', action = 'backward search' },
+    ['n'] = { desc = 'Next search', action = 'repeat search forward' },
+    ['N'] = { desc = 'Previous search', action = 'repeat search backward' },
+    ['*'] = { desc = 'Search word forward', action = 'search current word forward' },
+    ['#'] = { desc = 'Search word backward', action = 'search current word backward' },
+
+    -- Other common built-ins
+    ['.'] = { desc = 'Repeat last command', action = 'repeat last change' },
+    ['%'] = { desc = 'Jump to matching bracket', action = 'jump to matching paren/bracket' },
+    ['f'] = { desc = 'Find character', action = 'find char forward' },
+    ['F'] = { desc = 'Find character backward', action = 'find char backward' },
+    ['t'] = { desc = 'Till character', action = 'till char forward' },
+    ['T'] = { desc = 'Till character backward', action = 'till char backward' },
+    [';'] = { desc = 'Repeat find', action = 'repeat last f/F/t/T' },
+    [','] = { desc = 'Repeat find reverse', action = 'repeat last f/F/t/T reverse' },
+  },
+
+  -- Visual mode built-ins
+  v = {
+    ['d'] = { desc = 'Delete selection', action = 'delete visual selection' },
+    ['c'] = { desc = 'Change selection', action = 'change visual selection' },
+    ['y'] = { desc = 'Yank selection', action = 'yank visual selection' },
+    ['x'] = { desc = 'Delete selection', action = 'delete visual selection' },
+    ['s'] = { desc = 'Substitute selection', action = 'substitute visual selection' },
+    ['o'] = { desc = 'Switch cursor to other end', action = 'toggle visual selection end' },
+  },
+
+  -- Insert mode built-ins
+  i = {
+    ['<C-h>'] = { desc = 'Backspace', action = 'delete char before cursor' },
+    ['<C-w>'] = { desc = 'Delete word', action = 'delete word before cursor' },
+    ['<C-u>'] = { desc = 'Delete line', action = 'delete line before cursor' },
+  }
 }
 
--- Capture existing keymaps
-local function capture_existing_keymaps()
-    for _, mode in ipairs({'n', 'i', 'v', 'x', 'o', 'c', 't'}) do
-        existing_keymaps[mode] = {}
-        local maps = vim.api.nvim_get_keymap(mode)
-        for _, map in ipairs(maps) do
-            existing_keymaps[mode][map.lhs] = {
-                rhs = map.rhs or '',
-                desc = map.desc or '',
-                buffer = map.buffer or false,
-                type = 'explicit'
-            }
-        end
-    end
+function M.get_builtin_keymaps()
+  return builtin_keymaps
 end
 
--- Test new keymaps for conflicts
-local function test_keymap_conflicts(new_keymaps)
-    for _, keymap in ipairs(new_keymaps) do
-        local mode = keymap.mode or 'n'
-        local lhs = keymap.lhs
-        local rhs = keymap.rhs
-        local desc = keymap.desc or ''
+function M.analyze_keymap_conflicts()
+  local keymaps = M.get_all_keymaps()
+  local conflicts = {}
+  local key_usage = {}
 
-        -- Check for explicit keymap conflicts
-        if existing_keymaps[mode] and existing_keymaps[mode][lhs] then
-            table.insert(conflicts, {
-                mode = mode,
-                key = lhs,
-                existing_rhs = existing_keymaps[mode][lhs].rhs,
-                existing_desc = existing_keymaps[mode][lhs].desc,
-                new_rhs = rhs,
-                new_desc = desc,
-                conflict_type = 'explicit',
-                severity = 'ERROR'
-            })
-        end
-
-        -- Check for built-in command conflicts
-        if builtin_commands[mode] and builtin_commands[mode][lhs] then
-            table.insert(conflicts, {
-                mode = mode,
-                key = lhs,
-                existing_rhs = 'Built-in Vim command',
-                existing_desc = builtin_commands[mode][lhs].desc,
-                new_rhs = rhs,
-                new_desc = desc,
-                conflict_type = 'builtin',
-                severity = builtin_commands[mode][lhs].severity
-            })
-        end
+  -- First, populate with built-in keymaps
+  local builtins = M.get_builtin_keymaps()
+  for mode, mode_builtins in pairs(builtins) do
+    if not key_usage[mode] then
+      key_usage[mode] = {}
     end
-end
-
--- Capture existing keymaps first
-capture_existing_keymaps()
-
--- Test keymaps from input
-local test_keymaps = ]] .. serialize_table(keymaps) .. [[
-
-test_keymap_conflicts(test_keymaps)
-
--- Sort conflicts by severity (ERROR > WARNING > INFO)
-local severity_order = { ERROR = 1, WARNING = 2, INFO = 3 }
-table.sort(conflicts, function(a, b)
-    return severity_order[a.severity] < severity_order[b.severity]
-end)
-
--- Output results to stdout
-if #conflicts > 0 then
-    print("CONFLICTS FOUND:")
-    print("")
-
-    -- Group by severity
-    local current_severity = nil
-    for _, conflict in ipairs(conflicts) do
-        if conflict.severity ~= current_severity then
-            current_severity = conflict.severity
-            print(string.format("=== %s LEVEL ===", current_severity))
-        end
-
-        print(string.format("Mode: %s, Key: %s [%s]", conflict.mode, conflict.key, conflict.conflict_type))
-        print(string.format("  Existing: %s (%s)", conflict.existing_rhs, conflict.existing_desc))
-        print(string.format("  New: %s (%s)", conflict.new_rhs, conflict.new_desc))
-
-        if conflict.conflict_type == 'builtin' then
-            print("  ⚠️  This will override built-in Vim functionality!")
-        end
-        print("---")
+    for key, builtin_info in pairs(mode_builtins) do
+      key_usage[mode][key] = {
+        mode = mode,
+        key = key,
+        action = builtin_info.action,
+        opts = { desc = builtin_info.desc },
+        source = {
+          file = "vim-builtin",
+          line = 0
+        },
+        builtin = true
+      }
     end
-
-    -- Summary
-    local error_count = 0
-    local warning_count = 0
-    local info_count = 0
-
-    for _, conflict in ipairs(conflicts) do
-        if conflict.severity == 'ERROR' then
-            error_count = error_count + 1
-        elseif conflict.severity == 'WARNING' then
-            warning_count = warning_count + 1
-        elseif conflict.severity == 'INFO' then
-            info_count = info_count + 1
-        end
-    end
-
-    print("")
-    print("SUMMARY:")
-    if error_count > 0 then
-        print(string.format("  🚨 %d ERROR(s) - Explicit keymap conflicts", error_count))
-    end
-    if warning_count > 0 then
-        print(string.format("  ⚠️  %d WARNING(s) - Important built-in overrides", warning_count))
-    end
-    if info_count > 0 then
-        print(string.format("  ℹ️  %d INFO - Less critical built-in overrides", info_count))
-    end
-else
-    print("NO CONFLICTS FOUND")
-end
-
--- Exit nvim
-vim.cmd('qall!')
-]]
-
-  -- Write test file
-  local file = io.open(test_file, "w")
-  if not file then
-    print("Error: Could not create test file")
-    return false
   end
-  file:write(test_content)
-  file:close()
 
-  -- Run nvim in headless mode
-  local cmd = string.format("nvim --headless -u NONE -c 'source %s'", test_file)
-  local success = os.execute(cmd)
-
-  -- Cleanup
-  os.remove(test_file)
-
-  return success == 0
-end
-
--- Read from stdin
-local function _read_stdin() -- Reserved for future stdin input
-  local input = ""
-  for line in io.lines() do
-    input = input .. line .. "\n"
-  end
-  return input:gsub("\n$", "") -- Remove trailing newline
-end
-
--- Main logic
-local keymaps = nil
-
--- Simple way to check if we have stdin input
-local input_available = false
-local stdin_content = ""
-
--- Check if we can read from stdin immediately
-local _success, _result = pcall(function()
-  local line = io.read("*line")
-  if line then
-    stdin_content = line .. "\n"
-    -- Read the rest
-    for additional_line in io.lines() do
-      stdin_content = stdin_content .. additional_line .. "\n"
+  -- Track key usage per mode
+  for _, keymap in ipairs(keymaps) do
+    if not key_usage[keymap.mode] then
+      key_usage[keymap.mode] = {}
     end
-    input_available = true
-  end
-end)
 
-if input_available and stdin_content ~= "" then
-  -- Remove trailing newline
-  stdin_content = stdin_content:gsub("\n$", "")
+    if key_usage[keymap.mode][keymap.key] then
+      local existing = key_usage[keymap.mode][keymap.key]
+      local conflict_type = existing.builtin and "builtin-override" or "duplicate"
 
-  -- Try to evaluate as Lua table
-  local func, load_err = load("return " .. stdin_content)
-  if func then
-    local eval_success, result = pcall(func)
-    if eval_success then
-      keymaps = result
+      table.insert(conflicts, {
+        mode = keymap.mode,
+        key = keymap.key,
+        first = existing,
+        duplicate = keymap,
+        -- Enhanced conflict info with locations
+        first_location = string.format("%s:%d",
+          existing.source.file,
+          existing.source.line),
+        duplicate_location = string.format("%s:%d",
+          keymap.source.file,
+          keymap.source.line),
+        type = conflict_type,
+        builtin_override = existing.builtin or false
+      })
     else
-      print("Error evaluating input:", result)
-      os.exit(1)
+      key_usage[keymap.mode][keymap.key] = keymap
+    end
+  end
+
+  -- Count conflicts by type
+  local duplicates = {}
+  local builtin_overrides = {}
+  for _, conflict in ipairs(conflicts) do
+    if conflict.type == "builtin-override" then
+      table.insert(builtin_overrides, conflict)
+    else
+      table.insert(duplicates, conflict)
+    end
+  end
+
+  -- Print analysis summary
+  print("=== Keymap Conflict Analysis ===")
+  print(string.format("Total keymaps analyzed: %d", #keymaps))
+  print(string.format("Conflicts found: %d", #conflicts))
+  print(string.format("  - Duplicate keymaps: %d", #duplicates))
+  print(string.format("  - Built-in overrides: %d", #builtin_overrides))
+  print("")
+
+  -- Show duplicate conflicts
+  if #duplicates > 0 then
+    print("=== DUPLICATE KEYMAP CONFLICTS ===")
+    for _, conflict in ipairs(duplicates) do
+      print(string.format("⚠️  Mode: %s, Key: %s", conflict.mode, conflict.key))
+      print(string.format("  First:  %s (%s) at %s",
+        type(conflict.first.action) == "string" and conflict.first.action or "[function]",
+        conflict.first.opts.desc or "No description",
+        conflict.first_location))
+      print(string.format("  Second: %s (%s) at %s",
+        type(conflict.duplicate.action) == "string" and conflict.duplicate.action or "[function]",
+        conflict.duplicate.opts.desc or "No description",
+        conflict.duplicate_location))
+      print("---")
+    end
+    print("")
+  else
+    print("✅ No duplicate keymap conflicts found!")
+    print("")
+  end
+
+  -- Show built-in overrides
+  if #builtin_overrides > 0 then
+    print("=== BUILT-IN VIM KEYMAP OVERRIDES ===")
+    for _, conflict in ipairs(builtin_overrides) do
+      print(string.format("ℹ️  Mode: %s, Key: '%s'", conflict.mode, conflict.key))
+      print(string.format("  Built-in: %s (%s)",
+        conflict.first.action,
+        conflict.first.opts.desc or "No description"))
+      print(string.format("  Override: %s (%s) at %s",
+        type(conflict.duplicate.action) == "string" and conflict.duplicate.action or "[function]",
+        conflict.duplicate.opts.desc or "No description",
+        conflict.duplicate_location))
+      print("---")
     end
   else
-    print("Error loading input:", load_err)
-    print("Make sure your input is a valid Lua table")
-    os.exit(1)
+    print("ℹ️  No built-in Vim keymaps overridden")
   end
-else
-  -- Use example keymaps for testing
-  keymaps = {
-    { mode = "n", lhs = "<leader>ff", rhs = ":Telescope find_files<CR>", desc = "Find files" },
-    { mode = "n", lhs = "<leader>fg", rhs = ":Telescope live_grep<CR>", desc = "Live grep" },
-    { mode = "n", lhs = "<C-h>", rhs = "<C-w>h", desc = "Window left" },
-    { mode = "i", lhs = "jk", rhs = "<Esc>", desc = "Exit insert mode" },
-    { mode = "v", lhs = "<leader>y", rhs = '"+y', desc = "Copy to clipboard" },
-  }
-  print("No stdin input detected, using example keymaps...")
+
+  return conflicts
 end
 
--- Run the test
-print("Testing keymaps for conflicts...")
-test_keymaps(keymaps)
+-- File-specific test cases
+function M.test_markdown_case()
+  print("=== Markdown File Diagnostic ===")
+  -- TODO: Test checkmate.nvim keymaps, markdown surround rules, LSP attachment
+end
+
+function M.test_json_case()
+  print("=== JSON File Diagnostic ===")
+  -- TODO: Test JSON LSP, schema validation, formatting integration
+end
+
+function M.test_lua_case()
+  print("=== Lua File Diagnostic ===")
+  -- TODO: Test Lua LSP, nvim API completion, stylua integration
+end
+
+function M.test_html_case()
+  print("=== HTML File Diagnostic ===")
+  -- TODO: Test HTML LSP, treesitter multi-language, emmet keymaps
+end
+
+return M

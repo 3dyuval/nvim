@@ -1,3 +1,4 @@
+-- Import utility modules
 local clipboard = require("utils.clipboard")
 local code = require("utils.code")
 local editor = require("utils.editor")
@@ -7,7 +8,10 @@ local history = require("utils.history")
 local navigation = require("utils.navigation")
 local search = require("utils.search")
 local smart_diff = require("utils.smart-diff")
+local helpers = require("utils.helpers")
+local kmu = require("keymap-utils")
 
+-- lil.nvim setup
 local lil = require("lil")
 local func = lil.flags.func
 local opts = lil.flags.opts
@@ -15,31 +19,21 @@ local mode = lil.flags.mode
 local x = lil.mod("x")
 local n = lil.mod("n")
 
-local function func_map(m, l, r, o, _next)
-  pcall(vim.keymap.del, m, l)
-  vim.keymap.set(m, l, r, o) -- o already contains desc and expr from [opts]
-end
+-- Use keymap-utils as unified toolkit
+local map = kmu.map
+local cmd = kmu.cmd
+local remap = kmu.remap
+local func_map = kmu.func_map
+local safe_del = kmu.safe_del
 
+-- Legacy lil.nvim compatibility (until full migration)
 local function desc(d, value, expr)
+  -- Simple desc function that works with lil.nvim structure
   return {
     value,
     [func] = func_map,
     [opts] = { desc = d, expr = expr },
   }
-end
-
-local function remap(mode, lhs, rhs, opts)
-  pcall(vim.keymap.del, mode, lhs)
-  vim.keymap.set(mode, lhs, rhs, opts)
-end
-
-local function cmd(command, exec)
-  if exec == false then
-    -- Open command line with command pre-filled (no execution)
-    return ":" .. command
-  end
-  exec = exec or "<Cr>"
-  return "<Cmd>" .. command .. exec
 end
 
 pcall(vim.keymap.del, "n", "<leader>gd")
@@ -54,6 +48,8 @@ lil.map({
   g = {
     o = desc("Get hunk (smart)", smart_diff.smart_diffget),
     p = desc("Put hunk (smart)", smart_diff.smart_diffput),
+    i = desc("Go to top", "gg"),
+    h = desc("Go to bottom", "G"),
   },
   ["<leader>g"] = {
     -- Vim diff operations
@@ -70,12 +66,8 @@ lil.map({
     d = desc("Diff view open", cmd("DiffviewOpen")),
     S = desc("Diff view stash", cmd("DiffviewFileHistory -g --range=stash")),
     h = desc("Current file history", ":DiffviewFileHistory %"),
-    D = desc("Compare current file with", function()
-      local target = vim.fn.input("Compare with: ", "HEAD~1")
-      if target ~= "" then
-        vim.cmd("DiffviewOpen " .. target .. " -- %")
-      end
-    end),
+    D = desc("Compare current file with branch", helpers.compare_current_file_with_branch),
+    f = desc("Compare current file with file", helpers.compare_current_file_with_file),
 
     -- Git tools
     z = desc("Lazygit (Root Dir)", git.lazygit_root),
@@ -104,8 +96,7 @@ lil.map({
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
     c = desc("Copy file contents", clipboard.copy_file_contents),
     w = desc("Open file in web browser", cmd("OpenFileInRepo")),
-    W = desc("Open file in web browser (with line)", cmd("OpenLineInRepo")),
-    l = desc("Copy file URL to clipboard", cmd("YankFileUrl +")),
+    l = desc("Copy file path to clipboard", clipboard.copy_file_path_with_line),
     L = desc("Copy file URL with line to clipboard", cmd("YankLineUrl +")),
   },
 })
@@ -186,10 +177,7 @@ lil.map({
 })
 
 -- Handle count-aware 'x' separately (needs different logic than nested xx)
-remap({ "n" }, "x", function()
-  local count = vim.v.count1
-  return count == 1 and "d" or (count .. "d")
-end, { desc = "Delete", expr = true })
+remap({ "n" }, "x", helpers.count_aware_delete, { desc = "Delete", expr = true })
 
 lil.map({
   [func] = func_map,
@@ -292,9 +280,7 @@ map({ "n" }, "C", "y$", { desc = "Yank to end of line" })
 map({ "x" }, "C", "y", { desc = "Yank selection" })
 
 -- Fold-aware yanking (visual mode only)
-map("x", "cc", function()
-  require("utils.fold-yank").yank_visible()
-end, { desc = "Yank visible lines (exclude folded)" })
+map("x", "cc", helpers.yank_visible, { desc = "Yank visible lines (exclude folded)" })
 map({ "n", "x" }, "V", "P", { desc = "Paste before" })
 map({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
@@ -415,20 +401,13 @@ lil.map({
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 
-map({ "n", "o", "x" }, "<C-/>", function()
-  Snacks.terminal()
-end, { desc = "Toggle Terminal" })
+map({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
 
 -- Inline paste (avoids creating new lines)
 map({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" })
 -- Visual mode treesitter text objects (explicit mappings)
-map({ "x", "o" }, "rf", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@function.inner", "textobjects")
-end, { desc = "Select inner function" })
-
-map({ "x", "o" }, "tf", function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@function.outer", "textobjects")
-end, { desc = "Select outer function" })
+map({ "x", "o" }, "rf", helpers.select_inner_function, { desc = "Select inner function" })
+map({ "x", "o" }, "tf", helpers.select_outer_function, { desc = "Select outer function" })
 
 map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
@@ -440,7 +419,8 @@ map({ "o", "v" }, "td", "aw", { desc = "Around word" })
 map({ "o", "v" }, "rD", "iW", { desc = "Inner WORD" })
 map({ "o", "v" }, "tD", "aW", { desc = "Around WORD" })
 -- Operator-pending mode mappings to help with nvim-surround
--- These allow your r/t mappings to work in operator-pending mode
+-- These translate Graphite layout (r=inner, t=around) to nvim-surround defaults (i=inner, a=around)
+-- Configuration layer: ~/.config/nvim/lua/utils/surround.lua defines the actual surround behaviors
 map({ "v" }, "rd", "iw", { desc = "Inner word (visual)" })
 map({ "v" }, "td", "aw", { desc = "Around word (visual)" })
 map({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })
@@ -463,12 +443,7 @@ map({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
 map({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
 map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 
-map({ "n", "o", "v" }, "te", function()
-  require("nvim-treesitter.textobjects.select").select_textobject(
-    "@jsx_self_closing_element",
-    "textobjects"
-  )
-end, { desc = "Select JSX self-closing element" })
+map({ "n", "o", "v" }, "te", helpers.select_jsx_self_closing_element, { desc = "Select JSX self-closing element" })
 
 -- Treewalker keymaps (will override LazyVim defaults)
 -- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl
@@ -525,6 +500,7 @@ vim.keymap.set(
   cmd("Treewalker SwapRight"),
   { silent = true, desc = "Treewalker SwapRight" }
 )
+
 
 lil.map({
   [func] = func_map,

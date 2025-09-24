@@ -1,16 +1,18 @@
 # Neovim Configuration Makefile
 
-.PHONY: lint no-utils test format install-deps help
+.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps
 
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  lint       - Run luacheck linter on Lua files"
-	@echo "  no-utils   - Check for errant util calls"
-	@echo "  test       - Run all tests"
-	@echo "  format     - Format code using stylua"
+	@echo "  lint         - Run luacheck linter on Lua files"
+	@echo "  no-utils     - Check for errant util calls"
+	@echo "  test         - Run all tests"
+	@echo "  test-keymaps - Test keymap conflicts and analysis"
+	@echo "  test-conflicts - Check for keymap conflicts only"
+	@echo "  format       - Format code using stylua"
 	@echo "  install-deps - Install development dependencies"
-	@echo "  help       - Show this help message"
+	@echo "  help         - Show this help message"
 
 # Run luacheck on all Lua files
 lint:
@@ -73,3 +75,17 @@ install-deps:
 test-local:
 	@echo "🧪 Running local tests..."
 	@./scripts/test-ci.sh
+
+# Keymap conflict testing
+test-conflicts:
+	@echo "=== Testing Keymap Conflicts ==="
+	@nvim --headless -c "lua require('utils.test_keymaps').analyze_keymap_conflicts()" -c "qa"
+
+# Full keymap testing suite
+test-keymaps:
+	@echo "=== Keymap Testing Suite ==="
+	@echo "Counting keymaps..."
+	@nvim --headless -c "lua local k = require('utils.test_keymaps').get_all_keymaps(); print('Total keymaps:', #k)" -c "qa"
+	@echo "Checking for conflicts..."
+	@nvim --headless -c "lua require('utils.test_keymaps').analyze_keymap_conflicts()" -c "qa"
+	@echo "✅ Keymap tests completed"

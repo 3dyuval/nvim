@@ -1,46 +1,44 @@
 return {
-  "karb94/neoscroll.nvim",
-  config = function()
-    local neoscroll = require("neoscroll")
-    neoscroll.setup({
-      mappings = {
-        "<C-u>",
-        "<C-d>",
-        "<C-b>",
-        "<C-f>",
-        "<C-y>",
-        "<C-e>",
-      },
-      hide_cursor = true,
-      stop_eof = true,
-      respect_scrolloff = false,
-      cursor_scrolls_alone = true,
-      duration_multiplier = 0.8,
-      easing = "linear",
-      pre_hook = nil,
-      post_hook = nil,
-      performance_mode = true,
-      ignored_events = {
-        "WinScrolled",
-        "CursorMoved",
-      },
-    })
+  "nvim-mini/mini.animate",
+  enabled = false,
+  event = "VeryLazy",
+  opts = {
+    scroll = {
+      -- Enable smooth scrolling
+      enable = true,
+      timing = function(_, n)
+        return 150 / n
+      end,
+    },
+    resize = {
+      enable = false, -- Disable window resize animation
+    },
+    open = {
+      enable = false, -- Disable window open animation
+    },
+    close = {
+      enable = false, -- Disable window close animation
+    },
+    cursor = {
+      enable = false, -- Disable cursor movement animation
+    },
+  },
+  config = function(_, opts)
+    require("mini.animate").setup(opts)
 
-    local keymap = {
-      ["ga"] = function()
-        local bufname = vim.api.nvim_buf_get_name(0)
-        return not bufname:match("^diffview://")
-          and neoscroll.ctrl_d({ duration = 150, easing = "linear" })
-      end,
-      ["ge"] = function()
-        local bufname = vim.api.nvim_buf_get_name(0)
-        return not bufname:match("^diffview://")
-          and neoscroll.ctrl_u({ duration = 150, easing = "linear" })
-      end,
-    }
-    local modes = { "n", "v", "x" }
-    for key, func in pairs(keymap) do
-      vim.keymap.set(modes, key, func)
-    end
+    -- Keep your custom Graphite layout keymaps for scrolling
+    vim.keymap.set({ "n", "v", "x" }, "ga", function()
+      local bufname = vim.api.nvim_buf_get_name(0)
+      if not bufname:match("^diffview://") then
+        vim.cmd("normal! \\<C-d>")
+      end
+    end, { desc = "Scroll down (Graphite)" })
+
+    vim.keymap.set({ "n", "v", "x" }, "ge", function()
+      local bufname = vim.api.nvim_buf_get_name(0)
+      if not bufname:match("^diffview://") then
+        vim.cmd("normal! \\<C-u>")
+      end
+    end, { desc = "Scroll up (Graphite)" })
   end,
 }
