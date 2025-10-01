@@ -223,8 +223,9 @@ map({ "n" }, "r", "i", { desc = "Insert before cursor" })
 map({ "n" }, "R", "I", { desc = "Insert at start of line" })
 map({ "n" }, "t", "a", { desc = "Insert after cursor" })
 map({ "n" }, "T", "A", { desc = "Insert at end of line" })
-map({ "n" }, "S", "R", { desc = "Replace mode" })
-
+map({ "n" }, "b", "R", { desc = "Replace mode" })
+-- Keep visual replace on a different key
+map({ "v" }, "B", "r", { desc = "Replace selected text" })
 -- Jumplist navigation
 map({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
 map({ "n" }, "O", "<C-i>", { desc = "Jumplist forward" })
@@ -257,13 +258,19 @@ map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 map({ "n", "o", "x" }, "A", "]c", { desc = "Next diff hunk" })
 map({ "n", "o", "x" }, "E", "[c", { desc = "Previous diff hunk" })
 
+-- Smooth scrolling (Graphite layout) - works with snacks.scroll
+lil.map({
+  [func] = func_map,
+  [mode] = { "n", "v", "x" },
+  ga = desc("Scroll down (Graphite)", "<C-d>zz"),
+  ge = desc("Scroll up (Graphite)", "<C-u>zz"),
+  gs = desc("Center screen (Graphite)", "zz"),
+})
+
 -- End of word left/right (moved to different keys)
 -- map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
 map({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
 map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
-
--- Keep visual replace on a different key
-map({ "v" }, "X", "r", { desc = "Replace selected text" })
 
 -- Folds (f and F remain default vim find character forward/backward)
 map({ "n", "x" }, "fo", "zo", { desc = "Open fold (unfold)" })
@@ -402,6 +409,7 @@ lil.map({
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 
+-- TODO find a keymap closer to v, use - for something like repeat?
 map({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
 
 -- Inline paste (avoids creating new lines)

@@ -5,6 +5,9 @@ return {
       positionEncoding = "utf-8",
     },
     servers = {
+      -- Disable formatters that Mason tries to use as LSP servers
+      stylua = { enabled = false }, -- stylua is only a formatter (via conform.nvim), not an LSP
+
       -- Disable other TypeScript servers
       tsserver = { enabled = false },
       ts_ls = { enabled = false },

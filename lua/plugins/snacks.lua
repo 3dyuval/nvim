@@ -175,6 +175,13 @@ return {
         return true
       end,
     },
+    scroll = {
+      enabled = true,
+      animate = {
+        duration = { step = 15, total = 150 }, -- 150ms total duration
+        easing = "linear",
+      },
+    },
     dashboard = {
       enabled = false, -- We'll handle this manually
       sections = {
