@@ -87,7 +87,6 @@ local M = {}
 --   - Verify syntax and semantic features
 
 function M.run_diagnostic()
-  print("=== Neovim Diagnostic Suite ===")
   -- Entry point for comprehensive testing
   -- Will orchestrate all diagnostic phases
 end
@@ -233,7 +232,6 @@ function M.get_all_keymaps()
   vim.keymap.set = original_keymap_set
 
   if not success then
-    print("Error loading keymaps:", err)
     return {}
   end
 
@@ -244,10 +242,6 @@ end
 function M.print_keymap_table()
   local keymaps = M.get_all_keymaps()
 
-  print("=== Collected Keymaps ===")
-  print(string.format("Total keymaps: %d", #keymaps))
-  print("")
-
   -- Group by mode
   local by_mode = {}
   for _, keymap in ipairs(keymaps) do
@@ -255,17 +249,6 @@ function M.print_keymap_table()
       by_mode[keymap.mode] = {}
     end
     table.insert(by_mode[keymap.mode], keymap)
-  end
-
-  -- Print by mode
-  for mode, mode_keymaps in pairs(by_mode) do
-    print(string.format("=== Mode: %s (%d keymaps) ===", mode, #mode_keymaps))
-    for _, keymap in ipairs(mode_keymaps) do
-      local desc = keymap.opts.desc or "No description"
-      local action_str = type(keymap.action) == "string" and keymap.action or "[function]"
-      print(string.format("  %-20s -> %-30s | %s", keymap.key, action_str, desc))
-    end
-    print("")
   end
 
   return keymaps

@@ -4,12 +4,12 @@ local code = require("utils.code")
 local editor = require("utils.editor")
 local files = require("utils.files")
 local git = require("utils.git")
+local helpers = require("utils.helpers")
 local history = require("utils.history")
+local kmu = require("keymap-utils")
 local navigation = require("utils.navigation")
 local search = require("utils.search")
 local smart_diff = require("utils.smart-diff")
-local helpers = require("utils.helpers")
-local kmu = require("keymap-utils")
 
 -- lil.nvim setup
 local lil = require("lil")
@@ -126,9 +126,9 @@ lil.map({
     t = desc("TypeScript type check", editor.typescript_check),
 
     -- AI/Claude Code operations
-    c = desc("Claude Code (continue)", cmd("ClaudeCodeContinue")),
-    C = desc("Claude Code", cmd("ClaudeCode")),
-    B = desc("Claude Code (verbose)", cmd("ClaudeCodeVerbose")),
+    --   c = desc("Claude Code (continue)", cmd("ClaudeCodeContinue")),
+    --   C = desc("Claude Code", cmd("ClaudeCode")),
+    --   B = desc("Claude Code (verbose)", cmd("ClaudeCodeVerbose")),
   },
 })
 
@@ -443,7 +443,12 @@ map({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
 map({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
 map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 
-map({ "n", "o", "v" }, "te", helpers.select_jsx_self_closing_element, { desc = "Select JSX self-closing element" })
+map(
+  { "n", "o", "v" },
+  "te",
+  helpers.select_jsx_self_closing_element,
+  { desc = "Select JSX self-closing element" }
+)
 
 -- Treewalker keymaps (will override LazyVim defaults)
 -- Movement keymaps using Ctrl+HAEI (Graphite layout) - "walk" with ctrl
@@ -500,7 +505,6 @@ vim.keymap.set(
   cmd("Treewalker SwapRight"),
   { silent = true, desc = "Treewalker SwapRight" }
 )
-
 
 lil.map({
   [func] = func_map,
