@@ -8,18 +8,6 @@ return {
   config = function(_, opts)
     require("utils.neogit-commands").setup()
 
-    -- Autocmd to insert AI-generated commit message
-    vim.api.nvim_create_autocmd("FileType", {
-      pattern = "gitcommit",
-      callback = function(args)
-        if vim.g.neogit_ai_message then
-          -- Insert the AI message at the beginning of the buffer
-          vim.api.nvim_buf_set_lines(args.buf, 0, 0, false, { vim.g.neogit_ai_message, "" })
-          -- Clear the message so it doesn't get reused
-          vim.g.neogit_ai_message = nil
-        end
-      end,
-    })
 
     vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
       pattern = "NeogitStatus",
@@ -83,6 +71,15 @@ return {
             arg.enabled = true
           end
         end
+      end,
+      NeogitCommitPopup = function(popup)
+        popup:action("d", "Diny Message", function(popup_instance)
+          -- Close the popup first
+          popup_instance:close()
+
+          -- Use the reusable function
+          require("utils.ai_popup").generate_diny_and_commit()
+        end)
       end,
     },
     mappings = {
