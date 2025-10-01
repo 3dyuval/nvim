@@ -19,11 +19,18 @@ return {
       "nvim-neotest/nvim-nio",
       "theHamsta/nvim-dap-virtual-text",
       "Joakker/lua-json5",
+      "jay-babu/mason-nvim-dap.nvim",
     },
     config = function()
       local dap = require("dap")
       local ui = require("dapui")
       local dap_virtual_text = require("nvim-dap-virtual-text")
+
+      -- Setup mason-nvim-dap to ensure js-debug-adapter is installed
+      require("mason-nvim-dap").setup({
+        ensure_installed = { "js-debug-adapter" },
+        automatic_installation = true,
+      })
 
       -- Enable debug logging
       dap.set_log_level("TRACE")

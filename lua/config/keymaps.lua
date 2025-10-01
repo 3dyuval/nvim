@@ -525,6 +525,20 @@ map(
 )
 
 -- ============================================================================
+-- DATABASE KEYMAPS (vim-dadbod operations)
+-- ============================================================================
+
+lil.map({
+  [func] = func_map,
+  ["<leader>db"] = {
+    u = desc("Toggle DBUI", cmd("DBUIToggle")),
+    f = desc("Find buffer", cmd("DBUIFindBuffer")),
+    r = desc("Rename buffer", cmd("DBUIRenameTab")),
+    q = desc("Last query info", cmd("DBUILastQueryInfo")),
+  },
+})
+
+-- ============================================================================
 -- OCTO KEYMAPS (GitHub operations - following gh-alias structure)
 -- ============================================================================
 
