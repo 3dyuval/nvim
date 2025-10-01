@@ -1,5 +1,14 @@
 local M = {}
 
+M.kitty_sent_text_to_pane = function(match_pane, text) end
+
+M.kitty_get_current_and_target = function(match)
+  --TODO: check if in pane, othe tab, or nil
+
+  local current_id = os.execute("kitten @ ls | jq .tabs[] | .windows[].id")
+  local target_id
+end
+
 M.get_kitty_claude_items = function()
   local cmd =
     [[kitty @ ls | jq '.[] | .tabs[] | .windows[] | select(.foreground_processes[0].cmdline[0] == "claude") | {id, title,  cwd: .foreground_processes[0].cwd}']]

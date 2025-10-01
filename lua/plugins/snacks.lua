@@ -531,6 +531,9 @@ return {
     },
   },
   keys = {
+    -- Disable LazyVim defaults that conflict with our explicit keymaps
+    { "<leader>n", false }, -- We define this explicitly in keymaps.lua for notes
+
     -- {
     --   "<leader>gC",
     --   function()

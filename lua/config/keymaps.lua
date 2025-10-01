@@ -1,4 +1,5 @@
 -- Import utility modules
+local cli = require("utils.cli")
 local clipboard = require("utils.clipboard")
 local code = require("utils.code")
 local editor = require("utils.editor")
@@ -126,9 +127,9 @@ lil.map({
     t = desc("TypeScript type check", editor.typescript_check),
 
     -- AI/Claude Code operations
-    --   c = desc("Claude Code (continue)", cmd("ClaudeCodeContinue")),
-    --   C = desc("Claude Code", cmd("ClaudeCode")),
-    --   B = desc("Claude Code (verbose)", cmd("ClaudeCodeVerbose")),
+    -- c = desc("Open/Jump to Claude Code", cli.open_or_jump_to_claude),
+    -- C = desc("Claude Code", cmd("ClaudeCode")),
+    -- B = desc("Claude Code (verbose)", cmd("ClaudeCodeVerbose")),
   },
 })
 
@@ -631,4 +632,47 @@ lil.map({
       p = desc("Todo Metadata: Add @priority", cmd("Checkmate metadata add priority")),
     },
   },
+})
+
+-- ============================================================================
+-- NOTES MANAGEMENT (Marksman + obsidian.nvim)
+-- ============================================================================
+
+local notes = require("utils.notes")
+
+lil.map({
+  [func] = func_map,
+  ["<leader>n"] = {
+    -- Note creation
+    n = desc("New note", cmd("ObsidianNew")),
+    t = desc("Today's note", cmd("ObsidianToday")),
+    y = desc("Yesterday's note", cmd("ObsidianYesterday")),
+    T = desc("Tomorrow's note", cmd("ObsidianTomorrow")),
+
+    -- Search and navigation
+    s = desc("Search notes", cmd("ObsidianSearch")),
+    f = desc("Find note", cmd("ObsidianQuickSwitch")),
+    b = desc("Backlinks", cmd("ObsidianBacklinks")),
+    l = desc("Links in note", cmd("ObsidianLinks")),
+    g = desc("Search tags", cmd("ObsidianTags")),
+
+    -- Templates (nested under 't')
+    te = desc("Insert template", cmd("ObsidianTemplate")),
+    to = desc("Table of contents", cmd("ObsidianTOC")),
+
+    -- Management
+    r = desc("Rename note", cmd("ObsidianRename")),
+    p = desc("Paste image", cmd("ObsidianPasteImg")),
+    o = desc("Open in Obsidian app", cmd("ObsidianOpen")),
+    w = desc("Switch workspace", cmd("ObsidianWorkspace")),
+    d = desc("Open notes directory", notes.open_notes_directory),
+
+    -- Visual mode link operations
+    L = { [x] = desc("Link to new note", cmd("ObsidianLinkNew")) },
+    k = { [x] = desc("Link to existing note", cmd("ObsidianLink")) },
+  },
+  -- Smart gf - follow link or file
+  gf = desc("Follow link or file", notes.smart_follow_link, true), -- expr = true
+  -- Quick inbox note creation
+  ["<leader>N"] = desc("New note in inbox", notes.create_inbox_note),
 })
