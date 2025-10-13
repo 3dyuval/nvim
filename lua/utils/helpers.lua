@@ -3,7 +3,6 @@
 
 local M = {}
 
-
 -- ============================================================================
 -- GIT COMPARISON FUNCTIONS
 -- ============================================================================
@@ -43,18 +42,32 @@ end
 
 -- Select treesitter text objects
 function M.select_inner_function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@function.inner", "textobjects")
+  require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects")
 end
 
 function M.select_outer_function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@function.outer", "textobjects")
+  require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects")
 end
 
 function M.select_jsx_self_closing_element()
-  require("nvim-treesitter.textobjects.select").select_textobject(
-    "@jsx_self_closing_element",
-    "textobjects"
-  )
+  local node = vim.treesitter.get_node()
+
+  if not node then
+    vim.notify("No treesitter node found", vim.log.levels.WARN)
+    return
+  end
+
+  -- Walk up the tree to find jsx_self_closing_element
+  while node do
+    if node:type() == "jsx_self_closing_element" then
+      local start_row, start_col, end_row, end_col = node:range()
+      vim.api.nvim_buf_set_mark(0, "<", start_row + 1, start_col, {})
+      vim.api.nvim_buf_set_mark(0, ">", end_row + 1, end_col - 1, {})
+      vim.cmd("normal! gv")
+      return
+    end
+    node = node:parent()
+  end
 end
 
 -- ============================================================================
@@ -82,3 +95,4 @@ function M.yank_visible()
 end
 
 return M
+
