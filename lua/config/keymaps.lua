@@ -95,6 +95,10 @@ lil.map({
   ["<leader>p"] = {
     P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
+    a = desc("Copy text directy to Claude Code", function()
+      local text_in_selction = range.text()
+      os.execute("kitten @ send-text --match 'CLD=1' " .. text_in_selction)
+    end),
     c = desc("Copy file contents", clipboard.copy_file_contents),
     w = desc("Open file in web browser", cmd("OpenFileInRepo")),
     l = desc("Copy file path to clipboard", clipboard.copy_file_path_with_line),
@@ -127,7 +131,6 @@ lil.map({
     t = desc("TypeScript type check", editor.typescript_check),
 
     -- AI/Claude Code operations
-    -- c = desc("Open/Jump to Claude Code", cli.open_or_jump_to_claude),
     -- C = desc("Claude Code", cmd("ClaudeCode")),
     -- B = desc("Claude Code (verbose)", cmd("ClaudeCodeVerbose")),
   },

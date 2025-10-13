@@ -25,20 +25,14 @@ M.get_kitty_claude_items = function()
   return items
 end
 
-M.get_current_claude_by_cwd = function()
-  local items = M.get_kitty_claude_items()
-  local cwd = vim.fn.getcwd()
-  for _, value in ipairs(items) do
-    if value.cwd == cwd then
-      return value
-    end
-  end
-end
-
 M.print_items = function()
   local processes = M.get_kitty_claude_items()
   local items = M.get_current_claude_by_cwd()
   print(vim.fn.getcwd(), processes, vim.inspect(items))
+end
+
+M.send_to_claude = function(text)
+  os.execute(string.format("kitten @ send-text --match:CLD=1 %s", text))
 end
 
 return M
