@@ -3,7 +3,6 @@
 
 local M = {}
 
-
 -- ============================================================================
 -- GIT COMPARISON FUNCTIONS
 -- ============================================================================
@@ -43,15 +42,15 @@ end
 
 -- Select treesitter text objects
 function M.select_inner_function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@function.inner", "textobjects")
+  require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects")
 end
 
 function M.select_outer_function()
-  require("nvim-treesitter.textobjects.select").select_textobject("@function.outer", "textobjects")
+  require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects")
 end
 
 function M.select_jsx_self_closing_element()
-  require("nvim-treesitter.textobjects.select").select_textobject(
+  require("nvim-treesitter-textobjects.select").select_textobject(
     "@jsx_self_closing_element",
     "textobjects"
   )

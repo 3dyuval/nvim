@@ -8,7 +8,6 @@ return {
   config = function(_, opts)
     require("utils.neogit-commands").setup()
 
-
     vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
       pattern = "NeogitStatus",
       callback = function(args)

@@ -214,13 +214,6 @@ return {
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
           {
-            icon = "",
-            key = "o",
-            desc = "Octo: My Issues",
-            action = ":Octo search is:issue involves:@me",
-          },
-          { icon = "", key = "L", desc = "Neogit", action = ":NeogitLogCurrent" },
-          {
             icon = "",
             key = "r",
             desc = "Recent Files",
@@ -233,20 +226,6 @@ return {
             action = function()
               Snacks.picker.zoxide()
             end,
-          },
-          {
-            icon = "",
-            key = "p",
-            desc = "Projects",
-            action = function()
-              LazyVim.pick("projects")()
-            end,
-          },
-          {
-            icon = "",
-            key = "c",
-            desc = "Config",
-            action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
           },
           { icon = "", key = "s", desc = "Restore Session", section = "session" },
           { icon = " ", key = "t", desc = "Show todo", action = ":TodoTrouble" },
