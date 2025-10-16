@@ -8,10 +8,10 @@ M.opts = {
     -- Standard nvim-surround defaults (kept for clarity)
     insert = "<C-g>s",
     insert_line = "<C-g>S",
-    normal = "ys", -- Add surround: ys{motion}{char}
-    normal_cur = "yss", -- Add surround to current line
-    normal_line = "yS",
-    normal_cur_line = "ySS",
+    normal = "ks", -- Add surround: ks{motion}{char} (changed from ys)
+    normal_cur = "kss", -- Add surround to current line (changed from yss)
+    normal_line = "kS", -- Changed from yS
+    normal_cur_line = "kSS", -- Changed from ySS
 
     -- CUSTOM GRAPHITE LAYOUT CHANGES:
     visual = "s", -- Visual surround: s instead of S (Graphite convenience)

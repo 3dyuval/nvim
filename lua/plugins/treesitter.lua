@@ -21,7 +21,7 @@ return {
 
           if should_disable then
             -- Unmap nvim-surround keymaps for this buffer
-            local keymaps_to_disable = { "s", "S", "ys", "yss", "yS", "ySS", "xs", "ws", "cS" }
+            local keymaps_to_disable = { "s", "S", "ks", "kss", "kS", "kSS", "xs", "ws", "cS" }
             for _, key in ipairs(keymaps_to_disable) do
               pcall(vim.keymap.del, "v", key, { buffer = 0 })
               pcall(vim.keymap.del, "n", key, { buffer = 0 })
