@@ -9,20 +9,6 @@ return {
   config = function(_, opts)
     require("utils.neogit-commands").setup()
 
-
-    vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
-      pattern = "NeogitStatus",
-      callback = function(args)
-        -- Force override any conflicting global mappings
-        vim.keymap.set("n", "s", "Stage", {
-          buffer = args.buf,
-          desc = "Stage item under cursor",
-          nowait = true,
-          remap = true, -- Allow Neogit's internal mapping to work
-        })
-      end,
-    })
-
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "NeogitStatus",
       callback = function(args)

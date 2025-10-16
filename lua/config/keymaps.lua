@@ -8,7 +8,6 @@ local git = require("utils.git")
 local helpers = require("utils.helpers")
 local history = require("utils.history")
 local kmu = require("keymap-utils")
-local navigation = require("utils.navigation")
 local search = require("utils.search")
 local smart_diff = require("utils.smart-diff")
 
@@ -344,52 +343,80 @@ map({ "n", "x" }, "gh", "K", { desc = "Lookup keyword" })
 vim.api.nvim_create_autocmd("User", {
   pattern = "BufferClose",
   callback = function()
-    navigation.buffer_close_callback()
+    local bufs = vim.tbl_filter(function(b)
+      return vim.api.nvim_buf_is_loaded(b) and vim.bo[b].buflisted
+    end, vim.api.nvim_list_bufs())
+    if #bufs == 0 then
+      vim.schedule(function()
+        require("snacks").dashboard()
+      end)
+    end
   end,
 })
 
 map(
   { "n" },
   "<C-h>",
-  navigation.move_split("left", "move"),
+  function()
+    require("smart-splits").move_cursor_left({ same_row = false, at_edge = "stop" })
+  end,
   { noremap = true, desc = "Left window" }
 )
 map(
   { "n" },
   "<C-a>",
-  navigation.move_split("down", "move"),
+  function()
+    require("smart-splits").move_cursor_down({ same_row = false, at_edge = "stop" })
+  end,
   { noremap = true, desc = "Window down" }
 )
-map({ "n" }, "<C-e>", navigation.move_split("up", "move"), { noremap = true, desc = "Window up" })
+map(
+  { "n" },
+  "<C-e>",
+  function()
+    require("smart-splits").move_cursor_up({ same_row = false, at_edge = "stop" })
+  end,
+  { noremap = true, desc = "Window up" }
+)
 map(
   { "n" },
   "<C-i>",
-  navigation.move_split("right", "move"),
+  function()
+    require("smart-splits").move_cursor_right({ same_row = false, at_edge = "stop" })
+  end,
   { noremap = true, desc = "Right window" }
 )
 
 map(
   { "n" },
   "<M-C-h>",
-  navigation.move_split("left", "resize"),
+  function()
+    require("smart-splits").resize_left(5)
+  end,
   { noremap = true, desc = "Left window" }
 )
 map(
   { "n" },
   "<M-C-a>",
-  navigation.move_split("down", "resize"),
+  function()
+    require("smart-splits").resize_down(5)
+  end,
   { noremap = true, desc = "Window down" }
 )
 map(
   { "n" },
   "<M-C-e>",
-  navigation.move_split("up", "resize"),
+  function()
+    require("smart-splits").resize_up(5)
+  end,
   { noremap = true, desc = "Window up" }
 )
 map(
   { "n" },
   "<M-C-i>",
-  navigation.move_split("right", "resize"),
+  function()
+    require("smart-splits").resize_right(5)
+  end,
   { noremap = true, desc = "Right window" }
 )
 
