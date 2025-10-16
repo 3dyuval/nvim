@@ -318,9 +318,9 @@ map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
 remap("n", "]]", "]x", { desc = "Next git conflict" })
--- 'til
-map({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
-map({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
+-- 'til (changed to y/Y to free up k for surround)
+map({ "n", "o", "x" }, "y", "t", { desc = "Till before" })
+map({ "n", "o", "x" }, "Y", "T", { desc = "Till before backward" })
 
 -- map(
 --   "n",
