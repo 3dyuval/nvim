@@ -1,5 +1,6 @@
 return {
   "NeogitOrg/neogit",
+  dir = "/home/yuval/proj/neogit", -- Use local clone with performance improvements
   dependencies = {
     "nvim-lua/plenary.nvim",
     "sindrets/diffview.nvim",
@@ -43,6 +44,10 @@ return {
   opts = {
     kind = "vsplit",
     graph_style = "kitty",
+    filewatcher = {
+      enabled = true,
+      debounce_ms = 500, -- Increased from default 200ms for better performance
+    },
     integrations = {
       diffview = true,
       telescope = false,
