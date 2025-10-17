@@ -439,6 +439,11 @@ return {
                 require("utils.picker-extensions").actions.toggle_conflict_filter(picker)
               end,
             },
+            search_in_directory = {
+              action = function(picker, item)
+                require("utils.picker-extensions").actions.search_in_directory(picker, item)
+              end,
+            },
           },
           win = {
             list = {
@@ -446,6 +451,7 @@ return {
                 ["f"] = "git_context_menu",
                 ["s"] = { "git_stage", mode = { "n", "i" } },
                 ["<M-c>"] = "toggle_conflict_filter",
+                ["g"] = "search_in_directory",
               },
             },
           },
