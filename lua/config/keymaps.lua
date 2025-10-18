@@ -245,10 +245,6 @@ map({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 -- map({ "n" }, "<M-C-a>", "<cmd>move .+1<cr>==", { desc = "Move line down" })
 -- map({ "n" }, "<M-C-e>", "<cmd>move .-2<cr>==", { desc = "Move line up" })
 
--- Search navigation (moved from <C-f> due to jumplist conflict)
-map({ "n", "o", "x" }, "<C-s>", "n", { desc = "Next search match" })
-map({ "n", "o", "x" }, "<C-S>", "N", { desc = "Previous search match" })
-
 -- Map semicolon to repeat last command (instead of dot)
 map({ "n" }, ";", ".", { desc = "Repeat last command" })
 -- Move repeat find to different keys
@@ -257,8 +253,8 @@ map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
 -- Smart context-aware navigation - diff navigation baseline (Graphite layout)
-map({ "n", "o", "x" }, "A", "]c", { desc = "Next diff hunk" })
-map({ "n", "o", "x" }, "E", "[c", { desc = "Previous diff hunk" })
+map({ "n", "o", "x" }, "m", "]c", { desc = "Next diff hunk" })
+map({ "n", "o", "x" }, "M", "[c", { desc = "Previous diff hunk" })
 
 -- Smooth scrolling (Graphite layout) - works with snacks.scroll
 lil.map({
@@ -311,8 +307,8 @@ map({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
 -- Add Visual block mode
 map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
-map({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
-map({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
+map({ "n", "o", "x" }, "A", "n", { desc = "Next search match" })
+map({ "n", "o", "x" }, "E", "N", { desc = "Previous search match" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
@@ -354,71 +350,31 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
-map(
-  { "n" },
-  "<C-h>",
-  function()
-    require("smart-splits").move_cursor_left({ same_row = false, at_edge = "stop" })
-  end,
-  { noremap = true, desc = "Left window" }
-)
-map(
-  { "n" },
-  "<C-a>",
-  function()
-    require("smart-splits").move_cursor_down({ same_row = false, at_edge = "stop" })
-  end,
-  { noremap = true, desc = "Window down" }
-)
-map(
-  { "n" },
-  "<C-e>",
-  function()
-    require("smart-splits").move_cursor_up({ same_row = false, at_edge = "stop" })
-  end,
-  { noremap = true, desc = "Window up" }
-)
-map(
-  { "n" },
-  "<C-i>",
-  function()
-    require("smart-splits").move_cursor_right({ same_row = false, at_edge = "stop" })
-  end,
-  { noremap = true, desc = "Right window" }
-)
+map({ "n" }, "<C-h>", function()
+  require("smart-splits").move_cursor_left({ same_row = false, at_edge = "stop" })
+end, { noremap = true, desc = "Left window" })
+map({ "n" }, "<C-a>", function()
+  require("smart-splits").move_cursor_down({ same_row = false, at_edge = "stop" })
+end, { noremap = true, desc = "Window down" })
+map({ "n" }, "<C-e>", function()
+  require("smart-splits").move_cursor_up({ same_row = false, at_edge = "stop" })
+end, { noremap = true, desc = "Window up" })
+map({ "n" }, "<C-i>", function()
+  require("smart-splits").move_cursor_right({ same_row = false, at_edge = "stop" })
+end, { noremap = true, desc = "Right window" })
 
-map(
-  { "n" },
-  "<M-C-h>",
-  function()
-    require("smart-splits").resize_left(5)
-  end,
-  { noremap = true, desc = "Left window" }
-)
-map(
-  { "n" },
-  "<M-C-a>",
-  function()
-    require("smart-splits").resize_down(5)
-  end,
-  { noremap = true, desc = "Window down" }
-)
-map(
-  { "n" },
-  "<M-C-e>",
-  function()
-    require("smart-splits").resize_up(5)
-  end,
-  { noremap = true, desc = "Window up" }
-)
-map(
-  { "n" },
-  "<M-C-i>",
-  function()
-    require("smart-splits").resize_right(5)
-  end,
-  { noremap = true, desc = "Right window" }
-)
+map({ "n" }, "<M-C-h>", function()
+  require("smart-splits").resize_left(5)
+end, { noremap = true, desc = "Left window" })
+map({ "n" }, "<M-C-a>", function()
+  require("smart-splits").resize_down(5)
+end, { noremap = true, desc = "Window down" })
+map({ "n" }, "<M-C-e>", function()
+  require("smart-splits").resize_up(5)
+end, { noremap = true, desc = "Window up" })
+map({ "n" }, "<M-C-i>", function()
+  require("smart-splits").resize_right(5)
+end, { noremap = true, desc = "Right window" })
 
 -- Cycle through windows with Alt+Tab
 -- map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })

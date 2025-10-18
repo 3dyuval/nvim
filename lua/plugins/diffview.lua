@@ -39,71 +39,25 @@ return {
         },
       },
       keymaps = {
-        disable_defaults = true, -- Disable all default keymaps
+        disable_defaults = true,
         view = {
-          -- Smart diff operations (consistent with keymaps.lua)
           {
             "n",
-            "go",
-            function()
-              local smart_diff = require("utils.smart-diff")
-              smart_diff.smart_diffget()
-            end,
-            { desc = "Get hunk (smart)" },
+            "gr",
+            actions.conflict_choose("theirs"),
+            { desc = "Choole right (conflict)" },
           },
           {
             "n",
-            "gp",
-            function()
-              local smart_diff = require("utils.smart-diff")
-              smart_diff.smart_diffput()
-            end,
-            { desc = "Put hunk (smart)" },
+            "gl",
+            actions.conflict_choose("ours"),
+            { desc = "Choose left conflict" },
           },
-
-          -- Git conflict resolution (consistent with keymaps.lua)
-          {
-            "n",
-            "gO",
-            function()
-              local smart_diff = require("utils.smart-diff")
-              smart_diff.smart_resolve_theirs()
-            end,
-            { desc = "Resolve file: theirs" },
-          },
-          {
-            "n",
-            "gP",
-            function()
-              local smart_diff = require("utils.smart-diff")
-              smart_diff.smart_resolve_ours()
-            end,
-            { desc = "Resolve file: ours" },
-          },
-          {
-            "n",
-            "gU",
-            function()
-              local smart_diff = require("utils.smart-diff")
-              smart_diff.smart_resolve_union()
-            end,
-            { desc = "Resolve file: union" },
-          },
-          {
-            "n",
-            "gR",
-            function()
-              local smart_diff = require("utils.smart-diff")
-              smart_diff.smart_restore_conflicts()
-            end,
-            { desc = "Restore conflict markers" },
-          },
-
           -- Navigation (HAEI compatible)
           { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
           { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
-          { "n", "A", "]c", { desc = "Next diff hunk" } },
-          { "n", "E", "[c", { desc = "Previous diff hunk" } },
+          { "n", "m", "]c", { desc = "Next diff hunk" } },
+          { "n", "M", "[c", { desc = "Previous diff hunk" } },
 
           -- Common actions
           { "n", "<leader>.", actions.cycle_layout, { desc = "Cycle layout" } },
@@ -115,6 +69,20 @@ return {
           { "n", "?", actions.help("view"), { desc = "Help" } },
         },
         file_panel = {
+          {
+            "n",
+            "m",
+            "<Cmd>windo normal! ]c<Cr>",
+            {
+              desc = "Next hunk",
+            },
+          },
+          {
+            "n",
+            "M",
+            "<Cmd>windo normal! [c<Cr>",
+            { desc = "Prev hunk" },
+          },
           { "n", "<cr>", actions.select_entry, { desc = "Open diff" } },
           { "n", "o", actions.select_entry, { desc = "Open diff" } },
           { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close diffview" } },

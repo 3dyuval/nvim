@@ -10,9 +10,9 @@ return {
           vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
         end
 
-        -- Navigation: A/E for hunks (down/up), ]]/[[ for conflicts
-        map("n", "A", gs.next_hunk, "Next Hunk")
-        map("n", "E", gs.prev_hunk, "Prev Hunk")
+        -- Navigation: M/m for hunks (down/up), ]]/[[ for conflicts
+        map("n", "m", gs.next_hunk, "Next Hunk")
+        map("n", "M", gs.prev_hunk, "Prev Hunk")
         vim.keymap.set("n", "]]", "]x", { buffer = buffer, desc = "Next conflict", remap = true })
         vim.keymap.set(
           "n",
