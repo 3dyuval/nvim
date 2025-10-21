@@ -101,77 +101,77 @@ local builtin_keymaps = {
   -- Normal mode built-ins
   n = {
     -- Movement
-    ['h'] = { desc = 'Left', action = 'cursor left' },
-    ['j'] = { desc = 'Down', action = 'cursor down' },
-    ['k'] = { desc = 'Up', action = 'cursor up' },
-    ['l'] = { desc = 'Right', action = 'cursor right' },
-    ['w'] = { desc = 'Word forward', action = 'next word' },
-    ['b'] = { desc = 'Word backward', action = 'previous word' },
-    ['e'] = { desc = 'End of word', action = 'end of word' },
-    ['0'] = { desc = 'Beginning of line', action = 'start of line' },
-    ['^'] = { desc = 'First non-blank character', action = 'first non-blank' },
-    ['$'] = { desc = 'End of line', action = 'end of line' },
-    ['gg'] = { desc = 'Go to top', action = 'first line' },
-    ['G'] = { desc = 'Go to bottom', action = 'last line' },
+    ["h"] = { desc = "Left", action = "cursor left" },
+    ["j"] = { desc = "Down", action = "cursor down" },
+    ["k"] = { desc = "Up", action = "cursor up" },
+    ["l"] = { desc = "Right", action = "cursor right" },
+    ["w"] = { desc = "Word forward", action = "next word" },
+    ["b"] = { desc = "Word backward", action = "previous word" },
+    ["e"] = { desc = "End of word", action = "end of word" },
+    ["0"] = { desc = "Beginning of line", action = "start of line" },
+    ["^"] = { desc = "First non-blank character", action = "first non-blank" },
+    ["$"] = { desc = "End of line", action = "end of line" },
+    ["gg"] = { desc = "Go to top", action = "first line" },
+    ["G"] = { desc = "Go to bottom", action = "last line" },
 
     -- Text objects and operations
-    ['d'] = { desc = 'Delete', action = 'delete operator' },
-    ['c'] = { desc = 'Change', action = 'change operator' },
-    ['y'] = { desc = 'Yank', action = 'yank operator' },
-    ['p'] = { desc = 'Paste after', action = 'paste after cursor' },
-    ['P'] = { desc = 'Paste before', action = 'paste before cursor' },
-    ['u'] = { desc = 'Undo', action = 'undo last change' },
-    ['r'] = { desc = 'Replace character', action = 'replace single char' },
-    ['x'] = { desc = 'Delete character', action = 'delete char under cursor' },
-    ['X'] = { desc = 'Delete character before', action = 'delete char before cursor' },
-    ['s'] = { desc = 'Substitute character', action = 'substitute char' },
-    ['S'] = { desc = 'Substitute line', action = 'substitute line' },
+    ["d"] = { desc = "Delete", action = "delete operator" },
+    ["c"] = { desc = "Change", action = "change operator" },
+    ["y"] = { desc = "Yank", action = "yank operator" },
+    ["p"] = { desc = "Paste after", action = "paste after cursor" },
+    ["P"] = { desc = "Paste before", action = "paste before cursor" },
+    ["u"] = { desc = "Undo", action = "undo last change" },
+    ["r"] = { desc = "Replace character", action = "replace single char" },
+    ["x"] = { desc = "Delete character", action = "delete char under cursor" },
+    ["X"] = { desc = "Delete character before", action = "delete char before cursor" },
+    ["s"] = { desc = "Substitute character", action = "substitute char" },
+    ["S"] = { desc = "Substitute line", action = "substitute line" },
 
     -- Modes
-    ['i'] = { desc = 'Insert mode', action = 'enter insert mode' },
-    ['I'] = { desc = 'Insert at beginning', action = 'insert at line start' },
-    ['a'] = { desc = 'Append', action = 'enter insert after cursor' },
-    ['A'] = { desc = 'Append at end', action = 'insert at line end' },
-    ['o'] = { desc = 'Open line below', action = 'new line below' },
-    ['O'] = { desc = 'Open line above', action = 'new line above' },
-    ['v'] = { desc = 'Visual mode', action = 'enter visual mode' },
-    ['V'] = { desc = 'Visual line mode', action = 'enter visual line mode' },
+    ["i"] = { desc = "Insert mode", action = "enter insert mode" },
+    ["I"] = { desc = "Insert at beginning", action = "insert at line start" },
+    ["a"] = { desc = "Append", action = "enter insert after cursor" },
+    ["A"] = { desc = "Append at end", action = "insert at line end" },
+    ["o"] = { desc = "Open line below", action = "new line below" },
+    ["O"] = { desc = "Open line above", action = "new line above" },
+    ["v"] = { desc = "Visual mode", action = "enter visual mode" },
+    ["V"] = { desc = "Visual line mode", action = "enter visual line mode" },
 
     -- Search and navigation
-    ['/'] = { desc = 'Search forward', action = 'forward search' },
-    ['?'] = { desc = 'Search backward', action = 'backward search' },
-    ['n'] = { desc = 'Next search', action = 'repeat search forward' },
-    ['N'] = { desc = 'Previous search', action = 'repeat search backward' },
-    ['*'] = { desc = 'Search word forward', action = 'search current word forward' },
-    ['#'] = { desc = 'Search word backward', action = 'search current word backward' },
+    ["/"] = { desc = "Search forward", action = "forward search" },
+    ["?"] = { desc = "Search backward", action = "backward search" },
+    ["n"] = { desc = "Next search", action = "repeat search forward" },
+    ["N"] = { desc = "Previous search", action = "repeat search backward" },
+    ["*"] = { desc = "Search word forward", action = "search current word forward" },
+    ["#"] = { desc = "Search word backward", action = "search current word backward" },
 
     -- Other common built-ins
-    ['.'] = { desc = 'Repeat last command', action = 'repeat last change' },
-    ['%'] = { desc = 'Jump to matching bracket', action = 'jump to matching paren/bracket' },
-    ['f'] = { desc = 'Find character', action = 'find char forward' },
-    ['F'] = { desc = 'Find character backward', action = 'find char backward' },
-    ['t'] = { desc = 'Till character', action = 'till char forward' },
-    ['T'] = { desc = 'Till character backward', action = 'till char backward' },
-    [';'] = { desc = 'Repeat find', action = 'repeat last f/F/t/T' },
-    [','] = { desc = 'Repeat find reverse', action = 'repeat last f/F/t/T reverse' },
+    ["."] = { desc = "Repeat last command", action = "repeat last change" },
+    ["%"] = { desc = "Jump to matching bracket", action = "jump to matching paren/bracket" },
+    ["f"] = { desc = "Find character", action = "find char forward" },
+    ["F"] = { desc = "Find character backward", action = "find char backward" },
+    ["t"] = { desc = "Till character", action = "till char forward" },
+    ["T"] = { desc = "Till character backward", action = "till char backward" },
+    [";"] = { desc = "Repeat find", action = "repeat last f/F/t/T" },
+    [","] = { desc = "Repeat find reverse", action = "repeat last f/F/t/T reverse" },
   },
 
   -- Visual mode built-ins
   v = {
-    ['d'] = { desc = 'Delete selection', action = 'delete visual selection' },
-    ['c'] = { desc = 'Change selection', action = 'change visual selection' },
-    ['y'] = { desc = 'Yank selection', action = 'yank visual selection' },
-    ['x'] = { desc = 'Delete selection', action = 'delete visual selection' },
-    ['s'] = { desc = 'Substitute selection', action = 'substitute visual selection' },
-    ['o'] = { desc = 'Switch cursor to other end', action = 'toggle visual selection end' },
+    ["d"] = { desc = "Delete selection", action = "delete visual selection" },
+    ["c"] = { desc = "Change selection", action = "change visual selection" },
+    ["y"] = { desc = "Yank selection", action = "yank visual selection" },
+    ["x"] = { desc = "Delete selection", action = "delete visual selection" },
+    ["s"] = { desc = "Substitute selection", action = "substitute visual selection" },
+    ["o"] = { desc = "Switch cursor to other end", action = "toggle visual selection end" },
   },
 
   -- Insert mode built-ins
   i = {
-    ['<C-h>'] = { desc = 'Backspace', action = 'delete char before cursor' },
-    ['<C-w>'] = { desc = 'Delete word', action = 'delete word before cursor' },
-    ['<C-u>'] = { desc = 'Delete line', action = 'delete line before cursor' },
-  }
+    ["<C-h>"] = { desc = "Backspace", action = "delete char before cursor" },
+    ["<C-w>"] = { desc = "Delete word", action = "delete word before cursor" },
+    ["<C-u>"] = { desc = "Delete line", action = "delete line before cursor" },
+  },
 }
 
 -- Get built-in keymaps for normalization
@@ -195,7 +195,7 @@ function M.normalize_keymaps(user_keymaps)
           key = key,
           action = builtin_info.action,
           opts = { desc = builtin_info.desc },
-          builtin = true
+          builtin = true,
         }
       end
     end
@@ -225,7 +225,7 @@ function M.detect_conflicts(keymaps, include_builtins)
           action = builtin_info.action,
           opts = { desc = builtin_info.desc },
           source = { file = "vim-builtin", line = 0 },
-          builtin = true
+          builtin = true,
         }
       end
     end
@@ -247,7 +247,7 @@ function M.detect_conflicts(keymaps, include_builtins)
         first = existing,
         duplicate = keymap,
         type = conflict_type,
-        builtin_override = existing.builtin or false
+        builtin_override = existing.builtin or false,
       })
     else
       key_usage[keymap.mode][keymap.key] = keymap
@@ -268,7 +268,7 @@ local function keymap_collector(mode, key, action, opts, context)
     key = key,
     action = action,
     opts = opts or {},
-    context = context or {}
+    context = context or {},
   })
 end
 
@@ -283,11 +283,11 @@ function M.create_introspect_config()
   local lil_defaults = require("lil.config")
 
   local introspect_config = vim.tbl_deep_extend("force", lil_defaults, {
-    [lil_utils.flags.func] = keymap_collector
+    [lil_utils.flags.func] = keymap_collector,
   })
 
   return function(map)
-    return lil_core(introspect_config, '', map)
+    return lil_core(introspect_config, "", map)
   end
 end
 

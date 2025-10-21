@@ -95,4 +95,3 @@ function M.yank_visible()
 end
 
 return M
-

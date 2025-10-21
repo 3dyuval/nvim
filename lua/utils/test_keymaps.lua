@@ -133,15 +133,19 @@ function M.get_all_keymaps()
     history = {},
     navigation = {},
     search = {},
-    smart_diff = {}
+    smart_diff = {},
   }
 
   -- Create mock functions for all utility methods
-  local function mock_function() return function() end end
+  local function mock_function()
+    return function() end
+  end
   for module_name, module_table in pairs(test_env) do
     if type(module_table) == "table" and module_name ~= "lil" then
       setmetatable(module_table, {
-        __index = function() return mock_function end
+        __index = function()
+          return mock_function
+        end,
       })
     end
   end
@@ -160,11 +164,13 @@ function M.get_all_keymaps()
   local original_keymap_set = vim.keymap.set
   vim.keymap.set = function(mode, key, action, opts)
     -- Capture debug info using Lua's debug library
-    local info = debug.getinfo(2, "Sl")  -- Get caller info (2 levels up)
+    local info = debug.getinfo(2, "Sl") -- Get caller info (2 levels up)
 
     -- Helper function to get clean filename
     local function get_clean_filename(source)
-      if not source then return "unknown" end
+      if not source then
+        return "unknown"
+      end
 
       -- Handle different source formats
       local file = source:match("@(.+)") or source
@@ -190,8 +196,8 @@ function M.get_all_keymaps()
       source = {
         file = info.source and get_clean_filename(info.source) or "unknown",
         line = info.currentline or 0,
-        short_src = info.short_src or "unknown"
-      }
+        short_src = info.short_src or "unknown",
+      },
     })
     -- Don't actually set the keymap in test mode
   end
@@ -216,9 +222,9 @@ function M.get_all_keymaps()
   _G.n = test_env.n
 
   -- Reload keymaps.lua to collect data
-  package.loaded['config.keymaps'] = nil
+  package.loaded["config.keymaps"] = nil
   local success, err = pcall(function()
-    require('config.keymaps')
+    require("config.keymaps")
   end)
 
   -- Restore everything
@@ -259,77 +265,77 @@ local builtin_keymaps = {
   -- Normal mode built-ins
   n = {
     -- Movement
-    ['h'] = { desc = 'Left', action = 'cursor left' },
-    ['j'] = { desc = 'Down', action = 'cursor down' },
-    ['k'] = { desc = 'Up', action = 'cursor up' },
-    ['l'] = { desc = 'Right', action = 'cursor right' },
-    ['w'] = { desc = 'Word forward', action = 'next word' },
-    ['b'] = { desc = 'Word backward', action = 'previous word' },
-    ['e'] = { desc = 'End of word', action = 'end of word' },
-    ['0'] = { desc = 'Beginning of line', action = 'start of line' },
-    ['^'] = { desc = 'First non-blank character', action = 'first non-blank' },
-    ['$'] = { desc = 'End of line', action = 'end of line' },
-    ['gg'] = { desc = 'Go to top', action = 'first line' },
-    ['G'] = { desc = 'Go to bottom', action = 'last line' },
+    ["h"] = { desc = "Left", action = "cursor left" },
+    ["j"] = { desc = "Down", action = "cursor down" },
+    ["k"] = { desc = "Up", action = "cursor up" },
+    ["l"] = { desc = "Right", action = "cursor right" },
+    ["w"] = { desc = "Word forward", action = "next word" },
+    ["b"] = { desc = "Word backward", action = "previous word" },
+    ["e"] = { desc = "End of word", action = "end of word" },
+    ["0"] = { desc = "Beginning of line", action = "start of line" },
+    ["^"] = { desc = "First non-blank character", action = "first non-blank" },
+    ["$"] = { desc = "End of line", action = "end of line" },
+    ["gg"] = { desc = "Go to top", action = "first line" },
+    ["G"] = { desc = "Go to bottom", action = "last line" },
 
     -- Text objects and operations
-    ['d'] = { desc = 'Delete', action = 'delete operator' },
-    ['c'] = { desc = 'Change', action = 'change operator' },
-    ['y'] = { desc = 'Yank', action = 'yank operator' },
-    ['p'] = { desc = 'Paste after', action = 'paste after cursor' },
-    ['P'] = { desc = 'Paste before', action = 'paste before cursor' },
-    ['u'] = { desc = 'Undo', action = 'undo last change' },
-    ['r'] = { desc = 'Replace character', action = 'replace single char' },
-    ['x'] = { desc = 'Delete character', action = 'delete char under cursor' },
-    ['X'] = { desc = 'Delete character before', action = 'delete char before cursor' },
-    ['s'] = { desc = 'Substitute character', action = 'substitute char' },
-    ['S'] = { desc = 'Substitute line', action = 'substitute line' },
+    ["d"] = { desc = "Delete", action = "delete operator" },
+    ["c"] = { desc = "Change", action = "change operator" },
+    ["y"] = { desc = "Yank", action = "yank operator" },
+    ["p"] = { desc = "Paste after", action = "paste after cursor" },
+    ["P"] = { desc = "Paste before", action = "paste before cursor" },
+    ["u"] = { desc = "Undo", action = "undo last change" },
+    ["r"] = { desc = "Replace character", action = "replace single char" },
+    ["x"] = { desc = "Delete character", action = "delete char under cursor" },
+    ["X"] = { desc = "Delete character before", action = "delete char before cursor" },
+    ["s"] = { desc = "Substitute character", action = "substitute char" },
+    ["S"] = { desc = "Substitute line", action = "substitute line" },
 
     -- Modes
-    ['i'] = { desc = 'Insert mode', action = 'enter insert mode' },
-    ['I'] = { desc = 'Insert at beginning', action = 'insert at line start' },
-    ['a'] = { desc = 'Append', action = 'enter insert after cursor' },
-    ['A'] = { desc = 'Append at end', action = 'insert at line end' },
-    ['o'] = { desc = 'Open line below', action = 'new line below' },
-    ['O'] = { desc = 'Open line above', action = 'new line above' },
-    ['v'] = { desc = 'Visual mode', action = 'enter visual mode' },
-    ['V'] = { desc = 'Visual line mode', action = 'enter visual line mode' },
+    ["i"] = { desc = "Insert mode", action = "enter insert mode" },
+    ["I"] = { desc = "Insert at beginning", action = "insert at line start" },
+    ["a"] = { desc = "Append", action = "enter insert after cursor" },
+    ["A"] = { desc = "Append at end", action = "insert at line end" },
+    ["o"] = { desc = "Open line below", action = "new line below" },
+    ["O"] = { desc = "Open line above", action = "new line above" },
+    ["v"] = { desc = "Visual mode", action = "enter visual mode" },
+    ["V"] = { desc = "Visual line mode", action = "enter visual line mode" },
 
     -- Search and navigation
-    ['/'] = { desc = 'Search forward', action = 'forward search' },
-    ['?'] = { desc = 'Search backward', action = 'backward search' },
-    ['n'] = { desc = 'Next search', action = 'repeat search forward' },
-    ['N'] = { desc = 'Previous search', action = 'repeat search backward' },
-    ['*'] = { desc = 'Search word forward', action = 'search current word forward' },
-    ['#'] = { desc = 'Search word backward', action = 'search current word backward' },
+    ["/"] = { desc = "Search forward", action = "forward search" },
+    ["?"] = { desc = "Search backward", action = "backward search" },
+    ["n"] = { desc = "Next search", action = "repeat search forward" },
+    ["N"] = { desc = "Previous search", action = "repeat search backward" },
+    ["*"] = { desc = "Search word forward", action = "search current word forward" },
+    ["#"] = { desc = "Search word backward", action = "search current word backward" },
 
     -- Other common built-ins
-    ['.'] = { desc = 'Repeat last command', action = 'repeat last change' },
-    ['%'] = { desc = 'Jump to matching bracket', action = 'jump to matching paren/bracket' },
-    ['f'] = { desc = 'Find character', action = 'find char forward' },
-    ['F'] = { desc = 'Find character backward', action = 'find char backward' },
-    ['t'] = { desc = 'Till character', action = 'till char forward' },
-    ['T'] = { desc = 'Till character backward', action = 'till char backward' },
-    [';'] = { desc = 'Repeat find', action = 'repeat last f/F/t/T' },
-    [','] = { desc = 'Repeat find reverse', action = 'repeat last f/F/t/T reverse' },
+    ["."] = { desc = "Repeat last command", action = "repeat last change" },
+    ["%"] = { desc = "Jump to matching bracket", action = "jump to matching paren/bracket" },
+    ["f"] = { desc = "Find character", action = "find char forward" },
+    ["F"] = { desc = "Find character backward", action = "find char backward" },
+    ["t"] = { desc = "Till character", action = "till char forward" },
+    ["T"] = { desc = "Till character backward", action = "till char backward" },
+    [";"] = { desc = "Repeat find", action = "repeat last f/F/t/T" },
+    [","] = { desc = "Repeat find reverse", action = "repeat last f/F/t/T reverse" },
   },
 
   -- Visual mode built-ins
   v = {
-    ['d'] = { desc = 'Delete selection', action = 'delete visual selection' },
-    ['c'] = { desc = 'Change selection', action = 'change visual selection' },
-    ['y'] = { desc = 'Yank selection', action = 'yank visual selection' },
-    ['x'] = { desc = 'Delete selection', action = 'delete visual selection' },
-    ['s'] = { desc = 'Substitute selection', action = 'substitute visual selection' },
-    ['o'] = { desc = 'Switch cursor to other end', action = 'toggle visual selection end' },
+    ["d"] = { desc = "Delete selection", action = "delete visual selection" },
+    ["c"] = { desc = "Change selection", action = "change visual selection" },
+    ["y"] = { desc = "Yank selection", action = "yank visual selection" },
+    ["x"] = { desc = "Delete selection", action = "delete visual selection" },
+    ["s"] = { desc = "Substitute selection", action = "substitute visual selection" },
+    ["o"] = { desc = "Switch cursor to other end", action = "toggle visual selection end" },
   },
 
   -- Insert mode built-ins
   i = {
-    ['<C-h>'] = { desc = 'Backspace', action = 'delete char before cursor' },
-    ['<C-w>'] = { desc = 'Delete word', action = 'delete word before cursor' },
-    ['<C-u>'] = { desc = 'Delete line', action = 'delete line before cursor' },
-  }
+    ["<C-h>"] = { desc = "Backspace", action = "delete char before cursor" },
+    ["<C-w>"] = { desc = "Delete word", action = "delete word before cursor" },
+    ["<C-u>"] = { desc = "Delete line", action = "delete line before cursor" },
+  },
 }
 
 function M.get_builtin_keymaps()
@@ -355,9 +361,9 @@ function M.analyze_keymap_conflicts()
         opts = { desc = builtin_info.desc },
         source = {
           file = "vim-builtin",
-          line = 0
+          line = 0,
         },
-        builtin = true
+        builtin = true,
       }
     end
   end
@@ -378,14 +384,10 @@ function M.analyze_keymap_conflicts()
         first = existing,
         duplicate = keymap,
         -- Enhanced conflict info with locations
-        first_location = string.format("%s:%d",
-          existing.source.file,
-          existing.source.line),
-        duplicate_location = string.format("%s:%d",
-          keymap.source.file,
-          keymap.source.line),
+        first_location = string.format("%s:%d", existing.source.file, existing.source.line),
+        duplicate_location = string.format("%s:%d", keymap.source.file, keymap.source.line),
         type = conflict_type,
-        builtin_override = existing.builtin or false
+        builtin_override = existing.builtin or false,
       })
     else
       key_usage[keymap.mode][keymap.key] = keymap
@@ -416,14 +418,22 @@ function M.analyze_keymap_conflicts()
     print("=== DUPLICATE KEYMAP CONFLICTS ===")
     for _, conflict in ipairs(duplicates) do
       print(string.format("⚠️  Mode: %s, Key: %s", conflict.mode, conflict.key))
-      print(string.format("  First:  %s (%s) at %s",
-        type(conflict.first.action) == "string" and conflict.first.action or "[function]",
-        conflict.first.opts.desc or "No description",
-        conflict.first_location))
-      print(string.format("  Second: %s (%s) at %s",
-        type(conflict.duplicate.action) == "string" and conflict.duplicate.action or "[function]",
-        conflict.duplicate.opts.desc or "No description",
-        conflict.duplicate_location))
+      print(
+        string.format(
+          "  First:  %s (%s) at %s",
+          type(conflict.first.action) == "string" and conflict.first.action or "[function]",
+          conflict.first.opts.desc or "No description",
+          conflict.first_location
+        )
+      )
+      print(
+        string.format(
+          "  Second: %s (%s) at %s",
+          type(conflict.duplicate.action) == "string" and conflict.duplicate.action or "[function]",
+          conflict.duplicate.opts.desc or "No description",
+          conflict.duplicate_location
+        )
+      )
       print("---")
     end
     print("")
@@ -437,13 +447,21 @@ function M.analyze_keymap_conflicts()
     print("=== BUILT-IN VIM KEYMAP OVERRIDES ===")
     for _, conflict in ipairs(builtin_overrides) do
       print(string.format("ℹ️  Mode: %s, Key: '%s'", conflict.mode, conflict.key))
-      print(string.format("  Built-in: %s (%s)",
-        conflict.first.action,
-        conflict.first.opts.desc or "No description"))
-      print(string.format("  Override: %s (%s) at %s",
-        type(conflict.duplicate.action) == "string" and conflict.duplicate.action or "[function]",
-        conflict.duplicate.opts.desc or "No description",
-        conflict.duplicate_location))
+      print(
+        string.format(
+          "  Built-in: %s (%s)",
+          conflict.first.action,
+          conflict.first.opts.desc or "No description"
+        )
+      )
+      print(
+        string.format(
+          "  Override: %s (%s) at %s",
+          type(conflict.duplicate.action) == "string" and conflict.duplicate.action or "[function]",
+          conflict.duplicate.opts.desc or "No description",
+          conflict.duplicate_location
+        )
+      )
       print("---")
     end
   else

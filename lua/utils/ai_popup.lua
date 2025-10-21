@@ -40,8 +40,10 @@ local function generate_diny_and_commit()
 
               local commit_actions = require("neogit.popups.commit.actions")
               local mock_popup = {
-                get_arguments = function() return {} end,
-                state = { args = {} }
+                get_arguments = function()
+                  return {}
+                end,
+                state = { args = {} },
               }
               commit_actions.commit(mock_popup)
             end)
