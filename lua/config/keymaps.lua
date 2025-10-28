@@ -18,6 +18,8 @@ local opts = lil.flags.opts
 local mode = lil.flags.mode
 local x = lil.mod("x")
 local n = lil.mod("n")
+local ctrl = lil.key("C")
+local _ = lil._
 
 -- Use keymap-utils as unified toolkit
 local map = kmu.map
@@ -247,6 +249,8 @@ map({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 
 -- Map semicolon to repeat last command (instead of dot)
 map({ "n" }, ";", ".", { desc = "Repeat last command" })
+-- Repeat last visual selection
+map({ "n" }, "'", "gv", { desc = "Repeat last visual selection" })
 -- Move repeat find to different keys
 map({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
 map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
@@ -309,6 +313,7 @@ map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
 map({ "n", "o", "x" }, "A", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "E", "N", { desc = "Previous search match" })
+map({ "n", "o", "x" }, "8", "N", { desc = "Previous search match" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
@@ -376,12 +381,15 @@ map({ "n" }, "<M-C-i>", function()
   require("smart-splits").resize_right(5)
 end, { noremap = true, desc = "Right window" })
 
--- Cycle through windows with Alt+Tab
--- map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
-
--- Buffer navigation - using Tab keys
-map({ "n" }, "<C-p>", cmd("bprevious"), { desc = "Previous buffer" })
-map({ "n" }, "<C-.>", cmd("bnext"), { desc = "Next buffer" })
+-- Buffer navigation
+lil.map({
+  [func] = func_map,
+  [mode] = { "n" },
+  [ctrl + _] = {
+    p = desc("Previous buffer", cmd("BufferLineCyclePrev")),
+    ["."] = desc("Next buffer", cmd("BufferLineCycleNext")),
+  },
+})
 
 lil.map({
   [func] = func_map,
