@@ -27,6 +27,11 @@ return {
       default_merge_method = "squash",
       -- Note: Octo doesn't support global layout configuration in picker_config
       -- Each picker inherits from Snacks global config or needs manual override
+
+      -- Disable default <localleader> mappings - use custom <leader>o mappings instead
+      mappings = {
+        disable_default = true,
+      },
     }
   end,
   config = function(_, opts)
@@ -74,18 +79,9 @@ return {
       --   end,
     })
   end,
+  -- Note: Default <localleader> mappings are disabled above
+  -- Using custom <leader>o mappings defined in lua/config/keymaps.lua instead
   keys = {
-    { "<localleader>a", "", desc = "+assignee", ft = "octo" },
-    { "<localleader>c", "", desc = "+comment/code", ft = "octo" },
-    { "<localleader>l", "", desc = "+label", ft = "octo" },
-    { "<localleader>i", "", desc = "+issue", ft = "octo" },
-    { "<localleader>r", "", desc = "+react", ft = "octo" },
-    { "<localleader>p", "", desc = "+pr", ft = "octo" },
-    { "<localleader>pr", "", desc = "+rebase", ft = "octo" },
-    { "<localleader>ps", "", desc = "+squash", ft = "octo" },
-    { "<localleader>v", "", desc = "+review", ft = "octo" },
-    { "<localleader>g", "", desc = "+goto_issue", ft = "octo" },
-    { "<localleader>b", "<cmd>Octo issue browser<cr>", desc = "Open in browser", ft = "octo" },
     { "@", "@<C-x><C-o>", mode = "i", ft = "octo", silent = true }, -- auto complete for @
     { "#", "#<C-x><C-o>", mode = "i", ft = "octo", silent = true }, -- autocompletion for #
   },
