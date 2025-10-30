@@ -23,12 +23,5 @@ return {
   { "Mofiqul/dracula.nvim", enabled = false },
   { "navarasu/onedark.nvim", enabled = false },
   { "EdenEast/nightfox.nvim", enabled = false },
-  {
-    "neovim/nvim-lspconfig",
-    init = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      -- Disable the default <leader>cr code action binding
-      keys[#keys + 1] = { "<leader>cr", false }
-    end,
-  },
+  -- Note: LSP keymaps are now consolidated in lua/plugins/lsp-keymaps.lua
 }
