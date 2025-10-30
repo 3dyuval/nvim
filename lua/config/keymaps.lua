@@ -161,13 +161,14 @@ lil.map({
   ["<leader>h"] = {
     h = desc("Local file history", history.local_file_history),
     H = desc("All files in backup", history.all_files_in_backup),
-    F = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
-    f = desc("Firefox bookmarks", history.firefox_search),
+    F = desc("Browser bookmarks", cmd("BrowserBookmarks")),
+    f = desc("Browser search (history + bookmarks)", cmd("BrowserSearch")),
     s = desc("Smart history picker", history.smart_file_history),
     l = desc("Git log", history.git_log_picker),
     u = desc("View undo list", cmd("undolist")),
     T = desc("Manual backup with tag", history.manual_backup_with_tag),
     p = desc("Project files history", history.project_files_history),
+    y = desc("Yank history", Snacks.picker.yanky),
   },
 })
 
