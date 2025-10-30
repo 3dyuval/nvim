@@ -78,7 +78,7 @@ return {
     },
     setup = {
       volar = function(_, opts)
-        LazyVim.lsp.on_attach(function(client, buffer)
+        Snacks.util.lsp.on(function(client, buffer)
           vim.keymap.set(
             "n",
             "<leader>cr",

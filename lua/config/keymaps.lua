@@ -18,6 +18,8 @@ local opts = lil.flags.opts
 local mode = lil.flags.mode
 local x = lil.mod("x")
 local n = lil.mod("n")
+local ctrl = lil.key("C")
+local _ = lil._
 
 -- Use keymap-utils as unified toolkit
 local map = kmu.map
@@ -159,13 +161,14 @@ lil.map({
   ["<leader>h"] = {
     h = desc("Local file history", history.local_file_history),
     H = desc("All files in backup", history.all_files_in_backup),
-    F = desc("Firefox bookmarks", history.firefox_bookmarks_picker),
-    f = desc("Firefox bookmarks", history.firefox_search),
+    F = desc("Browser bookmarks", cmd("BrowserBookmarks")),
+    f = desc("Browser search (history + bookmarks)", cmd("BrowserSearch")),
     s = desc("Smart history picker", history.smart_file_history),
     l = desc("Git log", history.git_log_picker),
     u = desc("View undo list", cmd("undolist")),
     T = desc("Manual backup with tag", history.manual_backup_with_tag),
     p = desc("Project files history", history.project_files_history),
+    y = desc("Yank history", Snacks.picker.yanky),
   },
 })
 
@@ -247,6 +250,8 @@ map({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 
 -- Map semicolon to repeat last command (instead of dot)
 map({ "n" }, ";", ".", { desc = "Repeat last command" })
+-- Repeat last visual selection
+map({ "n" }, "'", "gv", { desc = "Repeat last visual selection" })
 -- Move repeat find to different keys
 map({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
 map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
@@ -309,6 +314,7 @@ map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
 map({ "n", "o", "x" }, "A", "n", { desc = "Next search match" })
 map({ "n", "o", "x" }, "E", "N", { desc = "Previous search match" })
+map({ "n", "o", "x" }, "8", "N", { desc = "Previous search match" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
@@ -376,12 +382,15 @@ map({ "n" }, "<M-C-i>", function()
   require("smart-splits").resize_right(5)
 end, { noremap = true, desc = "Right window" })
 
--- Cycle through windows with Alt+Tab
--- map({ "n" }, "<M-Tab>", "<C-w>w", { desc = "Cycle windows" })
-
--- Buffer navigation - using Tab keys
-map({ "n" }, "<C-p>", cmd("bprevious"), { desc = "Previous buffer" })
-map({ "n" }, "<C-.>", cmd("bnext"), { desc = "Next buffer" })
+-- Buffer navigation
+lil.map({
+  [func] = func_map,
+  [mode] = { "n" },
+  [ctrl + _] = {
+    p = desc("Previous buffer", cmd("BufferLineCyclePrev")),
+    ["."] = desc("Next buffer", cmd("BufferLineCycleNext")),
+  },
+})
 
 lil.map({
   [func] = func_map,
@@ -536,36 +545,110 @@ lil.map({
 -- ============================================================================
 -- OCTO KEYMAPS (GitHub operations - following gh-alias structure)
 -- ============================================================================
-
+-- Note: Octo's default <localleader> mappings are disabled in lua/plugins/octo.lua
+-- Using custom <leader>o mappings below instead
 lil.map({
   [func] = func_map,
   ["<leader>o"] = {
+    -- Repo operations
     r = {
       w = desc("Browse repo", cmd("Octo repo browser")),
       i = desc("My repositories", cmd("Octo repo list")),
       l = desc("Copy url", cmd("Octo repo url")),
     },
-    -- First level: category selection
+
+    -- Issues submenu
     i = {
-      -- Issues submenu
+      -- Basic issue operations
       v = desc("View issue", cmd("Octo issue edit ", false)),
       c = desc("Create issue", cmd("Octo issue create")),
       x = desc("Close issue", cmd("Octo issue close")),
+      o = desc("Reopen issue", cmd("Octo issue reopen")),
       b = desc("List issues by author", cmd("Octo issue search state:open author:", false)),
       l = desc("List issues", cmd("Octo issue list")),
       i = desc("My issues", cmd("Octo issue search state:open involves:@me")),
-      w = desc("My issues", cmd("Octo issue browser")),
+      w = desc("Open in browser", cmd("Octo issue browser")),
+      r = desc("Reload issue", cmd("Octo issue reload")),
+
+      -- Assignees submenu
+      a = {
+        a = desc("Add assignee", cmd("Octo assignee add ", false)),
+        d = desc("Remove assignee", cmd("Octo assignee remove ", false)),
+      },
+
+      -- Labels submenu
+      L = {
+        a = desc("Add label", cmd("Octo label add ", false)),
+        d = desc("Remove label", cmd("Octo label remove ", false)),
+        c = desc("Create label", cmd("Octo label create")),
+      },
     },
+
+    -- Pull Requests submenu
     p = {
-      -- Pull Requests submenu
+      -- Basic PR operations
       v = desc("View PR", cmd("Octo pr ", false)),
       c = desc("Create PR", cmd("Octo pr create")),
       l = desc("List PRs", cmd("Octo pr list")),
       s = desc("Search PRs", cmd("Octo pr search")),
-      r = desc("Start review", cmd("Octo review start")),
-      R = desc("Resume review", cmd("Octo review resume")),
+      o = desc("Checkout PR", cmd("Octo pr checkout")),
+      w = desc("Open in browser", cmd("Octo pr browser")),
+      r = desc("Reload PR", cmd("Octo pr reload")),
+
+      -- PR info
+      C = desc("List commits", cmd("Octo pr commits")),
+      f = desc("List changed files", cmd("Octo pr changes")),
+      d = desc("Show diff", cmd("Octo pr diff")),
+
+      -- Merge operations
+      m = {
+        c = desc("Merge commit", cmd("Octo pr merge commit")),
+        s = desc("Merge squash", cmd("Octo pr merge squash")),
+        r = desc("Merge rebase", cmd("Octo pr merge rebase")),
+        d = desc("Merge delete", cmd("Octo pr merge delete")),
+      },
+
+      -- Reviewers submenu
+      R = {
+        a = desc("Add reviewer", cmd("Octo reviewer add ", false)),
+        d = desc("Remove reviewer", cmd("Octo reviewer remove ", false)),
+      },
     },
-    -- Direct actions (no submenu)
+
+    -- Review operations
+    v = {
+      s = desc("Start review", cmd("Octo review start")),
+      r = desc("Resume review", cmd("Octo review resume")),
+      S = desc("Submit review", cmd("Octo review submit")),
+      d = desc("Discard review", cmd("Octo review discard")),
+      c = desc("Review comments", cmd("Octo review comments")),
+    },
+
+    -- Thread operations
+    t = {
+      r = desc("Resolve thread", cmd("Octo thread resolve")),
+      u = desc("Unresolve thread", cmd("Octo thread unresolve")),
+    },
+
+    -- Comment operations
+    c = {
+      a = desc("Add comment", cmd("Octo comment add")),
+      d = desc("Delete comment", cmd("Octo comment delete")),
+    },
+
+    -- Reactions submenu
+    re = {
+      p = desc("React hooray", cmd("Octo reaction hooray")),
+      h = desc("React heart", cmd("Octo reaction heart")),
+      e = desc("React eyes", cmd("Octo reaction eyes")),
+      ["+"] = desc("React thumbs up", cmd("Octo reaction thumbs_up")),
+      ["-"] = desc("React thumbs down", cmd("Octo reaction thumbs_down")),
+      r = desc("React rocket", cmd("Octo reaction rocket")),
+      l = desc("React laugh", cmd("Octo reaction laugh")),
+      c = desc("React confused", cmd("Octo reaction confused")),
+    },
+
+    -- Notifications
     n = desc("Notifications", cmd("Octo notifications")),
   },
 })

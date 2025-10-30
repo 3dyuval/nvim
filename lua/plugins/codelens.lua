@@ -5,8 +5,9 @@ return {
     opts = opts or {}
     opts.inlay_hints = opts.inlay_hints or { enabled = true }
     opts.codelens = opts.codelens or { enabled = false } -- Disabled to prevent LazyVim's auto-refresh
-
-    local keys = require("lazyvim.plugins.lsp.keymaps").get()
+    opts.servers = opts.servers or {}
+    opts.servers["*"] = opts.servers["*"] or {}
+    opts.servers["*"].keys = opts.servers["*"].keys or {}
 
     -- Custom function to show references in Snacks picker
     local function show_references_picker()
@@ -256,15 +257,7 @@ return {
       end
     end
 
-    -- Add codelens and reference keymaps
-    keys[#keys + 1] =
-      { "<leader>cx", show_references_picker, desc = "Show References (Snacks)", mode = { "n" } }
-    keys[#keys + 1] = { "<leader>cL", vim.lsp.codelens.refresh, desc = "Refresh Codelens" }
-    -- keys[#keys + 1] = { "<leader>cr", run_codelens_action, desc = "Run Codelens Action" } -- Disabled: conflicts with references binding
-    keys[#keys + 1] =
-      { "<leader>cR", vim.lsp.buf.references, desc = "Show References (LSP)", mode = { "n" } }
-    -- keys[#keys + 1] = { "<leader>cC", "<cmd>LspInfo<cr>", desc = "LSP Info" }
-
+    -- Note: Codelens and reference keymaps have been moved to lua/plugins/lsp-keymaps.lua
     return opts
   end,
   -- Removed vtsls-specific init function to prevent conflicts with typescript-tools

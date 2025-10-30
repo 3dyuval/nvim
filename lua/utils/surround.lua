@@ -40,6 +40,46 @@ M.opts = {
     ["_"] = { add = { "_", "_" } }, -- Italic: _text_
     ["~"] = { add = { "~~", "~~" } }, -- Strikethrough: ~~text~~
 
+    -- CUSTOM INPUT SURROUND: Prompt for custom delimiter pair
+    ["i"] = {
+      add = function()
+        local config = require("nvim-surround.config")
+        local input = config.get_input("Enter delimiter pair (left/right or tag): ")
+        if not input then
+          return
+        end
+
+        -- Check if it looks like a tag: <Tag> or just Tag
+        local opening_tag = input:match("^<([^/>]+)>?$")
+        if opening_tag then
+          local tag_name = opening_tag:match("^([^%s>]+)")
+          return { { "<" .. opening_tag .. ">" }, { "</" .. tag_name .. ">" } }
+        end
+
+        -- Mapping of opening to closing delimiters (bidirectional)
+        local pairs = {
+          ["("] = ")",
+          [")"] = "(",
+          ["["] = "]",
+          ["]"] = "[",
+          ["{"] = "}",
+          ["}"] = "{",
+          ["<"] = ">",
+          [">"] = "<",
+        }
+
+        -- Mirror and reverse the input to create closing delimiter
+        -- e.g., "<'{" → "}'>", "{`" → "`}"
+        local right = ""
+        for i = #input, 1, -1 do
+          local char = input:sub(i, i)
+          right = right .. (pairs[char] or char)
+        end
+
+        return { { input }, { right } }
+      end,
+    },
+
     -- Note: Other surrounds (quotes, HTML tags, function calls) use plugin defaults
   },
 

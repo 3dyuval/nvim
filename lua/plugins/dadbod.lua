@@ -1,7 +1,6 @@
 return {
   {
     "tpope/vim-dadbod",
-    cmd = { "DB", "DBUI" },
   },
   {
     "kristijanhusak/vim-dadbod-ui",
@@ -24,16 +23,7 @@ return {
   },
   {
     "kristijanhusak/vim-dadbod-completion",
-    dependencies = { "hrsh7th/nvim-cmp", "tpope/vim-dadbod" },
+    dependencies = { "tpope/vim-dadbod" },
     ft = { "sql", "mysql", "plsql" },
-    config = function()
-      require("cmp").setup.filetype({ "sql", "mysql", "plsql" }, {
-        sources = {
-          { name = "vim-dadbod-completion" },
-          { name = "buffer" },
-          { name = "luasnip" },
-        },
-      })
-    end,
   },
 }
