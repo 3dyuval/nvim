@@ -1,10 +1,12 @@
 return {
   "neovim/nvim-lspconfig",
   opts = {
-    capabilities = {
-      positionEncoding = "utf-8",
-    },
     servers = {
+      ['*'] = {
+        capabilities = {
+          positionEncoding = "utf-8",
+        },
+      },
       -- Disable formatters that Mason tries to use as LSP servers
       stylua = { enabled = false }, -- stylua is only a formatter (via conform.nvim), not an LSP
 
@@ -17,6 +19,9 @@ return {
 
       -- Disable vtsls (replaced with typescript-tools.nvim)
       vtsls = { enabled = false },
+
+      -- Disable Angular LSP (not using Angular)
+      angularls = { enabled = false },
 
       -- === Vue Development ===
       volar = {
@@ -78,17 +83,17 @@ return {
     },
     setup = {
       volar = function(_, opts)
-        Snacks.util.lsp.on(function(client, buffer)
+        Snacks.util.lsp.on({ name = "volar" }, function(buf, client)
           vim.keymap.set(
             "n",
             "<leader>cr",
             vim.lsp.buf.rename,
-            { buffer = buffer, desc = "LSP Rename" }
+            { buffer = buf, desc = "LSP Rename" }
           )
           if client.server_capabilities.documentSymbolProvider then
-            require("nvim-navic").attach(client, buffer)
+            require("nvim-navic").attach(client, buf)
           end
-        end, "volar")
+        end)
       end,
     },
   },

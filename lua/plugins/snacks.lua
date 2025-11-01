@@ -235,7 +235,6 @@ return {
             end,
           },
           { icon = "", key = "s", desc = "Restore Session", section = "session" },
-          { icon = " ", key = "t", desc = "Show todo", action = ":TodoTrouble" },
           {
             icon = "󰒲 ",
             key = "l",
