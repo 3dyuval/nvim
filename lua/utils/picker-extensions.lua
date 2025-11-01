@@ -217,22 +217,60 @@ end
 
 -- Explorer: Copy file path with options
 M.copy_file_path = function(picker, item)
-  if not item then
+  -- Get selected items or fall back to single item
+  local items = {}
+  local selected, err = safe_picker_call(picker, "selected")
+  if not err and selected and #selected > 0 then
+    items = selected
+  elseif item then
+    items = { item }
+  else
     vim.notify("No item provided", vim.log.levels.WARN)
     return
   end
 
+  local is_multi = #items > 1
+
   -- Create ordered list with icons and values
-  local copy_options = {
-    { key = "PATH (CWD)", icon = "󰉋", value = vim.fn.fnamemodify(item.file, ":.") },
-    { key = "PATH (HOME)", icon = "󰋜", value = vim.fn.fnamemodify(item.file, ":~") },
-    { key = "FILE CONTENT", icon = "󰈙", value = "file_content" },
-    { key = "FILENAME", icon = "󰈔", value = vim.fn.fnamemodify(item.file, ":t") },
-    { key = "PATH", icon = "󰆏", value = item.file },
-    { key = "BASENAME", icon = "󰈙", value = vim.fn.fnamemodify(item.file, ":t:r") },
-    { key = "EXTENSION", icon = "󰈙", value = vim.fn.fnamemodify(item.file, ":t:e") },
-    { key = "URI", icon = "󰌷", value = vim.uri_from_fname(item.file) },
-  }
+  local copy_options = {}
+
+  if is_multi then
+    -- Multiple files: concatenate with newlines
+    local paths_cwd = {}
+    local paths_home = {}
+    local filenames = {}
+    local paths_abs = {}
+    local all_contents = {}
+
+    for _, itm in ipairs(items) do
+      table.insert(paths_cwd, vim.fn.fnamemodify(itm.file, ":."))
+      table.insert(paths_home, vim.fn.fnamemodify(itm.file, ":~"))
+      table.insert(filenames, vim.fn.fnamemodify(itm.file, ":t"))
+      table.insert(paths_abs, itm.file)
+    end
+
+    copy_options = {
+      { key = "cwd", icon = "󰉋", value = table.concat(paths_cwd, "\n") },
+      { key = "tree", icon = "", value = "tree_structure", items = items },
+      { key = "home", icon = "󰋜", value = table.concat(paths_home, "\n") },
+      { key = "content", icon = "󰈙", value = "file_content_multi", items = items },
+      { key = "name", icon = "󰈔", value = table.concat(filenames, "\n") },
+      { key = "path", icon = "󰆏", value = table.concat(paths_abs, "\n") },
+    }
+  else
+    -- Single file: keep existing behavior
+    copy_options = {
+      { key = "tree", icon = "", value = "tree_structure", items = items },
+      { key = "cwd", icon = "󰉋", value = vim.fn.fnamemodify(items[1].file, ":.") },
+      { key = "home", icon = "󰋜", value = vim.fn.fnamemodify(items[1].file, ":~") },
+      { key = "content", icon = "󰈙", value = "file_content", items = items },
+      { key = "name", icon = "󰈔", value = vim.fn.fnamemodify(items[1].file, ":t") },
+      { key = "path", icon = "󰆏", value = items[1].file },
+      { key = "basename", icon = "󰈙", value = vim.fn.fnamemodify(items[1].file, ":t:r") },
+      { key = "extension", icon = "󰈙", value = vim.fn.fnamemodify(items[1].file, ":t:e") },
+      { key = "uri", icon = "󰌷", value = vim.uri_from_fname(items[1].file) },
+    }
+  end
 
   -- Filter out empty values and create menu options
   local menu_options = {}
@@ -261,19 +299,154 @@ M.copy_file_path = function(picker, item)
       local selected_option = option_map[idx]
       local result = selected_option.value
 
-      if selected_option.key == "FILE CONTENT" then
-        if vim.fn.filereadable(item.file) == 0 then
-          vim.notify("File not readable: " .. item.file, vim.log.levels.ERROR)
+      if selected_option.key == "content" then
+        local all_contents = {}
+        local total_lines = 0
+        local file_count = 0
+
+        for _, itm in ipairs(selected_option.items) do
+          -- Check if it's a directory
+          if itm.dir or vim.fn.isdirectory(itm.file) == 1 then
+            -- Get top-level files in directory (non-recursive)
+            local dir_files = vim.fn.readdir(itm.file, function(name)
+              local path = itm.file .. "/" .. name
+              return vim.fn.filereadable(path) == 1
+            end)
+
+            for _, fname in ipairs(dir_files) do
+              local fpath = itm.file .. "/" .. fname
+              local content = vim.fn.readfile(fpath)
+              total_lines = total_lines + #content
+              file_count = file_count + 1
+
+              -- Add file path and separator
+              local rel_path = vim.fn.fnamemodify(fpath, ":.")
+              table.insert(all_contents, rel_path)
+              table.insert(all_contents, "--- " .. rel_path .. " ---")
+              table.insert(all_contents, table.concat(content, "\n"))
+            end
+          else
+            -- Regular file
+            if vim.fn.filereadable(itm.file) == 0 then
+              vim.notify("File not readable: " .. itm.file, vim.log.levels.ERROR)
+              return
+            end
+            local content = vim.fn.readfile(itm.file)
+            total_lines = total_lines + #content
+            file_count = file_count + 1
+
+            if is_multi then
+              -- Add file path and separator for multiple files
+              local rel_path = vim.fn.fnamemodify(itm.file, ":.")
+              table.insert(all_contents, rel_path)
+              table.insert(all_contents, "--- " .. rel_path .. " ---")
+              table.insert(all_contents, table.concat(content, "\n"))
+            else
+              -- Single file: add path before content
+              local rel_path = vim.fn.fnamemodify(itm.file, ":.")
+              table.insert(all_contents, rel_path)
+              table.insert(all_contents, table.concat(content, "\n"))
+            end
+          end
+        end
+
+        if file_count == 0 then
+          vim.notify("No files to copy", vim.log.levels.WARN)
           return
         end
-        local content = vim.fn.readfile(item.file)
-        local content_str = table.concat(content, "\n")
+
+        local content_str = table.concat(all_contents, "\n")
         vim.fn.setreg("+", content_str)
-        local filename = vim.fn.fnamemodify(item.file, ":t")
-        local line_count = #content
+
         Snacks.notify.info(
-          string.format("File content copied to clipboard: %s (%d lines)", filename, line_count)
+          string.format("Copied %d file(s) to clipboard (%d lines)", file_count, total_lines)
         )
+      elseif selected_option.key == "tree" then
+        -- Generate tree structure using tree command
+        local tree_output = ""
+        local items_count = #selected_option.items
+
+        -- Check if single directory
+        local single_dir = items_count == 1
+          and (selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1)
+
+        if single_dir then
+          -- Single directory: run tree on that directory
+          local dir_path = selected_option.items[1].file
+          local tree_cmd = string.format("tree %s", vim.fn.shellescape(dir_path))
+          tree_output = vim.fn.system(tree_cmd)
+
+          if vim.v.shell_error ~= 0 then
+            vim.notify("Failed to run tree command", vim.log.levels.ERROR)
+            return
+          end
+        else
+          -- Multiple files or mixed: show only selected files in tree structure
+          local file_paths = {}
+          for _, itm in ipairs(selected_option.items) do
+            if not (itm.dir or vim.fn.isdirectory(itm.file) == 1) then
+              table.insert(file_paths, vim.fn.fnamemodify(itm.file, ":."))
+            end
+          end
+
+          if #file_paths == 0 then
+            vim.notify("No files to show in tree", vim.log.levels.WARN)
+            return
+          end
+
+          -- Build tree structure from file paths
+          local tree = {}
+          for _, fpath in ipairs(file_paths) do
+            local parts = vim.split(fpath, "/", { plain = true })
+            local current = tree
+
+            for i, part in ipairs(parts) do
+              if not current[part] then
+                current[part] = {}
+              end
+              current = current[part]
+            end
+          end
+
+          -- Render tree structure
+          local function render_tree(node, prefix, is_last)
+            local lines = {}
+            local keys = vim.tbl_keys(node)
+            table.sort(keys)
+
+            for idx, key in ipairs(keys) do
+              local is_last_item = idx == #keys
+              local connector = is_last_item and "└── " or "├── "
+              local child_prefix = is_last_item and "    " or "│   "
+
+              -- Check if this is a leaf (file) or branch (directory)
+              local is_leaf = vim.tbl_isempty(node[key])
+              local suffix = is_leaf and "" or "/"
+
+              table.insert(lines, prefix .. connector .. key .. suffix)
+
+              if not is_leaf then
+                local child_lines = render_tree(node[key], prefix .. child_prefix, is_last_item)
+                for _, line in ipairs(child_lines) do
+                  table.insert(lines, line)
+                end
+              end
+            end
+
+            return lines
+          end
+
+          local tree_lines = { "." }
+          local rendered = render_tree(tree, "", false)
+          for _, line in ipairs(rendered) do
+            table.insert(tree_lines, line)
+          end
+
+          tree_output = table.concat(tree_lines, "\n")
+        end
+
+        vim.fn.setreg("+", tree_output)
+        Snacks.notify.info("Tree structure copied to clipboard")
       else
         vim.fn.setreg("+", result)
         Snacks.notify.info("Yanked `" .. result .. "`")
