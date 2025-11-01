@@ -404,6 +404,18 @@ lil.map({
 map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 
+local todo_comments = require("todo-comments")
+
+lil.map({
+  [func] = func_map,
+  ["]t"] = desc("Next Todo Comment", todo_comments.jump_next),
+  ["[t"] = desc("Previous Todo Comment", todo_comments.jumt_prev),
+  ["<leader>x"] = {
+    t = desc("Todo (Trouble)", cmd("Trouble todo toggle")),
+    T = desc("Todo/Fix/Fixme", cmd("Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}")),
+  },
+})
+
 -- TODO find a keymap closer to v, use - for something like repeat?
 map({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
 
