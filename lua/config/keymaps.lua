@@ -25,18 +25,10 @@ local _ = lil._
 local cmd = kmu.cmd
 local remap = kmu.remap
 local safe_del = kmu.safe_del
+local desc = kmu.desc
 
 -- Create smart map that auto-extracts group descriptions and auto-injects [func] = func_map
 local map = kmu.create_smart_map()
-
--- Legacy lil.nvim compatibility (until full migration)
-local function desc(d, value, expr)
-  -- Simple desc function that works with lil.nvim structure
-  return {
-    value,
-    [opts] = { desc = d, expr = expr },
-  }
-end
 
 pcall(vim.keymap.del, "n", "<leader>gd")
 

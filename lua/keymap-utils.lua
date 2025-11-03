@@ -88,6 +88,21 @@ end
 -- SMART MAP WITH GROUP DESCRIPTIONS
 -- ============================================================================
 
+-- Desc helper for lil.nvim - auto-handles lil flags internally
+function M.desc(description, value, expr)
+  local ok_utils, lil_utils = pcall(require, "lil.utils")
+  if not ok_utils then
+    error("lil.utils is required for desc")
+  end
+
+  local opts_flag = lil_utils.flags.opts
+
+  return {
+    value,
+    [opts_flag] = { desc = description, expr = expr },
+  }
+end
+
 -- Create smart wrapper around lil.map that auto-extracts group descriptions
 -- and auto-injects [func] = func_map
 function M.create_smart_map()
@@ -116,8 +131,8 @@ function M.create_smart_map()
     -- Track visited tables to prevent infinite recursion
     local visited = {}
 
-    -- Extract groups recursively before mapping
-    local function extract_groups(prefix, t)
+    -- Process tables recursively to extract desc and groups
+    local function process_table(prefix, t)
       if visited[t] then
         return
       end
@@ -128,6 +143,17 @@ function M.create_smart_map()
         if type(key) == "string" and type(value) == "table" then
           local full_key = prefix .. key
 
+          -- Extract desc key and move to [opts]
+          if value.desc then
+            -- Initialize [opts] if it doesn't exist
+            if not value[lil_opts_flag] then
+              value[lil_opts_flag] = {}
+            end
+            -- Move desc to [opts]
+            value[lil_opts_flag].desc = value.desc
+            value.desc = nil -- Remove from top level
+          end
+
           -- Check if this table has a group option
           if value[lil_opts_flag] and type(value[lil_opts_flag]) == "table" and value[lil_opts_flag].group then
             table.insert(group_descriptions, { full_key, group = value[lil_opts_flag].group })
@@ -135,13 +161,13 @@ function M.create_smart_map()
 
           -- Recurse into nested tables (skip if it's a keymap definition)
           if not value[1] then
-            extract_groups(full_key, value)
+            process_table(full_key, value)
           end
         end
       end
     end
 
-    extract_groups("", map_def)
+    process_table("", map_def)
 
     -- Auto-inject [func] = func_map if not already present
     if not map_def[lil_func_flag] then
