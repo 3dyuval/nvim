@@ -155,7 +155,11 @@ function M.create_smart_map()
           end
 
           -- Check if this table has a group option
-          if value[lil_opts_flag] and type(value[lil_opts_flag]) == "table" and value[lil_opts_flag].group then
+          if
+            value[lil_opts_flag]
+            and type(value[lil_opts_flag]) == "table"
+            and value[lil_opts_flag].group
+          then
             table.insert(group_descriptions, { full_key, group = value[lil_opts_flag].group })
           end
 
@@ -189,6 +193,11 @@ function M.register_groups()
   if ok then
     wk.add(group_descriptions)
   end
+end
+
+-- Get collected group descriptions (for export/introspection)
+function M.get_group_descriptions()
+  return group_descriptions
 end
 
 -- ============================================================================

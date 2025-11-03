@@ -368,7 +368,9 @@ M.copy_file_path = function(picker, item)
 
         -- Check if single directory
         local single_dir = items_count == 1
-          and (selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1)
+          and (
+            selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1
+          )
 
         if single_dir then
           -- Single directory: run tree on that directory

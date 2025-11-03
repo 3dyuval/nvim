@@ -2,7 +2,7 @@ return {
   "neovim/nvim-lspconfig",
   opts = {
     servers = {
-      ['*'] = {
+      ["*"] = {
         capabilities = {
           positionEncoding = "utf-8",
         },

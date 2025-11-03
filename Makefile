@@ -1,18 +1,22 @@
 # Neovim Configuration Makefile
 
-.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps
+.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps export-keymaps export-keymaps-json export-keymaps-md export-keymaps-by-group
 
 # Default target
 help:
 	@echo "Available targets:"
-	@echo "  lint         - Run luacheck linter on Lua files"
-	@echo "  no-utils     - Check for errant util calls"
-	@echo "  test         - Run all tests"
-	@echo "  test-keymaps - Test keymap conflicts and analysis"
-	@echo "  test-conflicts - Check for keymap conflicts only"
-	@echo "  format       - Format code using stylua"
-	@echo "  install-deps - Install development dependencies"
-	@echo "  help         - Show this help message"
+	@echo "  lint                  - Run luacheck linter on Lua files"
+	@echo "  no-utils              - Check for errant util calls"
+	@echo "  test                  - Run all tests"
+	@echo "  test-keymaps          - Test keymap conflicts and analysis"
+	@echo "  test-conflicts        - Check for keymap conflicts only"
+	@echo "  export-keymaps        - Export keymaps to README.md (by mode)"
+	@echo "  export-keymaps-by-group - Export keymaps to README.md (by leader group)"
+	@echo "  export-keymaps-json   - Export keymaps to JSON"
+	@echo "  export-keymaps-md     - Export keymaps to Markdown"
+	@echo "  format                - Format code using stylua"
+	@echo "  install-deps          - Install development dependencies"
+	@echo "  help                  - Show this help message"
 
 # Run luacheck on all Lua files
 lint:
@@ -89,3 +93,20 @@ test-keymaps:
 	@echo "Checking for conflicts..."
 	@nvim --headless -c "lua require('utils.test_keymaps').analyze_keymap_conflicts()" -c "qa"
 	@echo "✅ Keymap tests completed"
+
+# Export keymaps to README.md using keymap-utils introspection
+export-keymaps:
+	@echo "=== Exporting Keymaps to README.md ==="
+	@nvim --headless -c "lua require('config.keymaps'); arg = {'md', 'README.md'}; dofile('scripts/export-keymaps.lua')" -c "qa"
+
+export-keymaps-json:
+	@echo "=== Exporting Keymaps to JSON ==="
+	@nvim --headless -c "lua require('config.keymaps'); arg = {'json', 'keymaps.json'}; dofile('scripts/export-keymaps.lua')" -c "qa"
+
+export-keymaps-md:
+	@echo "=== Exporting Keymaps to Markdown ==="
+	@nvim --headless -c "lua require('config.keymaps'); arg = {'md', 'keymaps.md'}; dofile('scripts/export-keymaps.lua')" -c "qa"
+
+export-keymaps-by-group:
+	@echo "=== Exporting Keymaps to README.md (by group) ==="
+	@nvim --headless -c "lua require('config.keymaps'); arg = {'--by-group', 'md', 'README.md'}; dofile('scripts/export-keymaps.lua')" -c "qa"

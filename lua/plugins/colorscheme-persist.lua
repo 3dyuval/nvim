@@ -7,7 +7,6 @@ return {
     },
   },
 
-
   -- Auto-apply colorscheme changes across all sessions
   {
     "folke/lazy.nvim",

@@ -400,8 +400,18 @@ vim.keymap.set({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "To
 -- Inline paste (avoids creating new lines)
 vim.keymap.set({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" })
 -- Visual mode treesitter text objects (explicit mappings)
-vim.keymap.set({ "x", "o" }, "rf", helpers.select_inner_function, { desc = "Select inner function" })
-vim.keymap.set({ "x", "o" }, "tf", helpers.select_outer_function, { desc = "Select outer function" })
+vim.keymap.set(
+  { "x", "o" },
+  "rf",
+  helpers.select_inner_function,
+  { desc = "Select inner function" }
+)
+vim.keymap.set(
+  { "x", "o" },
+  "tf",
+  helpers.select_outer_function,
+  { desc = "Select outer function" }
+)
 
 vim.keymap.set({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 vim.keymap.set({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
