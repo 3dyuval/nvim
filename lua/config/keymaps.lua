@@ -22,18 +22,18 @@ local ctrl = lil.key("C")
 local _ = lil._
 
 -- Use keymap-utils as unified toolkit
-local map = kmu.map
 local cmd = kmu.cmd
 local remap = kmu.remap
-local func_map = kmu.func_map
 local safe_del = kmu.safe_del
+
+-- Create smart map that auto-extracts group descriptions and auto-injects [func] = func_map
+local map = kmu.create_smart_map()
 
 -- Legacy lil.nvim compatibility (until full migration)
 local function desc(d, value, expr)
   -- Simple desc function that works with lil.nvim structure
   return {
     value,
-    [func] = func_map,
     [opts] = { desc = d, expr = expr },
   }
 end
@@ -44,8 +44,7 @@ pcall(vim.keymap.del, "n", "<leader>gd")
 pcall(vim.keymap.del, "n", "<leader> ")
 pcall(vim.keymap.del, "n", "<leader><space>")
 
-lil.map({
-  [func] = func_map,
+map({
   -- Smart context-aware diff operations (lowercase)
   g = {
     o = desc("Get hunk (smart)", smart_diff.smart_diffget),
@@ -91,8 +90,7 @@ lil.map({
 -- COPY FILE TO CLIPBOARD
 -- ============================================================================
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>p"] = {
     P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
@@ -111,16 +109,14 @@ lil.map({
 -- CODE OPERATIONS (from keymaps/g.lua and keymaps/c.lua)
 -- ============================================================================
 
-lil.map({
-  [func] = func_map,
+map({
   g = {
     D = desc("Go to source definition", code.go_to_source_definition),
     R = desc("File references", code.file_references),
   },
 })
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>c"] = {
     -- TypeScript/Import operations
     o = desc("Organize + Remove Unused Imports", code.organize_imports),
@@ -141,8 +137,7 @@ lil.map({
 -- FILE OPERATIONS (from keymaps/f.lua)
 -- ============================================================================
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>f"] = {
     f = desc("Find files (snacks + fff)", files.find_files_snacks),
     s = desc("Save file", files.save_file),
@@ -154,10 +149,7 @@ lil.map({
 -- HISTORY OPERATIONS (from keymaps/h.lua)
 -- ============================================================================
 
-local map = vim.keymap.set
-
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>h"] = {
     h = desc("Local file history", history.local_file_history),
     H = desc("All files in backup", history.all_files_in_backup),
@@ -172,8 +164,7 @@ lil.map({
   },
 })
 
-lil.map({
-  [func] = func_map,
+map({
   x = {
     x = desc("Delete line", "dd"), -- xx → dd
   },
@@ -185,8 +176,7 @@ lil.map({
 -- Handle count-aware 'x' separately (needs different logic than nested xx)
 remap({ "n" }, "x", helpers.count_aware_delete, { desc = "Delete", expr = true })
 
-lil.map({
-  [func] = func_map,
+map({
   [mode] = { "n", "o", "x" },
   h = desc("Left", "h"),
   e = desc("Up", "k"),
@@ -212,58 +202,57 @@ lil.map({
 -- map("x", "i", "l", { noremap = true, desc = "Right in visual modes" })
 
 -- Line operations and find
-map({ "n" }, "j", "o", { desc = "Open line below" })
-map({ "n" }, "J", "O", { desc = "Open line above" })
+vim.keymap.set({ "n" }, "j", "o", { desc = "Open line below" })
+vim.keymap.set({ "n" }, "J", "O", { desc = "Open line above" })
 -- f is now default (find character forward)
 -- F is default (find character backward)
 
 -- Beginning/end of line
-map({ "n", "o", "x" }, "0", "0", { desc = "Beginning of line" })
-map({ "n", "o", "x" }, "p", "^", { desc = "First non-blank character" })
-map({ "n", "o", "x" }, ".", "$", { desc = "End of line" })
+vim.keymap.set({ "n", "o", "x" }, "0", "0", { desc = "Beginning of line" })
+vim.keymap.set({ "n", "o", "x" }, "p", "^", { desc = "First non-blank character" })
+vim.keymap.set({ "n", "o", "x" }, ".", "$", { desc = "End of line" })
 
 -- Insert/append
 -- map({ "v" }, "S", "I", { desc = "Insert at start of selection" })
-map({ "n" }, "r", "i", { desc = "Insert before cursor" })
-map({ "n" }, "R", "I", { desc = "Insert at start of line" })
-map({ "n" }, "t", "a", { desc = "Insert after cursor" })
-map({ "n" }, "T", "A", { desc = "Insert at end of line" })
-map({ "n" }, "b", "R", { desc = "Replace mode" })
+vim.keymap.set({ "n" }, "r", "i", { desc = "Insert before cursor" })
+vim.keymap.set({ "n" }, "R", "I", { desc = "Insert at start of line" })
+vim.keymap.set({ "n" }, "t", "a", { desc = "Insert after cursor" })
+vim.keymap.set({ "n" }, "T", "A", { desc = "Insert at end of line" })
+vim.keymap.set({ "n" }, "b", "R", { desc = "Replace mode" })
 -- Keep visual replace on a different key
-map({ "v" }, "B", "r", { desc = "Replace selected text" })
+vim.keymap.set({ "v" }, "B", "r", { desc = "Replace selected text" })
 -- Jumplist navigation
-map({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
-map({ "n" }, "O", "<C-i>", { desc = "Jumplist forward" })
+vim.keymap.set({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
+vim.keymap.set({ "n" }, "O", "<C-i>", { desc = "Jumplist forward" })
 
 -- PageUp/PageDown
-map({ "n", "x" }, "<C-.>", "<PageUp>", { desc = "Page Up" })
-map({ "n", "x" }, "<C-p>", "<PageDown>", { desc = "Page Down" })
+vim.keymap.set({ "n", "x" }, "<C-.>", "<PageUp>", { desc = "Page Up" })
+vim.keymap.set({ "n", "x" }, "<C-p>", "<PageDown>", { desc = "Page Down" })
 -- Word left/right
-map({ "n", "o", "x" }, "l", "b", { desc = "Word back" })
-map({ "n", "o", "x" }, "d", "w", { desc = "Word forward" })
-map({ "n", "o", "x" }, "L", "B", { desc = "WORD back" })
-map({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
+vim.keymap.set({ "n", "o", "x" }, "l", "b", { desc = "Word back" })
+vim.keymap.set({ "n", "o", "x" }, "d", "w", { desc = "Word forward" })
+vim.keymap.set({ "n", "o", "x" }, "L", "B", { desc = "WORD back" })
+vim.keymap.set({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 
 -- Move lines with Alt+A/E (COMMENTED OUT - conflicts with treewalker swap)
 -- map({ "n" }, "<M-C-a>", "<cmd>move .+1<cr>==", { desc = "Move line down" })
 -- map({ "n" }, "<M-C-e>", "<cmd>move .-2<cr>==", { desc = "Move line up" })
 
 -- Map semicolon to repeat last command (instead of dot)
-map({ "n" }, ";", ".", { desc = "Repeat last command" })
+vim.keymap.set({ "n" }, ";", ".", { desc = "Repeat last command" })
 -- Repeat last visual selection
-map({ "n" }, "'", "gv", { desc = "Repeat last visual selection" })
+vim.keymap.set({ "n" }, "'", "gv", { desc = "Repeat last visual selection" })
 -- Move repeat find to different keys
-map({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
-map({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
-map({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
+vim.keymap.set({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
+vim.keymap.set({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
+vim.keymap.set({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
 -- Smart context-aware navigation - diff navigation baseline (Graphite layout)
-map({ "n", "o", "x" }, "m", "]c", { desc = "Next diff hunk" })
-map({ "n", "o", "x" }, "M", "[c", { desc = "Previous diff hunk" })
+vim.keymap.set({ "n", "o", "x" }, "m", "]c", { desc = "Next diff hunk" })
+vim.keymap.set({ "n", "o", "x" }, "M", "[c", { desc = "Previous diff hunk" })
 
 -- Smooth scrolling (Graphite layout) - works with snacks.scroll
-lil.map({
-  [func] = func_map,
+map({
   [mode] = { "n", "v", "x" },
   ga = desc("Scroll down (Graphite)", "<C-d>zz"),
   ge = desc("Scroll up (Graphite)", "<C-u>zz"),
@@ -272,28 +261,28 @@ lil.map({
 
 -- End of word left/right (moved to different keys)
 -- map({ "n", "o", "x" }, "gh", "ge", { desc = "End of word back" })
-map({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
-map({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
+vim.keymap.set({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
+vim.keymap.set({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 
 -- Folds (f and F remain default vim find character forward/backward)
-map({ "n", "x" }, "fo", "zo", { desc = "Open fold (unfold)" })
-map({ "n", "x" }, "fu", "zc", { desc = "Close fold (fold one)" })
-map({ "n", "x" }, "ff", "zM", { desc = "Close all folds (fold all)" })
-map({ "n", "x" }, "fF", "zR", { desc = "Open all folds (unfold all)" })
-map({ "n", "x" }, "fe", "zk", { desc = "Move up to fold" })
-map({ "n", "x" }, "fa", "zj", { desc = "Move down to fold" })
-map({ "n", "x" }, "bb", "zb", { desc = "Scroll line and cursor to bottom" })
+vim.keymap.set({ "n", "x" }, "fo", "zo", { desc = "Open fold (unfold)" })
+vim.keymap.set({ "n", "x" }, "fu", "zc", { desc = "Close fold (fold one)" })
+vim.keymap.set({ "n", "x" }, "ff", "zM", { desc = "Close all folds (fold all)" })
+vim.keymap.set({ "n", "x" }, "fF", "zR", { desc = "Open all folds (unfold all)" })
+vim.keymap.set({ "n", "x" }, "fe", "zk", { desc = "Move up to fold" })
+vim.keymap.set({ "n", "x" }, "fa", "zj", { desc = "Move down to fold" })
+vim.keymap.set({ "n", "x" }, "bb", "zb", { desc = "Scroll line and cursor to bottom" })
 
 -- Copy/paste
-map({ "n", "o", "x" }, "c", "y", { desc = "Yank (copy)" })
-map({ "n", "x" }, "v", "p", { desc = "Paste" })
-map({ "n" }, "C", "y$", { desc = "Yank to end of line" })
-map({ "x" }, "C", "y", { desc = "Yank selection" })
+vim.keymap.set({ "n", "o", "x" }, "c", "y", { desc = "Yank (copy)" })
+vim.keymap.set({ "n", "x" }, "v", "p", { desc = "Paste" })
+vim.keymap.set({ "n" }, "C", "y$", { desc = "Yank to end of line" })
+vim.keymap.set({ "x" }, "C", "y", { desc = "Yank selection" })
 
 -- Fold-aware yanking (visual mode only)
-map("x", "cc", helpers.yank_visible, { desc = "Yank visible lines (exclude folded)" })
-map({ "n", "x" }, "V", "P", { desc = "Paste before" })
-map({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
+vim.keymap.set("x", "cc", helpers.yank_visible, { desc = "Yank visible lines (exclude folded)" })
+vim.keymap.set({ "n", "x" }, "V", "P", { desc = "Paste before" })
+vim.keymap.set({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
 -- Undo/redo (z for undo, Z for redo - Graphite layout)
 -- Need to unmap built-in commands first
@@ -303,25 +292,25 @@ remap("n", "z", "u", { desc = "Undo" })
 remap("n", "Z", "<C-r>", { desc = "Redo" })
 remap("n", "gz", "U", { desc = "Undo line" })
 -- Change
-map({ "n", "o", "x" }, "w", "c", { desc = "Change" })
-map({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
+vim.keymap.set({ "n", "o", "x" }, "w", "c", { desc = "Change" })
+vim.keymap.set({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
 
 -- Visual mode
-map({ "n", "x" }, "n", "v", { desc = "Visual mode" })
-map({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
+vim.keymap.set({ "n", "x" }, "n", "v", { desc = "Visual mode" })
+vim.keymap.set({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
 -- Add Visual block mode
-map({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
+vim.keymap.set({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
-map({ "n", "o", "x" }, "A", "n", { desc = "Next search match" })
-map({ "n", "o", "x" }, "E", "N", { desc = "Previous search match" })
-map({ "n", "o", "x" }, "8", "N", { desc = "Previous search match" })
+vim.keymap.set({ "n", "o", "x" }, "A", "n", { desc = "Next search match" })
+vim.keymap.set({ "n", "o", "x" }, "E", "N", { desc = "Previous search match" })
+vim.keymap.set({ "n", "o", "x" }, "8", "N", { desc = "Previous search match" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
 remap("n", "]]", "]x", { desc = "Next git conflict" })
 -- 'til (changed to y/Y to free up k for surround)
-map({ "n", "o", "x" }, "y", "t", { desc = "Till before" })
-map({ "n", "o", "x" }, "Y", "T", { desc = "Till before backward" })
+vim.keymap.set({ "n", "o", "x" }, "y", "t", { desc = "Till before" })
+vim.keymap.set({ "n", "o", "x" }, "Y", "T", { desc = "Till before backward" })
 
 -- map(
 --   "n",
@@ -331,15 +320,15 @@ map({ "n", "o", "x" }, "Y", "T", { desc = "Till before backward" })
 -- )
 
 -- Force override any plugin mappings for Q
-map("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
+vim.keymap.set("n", "Q", "@q", { desc = "replay the 'q' macro", silent = true, noremap = true })
 
 -- Misc overridden keys must be prefixed with g
-map({ "n", "x" }, "gX", "X", { desc = "Delete before cursor" })
-map({ "n", "x" }, "gU", "U", { desc = "Uppercase" })
-map({ "n", "x" }, "gQ", "Q", { desc = "Ex mode" })
-map({ "n", "x" }, "gK", "K", { desc = "Lookup keyword" })
+vim.keymap.set({ "n", "x" }, "gX", "X", { desc = "Delete before cursor" })
+vim.keymap.set({ "n", "x" }, "gU", "U", { desc = "Uppercase" })
+vim.keymap.set({ "n", "x" }, "gQ", "Q", { desc = "Ex mode" })
+vim.keymap.set({ "n", "x" }, "gK", "K", { desc = "Lookup keyword" })
 -- extra alias (now main since K is remapped)
-map({ "n", "x" }, "gh", "K", { desc = "Lookup keyword" })
+vim.keymap.set({ "n", "x" }, "gh", "K", { desc = "Lookup keyword" })
 
 -- Disable spawning empty buffer when closing last buffer
 vim.api.nvim_create_autocmd("User", {
@@ -356,35 +345,34 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
-map({ "n" }, "<C-h>", function()
+vim.keymap.set({ "n" }, "<C-h>", function()
   require("smart-splits").move_cursor_left({ same_row = false, at_edge = "stop" })
 end, { noremap = true, desc = "Left window" })
-map({ "n" }, "<C-a>", function()
+vim.keymap.set({ "n" }, "<C-a>", function()
   require("smart-splits").move_cursor_down({ same_row = false, at_edge = "stop" })
 end, { noremap = true, desc = "Window down" })
-map({ "n" }, "<C-e>", function()
+vim.keymap.set({ "n" }, "<C-e>", function()
   require("smart-splits").move_cursor_up({ same_row = false, at_edge = "stop" })
 end, { noremap = true, desc = "Window up" })
-map({ "n" }, "<C-i>", function()
+vim.keymap.set({ "n" }, "<C-i>", function()
   require("smart-splits").move_cursor_right({ same_row = false, at_edge = "stop" })
 end, { noremap = true, desc = "Right window" })
 
-map({ "n" }, "<M-C-h>", function()
+vim.keymap.set({ "n" }, "<M-C-h>", function()
   require("smart-splits").resize_left(5)
 end, { noremap = true, desc = "Left window" })
-map({ "n" }, "<M-C-a>", function()
+vim.keymap.set({ "n" }, "<M-C-a>", function()
   require("smart-splits").resize_down(5)
 end, { noremap = true, desc = "Window down" })
-map({ "n" }, "<M-C-e>", function()
+vim.keymap.set({ "n" }, "<M-C-e>", function()
   require("smart-splits").resize_up(5)
 end, { noremap = true, desc = "Window up" })
-map({ "n" }, "<M-C-i>", function()
+vim.keymap.set({ "n" }, "<M-C-i>", function()
   require("smart-splits").resize_right(5)
 end, { noremap = true, desc = "Right window" })
 
 -- Buffer navigation
-lil.map({
-  [func] = func_map,
+map({
   [mode] = { "n" },
   [ctrl + _] = {
     p = desc("Previous buffer", cmd("BufferLineCyclePrev")),
@@ -392,8 +380,7 @@ lil.map({
   },
 })
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>r"] = {
     c = desc("Reload config", editor.reload_config),
     r = desc("Reload keymaps", editor.reload_keymaps),
@@ -401,13 +388,12 @@ lil.map({
   },
 })
 
-map({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
-map({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
+vim.keymap.set({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
+vim.keymap.set({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 
 local todo_comments = require("todo-comments")
 
-lil.map({
-  [func] = func_map,
+map({
   ["]t"] = desc("Next Todo Comment", todo_comments.jump_next),
   ["[t"] = desc("Previous Todo Comment", todo_comments.jumt_prev),
   ["<leader>x"] = {
@@ -417,49 +403,49 @@ lil.map({
 })
 
 -- TODO find a keymap closer to v, use - for something like repeat?
-map({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
+vim.keymap.set({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
 
 -- Inline paste (avoids creating new lines)
-map({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" })
+vim.keymap.set({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" })
 -- Visual mode treesitter text objects (explicit mappings)
-map({ "x", "o" }, "rf", helpers.select_inner_function, { desc = "Select inner function" })
-map({ "x", "o" }, "tf", helpers.select_outer_function, { desc = "Select outer function" })
+vim.keymap.set({ "x", "o" }, "rf", helpers.select_inner_function, { desc = "Select inner function" })
+vim.keymap.set({ "x", "o" }, "tf", helpers.select_outer_function, { desc = "Select outer function" })
 
-map({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
-map({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
+vim.keymap.set({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
+vim.keymap.set({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 
 -- Removed redundant visual surround mapping - handled by plugin config
-map({ "o", "v" }, "X", "r", { desc = "Replace" })
-map({ "o", "v" }, "rd", "iw", { desc = "Inner word" })
-map({ "o", "v" }, "td", "aw", { desc = "Around word" })
-map({ "o", "v" }, "rD", "iW", { desc = "Inner WORD" })
-map({ "o", "v" }, "tD", "aW", { desc = "Around WORD" })
+vim.keymap.set({ "o", "v" }, "X", "r", { desc = "Replace" })
+vim.keymap.set({ "o", "v" }, "rd", "iw", { desc = "Inner word" })
+vim.keymap.set({ "o", "v" }, "td", "aw", { desc = "Around word" })
+vim.keymap.set({ "o", "v" }, "rD", "iW", { desc = "Inner WORD" })
+vim.keymap.set({ "o", "v" }, "tD", "aW", { desc = "Around WORD" })
 -- Operator-pending mode mappings to help with nvim-surround
 -- These translate Graphite layout (r=inner, t=around) to nvim-surround defaults (i=inner, a=around)
 -- Configuration layer: ~/.config/nvim/lua/utils/surround.lua defines the actual surround behaviors
-map({ "v" }, "rd", "iw", { desc = "Inner word (visual)" })
-map({ "v" }, "td", "aw", { desc = "Around word (visual)" })
-map({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })
-map({ "v" }, "tD", "aW", { desc = "Around WORD (visual)" })
+vim.keymap.set({ "v" }, "rd", "iw", { desc = "Inner word (visual)" })
+vim.keymap.set({ "v" }, "td", "aw", { desc = "Around word (visual)" })
+vim.keymap.set({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })
+vim.keymap.set({ "v" }, "tD", "aW", { desc = "Around WORD (visual)" })
 -- rf and tf handled by treesitter-textobjects
-map({ "o" }, "r(", "i(", { desc = "Inner parentheses (for nvim-surround)" })
-map({ "o" }, "r)", "i)", { desc = "Inner parentheses (for nvim-surround)" })
-map({ "o" }, "r[", "i[", { desc = "Inner brackets (for nvim-surround)" })
-map({ "o" }, "r]", "i]", { desc = "Inner brackets (for nvim-surround)" })
-map({ "o" }, "r{", "i{", { desc = "Inner braces (for nvim-surround)" })
-map({ "o" }, "r}", "i}", { desc = "Inner braces (for nvim-surround)" })
-map({ "o" }, 'r"', 'i"', { desc = "Inner quotes (for nvim-surround)" })
-map({ "o" }, "r'", "i'", { desc = "Inner single quotes (for nvim-surround)" })
-map({ "o" }, "t(", "a(", { desc = "Around parentheses (for nvim-surround)" })
-map({ "o" }, "t)", "a)", { desc = "Around parentheses (for nvim-surround)" })
-map({ "o" }, "t[", "a[", { desc = "Around brackets (for nvim-surround)" })
-map({ "o" }, "t]", "a]", { desc = "Around brackets (for nvim-surround)" })
-map({ "o" }, "t{", "a{", { desc = "Around braces (for nvim-surround)" })
-map({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
-map({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
-map({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
+vim.keymap.set({ "o" }, "r(", "i(", { desc = "Inner parentheses (for nvim-surround)" })
+vim.keymap.set({ "o" }, "r)", "i)", { desc = "Inner parentheses (for nvim-surround)" })
+vim.keymap.set({ "o" }, "r[", "i[", { desc = "Inner brackets (for nvim-surround)" })
+vim.keymap.set({ "o" }, "r]", "i]", { desc = "Inner brackets (for nvim-surround)" })
+vim.keymap.set({ "o" }, "r{", "i{", { desc = "Inner braces (for nvim-surround)" })
+vim.keymap.set({ "o" }, "r}", "i}", { desc = "Inner braces (for nvim-surround)" })
+vim.keymap.set({ "o" }, 'r"', 'i"', { desc = "Inner quotes (for nvim-surround)" })
+vim.keymap.set({ "o" }, "r'", "i'", { desc = "Inner single quotes (for nvim-surround)" })
+vim.keymap.set({ "o" }, "t(", "a(", { desc = "Around parentheses (for nvim-surround)" })
+vim.keymap.set({ "o" }, "t)", "a)", { desc = "Around parentheses (for nvim-surround)" })
+vim.keymap.set({ "o" }, "t[", "a[", { desc = "Around brackets (for nvim-surround)" })
+vim.keymap.set({ "o" }, "t]", "a]", { desc = "Around brackets (for nvim-surround)" })
+vim.keymap.set({ "o" }, "t{", "a{", { desc = "Around braces (for nvim-surround)" })
+vim.keymap.set({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
+vim.keymap.set({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
+vim.keymap.set({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
 
-map(
+vim.keymap.set(
   { "n", "o", "v" },
   "te",
   helpers.select_jsx_self_closing_element,
@@ -522,8 +508,7 @@ vim.keymap.set(
   { silent = true, desc = "Treewalker SwapRight" }
 )
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>s"] = {
     D = desc("Project Diagnostics", cmd("ProjectDiagnostics")),
     r = desc("Search/Replace within range (Grug-far)", search.grug_far_range),
@@ -533,7 +518,7 @@ lil.map({
 })
 
 -- Visual mode override for sF
-map(
+vim.keymap.set(
   "v",
   "<leader>sF",
   search.grug_far_selection_current_file,
@@ -544,8 +529,7 @@ map(
 -- DATABASE KEYMAPS (vim-dadbod operations)
 -- ============================================================================
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>db"] = {
     u = desc("Toggle DBUI", cmd("DBUIToggle")),
     f = desc("Find buffer", cmd("DBUIFindBuffer")),
@@ -555,80 +539,85 @@ lil.map({
 })
 
 -- ============================================================================
--- OCTO KEYMAPS (GitHub operations - following gh-alias structure)
+-- GITHUB KEYMAPS (Snacks GH + Octo hybrid)
 -- ============================================================================
--- Note: Octo's default <localleader> mappings are disabled in lua/plugins/octo.lua
--- Using custom <leader>o mappings below instead
-lil.map({
-  [func] = func_map,
+-- Philosophy: Snacks GH for browsing, Octo for create/notifications/advanced features
+-- Buffer interactions (comments, reactions, labels, close/reopen, etc.) via <cr> menu in GitHub buffers:
+--   <cr> - Show actions menu (reactions, labels, merge, review, checkout, etc.)
+--   i    - Edit title/body
+--   a    - Add comment
+--   c    - Close issue/PR
+--   o    - Reopen issue/PR
+
+map({
   ["<leader>o"] = {
-    -- Repo operations
-    r = {
-      w = desc("Browse repo", cmd("Octo repo browser")),
-      i = desc("My repositories", cmd("Octo repo list")),
-      l = desc("Copy url", cmd("Octo repo url")),
-    },
+    [opts] = { group = "GitHub" },
 
     -- Issues submenu
     i = {
-      -- Basic issue operations
-      v = desc("View issue", cmd("Octo issue edit ", false)),
-      c = desc("Create issue", cmd("Octo issue create")),
-      x = desc("Close issue", cmd("Octo issue close")),
-      o = desc("Reopen issue", cmd("Octo issue reopen")),
-      b = desc("List issues by author", cmd("Octo issue search state:open author:", false)),
-      l = desc("List issues", cmd("Octo issue list")),
-      i = desc("My issues", cmd("Octo issue search state:open involves:@me")),
-      w = desc("Open in browser", cmd("Octo issue browser")),
-      r = desc("Reload issue", cmd("Octo issue reload")),
+      [opts] = { group = "Issues" },
+      -- Browse issues (Snacks)
+      l = desc("Issues (open)", function()
+        Snacks.picker.gh_issue()
+      end),
+      i = desc("Issues (assigned to me)", function()
+        Snacks.picker.gh_issue({ assignee = "@me" })
+      end),
+      a = desc("Issues (all - open + closed)", function()
+        Snacks.picker.gh_issue({ state = "all" })
+      end),
+      c = desc("Issues (closed)", function()
+        Snacks.picker.gh_issue({ state = "closed" })
+      end),
+      b = desc("Issues (filter by author)", function()
+        Snacks.picker.gh_issue({ author = vim.fn.input("Author: ") })
+      end),
 
-      -- Assignees submenu
-      a = {
-        a = desc("Add assignee", cmd("Octo assignee add ", false)),
-        d = desc("Remove assignee", cmd("Octo assignee remove ", false)),
-      },
+      -- Create (Octo)
+      C = desc("Create new issue", cmd("Octo issue create")),
 
-      -- Labels submenu
-      L = {
-        a = desc("Add label", cmd("Octo label add ", false)),
-        d = desc("Remove label", cmd("Octo label remove ", false)),
-        c = desc("Create label", cmd("Octo label create")),
+      -- Assignees (Octo - Snacks doesn't support this)
+      A = {
+        [opts] = { group = "Assignees" },
+        a = desc("Add assignee to issue", cmd("Octo assignee add ", false)),
+        d = desc("Remove assignee from issue", cmd("Octo assignee remove ", false)),
       },
     },
 
     -- Pull Requests submenu
     p = {
-      -- Basic PR operations
-      v = desc("View PR", cmd("Octo pr ", false)),
-      c = desc("Create PR", cmd("Octo pr create")),
-      l = desc("List PRs", cmd("Octo pr list")),
-      s = desc("Search PRs", cmd("Octo pr search")),
-      o = desc("Checkout PR", cmd("Octo pr checkout")),
-      w = desc("Open in browser", cmd("Octo pr browser")),
-      r = desc("Reload PR", cmd("Octo pr reload")),
+      [opts] = { group = "Pull Requests" },
+      -- Browse PRs (Snacks)
+      l = desc("PRs (open)", function()
+        Snacks.picker.gh_pr()
+      end),
+      a = desc("PRs (all - open + closed + merged)", function()
+        Snacks.picker.gh_pr({ state = "all" })
+      end),
+      m = desc("PRs (merged only)", function()
+        Snacks.picker.gh_pr({ state = "merged" })
+      end),
+      c = desc("PRs (closed only)", function()
+        Snacks.picker.gh_pr({ state = "closed" })
+      end),
+      d = desc("PRs (draft only)", function()
+        Snacks.picker.gh_pr({ draft = true })
+      end),
 
-      -- PR info
-      C = desc("List commits", cmd("Octo pr commits")),
-      f = desc("List changed files", cmd("Octo pr changes")),
-      d = desc("Show diff", cmd("Octo pr diff")),
+      -- Create (Octo)
+      C = desc("Create new PR", cmd("Octo pr create")),
 
-      -- Merge operations
-      m = {
-        c = desc("Merge commit", cmd("Octo pr merge commit")),
-        s = desc("Merge squash", cmd("Octo pr merge squash")),
-        r = desc("Merge rebase", cmd("Octo pr merge rebase")),
-        d = desc("Merge delete", cmd("Octo pr merge delete")),
-      },
-
-      -- Reviewers submenu
+      -- Reviewers (Octo - Snacks doesn't support this)
       R = {
-        a = desc("Add reviewer", cmd("Octo reviewer add ", false)),
-        d = desc("Remove reviewer", cmd("Octo reviewer remove ", false)),
+        [opts] = { group = "Reviewers" },
+        a = desc("Add reviewer to PR", cmd("Octo reviewer add ", false)),
+        d = desc("Remove reviewer from PR", cmd("Octo reviewer remove ", false)),
       },
     },
 
-    -- Review operations
+    -- Review operations (Octo - advanced workflow)
     v = {
+      [opts] = { group = "Review" },
       s = desc("Start review", cmd("Octo review start")),
       r = desc("Resume review", cmd("Octo review resume")),
       S = desc("Submit review", cmd("Octo review submit")),
@@ -636,31 +625,22 @@ lil.map({
       c = desc("Review comments", cmd("Octo review comments")),
     },
 
-    -- Thread operations
+    -- Thread operations (Octo only)
     t = {
+      [opts] = { group = "Threads" },
       r = desc("Resolve thread", cmd("Octo thread resolve")),
       u = desc("Unresolve thread", cmd("Octo thread unresolve")),
     },
 
-    -- Comment operations
-    c = {
-      a = desc("Add comment", cmd("Octo comment add")),
-      d = desc("Delete comment", cmd("Octo comment delete")),
+    -- Repo operations (Octo)
+    r = {
+      [opts] = { group = "Repository" },
+      w = desc("Browse repo", cmd("Octo repo browser")),
+      i = desc("My repositories", cmd("Octo repo list")),
+      l = desc("Copy url", cmd("Octo repo url")),
     },
 
-    -- Reactions submenu
-    re = {
-      p = desc("React hooray", cmd("Octo reaction hooray")),
-      h = desc("React heart", cmd("Octo reaction heart")),
-      e = desc("React eyes", cmd("Octo reaction eyes")),
-      ["+"] = desc("React thumbs up", cmd("Octo reaction thumbs_up")),
-      ["-"] = desc("React thumbs down", cmd("Octo reaction thumbs_down")),
-      r = desc("React rocket", cmd("Octo reaction rocket")),
-      l = desc("React laugh", cmd("Octo reaction laugh")),
-      c = desc("React confused", cmd("Octo reaction confused")),
-    },
-
-    -- Notifications
+    -- Notifications (Octo)
     n = desc("Notifications", cmd("Octo notifications")),
   },
 })
@@ -669,8 +649,7 @@ lil.map({
 -- TODO/CHECKMATE KEYMAPS
 -- ============================================================================
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>t"] = {
     -- Core todo operations (following snacks explorer pattern)
     r = desc("Todo: Create new", cmd("Checkmate create")),
@@ -729,8 +708,7 @@ lil.map({
 
 local notes = require("utils.notes")
 
-lil.map({
-  [func] = func_map,
+map({
   ["<leader>n"] = {
     -- Note creation
     n = desc("New note", cmd("ObsidianNew")),
@@ -765,3 +743,10 @@ lil.map({
   -- Quick inbox note creation
   ["<leader>N"] = desc("New note in inbox", notes.create_inbox_note),
 })
+
+-- ============================================================================
+-- REGISTER GROUP DESCRIPTIONS WITH WHICH-KEY
+-- ============================================================================
+
+-- Auto-register all [opts] = { group = "..." } descriptions collected from lil.map calls
+kmu.register_groups()

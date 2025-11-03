@@ -27,7 +27,6 @@ return {
     ft = "markdown",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim", -- Optional: for search
     },
     opts = {
       workspaces = {

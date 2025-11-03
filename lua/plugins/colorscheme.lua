@@ -78,7 +78,6 @@ return {
           "nvim-tree",
           "nvim-web-devicons",
           "sneak",
-          "telescope",
           "trouble",
           "which-key",
         },

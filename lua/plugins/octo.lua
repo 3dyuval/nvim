@@ -4,7 +4,6 @@ return {
   event = { { event = "BufReadCmd", pattern = "octo://*" } },
   dependencies = {
     "nvim-lua/plenary.nvim",
-    "nvim-telescope/telescope.nvim",
     "nvim-tree/nvim-web-devicons",
   },
   opts = function()

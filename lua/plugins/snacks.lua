@@ -518,6 +518,22 @@ return {
             },
           },
         },
+
+        -- GitHub issue picker (sidebar layout)
+        gh_issue = {
+          layout = {
+            preset = "sidebar",
+          },
+          focus = "list",
+        },
+
+        -- GitHub PR picker (sidebar layout)
+        gh_pr = {
+          layout = {
+            preset = "sidebar",
+          },
+          focus = "list",
+        },
       },
     },
   },

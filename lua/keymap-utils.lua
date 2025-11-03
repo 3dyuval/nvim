@@ -3,6 +3,7 @@
 
 local M = {}
 local collected_keymaps = {}
+local group_descriptions = {}
 
 -- ============================================================================
 -- CORE KEYMAP ABSTRACTIONS
@@ -80,6 +81,87 @@ function M.register(config, base_modes)
         end
       end
     end
+  end
+end
+
+-- ============================================================================
+-- SMART MAP WITH GROUP DESCRIPTIONS
+-- ============================================================================
+
+-- Create smart wrapper around lil.map that auto-extracts group descriptions
+-- and auto-injects [func] = func_map
+function M.create_smart_map()
+  -- Get lil.nvim and its flags internally
+  local ok, lil = pcall(require, "lil")
+  if not ok then
+    error("lil.nvim is required for create_smart_map")
+  end
+
+  local ok_utils, lil_utils = pcall(require, "lil.utils")
+  if not ok_utils then
+    error("lil.utils is required for create_smart_map")
+  end
+
+  local lil_opts_flag = lil_utils.flags.opts
+  local lil_func_flag = lil_utils.flags.func
+  local original_map = lil.map
+
+  -- Define func_map inside the wrapper
+  local function func_map(m, l, r, o, _next)
+    M.safe_del(m, l)
+    vim.keymap.set(m, l, r, o)
+  end
+
+  return function(map_def)
+    -- Track visited tables to prevent infinite recursion
+    local visited = {}
+
+    -- Extract groups recursively before mapping
+    local function extract_groups(prefix, t)
+      if visited[t] then
+        return
+      end
+      visited[t] = true
+
+      for key, value in pairs(t) do
+        -- Only process string keys (skip lil flags)
+        if type(key) == "string" and type(value) == "table" then
+          local full_key = prefix .. key
+
+          -- Check if this table has a group option
+          if value[lil_opts_flag] and type(value[lil_opts_flag]) == "table" and value[lil_opts_flag].group then
+            table.insert(group_descriptions, { full_key, group = value[lil_opts_flag].group })
+          end
+
+          -- Recurse into nested tables (skip if it's a keymap definition)
+          if not value[1] then
+            extract_groups(full_key, value)
+          end
+        end
+      end
+    end
+
+    extract_groups("", map_def)
+
+    -- Auto-inject [func] = func_map if not already present
+    if not map_def[lil_func_flag] then
+      map_def[lil_func_flag] = func_map
+    end
+
+    -- Call original lil.map
+    original_map(map_def)
+  end
+end
+
+-- Register all collected group descriptions with which-key
+function M.register_groups()
+  if #group_descriptions == 0 then
+    return
+  end
+
+  local ok, wk = pcall(require, "which-key")
+  if ok then
+    wk.add(group_descriptions)
   end
 end
 
