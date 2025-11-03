@@ -218,8 +218,8 @@ end
 -- Explorer: Copy file path with options
 M.copy_file_path = function(picker, item)
   -- Get selected items or fall back to single item
-  local items = {}
   local selected, err = safe_picker_call(picker, "selected")
+  local items
   if not err and selected and #selected > 0 then
     items = selected
   elseif item then
@@ -232,7 +232,7 @@ M.copy_file_path = function(picker, item)
   local is_multi = #items > 1
 
   -- Create ordered list with icons and values
-  local copy_options = {}
+  local copy_options
 
   if is_multi then
     -- Multiple files: concatenate with newlines
@@ -363,7 +363,6 @@ M.copy_file_path = function(picker, item)
         )
       elseif selected_option.key == "tree" then
         -- Generate tree structure using tree command
-        local tree_output = ""
         local items_count = #selected_option.items
 
         -- Check if single directory
@@ -372,6 +371,7 @@ M.copy_file_path = function(picker, item)
             selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1
           )
 
+        local tree_output
         if single_dir then
           -- Single directory: run tree on that directory
           local dir_path = selected_option.items[1].file

@@ -56,7 +56,7 @@ return {
       -- Note ID generation (filename)
       note_id_func = function(title)
         -- Create slug from title
-        local suffix = ""
+        local suffix
         if title ~= nil then
           suffix = title:gsub(" ", "-"):gsub("[^A-Za-z0-9-]", ""):lower()
         else
