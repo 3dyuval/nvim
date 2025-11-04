@@ -11,6 +11,11 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   end,
 })
 
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "Fastfile", "Appfile", "Matchfile", "Pluginfile" },
+  command = "set filetype=ruby",
+})
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "snacks_win", "snacks_picker", "snacks_explorer" },
   callback = function()

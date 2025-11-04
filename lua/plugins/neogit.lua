@@ -1,6 +1,5 @@
 return {
   "NeogitOrg/neogit",
-  dir = "/home/yuval/proj/neogit", -- Use local clone with performance improvements
   dependencies = {
     "nvim-lua/plenary.nvim",
     "sindrets/diffview.nvim",

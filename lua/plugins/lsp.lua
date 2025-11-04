@@ -2,6 +2,7 @@ return {
   "neovim/nvim-lspconfig",
   opts = {
     servers = {
+      solargraph = {},
       ["*"] = {
         capabilities = {
           positionEncoding = "utf-8",
