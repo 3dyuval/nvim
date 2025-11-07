@@ -394,6 +394,12 @@ map({
   },
 })
 
+-- Comment keymaps (using Neovim native commenting + ts-comments.nvim)
+vim.keymap.set({ "n", "x" }, "gc", "gc", { desc = "Toggle comment", remap = true })
+vim.keymap.set("n", "gcc", "gcc", { desc = "Toggle line comment", remap = true })
+vim.keymap.set({ "n", "x" }, "gb", "gb", { desc = "Toggle blockwise comment", remap = true })
+vim.keymap.set("n", "gbc", "gbc", { desc = "Toggle blockwise comment line", remap = true })
+
 -- TODO find a keymap closer to v, use - for something like repeat?
 vim.keymap.set({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
 
@@ -641,6 +647,29 @@ map({
       i = desc("My repositories", cmd("Octo repo list")),
       l = desc("Copy url", cmd("Octo repo url")),
     },
+
+    -- Comment operations
+    a = desc("Add comment", function()
+      local Actions = require("snacks.gh.actions")
+      local Api = require("snacks.gh.api")
+
+      -- Get current item from buffer or current PR
+      local buf = vim.api.nvim_get_current_buf()
+      local gh_meta = vim.b[buf].snacks_gh
+
+      local item
+      if gh_meta and gh_meta.type and gh_meta.repo and gh_meta.number then
+        item = Api.get({ type = gh_meta.type, repo = gh_meta.repo, number = gh_meta.number })
+      else
+        item = Api.current_pr()
+      end
+
+      if item then
+        Actions.actions.gh_comment.action(item, { items = { item } })
+      else
+        vim.notify("Not in a GitHub PR/Issue buffer", vim.log.levels.WARN)
+      end
+    end),
 
     -- Notifications (Octo)
     n = desc("Notifications", cmd("Octo notifications")),
