@@ -2,10 +2,92 @@ return {
   "neovim/nvim-lspconfig",
   opts = {
     servers = {
-      solargraph = {},
       ["*"] = {
         capabilities = {
           positionEncoding = "utf-8",
+        },
+      },
+
+      -- === Lua Development ===
+      lua_ls = {
+        capabilities = { positionEncoding = "utf-8" },
+        settings = {
+          Lua = {
+            runtime = {
+              version = "LuaJIT",
+            },
+            diagnostics = {
+              globals = { "vim" },
+            },
+            workspace = {
+              checkThirdParty = false,
+              library = {
+                vim.env.VIMRUNTIME,
+              },
+            },
+            telemetry = {
+              enable = false,
+            },
+          },
+        },
+      },
+
+      -- === Ruby Development ===
+      solargraph = {
+        capabilities = { positionEncoding = "utf-8" },
+        settings = {
+          solargraph = {
+            diagnostics = true,
+            completion = true,
+            hover = true,
+            formatting = true,
+          },
+        },
+      },
+
+      -- === Rust Development ===
+      rust_analyzer = {
+        capabilities = { positionEncoding = "utf-8" },
+        settings = {
+          ["rust-analyzer"] = {
+            cargo = {
+              allFeatures = true,
+              loadOutDirsFromCheck = true,
+              buildScripts = {
+                enable = true,
+              },
+            },
+            checkOnSave = {
+              command = "clippy",
+            },
+            procMacro = {
+              enable = true,
+            },
+          },
+        },
+      },
+
+      -- === Go Development ===
+      gopls = {
+        capabilities = { positionEncoding = "utf-8" },
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+              shadow = true,
+            },
+            staticcheck = true,
+            gofumpt = true,
+            hints = {
+              assignVariableTypes = true,
+              compositeLiteralFields = true,
+              compositeLiteralTypes = true,
+              constantValues = true,
+              functionTypeParameters = true,
+              parameterNames = true,
+              rangeVariableTypes = true,
+            },
+          },
         },
       },
       -- Disable formatters that Mason tries to use as LSP servers
