@@ -560,19 +560,19 @@ map({
       [opts] = { group = "Issues" },
       -- Browse issues (Snacks)
       l = desc("Issues (open)", function()
-        Snacks.picker.gh_issue()
+        Snacks.picker.gh_issue({ repo = git.get_github_repo() })
       end),
       i = desc("Issues (assigned to me)", function()
-        Snacks.picker.gh_issue({ assignee = "@me" })
+        Snacks.picker.gh_issue({ assignee = "@me", repo = git.get_github_repo() })
       end),
       a = desc("Issues (all - open + closed)", function()
-        Snacks.picker.gh_issue({ state = "all" })
+        Snacks.picker.gh_issue({ state = "all", repo = git.get_github_repo() })
       end),
       c = desc("Issues (closed)", function()
-        Snacks.picker.gh_issue({ state = "closed" })
+        Snacks.picker.gh_issue({ state = "closed", repo = git.get_github_repo() })
       end),
       b = desc("Issues (filter by author)", function()
-        Snacks.picker.gh_issue({ author = vim.fn.input("Author: ") })
+        Snacks.picker.gh_issue({ author = vim.fn.input("Author: "), repo = git.get_github_repo() })
       end),
 
       -- Create (Octo)
@@ -591,19 +591,19 @@ map({
       [opts] = { group = "Pull Requests" },
       -- Browse PRs (Snacks)
       l = desc("PRs (open)", function()
-        Snacks.picker.gh_pr()
+        Snacks.picker.gh_pr({ repo = git.get_github_repo() })
       end),
       a = desc("PRs (all - open + closed + merged)", function()
-        Snacks.picker.gh_pr({ state = "all" })
+        Snacks.picker.gh_pr({ state = "all", repo = git.get_github_repo() })
       end),
       m = desc("PRs (merged only)", function()
-        Snacks.picker.gh_pr({ state = "merged" })
+        Snacks.picker.gh_pr({ state = "merged", repo = git.get_github_repo() })
       end),
       c = desc("PRs (closed only)", function()
-        Snacks.picker.gh_pr({ state = "closed" })
+        Snacks.picker.gh_pr({ state = "closed", repo = git.get_github_repo() })
       end),
       d = desc("PRs (draft only)", function()
-        Snacks.picker.gh_pr({ draft = true })
+        Snacks.picker.gh_pr({ draft = true, repo = git.get_github_repo() })
       end),
 
       -- Create (Octo)
