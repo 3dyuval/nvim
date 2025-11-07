@@ -83,6 +83,9 @@ return {
     formatters_by_ft = {
       lua = { "stylua" },
       dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
+      go = { "goimports", "gofumpt" }, -- Go: organize imports + format
+      rust = { "rustfmt" },
+      ruby = { "rubocop" },
       typescript = js_formatter,
       javascript = js_formatter,
       typescriptreact = js_formatter,
