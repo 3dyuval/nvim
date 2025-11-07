@@ -25,6 +25,11 @@ return {
   lazy = false,
   ---@type snacks.Config
   opts = {
+    gh = {
+      keys = {
+        comment = false, -- Disable "a" for "Add Comment" in gh buffers
+      },
+    },
     input = {
       enabled = true,
       icon = " ",
