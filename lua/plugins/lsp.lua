@@ -2,6 +2,7 @@ return {
   "neovim/nvim-lspconfig",
   opts = {
     servers = {
+      -- Global server config
       ["*"] = {
         capabilities = {
           positionEncoding = "utf-8",
@@ -166,15 +167,15 @@ return {
     },
     setup = {
       volar = function(_, opts)
-        Snacks.util.lsp.on({ name = "volar" }, function(buf, client)
+        Snacks.util.lsp.on({ name = "volar" }, function(bufnr, client)
           vim.keymap.set(
             "n",
             "<leader>cr",
             vim.lsp.buf.rename,
-            { buffer = buf, desc = "LSP Rename" }
+            { buffer = bufnr, desc = "LSP Rename" }
           )
           if client.server_capabilities.documentSymbolProvider then
-            require("nvim-navic").attach(client, buf)
+            require("nvim-navic").attach(client, bufnr)
           end
         end)
       end,

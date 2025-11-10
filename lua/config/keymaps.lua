@@ -113,7 +113,7 @@ map({
     -- TypeScript/Import operations
     o = desc("Organize + Remove Unused Imports", code.organize_imports),
     O = desc("Organize Imports + Fix All Diagnostics", code.organize_imports_and_fix),
-    I = desc("Add missing imports", code.add_missing_imports),
+    i = desc("Add missing imports", code.add_missing_imports),
     u = desc("Remove unused imports", code.remove_unused_imports),
     F = desc("Fix all diagnostics", code.fix_all),
     V = desc("Select TS workspace version", code.select_ts_version),
