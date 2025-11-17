@@ -145,8 +145,8 @@ map({
   ["<leader>h"] = {
     h = desc("Local file history", history.local_file_history),
     H = desc("All files in backup", history.all_files_in_backup),
-    F = desc("Browser bookmarks", cmd("BrowserBookmarks")),
-    f = desc("Browser search (history + bookmarks)", cmd("BrowserSearch")),
+    b = desc("Browser bookmarks", cmd("BrowserBookmarks")),
+    f = desc("Browser history", cmd("BrowserHistory")),
     s = desc("Smart history picker", history.smart_file_history),
     l = desc("Git log", history.git_log_picker),
     u = desc("View undo list", cmd("undolist")),

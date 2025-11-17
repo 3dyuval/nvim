@@ -189,7 +189,14 @@ return {
 
       -- Override Chrome executable globally for all configurations (WORKING - keep)
       local function override_chrome_executable()
-        local chrome_path = "/usr/bin/google-chrome-stable"
+        -- OS-aware Chrome path detection
+        local chrome_path
+        if vim.fn.has("mac") == 1 then
+          chrome_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        else
+          chrome_path = "/usr/bin/google-chrome-stable"
+        end
+
         local user_data_dir = os.getenv("LOCALDATADIR") or "/tmp/chrome-debug-profile"
 
         -- Check if Chrome exists
