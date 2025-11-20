@@ -1,7 +1,7 @@
 -- Notes Management: Marksman LSP + obsidian.nvim
 -- Storage: $CFG/notes (expandable to any directory)
 
-local notes_dir = vim.fn.expand("$CFG/notes")
+local notes_dir = vim.fn.expand("~/notes")
 
 -- Ensure notes directory exists
 vim.fn.mkdir(notes_dir, "p")

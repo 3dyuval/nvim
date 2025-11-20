@@ -194,7 +194,7 @@ return {
         if vim.fn.has("mac") == 1 then
           chrome_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
         else
-          chrome_path = "/usr/bin/google-chrome-stable"
+          chrome_path = "/usr/bin/chromium"
         end
 
         local user_data_dir = os.getenv("LOCALDATADIR") or "/tmp/chrome-debug-profile"

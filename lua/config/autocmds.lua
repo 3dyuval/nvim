@@ -112,3 +112,21 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     end
   end,
 })
+
+-- Auto-reload colorscheme when theme file changes (on window focus)
+vim.api.nvim_create_autocmd("FocusGained", {
+  callback = function()
+    local file = vim.fn.stdpath("config") .. "/lua/plugins/colorscheme-persist.lua"
+    local mtime = vim.fn.getftime(file)
+    if mtime > (vim.g.last_theme_mtime or 0) then
+      vim.g.last_theme_mtime = mtime
+      vim.schedule(function()
+        package.loaded["plugins.colorscheme-persist"] = nil
+        local ok, config = pcall(require, "plugins.colorscheme-persist")
+        if ok and config[2] and config[2].opts and config[2].opts.colorscheme then
+          pcall(vim.cmd.colorscheme, config[2].opts.colorscheme)
+        end
+      end)
+    end
+  end,
+})
