@@ -14,7 +14,7 @@ end
 M.chrome = {
   executable = {
     darwin = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    linux = "/usr/bin/google-chrome-stable",
+    linux = "/usr/bin/chromium",
     win32 = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
   },
   user_data_dir = {

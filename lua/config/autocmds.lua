@@ -113,20 +113,26 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   end,
 })
 
--- Auto-reload colorscheme when theme file changes (on window focus)
-vim.api.nvim_create_autocmd("FocusGained", {
+-- Remove kitty window padding when Neovim starts, restore on exit
+-- Use defer_fn to ensure it runs after Neovim is fully initialized
+vim.defer_fn(function()
+  if vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON then
+    local window_id = vim.env.KITTY_WINDOW_ID
+    local socket = vim.env.KITTY_LISTEN_ON
+    local cmd =
+      string.format("kitten @ --to %s set-spacing --match id:%s padding=0", socket, window_id)
+    vim.fn.system(cmd)
+  end
+end, 100)
+
+vim.api.nvim_create_autocmd("VimLeavePre", {
   callback = function()
-    local file = vim.fn.stdpath("config") .. "/lua/plugins/colorscheme-persist.lua"
-    local mtime = vim.fn.getftime(file)
-    if mtime > (vim.g.last_theme_mtime or 0) then
-      vim.g.last_theme_mtime = mtime
-      vim.schedule(function()
-        package.loaded["plugins.colorscheme-persist"] = nil
-        local ok, config = pcall(require, "plugins.colorscheme-persist")
-        if ok and config[2] and config[2].opts and config[2].opts.colorscheme then
-          pcall(vim.cmd.colorscheme, config[2].opts.colorscheme)
-        end
-      end)
+    if vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON then
+      local window_id = vim.env.KITTY_WINDOW_ID
+      local socket = vim.env.KITTY_LISTEN_ON
+      local cmd =
+        string.format("kitten @ --to %s set-spacing --match id:%s padding=12", socket, window_id)
+      vim.fn.system(cmd)
     end
   end,
 })

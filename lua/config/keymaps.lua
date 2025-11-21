@@ -383,22 +383,18 @@ map({
 vim.keymap.set({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 vim.keymap.set({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 
-local todo_comments = require("todo-comments")
-
 map({
-  ["]t"] = desc("Next Todo Comment", todo_comments.jump_next),
-  ["[t"] = desc("Previous Todo Comment", todo_comments.jumt_prev),
+  ["]t"] = desc("Next Todo Comment", require("todo-comments").jump_next),
+  ["[t"] = desc("Previous Todo Comment", require("todo-comments").jump_prev),
   ["<leader>x"] = {
     t = desc("Todo (Trouble)", cmd("Trouble todo toggle")),
     T = desc("Todo/Fix/Fixme", cmd("Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}")),
   },
 })
 
--- Comment keymaps (using Neovim native commenting + ts-comments.nvim)
-vim.keymap.set({ "n", "x" }, "gc", "gc", { desc = "Toggle comment", remap = true })
-vim.keymap.set("n", "gcc", "gcc", { desc = "Toggle line comment", remap = true })
-vim.keymap.set({ "n", "x" }, "gb", "gb", { desc = "Toggle blockwise comment", remap = true })
-vim.keymap.set("n", "gbc", "gbc", { desc = "Toggle blockwise comment line", remap = true })
+-- Comment keymaps: Comment.nvim creates these automatically
+-- No need to remap - just let Comment.nvim handle it
+-- The plugin creates: gcc, gc, gb, gbc, gcO, gco, gcA
 
 -- TODO find a keymap closer to v, use - for something like repeat?
 vim.keymap.set({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
