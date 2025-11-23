@@ -14,12 +14,19 @@ return {
     end,
   },
 
-  -- Disable unwanted default colorschemes (keep only tokyonight and catppuccin)
+  -- Enable colorschemes used by omarchy themes
   { "folke/tokyonight.nvim", enabled = true },
   { "catppuccin/nvim", name = "catppuccin", enabled = true },
-  { "ellisonleao/gruvbox.nvim", enabled = false },
-  { "rebelot/kanagawa.nvim", enabled = false },
-  { "rose-pine/neovim", name = "rose-pine", enabled = false },
+  { "ellisonleao/gruvbox.nvim", enabled = true },
+  { "rebelot/kanagawa.nvim", enabled = true },
+  { "rose-pine/neovim", name = "rose-pine", enabled = true },
+  { "sainnhe/everforest", enabled = true },
+  { "loctvl842/monokai-pro.nvim", enabled = true },
+  { "marko-cerovac/material.nvim", enabled = true },
+  { "AlexvZyl/nordic.nvim", enabled = true },
+  { "ribru17/bamboo.nvim", enabled = true },
+  { "kepano/flexoki-neovim", name = "flexoki", enabled = true },
+  -- Disable unused LazyVim defaults
   { "Mofiqul/dracula.nvim", enabled = false },
   { "navarasu/onedark.nvim", enabled = false },
   { "EdenEast/nightfox.nvim", enabled = false },
