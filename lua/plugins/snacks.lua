@@ -27,7 +27,10 @@ return {
   opts = {
     gh = {
       keys = {
-        comment = false, -- Disable "a" for "Add Comment" in gh buffers
+        comment = false, -- Disable "a" for "Add Comment" - conflicts with Graphite down
+        close = false, -- Disable "c" for "Close" - conflicts with Graphite copy
+        edit = false, -- Disable "i" for "Edit" - conflicts with Graphite right
+        reopen = false, -- Disable "o" for "Reopen" - conflicts with vim open line
       },
     },
     input = {
