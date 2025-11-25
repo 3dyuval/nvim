@@ -12,8 +12,18 @@ return {
     "typescript",
     "typescriptreact",
     "typescript.tsx",
+    "vue",
   },
   opts = {
+    filetypes = {
+      "javascript",
+      "javascriptreact",
+      "javascript.jsx",
+      "typescript",
+      "typescriptreact",
+      "typescript.tsx",
+      "vue",
+    },
     settings = {
       -- spawn additional tsserver instance to calculate diagnostics on it
       separate_diagnostic_server = true,
@@ -29,15 +39,21 @@ return {
       tsserver_path = nil,
       -- specify a list of plugins to load by tsserver, e.g., for support of styled-components
       -- (see 💅 `styled-components` support section)
-      tsserver_plugins = {},
+      tsserver_plugins = {
+        "@vue/typescript-plugin",
+      },
       -- this value is passed to: https://nodejs.org/api/cli.html#--max-old-space-sizesize-in-megabytes
       -- memory limit in megabytes or "auto"(basically no limit)
       tsserver_max_memory = "auto",
       -- described below
-      tsserver_format_options = {},
+      tsserver_format_options = function(ft)
+        return {
+          allowRenameOfImportPath = true,
+        }
+      end,
       tsserver_file_preferences = {
         -- Import preferences
-        importModuleSpecifier = "non-relative",
+        importModuleSpecifier = "relative",
         -- Conservative inlay hints (reduced verbosity)
         includeInlayParameterNameHints = "literals", -- Only for literal values, not "all"
         includeInlayParameterNameHintsWhenArgumentMatchesName = false,
@@ -46,30 +62,6 @@ return {
         includeInlayPropertyDeclarationTypeHints = true, -- Keep useful property types
         includeInlayFunctionLikeReturnTypeHints = false, -- Disable verbose return types
         includeInlayEnumMemberValueHints = true, -- Keep concise enum values
-      },
-      -- File watching optimization - exclude directories from file change monitoring (issue #48)
-      -- NOTE: This only affects file watching, NOT module resolution or type definitions
-      -- You can still jump to definitions in node_modules - this just prevents watching for changes
-      watchOptions = {
-        excludeDirectories = {
-          "**/node_modules", -- Safe to exclude - types still work, just no file watching
-          "**/dist",
-          "**/build",
-          "**/.git",
-          "**/coverage",
-          "**/tmp",
-          "**/temp",
-          "**/.cache",
-          "**/.next",
-          "**/.nuxt",
-          -- React Native specific directories (issue #49)
-          "**/android/build",
-          "**/android/.gradle",
-          "**/ios/build",
-          "**/ios/Pods",
-          "**/.expo",
-          "**/expo-env.d.ts",
-        },
       },
       -- locale of all tsserver messages, supported locales you can find here:
       -- https://github.com/microsoft/TypeScript/blob/3c221fc086be52b19801f6e8d82596d04607ede6/src/compiler/utilitiesPublic.ts#L620
@@ -91,14 +83,6 @@ return {
         enable = false,
         filetypes = { "javascriptreact", "typescriptreact" },
       },
-    },
-    filetypes = {
-      "javascript",
-      "javascriptreact",
-      "javascript.jsx",
-      "typescript",
-      "typescriptreact",
-      "typescript.tsx",
     },
   },
   config = function(_, opts)

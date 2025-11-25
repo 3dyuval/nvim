@@ -96,23 +96,25 @@ return {
 
       -- Disable other TypeScript servers
       tsserver = { enabled = false },
-      ts_ls = { enabled = false },
       -- Suppress LazyVim typescript extra's typescript-language-server
       -- See issue #1 - LazyVim extra conflicts with vtsls configuration
       ["typescript-language-server"] = { enabled = false },
 
       -- Disable vtsls (replaced with typescript-tools.nvim)
-      vtsls = { enabled = false },
-
+      ts_ls = { enabled = false },
+      volar = { enabled = false },
       -- Disable Angular LSP (not using Angular)
       angularls = { enabled = false },
+      vtsls = { enabled = false },
 
       -- === Vue Development ===
-      volar = {
+      vue_ls = {
+        enabled = true,
         filetypes = { "vue" },
         init_options = {
-          vue = { hybridMode = false },
+          vue = { hybridMode = false }, -- takeover mode: vue_ls handles TS internally
           typescript = {
+            -- tdsk=vim.expand("%")+"node_modules/typescript"
             -- tsdk path can be customized here if needed
           },
         },
@@ -167,7 +169,7 @@ return {
     },
     setup = {
       volar = function(_, opts)
-        Snacks.util.lsp.on({ name = "volar" }, function(bufnr, client)
+        Snacks.util.lsp.on({ name = "vue_ls" }, function(bufnr, client)
           vim.keymap.set(
             "n",
             "<leader>cr",
