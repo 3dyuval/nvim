@@ -4,6 +4,7 @@
 
 return {
   "pmizio/typescript-tools.nvim",
+  enabled = false, -- Using vtsls instead for better Vue/Angular support
   dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
   ft = {
     "javascript",
