@@ -3,17 +3,24 @@
 
 return {
 	{
-		"catppuccin/nvim",
-		name = "catppuccin",
+		"folke/tokyonight.nvim",
 		priority = 1000,
 		opts = {
+<<<<<<< Updated upstream:lua/plugins/colorscheme.lua
 			transparent_background = true,
+=======
+			transparent = true,
+			styles = {
+				sidebars = "transparent",
+				floats = "transparent",
+			},
+>>>>>>> Stashed changes:lua/plugins/colorscheme-persist.lua
 		},
 	},
 	{
 		"LazyVim/LazyVim",
 		opts = {
-			colorscheme = "catppuccin",
+			colorscheme = "tokyonight-night",
 		},
 	},
 }
