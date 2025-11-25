@@ -8,6 +8,18 @@ return {
   config = function(_, opts)
     require("utils.neogit-commands").setup()
 
+    -- Auto-close Neogit after successful commit, then reopen
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "NeogitCommitComplete",
+      callback = function()
+        local neogit = require("neogit")
+        neogit.close()
+        vim.defer_fn(function()
+          neogit.open()
+        end, 300)
+      end,
+    })
+
     vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
       pattern = "NeogitStatus",
       callback = function(args)
