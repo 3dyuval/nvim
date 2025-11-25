@@ -1023,15 +1023,18 @@ local actions = {
         local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(item.file, ":t"))
         if new_name and new_name ~= "" then
           local new_path = vim.fn.fnamemodify(item.file, ":h") .. "/" .. new_name
-          local ok, err = os.rename(item.file, new_path)
-          if ok then
-            vim.notify("Renamed to " .. new_name)
-            if picker.refresh then
-              picker:refresh()
-            end
-          else
-            vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
-          end
+          Snacks.rename.rename_file({
+            from = item.file,
+            to = new_path,
+            on_rename = function(to, from, ok)
+              if ok then
+                vim.notify("Renamed to " .. new_name)
+                if picker.refresh then
+                  picker:refresh()
+                end
+              end
+            end,
+          })
         end
       end,
     },
@@ -1116,15 +1119,18 @@ local actions = {
         local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(item.file, ":t"))
         if new_name and new_name ~= "" then
           local new_path = vim.fn.fnamemodify(item.file, ":h") .. "/" .. new_name
-          local ok, err = os.rename(item.file, new_path)
-          if ok then
-            vim.notify("Renamed to " .. new_name)
-            if picker.refresh then
-              picker:refresh()
-            end
-          else
-            vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
-          end
+          Snacks.rename.rename_file({
+            from = item.file,
+            to = new_path,
+            on_rename = function(to, from, ok)
+              if ok then
+                vim.notify("Renamed to " .. new_name)
+                if picker.refresh then
+                  picker:refresh()
+                end
+              end
+            end,
+          })
         end
       end,
     },
@@ -1636,7 +1642,7 @@ M.context_menu = function(picker, item)
     format_action(picker, item)
   end)
 
-  -- Rename action
+  -- Rename action (uses Snacks.rename for LSP import updates)
   table.insert(options, "󰑕 Rename")
   table.insert(actions, function()
     if #target_items == 1 then
@@ -1644,15 +1650,18 @@ M.context_menu = function(picker, item)
       local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(target_item.file, ":t"))
       if new_name and new_name ~= "" then
         local new_path = vim.fn.fnamemodify(target_item.file, ":h") .. "/" .. new_name
-        local ok, err = os.rename(target_item.file, new_path)
-        if ok then
-          vim.notify("Renamed to " .. new_name)
-          if picker.refresh then
-            picker:refresh()
-          end
-        else
-          vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
-        end
+        Snacks.rename.rename_file({
+          from = target_item.file,
+          to = new_path,
+          on_rename = function(to, from, ok)
+            if ok then
+              vim.notify("Renamed to " .. new_name)
+              if picker.refresh then
+                picker:refresh()
+              end
+            end
+          end,
+        })
       end
     end
   end)

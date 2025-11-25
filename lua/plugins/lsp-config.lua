@@ -108,16 +108,18 @@ return {
       vtsls = { enabled = false },
 
       -- === Vue Development ===
+      -- Using hybrid mode - typescript-tools handles TS via @vue/typescript-plugin
       vue_ls = {
         enabled = true,
         filetypes = { "vue" },
         init_options = {
-          vue = { hybridMode = false }, -- takeover mode: vue_ls handles TS internally
-          typescript = {
-            -- tdsk=vim.expand("%")+"node_modules/typescript"
-            -- tsdk path can be customized here if needed
-          },
+          vue = { hybridMode = true },
         },
+        on_init = function(client)
+          -- Disable tsserver/request handler - typescript-tools doesn't support
+          -- typescript.tsserverRequest command (only vtsls does)
+          client.handlers["tsserver/request"] = nil
+        end,
         settings = {
           vue = {
             complete = {
@@ -168,7 +170,7 @@ return {
       },
     },
     setup = {
-      volar = function(_, opts)
+      vue_ls = function(_, opts)
         Snacks.util.lsp.on({ name = "vue_ls" }, function(bufnr, client)
           vim.keymap.set(
             "n",
