@@ -106,13 +106,25 @@ return {
 
       -- === TypeScript/JavaScript Development ===
       -- Using vtsls with @vue/typescript-plugin for Vue support
+      -- https://github.com/vuejs/language-tools/wiki/Neovim
       vtsls = {
         enabled = true,
+        -- Use local build for testing willRenameFiles support
+        cmd = { vim.fn.expand("~/proj/vtsls/packages/server/bin/vtsls.js"), "--stdio" },
         filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
         settings = {
           vtsls = {
+            autoUseWorkspaceTsdk = false, -- Automatically use bundled TypeScript instead of projects'
             tsserver = {
-              globalPlugins = {},
+              globalPlugins = {
+                {
+                  name = "@vue/typescript-plugin",
+                  location = vim.fn.stdpath("data")
+                    .. "/mason/packages/vue-language-server/node_modules/@vue/language-server",
+                  languages = { "vue" },
+                  configNamespace = "typescript",
+                },
+              },
             },
           },
           typescript = {
@@ -129,20 +141,6 @@ return {
             },
           },
         },
-        before_init = function(_, config)
-          -- Add Vue plugin if vue-language-server is installed via Mason
-          local vue_plugin_path = vim.fn.stdpath("data")
-            .. "/mason/packages/vue-language-server/node_modules/@vue/language-server"
-          if vim.fn.isdirectory(vue_plugin_path) == 1 then
-            table.insert(config.settings.vtsls.tsserver.globalPlugins, {
-              name = "@vue/typescript-plugin",
-              location = vue_plugin_path,
-              languages = { "vue" },
-              configNamespace = "typescript",
-              enableForWorkspaceTypeScriptVersions = true,
-            })
-          end
-        end,
       },
 
       -- === Vue Development ===

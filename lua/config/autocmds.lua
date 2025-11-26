@@ -1,3 +1,12 @@
+-- Auto-save buffers after LSP workspace edits (e.g., import updates on file rename)
+-- https://github.com/yioneko/vtsls/issues/287
+local original_apply_workspace_edit = vim.lsp.util.apply_workspace_edit
+vim.lsp.util.apply_workspace_edit = function(workspace_edit, offset_encoding)
+  local result = original_apply_workspace_edit(workspace_edit, offset_encoding)
+  vim.cmd("silent! wall")
+  return result
+end
+
 -- restore cursor to file position in previous editing session
 vim.api.nvim_create_autocmd("BufReadPost", {
   callback = function(args)
