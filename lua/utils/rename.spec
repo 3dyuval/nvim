@@ -39,6 +39,7 @@
 --   When user presses "r"
 --   Then prompt "Rename to: <filename>" should appear
 --   And on confirm, Snacks.rename.rename_file({ from, to, on_rename }) should be called
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
 --   And picker should refresh on success
 --
 -- =============================================================================
@@ -53,6 +54,7 @@
 --   Then prompt "Move to directory: <current_dir>/" should appear
 --   And on confirm, all selected files should be moved to destination
 --   And Snacks.rename.rename_file({ from, to, on_rename }) should be called for each file
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
 --   And picker should refresh on success
 --
 -- Scenario: Move multiple selected files and directories
@@ -62,6 +64,7 @@
 --   Then prompt "Move to directory: <current_dir>/" should appear with dir completion
 --   And on confirm, all selected items should be moved to destination
 --   And directories should be moved via Snacks.rename.rename_file
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
 --   And picker should refresh on success
 --
 -- =============================================================================
@@ -75,6 +78,7 @@
 --   When user presses "r"
 --   Then prompt "Rename to: <dirname>" should appear
 --   And on confirm, Snacks.rename.rename_file({ from, to, on_rename }) should be called
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
 --   And picker should refresh on success
 --
 -- =============================================================================
@@ -87,4 +91,5 @@
 --   When user selects "󰑕 Rename"
 --   Then prompt "Rename to: <filename>" should appear
 --   And on confirm, Snacks.rename.rename_file({ from, to, on_rename }) should be called
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
 --   And picker should refresh on success
