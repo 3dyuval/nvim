@@ -83,7 +83,7 @@ return {
       -- Standard LSP keymaps
       keys[#keys + 1] = { "<leader>cl", vim.lsp.codelens.refresh, desc = "Refresh Codelens" }
       keys[#keys + 1] = { "<leader>cL", "<cmd>LspInfo<cr>", desc = "LSP Info" }
-      keys[#keys + 1] = { "<leader>cr", vim.lsp.buf.rename, desc = "Rename Symbol" }
+      keys[#keys + 1] = { "<leader>cr", require("utils.files").smart_rename, desc = "Smart Rename" }
       keys[#keys + 1] = { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action" }
 
       -- Reference keymaps (from codelens.lua)

@@ -203,12 +203,8 @@ return {
     setup = {
       vue_ls = function(_, opts)
         Snacks.util.lsp.on({ name = "vue_ls" }, function(bufnr, client)
-          vim.keymap.set(
-            "n",
-            "<leader>cr",
-            vim.lsp.buf.rename,
-            { buffer = bufnr, desc = "LSP Rename" }
-          )
+          -- Disable rename in hybrid mode (vtsls handles it)
+          client.server_capabilities.renameProvider = false
           if client.server_capabilities.documentSymbolProvider then
             require("nvim-navic").attach(client, bufnr)
           end
