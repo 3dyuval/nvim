@@ -42,6 +42,29 @@
 --   And picker should refresh on success
 --
 -- =============================================================================
+-- Feature: Move multiple selected items (bulk move) (key: m)
+-- Implementation: lua/utils/picker-extensions.lua:1295
+-- =============================================================================
+--
+-- Scenario: Move multiple selected files to a directory
+--   Given user is in file picker
+--   And multiple files are selected (via multi-select)
+--   When user presses "m"
+--   Then prompt "Move to directory: <current_dir>/" should appear
+--   And on confirm, all selected files should be moved to destination
+--   And Snacks.rename.rename_file({ from, to, on_rename }) should be called for each file
+--   And picker should refresh on success
+--
+-- Scenario: Move multiple selected files and directories
+--   Given user is in file picker
+--   And multiple files and directories are selected
+--   When user presses "m"
+--   Then prompt "Move to directory: <current_dir>/" should appear with dir completion
+--   And on confirm, all selected items should be moved to destination
+--   And directories should be moved via Snacks.rename.rename_file
+--   And picker should refresh on success
+--
+-- =============================================================================
 -- Feature: Rename from directory picker (key: r)
 -- Implementation: lua/utils/picker-extensions.lua:1117
 -- =============================================================================

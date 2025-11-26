@@ -1043,7 +1043,7 @@ local actions = {
       desc = "Delete file",
       action = function(picker, item)
         local confirm =
-          vim.fn.confirm("Delete " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
+          vim.fn.confirm("Delete " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 1)
         if confirm == 1 then
           local ok, err = os.remove(item.file)
           if ok then
@@ -1216,7 +1216,7 @@ local actions = {
       desc = "Delete selected items",
       action = function(picker, items)
         local count = #items
-        local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 2)
+        local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 1)
         if confirm == 1 then
           local deleted = 0
           for _, item in ipairs(items) do
@@ -1286,6 +1286,55 @@ local actions = {
             on_complete = function(status)
               if picker.refresh then
                 picker:refresh()
+              end
+            end,
+          })
+        end
+      end,
+    },
+    {
+      key = "m",
+      desc = "󰪹 Move selected items",
+      action = function(picker, items)
+        -- Get the directory of the first item as starting point for input
+        local first_dir = vim.fn.fnamemodify(items[1].file, ":h")
+        local dest_dir = vim.fn.input("Move to directory: ", first_dir .. "/", "dir")
+
+        if not dest_dir or dest_dir == "" then
+          return
+        end
+
+        local moved = 0
+        local failed = 0
+
+        for _, item in ipairs(items) do
+          local filename = vim.fn.fnamemodify(item.file, ":t")
+          local new_path = dest_dir .. "/" .. filename
+
+          -- Use Snacks.rename for LSP-aware file moving (pcall to suppress LSP warnings)
+          pcall(Snacks.rename.rename_file, {
+            from = item.file,
+            to = new_path,
+            on_rename = function(to, from, ok)
+              if ok then
+                moved = moved + 1
+              else
+                failed = failed + 1
+              end
+
+              -- Notify and refresh after all items processed
+              if moved + failed == #items then
+                if failed > 0 then
+                  vim.notify(
+                    string.format("Moved %d items, %d failed", moved, failed),
+                    vim.log.levels.WARN
+                  )
+                else
+                  vim.notify(string.format("Moved %d items to %s", moved, dest_dir))
+                end
+                if picker.refresh then
+                  picker:refresh()
+                end
               end
             end,
           })
@@ -1670,7 +1719,7 @@ M.context_menu = function(picker, item)
   table.insert(options, "󰆴 Delete")
   table.insert(actions, function()
     local count = #target_items
-    local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 2)
+    local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 1)
     if confirm == 1 then
       for _, target_item in ipairs(target_items) do
         if target_item.dir then
