@@ -239,9 +239,8 @@ vim.keymap.set({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
 vim.keymap.set({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 vim.keymap.set({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
--- Smart context-aware navigation - diff navigation baseline (Graphite layout)
-vim.keymap.set({ "n", "o", "x" }, "E", "]c", { desc = "Next diff hunk" })
-vim.keymap.set({ "n", "o", "x" }, "A", "[c", { desc = "Previous diff hunk" })
+vim.keymap.set({ "n", "o", "x" }, "A", "<cmd>Treewalker Down<cr>", { desc = "Next code block" })
+vim.keymap.set({ "n", "o", "x" }, "E", "<cmd>Treewalker Up<cr>", { desc = "Previous code block" })
 
 -- Smooth scrolling (Graphite layout) - works with snacks.scroll
 map({
