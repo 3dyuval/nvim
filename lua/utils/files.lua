@@ -125,8 +125,10 @@ M.build_fd_args = function(opts)
 
   local args = {
     "--color=never",
-    "--type", "f",
-    "--type", "l",
+    "--type",
+    "f",
+    "--type",
+    "l",
     "--hidden",
     "--follow",
     "--no-ignore", -- We handle excludes manually to allow *.local.* files
@@ -226,14 +228,12 @@ end
 -- SMART REFERENCES
 -- ============================================================================
 
--- Show references in Snacks picker with copy support
 local function show_references_picker(results)
   if not results or #results == 0 then
     vim.notify("No references found", vim.log.levels.INFO)
     return
   end
 
-  -- Format references for Snacks picker
   local items = {}
   for i, ref in ipairs(results) do
     local uri = ref.uri or ref.targetUri
@@ -241,16 +241,26 @@ local function show_references_picker(results)
     local line_num = ref.range.start.line + 1
     local col_num = ref.range.start.character + 1
 
-    -- Get the line content
     local line_content = ""
     local bufnr = vim.uri_to_bufnr(uri)
     if vim.api.nvim_buf_is_loaded(bufnr) then
-      line_content = vim.api.nvim_buf_get_lines(bufnr, ref.range.start.line, ref.range.start.line + 1, false)[1] or ""
+      line_content = vim.api.nvim_buf_get_lines(
+        bufnr,
+        ref.range.start.line,
+        ref.range.start.line + 1,
+        false
+      )[1] or ""
     end
 
     table.insert(items, {
       file = vim.uri_to_fname(uri),
-      text = string.format("%s:%d:%d %s", filename, line_num, col_num, line_content:gsub("^%s+", "")),
+      text = string.format(
+        "%s:%d:%d %s",
+        filename,
+        line_num,
+        col_num,
+        line_content:gsub("^%s+", "")
+      ),
       pos = { line_num, col_num },
       idx = i,
       score = 1,
@@ -279,22 +289,13 @@ local function show_references_picker(results)
       },
     },
     win = {
-      input = {
-        keys = {
-          ["p"] = "copy_file_path",
-        },
-      },
-      list = {
-        keys = {
-          ["p"] = "copy_file_path",
-        },
-      },
+      input = { keys = { ["p"] = "copy_file_path" } },
+      list = { keys = { ["p"] = "copy_file_path" } },
     },
     focus = "list",
   })
 end
 
--- Request references at current position using vim.lsp.buf_request
 local function request_references(callback)
   local bufnr = vim.api.nvim_get_current_buf()
   local clients = vim.lsp.get_clients({ bufnr = bufnr })
@@ -320,27 +321,91 @@ local function request_references(callback)
   end)
 end
 
--- Smart references: handles both symbol references and import path resolution
+-- Get file path to use for references when no symbol under cursor
+-- Checks: 1) Snacks explorer item, 2) Current buffer filename
+local function get_fallback_file()
+  local ft = vim.bo.filetype
+
+  -- Check if in Snacks picker/explorer
+  if ft == "snacks_picker_list" then
+    local pickers = Snacks.picker.get()
+    if pickers and #pickers > 0 then
+      local picker = pickers[1]
+      local item = picker:current()
+      if item and item.file and vim.fn.filereadable(item.file) == 1 then
+        return item.file
+      end
+    end
+  end
+
+  -- Fallback to current buffer filename
+  local bufname = vim.api.nvim_buf_get_name(0)
+  if bufname ~= "" and vim.fn.filereadable(bufname) == 1 then
+    return bufname
+  end
+
+  return nil
+end
+
+-- Find references to a file by opening it and requesting references at first line
+local function find_file_references(file_path)
+  vim.cmd("edit " .. file_path)
+  vim.schedule(function()
+    request_references(show_references_picker)
+  end)
+end
+
+-- Check if cursor is on a renameable symbol (uses LSP prepareRename under the hood)
+local function has_symbol_under_cursor(callback)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({ bufnr = bufnr })
+
+  local client
+  for _, c in ipairs(clients) do
+    if c.server_capabilities.renameProvider then
+      client = c
+      break
+    end
+  end
+
+  if not client then
+    callback(true) -- No way to check, assume yes
+    return
+  end
+
+  local position_encoding = client.offset_encoding or "utf-16"
+  local params = vim.lsp.util.make_position_params(0, position_encoding)
+
+  client.request("textDocument/prepareRename", params, function(_, result)
+    callback(result ~= nil)
+  end, bufnr)
+end
+
+-- Smart references: symbol under cursor → import path → explorer item → current file
 M.smart_references = function()
-  -- Check if on import path - if so, resolve and find references in that file
   if is_import_path() then
     resolve_import_file(function(file_path)
       if file_path then
-        -- Open the file and find references to its default export
-        vim.cmd("edit " .. file_path)
-        vim.schedule(function()
-          -- After opening, request references at cursor position in new buffer
-          request_references(show_references_picker)
-        end)
+        find_file_references(file_path)
       else
-        -- Fallback to references at current position
         request_references(show_references_picker)
       end
     end)
-  else
-    -- Normal case: get references at cursor position
-    request_references(show_references_picker)
+    return
   end
+
+  has_symbol_under_cursor(function(has_symbol)
+    if has_symbol then
+      request_references(show_references_picker)
+    else
+      local fallback_file = get_fallback_file()
+      if fallback_file then
+        find_file_references(fallback_file)
+      else
+        vim.notify("No symbol or file to find references for", vim.log.levels.INFO)
+      end
+    end
+  end)
 end
 
 -- ============================================================================
@@ -369,14 +434,18 @@ M.smart_rename = function()
   client.request("textDocument/prepareRename", params, function(_, result)
     if result then
       -- Extract placeholder from prepareRename result
-      local placeholder = result.placeholder or (result.range and vim.api.nvim_buf_get_text(
-        0,
-        result.range.start.line,
-        result.range.start.character,
-        result.range["end"].line,
-        result.range["end"].character,
-        {}
-      )[1])
+      local placeholder = result.placeholder
+        or (
+          result.range
+          and vim.api.nvim_buf_get_text(
+            0,
+            result.range.start.line,
+            result.range.start.character,
+            result.range["end"].line,
+            result.range["end"].character,
+            {}
+          )[1]
+        )
       vim.lsp.buf.rename(placeholder)
     elseif is_import_path() then
       resolve_import_file(function(file_path)

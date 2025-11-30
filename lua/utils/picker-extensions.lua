@@ -2145,7 +2145,10 @@ M.copy_references = function(picker)
   }, function(_, idx)
     if idx and copy_options[idx] then
       vim.fn.setreg("+", copy_options[idx].value)
-      vim.notify(string.format("Copied %d references (%s)", #items, copy_options[idx].key), vim.log.levels.INFO)
+      vim.notify(
+        string.format("Copied %d references (%s)", #items, copy_options[idx].key),
+        vim.log.levels.INFO
+      )
     end
   end)
 end

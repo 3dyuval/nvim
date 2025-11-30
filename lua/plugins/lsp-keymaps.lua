@@ -1,6 +1,4 @@
 return {
-  -- LSP Keymaps Override for LazyVim
-  -- Consolidates all LSP keymaps from lsp-keymaps.lua, codelens.lua, and lazyvim-config.lua
   {
     "neovim/nvim-lspconfig",
     opts = function(_, opts)
@@ -15,7 +13,7 @@ return {
       keys[#keys + 1] = { "[[", false }
       keys[#keys + 1] = { "]]", false }
       keys[#keys + 1] = { "<leader>cc", false }
-      keys[#keys + 1] = { "<leader>cr", false } -- From lazyvim-config.lua
+      keys[#keys + 1] = { "<leader>cr", false }
 
       -- Standard LSP keymaps
       keys[#keys + 1] = { "<leader>cl", vim.lsp.codelens.refresh, desc = "Refresh Codelens" }
@@ -26,8 +24,40 @@ return {
       -- Reference keymaps
       keys[#keys + 1] =
         { "<leader>cR", vim.lsp.buf.references, desc = "References (quickfix)", mode = { "n" } }
-      keys[#keys + 1] =
-        { "<leader>cx", require("utils.files").smart_references, desc = "Smart References", mode = { "n" } }
+      keys[#keys + 1] = {
+        "<leader>cx",
+        require("utils.files").smart_references,
+        desc = "Smart References",
+        mode = { "n" },
+      }
+
+      local ts_ft = { "typescript", "typescriptreact", "javascript", "javascriptreact", "vue" }
+
+      keys[#keys + 1] = {
+        "gD",
+        function()
+          local params = vim.lsp.util.make_position_params(0, "utf-16")
+          LazyVim.lsp.execute({
+            command = "typescript.goToSourceDefinition",
+            arguments = { params.textDocument.uri, params.position },
+            open = true,
+          })
+        end,
+        desc = "Goto Source Definition",
+        ft = ts_ft,
+      }
+      keys[#keys + 1] = {
+        "gR",
+        function()
+          LazyVim.lsp.execute({
+            command = "typescript.findAllFileReferences",
+            arguments = { vim.uri_from_bufnr(0) },
+            open = true,
+          })
+        end,
+        desc = "File References",
+        ft = ts_ft,
+      }
 
       return opts
     end,
