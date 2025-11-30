@@ -1,17 +1,19 @@
 return {
-  {
-    "marko-cerovac/material.nvim",
-    priority = 1000,
-    opts = {
-      disable = {
-        background = true,
-      },
-    },
-  },
-  {
-    "LazyVim/LazyVim",
-    opts = {
-      colorscheme = "material-deep-ocean",
-    },
-  },
+	{
+		"folke/tokyonight.nvim",
+		priority = 1000,
+		opts = {
+			transparent = true,
+			styles = {
+				sidebars = "transparent",
+				floats = "transparent",
+			},
+		},
+	},
+	{
+		"LazyVim/LazyVim",
+		opts = {
+			colorscheme = "tokyonight-night",
+		},
+	},
 }
