@@ -278,6 +278,7 @@ return {
         explorer = {
           auto_close = true,
           hidden = true,
+          ignored = true,
           git = {
             enabled = true, -- Enable git status display (enabled by default in 2.18.0+)
           },
@@ -351,19 +352,7 @@ return {
         },
         files = {
           cmd = "fd",
-          args = {
-            "--color=never",
-            "--type",
-            "f",
-            "--type",
-            "l",
-            "--hidden",
-            "--follow",
-            "--exclude",
-            ".git",
-            "--exclude",
-            "node_modules",
-          },
+          args = require("utils.files").build_fd_args(),
           actions = {
             context_menu = {
               action = function(picker, item)
@@ -381,19 +370,7 @@ return {
         },
         grep = {
           cmd = "rg",
-          args = {
-            "--color=never",
-            "--no-heading",
-            "--with-filename",
-            "--line-number",
-            "--column",
-            "--smart-case",
-            "--hidden",
-            "--glob",
-            "!.git/*",
-            "--glob",
-            "!node_modules/*",
-          },
+          args = require("utils.files").build_rg_args(),
         },
         buffers = {
           actions = {

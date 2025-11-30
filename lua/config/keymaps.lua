@@ -86,6 +86,7 @@ map({
   ["<leader>p"] = {
     P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
+    n = desc("Copy file name", clipboard.copy_file_name),
     a = desc("Copy text directy to Claude Code", function()
       local text_in_selction = range.text()
       os.execute("kitten @ send-text --match 'CLD=1' " .. text_in_selction)

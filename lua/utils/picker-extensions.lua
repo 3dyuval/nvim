@@ -2093,10 +2093,68 @@ M.duplicate_file = function(picker, item)
   end
 end
 
+-- ============================================================================
+-- REFERENCES PICKER ACTIONS
+-- ============================================================================
+
+-- Copy LSP references to clipboard with format options
+-- Works with items that have: file, pos = {line, col}
+M.copy_references = function(picker)
+  local selected = picker:selected()
+  local items = (selected and #selected > 0) and selected or picker:items()
+
+  if not items or #items == 0 then
+    vim.notify("No references to copy", vim.log.levels.WARN)
+    return
+  end
+
+  -- Build copy options
+  local full_refs = {}
+  local short_refs = {}
+  local paths_only = {}
+  local seen_paths = {}
+
+  for _, item in ipairs(items) do
+    local rel_path = vim.fn.fnamemodify(item.file, ":~:.")
+    if item.pos then
+      table.insert(full_refs, string.format("%s:%d:%d", rel_path, item.pos[1], item.pos[2]))
+      table.insert(short_refs, string.format("%s:%d", rel_path, item.pos[1]))
+    else
+      table.insert(full_refs, rel_path)
+      table.insert(short_refs, rel_path)
+    end
+    if not seen_paths[item.file] then
+      seen_paths[item.file] = true
+      table.insert(paths_only, rel_path)
+    end
+  end
+
+  local copy_options = {
+    { key = "full", icon = "󰆏", desc = "file:line:col", value = table.concat(full_refs, "\n") },
+    { key = "short", icon = "󰉋", desc = "file:line", value = table.concat(short_refs, "\n") },
+    { key = "paths", icon = "󰈔", desc = "unique paths", value = table.concat(paths_only, "\n") },
+  }
+
+  local menu_options = {}
+  for i, opt in ipairs(copy_options) do
+    menu_options[i] = string.format("%s %s (%s)", opt.icon, opt.key, opt.desc)
+  end
+
+  vim.ui.select(menu_options, {
+    prompt = "Copy references:",
+  }, function(_, idx)
+    if idx and copy_options[idx] then
+      vim.fn.setreg("+", copy_options[idx].value)
+      vim.notify(string.format("Copied %d references (%s)", #items, copy_options[idx].key), vim.log.levels.INFO)
+    end
+  end)
+end
+
 -- Export all picker action functions for use in snacks.lua
 M.actions = {
   open_multiple_buffers = M.open_multiple_buffers,
   copy_file_path = M.copy_file_path,
+  copy_references = M.copy_references,
   search_in_directory = M.search_in_directory,
   diff_selected = M.diff_selected,
   handle_directory_expansion = M.handle_directory_expansion,

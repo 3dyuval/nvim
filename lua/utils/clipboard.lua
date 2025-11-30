@@ -33,4 +33,10 @@ M.copy_file_path_with_line = function()
   vim.notify("Copied: " .. path_with_line)
 end
 
+M.copy_file_name = function()
+  local file_name = vim.fn.fnamemodify(vim.fn.expand("%"), ":t")
+  vim.fn.setreg("+", file_name)
+  vim.notify("Copied name: " .. file_name)
+end
+
 return M
