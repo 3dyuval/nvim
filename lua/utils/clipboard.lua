@@ -7,6 +7,21 @@ M.copy_file_path = function()
   vim.notify("Copied path: " .. file_path)
 end
 
+M.copy_file_path_claude_style = function()
+  local claude_prefix = "@"
+  local file_path = claude_prefix .. vim.fn.fnamemodify(vim.fn.expand("%"), ":~")
+  vim.fn.setreg("+", file_path)
+  vim.notify("Copied path: " .. file_path)
+end
+
+M.copy_code_path = function()
+  local result = require("utils/code").get_code_path()
+  if result then
+    vim.fn.setreg("+", result)
+    vim.notify("Copied: " .. result)
+  end
+end
+
 M.copy_file_path_from_home = function()
   local file_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":~")
   vim.fn.setreg("+", file_path)

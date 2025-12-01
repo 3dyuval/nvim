@@ -15,5 +15,8 @@ return {
     format_text = function(text)
       return text
     end,
+    lsp = {
+      auto_attach = true,
+    },
   },
 }

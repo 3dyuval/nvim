@@ -86,10 +86,15 @@ map({
   ["<leader>p"] = {
     P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
-    a = desc("Copy text directy to Claude Code", function()
-      local text_in_selction = range.text()
-      os.execute("kitten @ send-text --match 'CLD=1' " .. text_in_selction)
+
+    n = desc("Copy file name", clipboard.copy_file_name),
+    a = desc('Copy file name with "@" prefix', function()
+      clipboard.copy_file_path_claude_style()
     end),
+    t = desc("Send selected text to Claude", function()
+      os.execute("kitten @ send-text --match 'CLD=1' " .. "test")
+    end),
+    o = desc("Copy object path", clipboard.copy_code_path),
     c = desc("Copy file contents", clipboard.copy_file_contents),
     w = desc("Open file in web browser", cmd("OpenFileInRepo")),
     l = desc("Copy file path to clipboard", clipboard.copy_file_path_with_line),
