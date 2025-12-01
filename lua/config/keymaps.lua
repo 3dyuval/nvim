@@ -135,7 +135,7 @@ map({
 -- ============================================================================
 
 map({
-  ["<leader>f"] = {
+  [ctrl] = {
     f = desc("Find files (snacks + fff)", files.find_files_snacks),
     s = desc("Save file", files.save_file),
     S = desc("Save and stage file", files.save_and_stage_file),

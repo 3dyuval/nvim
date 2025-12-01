@@ -16,8 +16,6 @@ M.find_files_snacks = function()
   end
 end
 
-M.save_file = ":w<CR>"
-
 M.save_and_stage_file = function()
   vim.cmd("write")
   local file = vim.fn.expand("%:p")
