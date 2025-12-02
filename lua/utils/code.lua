@@ -1,24 +1,71 @@
 -- Code utilities (TypeScript/JavaScript)
+-- Uses vtsls LSP commands and code actions
 local M = {}
 
+-- Helper to run LSP code action by kind
+local function lsp_action(kind)
+  vim.lsp.buf.code_action({
+    apply = true,
+    context = { only = { kind }, diagnostics = {} },
+  })
+end
+
+-- Helper to execute vtsls command with current file path
+local function vtsls_cmd(command)
+  local filepath = vim.api.nvim_buf_get_name(0)
+  vim.lsp.buf.execute_command({
+    command = command,
+    arguments = { filepath },
+  })
+end
+
+-- vtsls commands for import management (take filePath argument)
 M.organize_imports = function()
-  vim.cmd("TSToolsOrganizeImports")
-  vim.cmd("TSToolsRemoveUnusedImports")
+  vtsls_cmd("typescript.organizeImports")
+end
+
+M.remove_unused_imports = function()
+  vtsls_cmd("typescript.removeUnusedImports")
+end
+
+-- Code actions for source fixes
+M.add_missing_imports = function()
+  lsp_action("source.addMissingImports.ts")
+end
+
+M.fix_all = function()
+  lsp_action("source.fixAll.ts")
 end
 
 M.organize_imports_and_fix = function()
-  vim.cmd("TSToolsOrganizeImports")
-  vim.cmd("TSToolsRemoveUnusedImports")
-  vim.cmd("TSToolsFixAll")
+  vtsls_cmd("typescript.organizeImports")
+  vim.schedule(function()
+    vtsls_cmd("typescript.removeUnusedImports")
+    vim.schedule(function()
+      lsp_action("source.fixAll.ts")
+    end)
+  end)
 end
 
-M.add_missing_imports = "<cmd>TSToolsAddMissingImports<cr>"
-M.remove_unused_imports = "<cmd>TSToolsRemoveUnusedImports<cr>"
-M.fix_all = "<cmd>TSToolsFixAll<cr>"
-M.select_ts_version = "<cmd>TSToolsSelectTsVersion<cr>"
+-- vtsls commands (workspace/executeCommand)
+M.select_ts_version = function()
+  vim.lsp.buf.execute_command({ command = "typescript.selectTypeScriptVersion" })
+end
 
--- Go to source definition functions
-M.go_to_source_definition = "<cmd>TSToolsGoToSourceDefinition<cr>"
-M.file_references = "<cmd>TSToolsFileReferences<cr>"
+M.go_to_source_definition = function()
+  local params = vim.lsp.util.make_position_params()
+  vim.lsp.buf.execute_command({
+    command = "typescript.goToSourceDefinition",
+    arguments = { params.textDocument.uri, params.position },
+  })
+end
+
+M.file_references = function()
+  local uri = vim.uri_from_bufnr(0)
+  vim.lsp.buf.execute_command({
+    command = "typescript.findAllFileReferences",
+    arguments = { uri },
+  })
+end
 
 return M
