@@ -48,6 +48,14 @@ return {
       end,
     })
 
+    -- HAEI: z = undo in rebase editor
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "NeogitRebaseTodo",
+      callback = function(args)
+        vim.keymap.set("n", "z", "u", { buffer = args.buf, desc = "Undo" })
+      end,
+    })
+
     require("neogit").setup(opts)
   end,
 
@@ -96,6 +104,11 @@ return {
           require("utils.ai_popup").generate_diny_and_commit()
         end)
       end,
+      NeogitRebasePopup = function(popup)
+        -- Add strategy options for conflict resolution (-Xtheirs, -Xours)
+        popup:switch("g", "Xtheirs", "Accept theirs on conflicts", { cli_prefix = "-" })
+        popup:switch("p", "Xours", "Accept ours on conflicts", { cli_prefix = "-" })
+      end,
     },
     mappings = {
       popup = {
@@ -113,6 +126,30 @@ return {
         ["E"] = function()
           require("utils.neogit-commands").create_conflict_popup()
         end,
+      },
+      rebase_editor = {
+        -- HAEI navigation with Alt
+        ["<M-e>"] = "MoveUp",
+        ["<M-a>"] = "MoveDown",
+        ["gk"] = false,
+        ["gj"] = false,
+        -- Rebase actions with Alt
+        ["<M-p>"] = "Pick",
+        ["<M-r>"] = "Reword",
+        ["<M-s>"] = "Squash",
+        ["<M-f>"] = "Fixup",
+        ["<M-x>"] = "Execute",
+        ["<M-d>"] = "Drop",
+        ["<M-b>"] = "Break",
+        -- Disable single-letter defaults (conflict with HAEI)
+        ["p"] = false,
+        ["r"] = false,
+        ["e"] = false,
+        ["s"] = false,
+        ["f"] = false,
+        ["x"] = false,
+        ["d"] = false,
+        ["b"] = false,
       },
     },
   },
