@@ -96,6 +96,9 @@ return {
   "stevearc/conform.nvim",
   dependencies = { "mason-org/mason.nvim" }, -- Ensure Mason loads first
   opts = {
+    default_format_opts = {
+      lsp_format = "fallback", -- Use LSP when no formatter configured (e.g., Vue)
+    },
     formatters_by_ft = {
       lua = { "stylua" },
       dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
@@ -109,7 +112,7 @@ return {
       json = js_formatter,
       html = js_formatter,
       htmlangular = js_formatter,
-      vue = js_formatter,
+      -- vue uses LSP formatting (Prettier can't handle TS generics in Vue SFCs)
       css = js_formatter,
       scss = js_formatter,
     },
