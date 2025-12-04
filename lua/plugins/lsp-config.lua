@@ -96,25 +96,60 @@ return {
 
       -- Disable other TypeScript servers
       tsserver = { enabled = false },
-      ts_ls = { enabled = false },
       -- Suppress LazyVim typescript extra's typescript-language-server
       -- See issue #1 - LazyVim extra conflicts with vtsls configuration
       ["typescript-language-server"] = { enabled = false },
 
-      -- Disable vtsls (replaced with typescript-tools.nvim)
-      vtsls = { enabled = false },
-
-      -- Disable Angular LSP (not using Angular)
+      ts_ls = { enabled = false },
+      volar = { enabled = false },
       angularls = { enabled = false },
 
+      -- === TypeScript/JavaScript Development ===
+      -- Using vtsls with @vue/typescript-plugin for Vue support
+      -- https://github.com/vuejs/language-tools/wiki/Neovim
+      vtsls = {
+        enabled = true,
+        -- Use local build for testing willRenameFiles support
+        cmd = { vim.fn.expand("~/proj/vtsls/packages/server/bin/vtsls.js"), "--stdio" },
+        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+        settings = {
+          vtsls = {
+            autoUseWorkspaceTsdk = false, -- Automatically use bundled TypeScript instead of projects'
+            tsserver = {
+              globalPlugins = {
+                {
+                  name = "@vue/typescript-plugin",
+                  location = vim.fn.stdpath("data")
+                    .. "/mason/packages/vue-language-server/node_modules/@vue/language-server",
+                  languages = { "vue" },
+                  configNamespace = "typescript",
+                },
+              },
+            },
+          },
+          typescript = {
+            preferences = {
+              importModuleSpecifier = "relative",
+            },
+            inlayHints = {
+              parameterNames = { enabled = "literals" },
+              parameterTypes = { enabled = false },
+              variableTypes = { enabled = true },
+              propertyDeclarationTypes = { enabled = true },
+              functionLikeReturnTypes = { enabled = false },
+              enumMemberValues = { enabled = true },
+            },
+          },
+        },
+      },
+
       -- === Vue Development ===
-      volar = {
+      -- Hybrid mode with vtsls handling TypeScript
+      vue_ls = {
+        enabled = true,
         filetypes = { "vue" },
         init_options = {
-          vue = { hybridMode = false },
-          typescript = {
-            -- tsdk path can be customized here if needed
-          },
+          vue = { hybridMode = true },
         },
         settings = {
           vue = {
@@ -166,14 +201,10 @@ return {
       },
     },
     setup = {
-      volar = function(_, opts)
-        Snacks.util.lsp.on({ name = "volar" }, function(bufnr, client)
-          vim.keymap.set(
-            "n",
-            "<leader>cr",
-            vim.lsp.buf.rename,
-            { buffer = bufnr, desc = "LSP Rename" }
-          )
+      vue_ls = function(_, opts)
+        Snacks.util.lsp.on({ name = "vue_ls" }, function(bufnr, client)
+          -- Disable rename in hybrid mode (vtsls handles it)
+          client.server_capabilities.renameProvider = false
           if client.server_capabilities.documentSymbolProvider then
             require("nvim-navic").attach(client, bufnr)
           end

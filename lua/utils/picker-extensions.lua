@@ -1023,15 +1023,18 @@ local actions = {
         local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(item.file, ":t"))
         if new_name and new_name ~= "" then
           local new_path = vim.fn.fnamemodify(item.file, ":h") .. "/" .. new_name
-          local ok, err = os.rename(item.file, new_path)
-          if ok then
-            vim.notify("Renamed to " .. new_name)
-            if picker.refresh then
-              picker:refresh()
-            end
-          else
-            vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
-          end
+          Snacks.rename.rename_file({
+            from = item.file,
+            to = new_path,
+            on_rename = function(to, from, ok)
+              if ok then
+                vim.notify("Renamed to " .. new_name)
+                if picker.refresh then
+                  picker:refresh()
+                end
+              end
+            end,
+          })
         end
       end,
     },
@@ -1040,7 +1043,7 @@ local actions = {
       desc = "Delete file",
       action = function(picker, item)
         local confirm =
-          vim.fn.confirm("Delete " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
+          vim.fn.confirm("Delete " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 1)
         if confirm == 1 then
           local ok, err = os.remove(item.file)
           if ok then
@@ -1116,15 +1119,18 @@ local actions = {
         local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(item.file, ":t"))
         if new_name and new_name ~= "" then
           local new_path = vim.fn.fnamemodify(item.file, ":h") .. "/" .. new_name
-          local ok, err = os.rename(item.file, new_path)
-          if ok then
-            vim.notify("Renamed to " .. new_name)
-            if picker.refresh then
-              picker:refresh()
-            end
-          else
-            vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
-          end
+          Snacks.rename.rename_file({
+            from = item.file,
+            to = new_path,
+            on_rename = function(to, from, ok)
+              if ok then
+                vim.notify("Renamed to " .. new_name)
+                if picker.refresh then
+                  picker:refresh()
+                end
+              end
+            end,
+          })
         end
       end,
     },
@@ -1210,7 +1216,7 @@ local actions = {
       desc = "Delete selected items",
       action = function(picker, items)
         local count = #items
-        local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 2)
+        local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 1)
         if confirm == 1 then
           local deleted = 0
           for _, item in ipairs(items) do
@@ -1280,6 +1286,55 @@ local actions = {
             on_complete = function(status)
               if picker.refresh then
                 picker:refresh()
+              end
+            end,
+          })
+        end
+      end,
+    },
+    {
+      key = "m",
+      desc = "󰪹 Move selected items",
+      action = function(picker, items)
+        -- Get the directory of the first item as starting point for input
+        local first_dir = vim.fn.fnamemodify(items[1].file, ":h")
+        local dest_dir = vim.fn.input("Move to directory: ", first_dir .. "/", "dir")
+
+        if not dest_dir or dest_dir == "" then
+          return
+        end
+
+        local moved = 0
+        local failed = 0
+
+        for _, item in ipairs(items) do
+          local filename = vim.fn.fnamemodify(item.file, ":t")
+          local new_path = dest_dir .. "/" .. filename
+
+          -- Use Snacks.rename for LSP-aware file moving (pcall to suppress LSP warnings)
+          pcall(Snacks.rename.rename_file, {
+            from = item.file,
+            to = new_path,
+            on_rename = function(to, from, ok)
+              if ok then
+                moved = moved + 1
+              else
+                failed = failed + 1
+              end
+
+              -- Notify and refresh after all items processed
+              if moved + failed == #items then
+                if failed > 0 then
+                  vim.notify(
+                    string.format("Moved %d items, %d failed", moved, failed),
+                    vim.log.levels.WARN
+                  )
+                else
+                  vim.notify(string.format("Moved %d items to %s", moved, dest_dir))
+                end
+                if picker.refresh then
+                  picker:refresh()
+                end
               end
             end,
           })
@@ -1636,7 +1691,7 @@ M.context_menu = function(picker, item)
     format_action(picker, item)
   end)
 
-  -- Rename action
+  -- Rename action (uses Snacks.rename for LSP import updates)
   table.insert(options, "󰑕 Rename")
   table.insert(actions, function()
     if #target_items == 1 then
@@ -1644,15 +1699,18 @@ M.context_menu = function(picker, item)
       local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(target_item.file, ":t"))
       if new_name and new_name ~= "" then
         local new_path = vim.fn.fnamemodify(target_item.file, ":h") .. "/" .. new_name
-        local ok, err = os.rename(target_item.file, new_path)
-        if ok then
-          vim.notify("Renamed to " .. new_name)
-          if picker.refresh then
-            picker:refresh()
-          end
-        else
-          vim.notify("Failed to rename: " .. (err or "unknown error"), vim.log.levels.ERROR)
-        end
+        Snacks.rename.rename_file({
+          from = target_item.file,
+          to = new_path,
+          on_rename = function(to, from, ok)
+            if ok then
+              vim.notify("Renamed to " .. new_name)
+              if picker.refresh then
+                picker:refresh()
+              end
+            end
+          end,
+        })
       end
     end
   end)
@@ -1661,7 +1719,7 @@ M.context_menu = function(picker, item)
   table.insert(options, "󰆴 Delete")
   table.insert(actions, function()
     local count = #target_items
-    local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 2)
+    local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 1)
     if confirm == 1 then
       for _, target_item in ipairs(target_items) do
         if target_item.dir then
@@ -2035,10 +2093,71 @@ M.duplicate_file = function(picker, item)
   end
 end
 
+-- ============================================================================
+-- REFERENCES PICKER ACTIONS
+-- ============================================================================
+
+-- Copy LSP references to clipboard with format options
+-- Works with items that have: file, pos = {line, col}
+M.copy_references = function(picker)
+  local selected = picker:selected()
+  local items = (selected and #selected > 0) and selected or picker:items()
+
+  if not items or #items == 0 then
+    vim.notify("No references to copy", vim.log.levels.WARN)
+    return
+  end
+
+  -- Build copy options
+  local full_refs = {}
+  local short_refs = {}
+  local paths_only = {}
+  local seen_paths = {}
+
+  for _, item in ipairs(items) do
+    local rel_path = vim.fn.fnamemodify(item.file, ":~:.")
+    if item.pos then
+      table.insert(full_refs, string.format("%s:%d:%d", rel_path, item.pos[1], item.pos[2]))
+      table.insert(short_refs, string.format("%s:%d", rel_path, item.pos[1]))
+    else
+      table.insert(full_refs, rel_path)
+      table.insert(short_refs, rel_path)
+    end
+    if not seen_paths[item.file] then
+      seen_paths[item.file] = true
+      table.insert(paths_only, rel_path)
+    end
+  end
+
+  local copy_options = {
+    { key = "full", icon = "󰆏", desc = "file:line:col", value = table.concat(full_refs, "\n") },
+    { key = "short", icon = "󰉋", desc = "file:line", value = table.concat(short_refs, "\n") },
+    { key = "paths", icon = "󰈔", desc = "unique paths", value = table.concat(paths_only, "\n") },
+  }
+
+  local menu_options = {}
+  for i, opt in ipairs(copy_options) do
+    menu_options[i] = string.format("%s %s (%s)", opt.icon, opt.key, opt.desc)
+  end
+
+  vim.ui.select(menu_options, {
+    prompt = "Copy references:",
+  }, function(_, idx)
+    if idx and copy_options[idx] then
+      vim.fn.setreg("+", copy_options[idx].value)
+      vim.notify(
+        string.format("Copied %d references (%s)", #items, copy_options[idx].key),
+        vim.log.levels.INFO
+      )
+    end
+  end)
+end
+
 -- Export all picker action functions for use in snacks.lua
 M.actions = {
   open_multiple_buffers = M.open_multiple_buffers,
   copy_file_path = M.copy_file_path,
+  copy_references = M.copy_references,
   search_in_directory = M.search_in_directory,
   diff_selected = M.diff_selected,
   handle_directory_expansion = M.handle_directory_expansion,

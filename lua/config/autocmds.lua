@@ -1,3 +1,75 @@
+-- Auto-save only buffers modified by LSP workspace edits (e.g., import updates on file rename)
+-- https://github.com/yioneko/vtsls/issues/287
+local original_apply_workspace_edit = vim.lsp.util.apply_workspace_edit
+vim.lsp.util.apply_workspace_edit = function(workspace_edit, offset_encoding)
+  -- Track which buffers were already loaded before the edit
+  local pre_loaded = {}
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(bufnr) then
+      pre_loaded[bufnr] = true
+    end
+  end
+
+  local result = original_apply_workspace_edit(workspace_edit, offset_encoding)
+
+  -- Defer save to avoid blocking and batch the writes
+  vim.schedule(function()
+    -- Collect affected buffers (only those that were already loaded)
+    local buffers_to_save = {}
+    local buffers_to_cleanup = {}
+
+    local function process_uri(uri)
+      local bufnr = vim.uri_to_bufnr(uri)
+      if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].modified then
+        if pre_loaded[bufnr] then
+          buffers_to_save[bufnr] = true
+        else
+          -- Buffer was created by the edit, save then unload
+          buffers_to_cleanup[bufnr] = uri
+        end
+      end
+    end
+
+    if workspace_edit.changes then
+      for uri in pairs(workspace_edit.changes) do
+        process_uri(uri)
+      end
+    end
+    if workspace_edit.documentChanges then
+      for _, change in ipairs(workspace_edit.documentChanges) do
+        local uri = change.textDocument and change.textDocument.uri
+        if uri then
+          process_uri(uri)
+        end
+      end
+    end
+
+    -- Save with minimal UI disruption
+    local eventignore = vim.o.eventignore
+    vim.o.eventignore = "all"
+
+    for bufnr in pairs(buffers_to_save) do
+      vim.api.nvim_buf_call(bufnr, function()
+        vim.cmd("silent! noautocmd write")
+      end)
+    end
+
+    -- Save and unload buffers that weren't originally open
+    for bufnr, uri in pairs(buffers_to_cleanup) do
+      local filepath = vim.uri_to_fname(uri)
+      vim.api.nvim_buf_call(bufnr, function()
+        vim.cmd("silent! noautocmd write")
+      end)
+      vim.api.nvim_buf_delete(bufnr, { force = true })
+    end
+
+    vim.o.eventignore = eventignore
+    vim.cmd("redraw")
+  end)
+
+  return result
+end
+
 -- restore cursor to file position in previous editing session
 vim.api.nvim_create_autocmd("BufReadPost", {
   callback = function(args)

@@ -30,6 +30,22 @@ local function js_formatter(bufnr)
   end
 end
 
+-- Helper to run LSP code action by kind
+local function lsp_action(kind)
+  vim.lsp.buf.code_action({
+    apply = true,
+    context = { only = { kind }, diagnostics = {} },
+  })
+end
+
+-- Helper to execute vtsls command with file path
+local function vtsls_cmd(command, filepath)
+  vim.lsp.buf.execute_command({
+    command = command,
+    arguments = { filepath },
+  })
+end
+
 -- Export organize imports function for use in keymaps
 local M = {}
 
@@ -58,10 +74,10 @@ M.organize_imports = function()
     vim.fn.system(cmd)
     vim.cmd("silent! checktime")
   else
-    -- Fallback: Use TypeScript tools for both actions
-    vim.cmd("TSToolsOrganizeImports")
+    -- Fallback: Use vtsls commands
+    vtsls_cmd("typescript.organizeImports", filepath)
     vim.schedule(function()
-      vim.cmd("TSToolsRemoveUnusedImports")
+      vtsls_cmd("typescript.removeUnusedImports", filepath)
     end)
   end
 end
@@ -70,9 +86,9 @@ M.organize_imports_and_fix = function()
   -- First organize imports
   M.organize_imports()
 
-  -- Then fix all diagnostics using TypeScript tools
+  -- Then fix all diagnostics using vtsls
   vim.schedule(function()
-    vim.cmd("TSToolsFixAll")
+    lsp_action("source.fixAll.ts")
   end)
 end
 
@@ -80,6 +96,9 @@ return {
   "stevearc/conform.nvim",
   dependencies = { "mason-org/mason.nvim" }, -- Ensure Mason loads first
   opts = {
+    default_format_opts = {
+      lsp_format = "fallback", -- Use LSP when no formatter configured (e.g., Vue)
+    },
     formatters_by_ft = {
       lua = { "stylua" },
       dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
@@ -93,7 +112,7 @@ return {
       json = js_formatter,
       html = js_formatter,
       htmlangular = js_formatter,
-      vue = js_formatter,
+      -- vue uses LSP formatting (Prettier can't handle TS generics in Vue SFCs)
       css = js_formatter,
       scss = js_formatter,
     },

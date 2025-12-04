@@ -1,0 +1,95 @@
+-- Smart Rename Behavior Specification
+--
+-- =============================================================================
+-- Feature: Smart rename from editor (<leader>cr)
+-- Implementation: lua/utils/files.lua -> M.smart_rename()
+-- =============================================================================
+--
+-- Scenario: Rename symbol
+--   Given cursor is on a renameable symbol (variable, function, class)
+--   When prepareRename succeeds
+--   Then LSP rename (vim.lsp.buf.rename) should be called
+--
+-- Scenario: Rename imported file
+--   Given cursor is on an import path string
+--   And prepareRename fails
+--   And LSP definition resolves to a file
+--   Then Snacks.rename.rename_file({ file = resolved_path }) should be called
+--
+-- Scenario: Rename imported file (fallback)
+--   Given cursor is on an import path string
+--   And prepareRename fails
+--   And LSP definition cannot resolve the file
+--   Then Snacks.rename.rename_file() should be called for current file
+--
+-- Scenario: Rename current file
+--   Given cursor is not on a symbol
+--   And cursor is not on an import path
+--   And prepareRename fails
+--   Then Snacks.rename.rename_file() should be called for current file
+--
+-- =============================================================================
+-- Feature: Rename from file picker (key: r)
+-- Implementation: lua/utils/picker-extensions.lua:1021
+-- =============================================================================
+--
+-- Scenario: Rename file from picker
+--   Given user is in file picker
+--   And a file item is selected
+--   When user presses "r"
+--   Then prompt "Rename to: <filename>" should appear
+--   And on confirm, Snacks.rename.rename_file({ from, to, on_rename }) should be called
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
+--   And picker should refresh on success
+--
+-- =============================================================================
+-- Feature: Move multiple selected items (bulk move) (key: m)
+-- Implementation: lua/utils/picker-extensions.lua:1295
+-- =============================================================================
+--
+-- Scenario: Move multiple selected files to a directory
+--   Given user is in file picker
+--   And multiple files are selected (via multi-select)
+--   When user presses "m"
+--   Then prompt "Move to directory: <current_dir>/" should appear
+--   And on confirm, all selected files should be moved to destination
+--   And Snacks.rename.rename_file({ from, to, on_rename }) should be called for each file
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
+--   And picker should refresh on success
+--
+-- Scenario: Move multiple selected files and directories
+--   Given user is in file picker
+--   And multiple files and directories are selected
+--   When user presses "m"
+--   Then prompt "Move to directory: <current_dir>/" should appear with dir completion
+--   And on confirm, all selected items should be moved to destination
+--   And directories should be moved via Snacks.rename.rename_file
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
+--   And picker should refresh on success
+--
+-- =============================================================================
+-- Feature: Rename from directory picker (key: r)
+-- Implementation: lua/utils/picker-extensions.lua:1117
+-- =============================================================================
+--
+-- Scenario: Rename directory from picker
+--   Given user is in directory picker
+--   And a directory item is selected
+--   When user presses "r"
+--   Then prompt "Rename to: <dirname>" should appear
+--   And on confirm, Snacks.rename.rename_file({ from, to, on_rename }) should be called
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
+--   And picker should refresh on success
+--
+-- =============================================================================
+-- Feature: Rename from context menu (󰑕 Rename option)
+-- Implementation: lua/utils/picker-extensions.lua:1645
+-- =============================================================================
+--
+-- Scenario: Rename file from context menu
+--   Given user opens context menu on a single file
+--   When user selects "󰑕 Rename"
+--   Then prompt "Rename to: <filename>" should appear
+--   And on confirm, Snacks.rename.rename_file({ from, to, on_rename }) should be called
+--   And all import references should be updated (JS/TS imports, @use in SCSS/CSS)
+--   And picker should refresh on success

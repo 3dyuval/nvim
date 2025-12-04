@@ -244,9 +244,8 @@ vim.keymap.set({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
 vim.keymap.set({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 vim.keymap.set({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
--- Smart context-aware navigation - diff navigation baseline (Graphite layout)
-vim.keymap.set({ "n", "o", "x" }, "m", "]c", { desc = "Next diff hunk" })
-vim.keymap.set({ "n", "o", "x" }, "M", "[c", { desc = "Previous diff hunk" })
+vim.keymap.set({ "n", "o", "x" }, "A", "<cmd>Treewalker Down<cr>", { desc = "Next code block" })
+vim.keymap.set({ "n", "o", "x" }, "E", "<cmd>Treewalker Up<cr>", { desc = "Previous code block" })
 
 -- Smooth scrolling (Graphite layout) - works with snacks.scroll
 map({
@@ -289,7 +288,7 @@ remap("n", "z", "u", { desc = "Undo" })
 remap("n", "Z", "<C-r>", { desc = "Redo" })
 remap("n", "gz", "U", { desc = "Undo line" })
 -- Change
-vim.keymap.set({ "n", "o", "x" }, "w", "c", { desc = "Change" })
+vim.keymap.set({ "n", "x" }, "w", "c", { desc = "Change" })
 vim.keymap.set({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
 
 -- Visual mode
@@ -298,16 +297,15 @@ vim.keymap.set({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
 -- Add Visual block mode
 vim.keymap.set({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
-vim.keymap.set({ "n", "o", "x" }, "A", "n", { desc = "Next search match" })
-vim.keymap.set({ "n", "o", "x" }, "E", "N", { desc = "Previous search match" })
-vim.keymap.set({ "n", "o", "x" }, "8", "N", { desc = "Previous search match" })
+vim.keymap.set({ "n", "o", "x" }, "m", "n", { desc = "Next search match" })
+vim.keymap.set({ "n", "o", "x" }, "M", "N", { desc = "Previous search match" })
 
 -- Git conflict navigation (override LazyVim's LSP reference navigation)
 remap("n", "[[", "[x", { desc = "Previous git conflict" })
 remap("n", "]]", "]x", { desc = "Next git conflict" })
--- 'til (changed to y/Y to free up k for surround)
-vim.keymap.set({ "n", "o", "x" }, "y", "t", { desc = "Till before" })
-vim.keymap.set({ "n", "o", "x" }, "Y", "T", { desc = "Till before backward" })
+
+vim.keymap.set({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
+vim.keymap.set({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 
 -- map(
 --   "n",
@@ -423,7 +421,9 @@ vim.keymap.set(
 vim.keymap.set({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 vim.keymap.set({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })
 
--- Removed redundant visual surround mapping - handled by plugin config
+-- Explicit surround keymaps (ws, xs, ys, yss, s) are set up in lua/plugins/surround.lua
+-- This ensures they take precedence over global w/x/y mappings
+
 vim.keymap.set({ "o", "v" }, "X", "r", { desc = "Replace" })
 vim.keymap.set({ "o", "v" }, "rd", "iw", { desc = "Inner word" })
 vim.keymap.set({ "o", "v" }, "td", "aw", { desc = "Around word" })
@@ -431,7 +431,7 @@ vim.keymap.set({ "o", "v" }, "rD", "iW", { desc = "Inner WORD" })
 vim.keymap.set({ "o", "v" }, "tD", "aW", { desc = "Around WORD" })
 -- Operator-pending mode mappings to help with nvim-surround
 -- These translate Graphite layout (r=inner, t=around) to nvim-surround defaults (i=inner, a=around)
--- Configuration layer: ~/.config/nvim/lua/utils/surround.lua defines the actual surround behaviors
+-- Configuration: lua/plugins/surround.lua defines the actual surround behaviors
 vim.keymap.set({ "v" }, "rd", "iw", { desc = "Inner word (visual)" })
 vim.keymap.set({ "v" }, "td", "aw", { desc = "Around word (visual)" })
 vim.keymap.set({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })

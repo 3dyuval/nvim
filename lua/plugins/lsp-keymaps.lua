@@ -1,6 +1,4 @@
 return {
-  -- LSP Keymaps Override for LazyVim
-  -- Consolidates all LSP keymaps from lsp-keymaps.lua, codelens.lua, and lazyvim-config.lua
   {
     "neovim/nvim-lspconfig",
     opts = function(_, opts)
@@ -9,88 +7,57 @@ return {
       opts.servers["*"] = opts.servers["*"] or {}
       opts.servers["*"].keys = opts.servers["*"].keys or {}
 
-      -- Custom function to show references in Snacks picker (from codelens.lua)
-      local function show_references_picker()
-        local params = vim.lsp.util.make_position_params()
-        vim.lsp.buf_request(0, "textDocument/references", params, function(err, result, ctx, config)
-          if err or not result or #result == 0 then
-            vim.notify("No references found", vim.log.levels.INFO)
-            return
-          end
-
-          -- Format references for Snacks picker
-          local items = {}
-          for i, ref in ipairs(result) do
-            local filename = vim.fn.fnamemodify(vim.uri_to_fname(ref.uri), ":~:.")
-            local line_num = ref.range.start.line + 1
-            local col_num = ref.range.start.character + 1
-
-            -- Get the line content
-            local line_content = ""
-            local bufnr = vim.uri_to_bufnr(ref.uri)
-            if vim.api.nvim_buf_is_loaded(bufnr) then
-              line_content = vim.api.nvim_buf_get_lines(
-                bufnr,
-                ref.range.start.line,
-                ref.range.start.line + 1,
-                false
-              )[1] or ""
-            end
-
-            table.insert(items, {
-              file = vim.uri_to_fname(ref.uri),
-              text = string.format(
-                "%s:%d:%d %s",
-                filename,
-                line_num,
-                col_num,
-                line_content:gsub("^%s+", "")
-              ),
-              pos = { line_num, col_num },
-              idx = i,
-              score = 1,
-            })
-          end
-
-          -- Show in Snacks picker
-          Snacks.picker({
-            name = "references",
-            items = items,
-            layout = { preset = "default" },
-            format = "file",
-            preview = "file",
-            actions = {
-              confirm = function(picker, item)
-                picker:close()
-                vim.cmd("edit " .. item.file)
-                if item.pos then
-                  vim.api.nvim_win_set_cursor(0, { item.pos[1], item.pos[2] - 1 })
-                end
-              end,
-            },
-          })
-        end)
-      end
-
       local keys = opts.servers["*"].keys
 
       -- Disable conflicting default keymaps
       keys[#keys + 1] = { "[[", false }
       keys[#keys + 1] = { "]]", false }
       keys[#keys + 1] = { "<leader>cc", false }
-      keys[#keys + 1] = { "<leader>cr", false } -- From lazyvim-config.lua
+      keys[#keys + 1] = { "<leader>cr", false }
 
       -- Standard LSP keymaps
       keys[#keys + 1] = { "<leader>cl", vim.lsp.codelens.refresh, desc = "Refresh Codelens" }
       keys[#keys + 1] = { "<leader>cL", "<cmd>LspInfo<cr>", desc = "LSP Info" }
-      keys[#keys + 1] = { "<leader>cr", vim.lsp.buf.rename, desc = "Rename Symbol" }
+      keys[#keys + 1] = { "<leader>cr", require("utils.files").smart_rename, desc = "Smart Rename" }
       keys[#keys + 1] = { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action" }
 
-      -- Reference keymaps (from codelens.lua)
+      -- Reference keymaps
       keys[#keys + 1] =
-        { "<leader>cx", show_references_picker, desc = "Show References (Snacks)", mode = { "n" } }
-      keys[#keys + 1] =
-        { "<leader>cR", vim.lsp.buf.references, desc = "Show References (LSP)", mode = { "n" } }
+        { "<leader>cR", vim.lsp.buf.references, desc = "References (quickfix)", mode = { "n" } }
+      keys[#keys + 1] = {
+        "<leader>cx",
+        require("utils.files").smart_references,
+        desc = "Smart References",
+        mode = { "n" },
+      }
+
+      local ts_ft = { "typescript", "typescriptreact", "javascript", "javascriptreact", "vue" }
+
+      keys[#keys + 1] = {
+        "gD",
+        function()
+          local params = vim.lsp.util.make_position_params(0, "utf-16")
+          LazyVim.lsp.execute({
+            command = "typescript.goToSourceDefinition",
+            arguments = { params.textDocument.uri, params.position },
+            open = true,
+          })
+        end,
+        desc = "Goto Source Definition",
+        ft = ts_ft,
+      }
+      keys[#keys + 1] = {
+        "gR",
+        function()
+          LazyVim.lsp.execute({
+            command = "typescript.findAllFileReferences",
+            arguments = { vim.uri_from_bufnr(0) },
+            open = true,
+          })
+        end,
+        desc = "File References",
+        ft = ts_ft,
+      }
 
       return opts
     end,
