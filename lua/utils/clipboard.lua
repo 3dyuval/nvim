@@ -22,6 +22,14 @@ M.copy_code_path = function()
   end
 end
 
+M.copy_code_path_with_types = function()
+  local result = require("utils/code").get_code_path({ with_types = true })
+  if result then
+    vim.fn.setreg("+", result)
+    vim.notify("Copied: " .. result)
+  end
+end
+
 M.copy_file_path_from_home = function()
   local file_path = vim.fn.fnamemodify(vim.fn.expand("%"), ":~")
   vim.fn.setreg("+", file_path)

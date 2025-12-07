@@ -10,14 +10,7 @@ return {
 
       api.setup({
         create_commands = true,
-        enabled_browsers = { "chrome", "zen" },
-        browsers = {
-          zen = {
-            profile_dirs = { "~/.zen" },
-            profile_glob = "*.[Dd]efault*",
-            db_file = "places.sqlite",
-          },
-        },
+        enabled_browsers = { "chromium", "brave", "firefox", "zen" },
       })
     end,
   },

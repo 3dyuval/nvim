@@ -84,7 +84,7 @@ map({
 
 map({
   ["<leader>p"] = {
-    P = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
+    c = desc("Copy file path (relative to cwd)", clipboard.copy_file_path),
     p = desc("Copy file path (from home)", clipboard.copy_file_path_from_home),
 
     n = desc("Copy file name", clipboard.copy_file_name),
@@ -95,7 +95,7 @@ map({
       os.execute("kitten @ send-text --match 'CLD=1' " .. "test")
     end),
     o = desc("Copy object path", clipboard.copy_code_path),
-    c = desc("Copy file contents", clipboard.copy_file_contents),
+    O = desc("Copy object path (with types)", clipboard.copy_code_path_with_types),
     w = desc("Open file in web browser", cmd("OpenFileInRepo")),
     l = desc("Copy file path to clipboard", clipboard.copy_file_path_with_line),
     L = desc("Copy file URL with line to clipboard", cmd("YankLineUrl +")),
@@ -123,6 +123,7 @@ map({
     F = desc("Fix all diagnostics", code.fix_all),
     V = desc("Select TS workspace version", code.select_ts_version),
     t = desc("TypeScript type check", editor.typescript_check),
+    P = desc("Copy file contents", clipboard.copy_file_contents),
 
     -- AI/Claude Code operations
     -- C = desc("Claude Code", cmd("ClaudeCode")),

@@ -68,13 +68,55 @@ M.file_references = function()
   })
 end
 
-M.get_code_path = function()
+-- LSP SymbolKind numbers to names
+local kind_names = {
+  "File",
+  "Module",
+  "Namespace",
+  "Package",
+  "Class",
+  "Method",
+  "Property",
+  "Field",
+  "Constructor",
+  "Enum",
+  "Interface",
+  "Function",
+  "Variable",
+  "Constant",
+  "String",
+  "Number",
+  "Boolean",
+  "Array",
+  "Object",
+  "Key",
+  "Null",
+  "EnumMember",
+  "Struct",
+  "Event",
+  "Operator",
+  "TypeParameter",
+}
+
+--- Get the current code path/context from navic
+---@param opts? { with_types?: boolean } Options: with_types prefixes each item with its type name
+M.get_code_path = function(opts)
+  opts = opts or {}
   local navic = require("nvim-navic")
   -- NOTE current lsp must support documentSymbolProvider.
   if navic.is_available() then
-    local location = navic.get_location()
-    if location and location ~= "" then
-      return location
+    local data = navic.get_data()
+    if data and #data > 0 then
+      local parts = {}
+      for _, item in ipairs(data) do
+        if opts.with_types then
+          local kind = kind_names[item.kind] or "Unknown"
+          table.insert(parts, kind .. " " .. item.name)
+        else
+          table.insert(parts, item.name)
+        end
+      end
+      return table.concat(parts, " > ")
     end
   end
   vim.notify("No code context available", vim.log.levels.WARN)
