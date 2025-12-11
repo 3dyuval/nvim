@@ -39,7 +39,15 @@ return {
       -- MARKDOWN ADDITIONS (not in defaults):
       ["*"] = { add = { "**", "**" } }, -- Bold: **text**
       ["_"] = { add = { "_", "_" } }, -- Italic: _text_
-      ["~"] = { add = { "~~", "~~" } }, -- Strikethrough: ~~text~~
+      ["~"] = { add = { "~", "~" } }, -- Strikethrough: ~text~
+      ["`"] = {
+        add = function()
+          local lang = require("nvim-surround.config").get_input("Language: ")
+          return { { "```" .. (lang or "") }, { "```" } }
+        end,
+        find = "```.-\n.-```",
+        delete = "^(```.-\n)().-(```)()$",
+      },
 
       -- CUSTOM INPUT SURROUND: Prompt for custom delimiter pair
       ["i"] = {
@@ -102,7 +110,15 @@ return {
     -- Graphite layout: Direct mappings to <Plug> functions (bypasses global remaps)
     -- Set AFTER setup() so <Plug> mappings exist and take precedence over global w/x/c
     vim.keymap.set("n", "ws", "<Plug>(nvim-surround-change)", { desc = "Change surround" })
-    vim.keymap.set("n", "xs", "<Plug>(nvim-surround-delete)", { desc = "Delete surround" })
+    vim.keymap.set(
+      "n",
+      "xs",
+      "<Plug>(nvim-surround-delete)",
+      { desc = "Delete surround", nowait = true }
+    )
+    vim.keymap.set("n", "xst", function()
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("dst", true, false, true), "m", false)
+    end, { desc = "Delete surrounding tag", nowait = true })
     vim.keymap.set("x", "s", "<Plug>(nvim-surround-visual)", { desc = "Surround visual selection" })
 
     -- ys/yss don't need explicit mapping (no global 'y' → something conflict in normal mode)

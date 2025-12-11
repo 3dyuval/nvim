@@ -126,4 +126,62 @@ M.set_buffer_file_type_with_lsp = function(ft)
   vim.bo.filetype = ft
 end
 
+--- Select fenced code block (works from inside injected language)
+---@param inner boolean If true, select inner content only; if false, include fences
+M.select_fenced_code_block = function(inner)
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  -- Try to get markdown parser (may be the root or we need to find it)
+  local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+  if not ok or not parser then
+    return
+  end
+
+  -- Find fenced_code_block containing cursor
+  local function find_code_block(tree_root, lang)
+    if lang ~= "markdown" then
+      return nil
+    end
+
+    local query = vim.treesitter.query.parse("markdown", "(fenced_code_block) @block")
+    for _, node in query:iter_captures(tree_root, bufnr) do
+      local sr, _, er, _ = node:range()
+      -- range is 0-indexed, row is 1-indexed
+      if row > sr and row <= er + 1 then
+        return node
+      end
+    end
+    return nil
+  end
+
+  -- Check all trees (markdown might be root or injected)
+  local block = nil
+  parser:for_each_tree(function(tree, ltree)
+    if not block then
+      block = find_code_block(tree:root(), ltree:lang())
+    end
+  end)
+
+  if not block then
+    vim.notify("Not inside a code block", vim.log.levels.WARN)
+    return
+  end
+
+  local sr, sc, er, ec = block:range()
+  local start_row, end_row
+  if inner then
+    -- Select content only (skip opening and closing fence lines)
+    start_row = sr + 2 -- skip ```lang line
+    end_row = er -- exclude closing ``` line
+  else
+    -- Select entire block including fences
+    start_row = sr + 1
+    end_row = er + 1
+  end
+
+  -- Use visual line mode for selection
+  vim.cmd("normal! " .. start_row .. "GV" .. end_row .. "G")
+end
+
 return M
