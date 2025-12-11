@@ -81,7 +81,7 @@ elseif format == "md" or format == "markdown" then
 
   if by_group then
     -- Auto-detect groups from keymap-utils
-    local kmu = require("keymap-utils")
+    local kmu = require("plugins.keymap-utils")
     local group_descs = kmu.get_group_descriptions()
 
     -- Build group_names map from auto-detected groups

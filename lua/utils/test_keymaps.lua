@@ -106,7 +106,7 @@ end
 -- Keymap Introspection Functions (leveraging lil.nvim)
 function M.get_all_keymaps()
   -- Load the keymap utils module
-  local keymap_utils = require("keymap-utils")
+  local keymap_utils = require("plugins.keymap-utils")
 
   -- Clear any previous collected data
   keymap_utils.clear_collected_keymaps()

@@ -1,9 +1,47 @@
 -- Keymap Utilities - Clean keymap management and introspection
--- Provides both simple vim.keymap.set wrappers and lil.nvim introspection
+-- Provides both simple vim.keymap.set wrappers and lil-style declarative mapping
 
 local M = {}
 local collected_keymaps = {}
 local group_descriptions = {}
+
+-- Import local lil modules
+local lil_core = require("plugins.keymap-utils.core")
+local lil_key = require("plugins.keymap-utils.key")
+local lil_utils = require("plugins.keymap-utils.utils")
+
+-- ============================================================================
+-- LIL API EXPORTS (replaces require("lil"))
+-- ============================================================================
+
+-- Export flags for direct access
+M.flags = lil_utils.flags
+
+-- Export key constructor for modifier keys like ctrl, shift, alt
+M.key = lil_key
+
+-- Export _ (expects template) for <C-_> style mappings
+M._ = lil_key({ expects = true })
+
+-- Mode modifier constructor
+-- Usage: local n = lil.mod("n") then [n] = { ... }
+function M.mod(mode_char)
+  return { mode = { mode_char } }
+end
+
+-- Modes table for convenience
+M.modes = {
+  n = { mode = { "n" } },
+  v = { mode = { "v" } },
+  x = { mode = { "x" } },
+  i = { mode = { "i" } },
+  c = { mode = { "c" } },
+  o = { mode = { "o" } },
+  t = { mode = { "t" } },
+}
+
+-- Main declarative map function (lil.map equivalent)
+M.lil_map = lil_core.map
 
 -- ============================================================================
 -- CORE KEYMAP ABSTRACTIONS
@@ -88,38 +126,34 @@ end
 -- SMART MAP WITH GROUP DESCRIPTIONS
 -- ============================================================================
 
--- Desc helper for lil.nvim - auto-handles lil flags internally
-function M.desc(description, value, expr)
-  local ok_utils, lil_utils = pcall(require, "lil.utils")
-  if not ok_utils then
-    error("lil.utils is required for desc")
-  end
-
+-- Desc helper for lil-style mapping - auto-handles flags internally
+-- Accepts table: desc({ desc = "...", value = action, expr = true, silent = true, noremap = true })
+function M.desc(opts)
   local opts_flag = lil_utils.flags.opts
+
+  -- Extract value and build keymap options
+  local value = opts.value
+  local keymap_opts = {
+    desc = opts.desc,
+    expr = opts.expr,
+    silent = opts.silent,
+    noremap = opts.noremap,
+    buffer = opts.buffer,
+    nowait = opts.nowait,
+    remap = opts.remap,
+  }
 
   return {
     value,
-    [opts_flag] = { desc = description, expr = expr },
+    [opts_flag] = keymap_opts,
   }
 end
 
--- Create smart wrapper around lil.map that auto-extracts group descriptions
+-- Create smart wrapper around lil_map that auto-extracts group descriptions
 -- and auto-injects [func] = func_map
 function M.create_smart_map()
-  -- Get lil.nvim and its flags internally
-  local ok, lil = pcall(require, "lil")
-  if not ok then
-    error("lil.nvim is required for create_smart_map")
-  end
-
-  local ok_utils, lil_utils = pcall(require, "lil.utils")
-  if not ok_utils then
-    error("lil.utils is required for create_smart_map")
-  end
-
   local lil_opts_flag = lil_utils.flags.opts
   local lil_func_flag = lil_utils.flags.func
-  local original_map = lil.map
 
   -- Define func_map inside the wrapper
   local function func_map(m, l, r, o, _next)
@@ -178,8 +212,8 @@ function M.create_smart_map()
       map_def[lil_func_flag] = func_map
     end
 
-    -- Call original lil.map
-    original_map(map_def)
+    -- Call local lil_map
+    lil_core.map(map_def)
   end
 end
 
@@ -203,15 +237,6 @@ end
 -- ============================================================================
 -- KEYMAP INTROSPECTION & TESTING TOOLKIT
 -- ============================================================================
-
--- Get lil.nvim utilities and flags (for introspection compatibility)
-local function get_lil_utils()
-  local ok, lil_utils = pcall(require, "lil.utils")
-  if ok then
-    return lil_utils
-  end
-  return nil
-end
 
 -- Built-in Vim keymaps that don't show up in vim.keymap but exist
 local builtin_keymaps = {
@@ -375,7 +400,7 @@ function M.detect_conflicts(keymaps, include_builtins)
 end
 
 -- ============================================================================
--- LIL.NVIM INTROSPECTION COMPATIBILITY
+-- INTROSPECTION COMPATIBILITY
 -- ============================================================================
 
 -- Collector function that captures keymap data instead of setting keymaps
@@ -389,22 +414,13 @@ local function keymap_collector(mode, key, action, opts, context)
   })
 end
 
--- Create custom config that uses our collector (when lil is available)
+-- Create custom config that uses our collector
 function M.create_introspect_config()
-  local lil_utils = get_lil_utils()
-  if not lil_utils then
-    return nil
-  end
-
-  local lil_core = require("lil.core")
-  local lil_defaults = require("lil.config")
-
-  local introspect_config = vim.tbl_deep_extend("force", lil_defaults, {
-    [lil_utils.flags.func] = keymap_collector,
-  })
+  local introspect_config = lil_utils.copy(lil_core.config)
+  introspect_config[lil_utils.flags.func] = keymap_collector
 
   return function(map)
-    return lil_core(introspect_config, "", map)
+    return lil_core.builtin(introspect_config, "", map)
   end
 end
 
@@ -421,30 +437,19 @@ function M.get_keymap_count()
   return #collected_keymaps
 end
 
--- Export lil interface that uses introspection (when available)
+-- Export lil interface that uses introspection
 function M.create_lil_interface()
-  local lil_utils = get_lil_utils()
-  if not lil_utils then
-    return {}
-  end
-
-  local lil = require("lil")
   return {
     map = M.create_introspect_config(),
     flags = lil_utils.flags,
-    mod = lil.mod,
-    key = lil.key,
-    keys = lil.keys,
-    modes = lil.modes,
+    mod = M.mod,
+    key = M.key,
+    modes = M.modes,
   }
 end
 
 -- Export utilities for compatibility
 function M.get_lil_flags()
-  local lil_utils = get_lil_utils()
-  if not lil_utils then
-    return {}
-  end
   return {
     func = lil_utils.flags.func,
     opts = lil_utils.flags.opts,

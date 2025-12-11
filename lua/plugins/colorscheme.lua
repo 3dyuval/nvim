@@ -1,17 +1,13 @@
 return {
-  {
-    "marko-cerovac/material.nvim",
-    priority = 1000,
-    opts = {
-      disable = {
-        background = true,
-      },
-    },
-  },
-  {
-    "LazyVim/LazyVim",
-    opts = {
-      colorscheme = "material-deep-ocean",
-    },
-  },
+	{
+		"bjarneo/hackerman.nvim",
+		dependencies = { "bjarneo/aether.nvim" }, -- Ensure aether is loaded first
+		priority = 1000,
+	},
+	{
+		"LazyVim/LazyVim",
+		opts = {
+			colorscheme = "hackerman",
+		},
+	},
 }

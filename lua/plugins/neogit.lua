@@ -60,7 +60,7 @@ return {
   end,
 
   opts = {
-    kind = "vsplit",
+    kind = "tab",
     graph_style = "kitty",
     filewatcher = {
       enabled = true,

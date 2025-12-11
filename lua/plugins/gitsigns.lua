@@ -10,9 +10,9 @@ return {
           vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
         end
 
-        -- Navigation: M/m for hunks (down/up), ]]/[[ for conflicts
-        -- map("n", "<C-a>", gs.next_hunk, "Next Hunk")
-        -- map("n", "<C-e>", gs.prev_hunk, "Prev Hunk")
+        -- Navigation: ]h/[h for hunks, ]]/[[ for conflicts
+        map("n", "]h", gs.next_hunk, "Next Hunk")
+        map("n", "[h", gs.prev_hunk, "Prev Hunk")
         vim.keymap.set("n", "]]", "]x", { buffer = buffer, desc = "Next conflict", remap = true })
         vim.keymap.set(
           "n",
@@ -26,7 +26,7 @@ return {
         map({ "n", "v" }, "<leader>gx", ":Gitsigns reset_hunk<CR>", "Reset Hunk")
 
         -- Buffer operations
-        map({ "n", "v", "i" }, "<leader>fS", function()
+        map({ "n", "v", "i" }, "<C-S-s>", function()
           vim.cmd("write") -- Save the file first
           gs.stage_buffer() -- Then stage the buffer
         end, "Save & Stage Buffer")
