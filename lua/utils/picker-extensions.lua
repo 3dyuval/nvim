@@ -1,13 +1,18 @@
 local M = {}
+--- Open explorer with shortmess handling to avoid swap file prompts
+---@param opts table|nil Optional config to merge with defaults
+M.open_explorer = function(opts)
+  local old_shortmess = vim.o.shortmess
+  vim.o.shortmess = vim.o.shortmess .. "A"
 
--- ============================================================================
--- PICKER UTILITIES MODULE
--- Centralized location for all Snacks.nvim picker extensions and utilities
--- ============================================================================
+  local config = vim.tbl_deep_extend("force", {
+    root = false,
+  }, opts or {})
 
--- ============================================================================
--- CORE UTILITIES
--- ============================================================================
+  Snacks.picker.explorer(config)
+
+  vim.o.shortmess = old_shortmess
+end
 
 -- Validate picker instance
 local function validate_picker(picker)

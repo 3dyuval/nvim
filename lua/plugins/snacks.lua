@@ -1,17 +1,8 @@
 -- https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 
--- Shared explorer function
-local function open_explorer(opts)
-  local old_shortmess = vim.o.shortmess
-  vim.o.shortmess = vim.o.shortmess .. "A"
-
-  local config = vim.tbl_deep_extend("force", {
-    root = false,
-  }, opts or {})
-
-  Snacks.picker.explorer(config)
-
-  vim.o.shortmess = old_shortmess
+-- Use shared explorer from picker-extensions
+local open_explorer = function(opts)
+  require("utils.picker-extensions").open_explorer(opts)
 end
 
 -- Delegate to comprehensive format action from picker-extensions
@@ -201,8 +192,8 @@ return {
         keys = {
           {
             icon = "󰈞",
-            key = "f",
-            desc = "Find files (Sticky Explorer)",
+            key = "e",
+            desc = "Files Explorer",
             action = function()
               -- Set shortmess to avoid swap file prompts
               local old_shortmess = vim.o.shortmess
@@ -210,7 +201,7 @@ return {
 
               open_explorer({
                 auto_close = false,
-                focus = "input",
+                focus = "list",
                 layout = {
                   preset = "left",
                   preview = false,
@@ -222,9 +213,20 @@ return {
             end,
           },
           {
+            icon = "󰈞",
+            key = "f",
+            desc = "Find Files",
+            action = function()
+              open_explorer({
+                auto_close = true,
+                focus = "input",
+              })
+            end,
+          },
+          {
             icon = "󱎸",
-            key = "/",
-            desc = "Live Grep (Find Text)",
+            key = "g",
+            desc = "Live Grep",
             action = ":lua Snacks.dashboard.pick('live_grep')",
           },
           { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
@@ -291,6 +293,23 @@ return {
             return true
           end,
           actions = {
+            -- Custom expand action (PR #1497 - not merged, define locally)
+            explorer_expand = {
+              action = function(picker, item)
+                if not item or not item.dir then
+                  return
+                end
+                local Tree = require("snacks.explorer.tree")
+                Tree:open(picker:dir())
+                picker.list:set_target()
+                picker:find({
+                  on_done = function()
+                    -- Move cursor into the expanded folder
+                    picker.list:move(1)
+                  end,
+                })
+              end,
+            },
             open_multiple_buffers = {
               action = function(picker)
                 require("utils.picker-extensions").actions.open_multiple_buffers(picker)
@@ -329,10 +348,9 @@ return {
                 ["<C-a>"] = false, -- Disable select all - it's distracting
                 ["p"] = "copy_file_path",
                 ["g"] = "search_in_directory", -- Opens a grep snacks
-                ["i"] = function(picker)
-                  require("utils.picker-extensions").actions.handle_directory_expansion(picker)
-                end, -- Expand/collapse directory
-                ["h"] = "explorer_close", -- Collapse/close directory
+                ["i"] = "explorer_expand", -- Expand directory (Graphite: i=right)
+                ["h"] = "explorer_close", -- Collapse directory (Graphite: h=left)
+                ["o"] = "explorer_open", -- Open with system app
                 -- Git status navigation (Graphite layout: A=down/next, E=up/prev)
                 ["A"] = "explorer_git_next", -- Next git status file
                 ["E"] = "explorer_git_prev", -- Previous git status file
