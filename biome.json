@@ -35,8 +35,6 @@
 						"groups": [
 							"react",
 							"react-*",
-							"@angular",
-							"@angular/*",
 							"vue",
 							"vue-*",
 							":PACKAGE:",

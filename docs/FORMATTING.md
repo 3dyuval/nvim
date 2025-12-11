@@ -131,7 +131,7 @@ User → ./format [options] [paths] → Tools directly
 - **Fallback**: Prettier (`.prettierrc` config)
 - **Features**: 
   - Formatting with consistent style
-  - Import organization (React → @angular → packages → @/ → relative)
+  - Import organization (React → Vue → packages → @/ → relative)
   - Lint fixes (safe fixes only)
 
 ### Lua

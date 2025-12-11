@@ -102,7 +102,6 @@ return {
 
       ts_ls = { enabled = false },
       volar = { enabled = false },
-      angularls = { enabled = false },
 
       -- === TypeScript/JavaScript Development ===
       -- Using vtsls with @vue/typescript-plugin for Vue support

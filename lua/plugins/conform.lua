@@ -111,7 +111,6 @@ return {
       javascriptreact = js_formatter,
       json = js_formatter,
       html = js_formatter,
-      htmlangular = js_formatter,
       -- vue uses LSP formatting (Prettier can't handle TS generics in Vue SFCs)
       css = js_formatter,
       scss = js_formatter,
