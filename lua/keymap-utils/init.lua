@@ -5,23 +5,23 @@ local M = {}
 local collected_keymaps = {}
 local group_descriptions = {}
 
--- Import local lil modules
-local lil_core = require("plugins.keymap-utils.core")
-local lil_key = require("plugins.keymap-utils.key")
-local lil_utils = require("plugins.keymap-utils.utils")
+-- Import local keymap-utils modules
+local kmu_core = require("keymap-utils.core")
+local kmu_key = require("keymap-utils.key")
+local kmu_utils = require("keymap-utils.utils")
 
 -- ============================================================================
--- LIL API EXPORTS (replaces require("lil"))
+-- KEYMAP-UTILS API EXPORTS
 -- ============================================================================
 
 -- Export flags for direct access
-M.flags = lil_utils.flags
+M.flags = kmu_utils.flags
 
 -- Export key constructor for modifier keys like ctrl, shift, alt
-M.key = lil_key
+M.key = kmu_key
 
 -- Export _ (expects template) for <C-_> style mappings
-M._ = lil_key({ expects = true })
+M._ = kmu_key({ expects = true })
 
 -- Mode modifier constructor
 -- Usage: local n = lil.mod("n") then [n] = { ... }
@@ -40,8 +40,8 @@ M.modes = {
   t = { mode = { "t" } },
 }
 
--- Main declarative map function (lil.map equivalent)
-M.lil_map = lil_core.map
+-- Main declarative map function
+M.kmu_map = kmu_core.map
 
 -- ============================================================================
 -- CORE KEYMAP ABSTRACTIONS
@@ -126,38 +126,44 @@ end
 -- SMART MAP WITH GROUP DESCRIPTIONS
 -- ============================================================================
 
--- Desc helper for lil-style mapping - auto-handles flags internally
--- Accepts table: desc({ desc = "...", value = action, expr = true, silent = true, noremap = true })
-function M.desc(opts)
-  local opts_flag = lil_utils.flags.opts
-
-  -- Extract value and build keymap options
-  local value = opts.value
-  local keymap_opts = {
-    desc = opts.desc,
-    expr = opts.expr,
-    silent = opts.silent,
-    noremap = opts.noremap,
-    buffer = opts.buffer,
-    nowait = opts.nowait,
-    remap = opts.remap,
-  }
-
-  return {
-    value,
-    [opts_flag] = keymap_opts,
-  }
+-- Check if a table is a keymap definition (has action) vs a group (nested keymaps)
+-- Keymap definition: { "action", desc = "..." } or { rhs = "action", desc = "..." }
+-- Group: { a = {...}, b = {...} } with only nested tables
+local function is_keymap_definition(t)
+  return t[1] ~= nil or t.rhs ~= nil
 end
 
--- Create smart wrapper around lil_map that auto-extracts group descriptions
--- and auto-injects [func] = func_map
+-- Create smart wrapper around kmu_map that auto-extracts group descriptions
+-- and transforms simple table syntax into core-compatible format
+--
+-- Mental model:
+--   h = { "h", desc = "Left" }              -- shorthand: action at [1]
+--   h = { rhs = "h", desc = "Left" }        -- explicit: using rhs
+--   h = { rhs = fn, desc = "Do something" } -- function as action
+--   h = { "h", desc = "Left", del = "j" }   -- also delete key 'j'
+--   h = { "h", desc = "Left", expr = true } -- with vim keymap options
+--
+-- Nesting works infinitely:
+--   ["<leader>g"] = {
+--     group = "Git",  -- which-key group name
+--     n = { ":Neogit", desc = "Open Neogit" },
+--     d = {
+--       group = "Diff",
+--       o = { ":DiffviewOpen", desc = "Open" },
+--     },
+--   }
 function M.create_smart_map()
-  local lil_opts_flag = lil_utils.flags.opts
-  local lil_func_flag = lil_utils.flags.func
+  local kmu_opts_flag = kmu_utils.flags.opts
+  local kmu_func_flag = kmu_utils.flags.func
 
-  -- Define func_map inside the wrapper
+  -- Define func_map that handles 'del' option
   local function func_map(m, l, r, o, _next)
+    -- Delete the target key first
     M.safe_del(m, l)
+    -- Also delete 'del' key if specified (stored in _next context)
+    if _next and _next.del then
+      M.safe_del(m, _next.del)
+    end
     vim.keymap.set(m, l, r, o)
   end
 
@@ -165,7 +171,7 @@ function M.create_smart_map()
     -- Track visited tables to prevent infinite recursion
     local visited = {}
 
-    -- Process tables recursively to extract desc and groups
+    -- Process tables recursively to transform syntax and extract groups
     local function process_table(prefix, t)
       if visited[t] then
         return
@@ -173,32 +179,47 @@ function M.create_smart_map()
       visited[t] = true
 
       for key, value in pairs(t) do
-        -- Only process string keys (skip lil flags)
+        -- Only process string keys (skip kmu flags)
         if type(key) == "string" and type(value) == "table" then
           local full_key = prefix .. key
 
-          -- Extract desc key and move to [opts]
-          if value.desc then
-            -- Initialize [opts] if it doesn't exist
-            if not value[lil_opts_flag] then
-              value[lil_opts_flag] = {}
+          if is_keymap_definition(value) then
+            -- Transform simple table syntax to core-compatible format
+            -- { "action", desc = "...", expr = true } → { "action", [opts] = { desc, expr } }
+            local action = value[1] or value.rhs
+            local keymap_opts = {
+              desc = value.desc,
+              expr = value.expr,
+              silent = value.silent,
+              noremap = value.noremap,
+              buffer = value.buffer,
+              nowait = value.nowait,
+              remap = value.remap,
+            }
+
+            -- Store 'del' in the table for func_map to access via _next
+            if value.del then
+              value.del = value.del -- keep it for _next context
             end
-            -- Move desc to [opts]
-            value[lil_opts_flag].desc = value.desc
-            value.desc = nil -- Remove from top level
-          end
 
-          -- Check if this table has a group option
-          if
-            value[lil_opts_flag]
-            and type(value[lil_opts_flag]) == "table"
-            and value[lil_opts_flag].group
-          then
-            table.insert(group_descriptions, { full_key, group = value[lil_opts_flag].group })
-          end
-
-          -- Recurse into nested tables (skip if it's a keymap definition)
-          if not value[1] then
+            -- Clear the named keys and set core-compatible format
+            value[1] = action
+            value.rhs = nil
+            value.desc = nil
+            value.expr = nil
+            value.silent = nil
+            value.noremap = nil
+            value.buffer = nil
+            value.nowait = nil
+            value.remap = nil
+            value[kmu_opts_flag] = keymap_opts
+          else
+            -- It's a group - check for group description
+            if value.group then
+              table.insert(group_descriptions, { full_key, group = value.group })
+              value.group = nil -- remove so it doesn't interfere with recursion
+            end
+            -- Recurse into nested tables
             process_table(full_key, value)
           end
         end
@@ -208,12 +229,12 @@ function M.create_smart_map()
     process_table("", map_def)
 
     -- Auto-inject [func] = func_map if not already present
-    if not map_def[lil_func_flag] then
-      map_def[lil_func_flag] = func_map
+    if not map_def[kmu_func_flag] then
+      map_def[kmu_func_flag] = func_map
     end
 
-    -- Call local lil_map
-    lil_core.map(map_def)
+    -- Call kmu_core.map
+    kmu_core.map(map_def)
   end
 end
 
@@ -416,11 +437,11 @@ end
 
 -- Create custom config that uses our collector
 function M.create_introspect_config()
-  local introspect_config = lil_utils.copy(lil_core.config)
-  introspect_config[lil_utils.flags.func] = keymap_collector
+  local introspect_config = kmu_utils.copy(kmu_core.config)
+  introspect_config[kmu_utils.flags.func] = keymap_collector
 
   return function(map)
-    return lil_core.builtin(introspect_config, "", map)
+    return kmu_core.builtin(introspect_config, "", map)
   end
 end
 
@@ -437,11 +458,11 @@ function M.get_keymap_count()
   return #collected_keymaps
 end
 
--- Export lil interface that uses introspection
-function M.create_lil_interface()
+-- Export interface that uses introspection
+function M.create_introspect_interface()
   return {
     map = M.create_introspect_config(),
-    flags = lil_utils.flags,
+    flags = kmu_utils.flags,
     mod = M.mod,
     key = M.key,
     modes = M.modes,
@@ -449,11 +470,11 @@ function M.create_lil_interface()
 end
 
 -- Export utilities for compatibility
-function M.get_lil_flags()
+function M.get_flags()
   return {
-    func = lil_utils.flags.func,
-    opts = lil_utils.flags.opts,
-    mode = lil_utils.flags.mode,
+    func = kmu_utils.flags.func,
+    opts = kmu_utils.flags.opts,
+    mode = kmu_utils.flags.mode,
   }
 end
 

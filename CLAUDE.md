@@ -4,7 +4,7 @@
 
 ### Architecture Philosophy
 - **Modular utils pattern**: Each utility lives in `/lua/utils/` as a focused module
-- **Consistent keymap structure**: Using `lil.map` with descriptive functions
+- **Consistent keymap structure**: Using `keymap-utils` with simple declarative tables
 - **Separation of concerns**: Utils handle logic, keymaps just map to utils functions
 - **Auto-formatting enforcement**: Always run `make format` before commits
 
@@ -17,11 +17,39 @@ make test      # Run test suite for keymap conflicts
 ```
 
 ### Keymap Pattern Structure
-All keymaps follow this pattern:
-1. Import relevant utils at top: `local module = require("utils.module")`
-2. Use `lil.map` with descriptive functions
-3. Group related keymaps under leader sequences
-4. Always provide `desc` for discoverability
+All keymaps use `keymap-utils` with simple table syntax:
+
+```lua
+local kmu = require("keymap-utils")
+local map = kmu.create_smart_map()
+
+map({
+  -- Simple: action at [1], desc as named key
+  h = { "h", desc = "Left" },
+
+  -- Function as action
+  ["<leader>f"] = { some_function, desc = "Do something" },
+
+  -- With vim keymap options
+  gf = { notes.smart_follow_link, desc = "Follow link", expr = true },
+
+  -- Nested groups (infinite nesting supported)
+  ["<leader>g"] = {
+    group = "Git",  -- which-key group name
+    n = { cmd("Neogit"), desc = "Open Neogit" },
+    d = {
+      group = "Diff",
+      o = { cmd("DiffviewOpen"), desc = "Open" },
+    },
+  },
+})
+```
+
+Key points:
+1. Action at `[1]` or use `rhs = action` (both work)
+2. `desc` for which-key description
+3. `group` for which-key group names
+4. Supports `expr`, `silent`, `noremap`, `buffer`, etc.
 
 ### Utils Module Pattern
 Each util module exports focused functions:

@@ -1,8 +1,8 @@
 -- Keymap Utils - Core map processor
 -- Minimal implementation of lil.nvim core for keymap-utils
 
-local key = require("plugins.keymap-utils.key")
-local utils = require("plugins.keymap-utils.utils")
+local key = require("keymap-utils.key")
+local utils = require("keymap-utils.utils")
 
 local flags = utils.flags
 local cascadeSymbols = utils.cascadeSymbols

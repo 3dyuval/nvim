@@ -21,7 +21,15 @@ if command -v nvim >/dev/null 2>&1; then
       -c "lua if pcall(require, 'plenary.test_harness') then require('plenary.test_harness').test_directory('./lua/utils/tests', {minimal_init = './test/minimal_init.lua'}) else print('⚠️ Plenary not available, running basic tests...'); require('utils.tests.run_all').run_all_tests() end" \
       -c "qa"
   else
-    echo "⚠️ No test directory found"
+    echo "⚠️ No lua/utils/tests directory found"
+  fi
+
+  # Run keymap-utils tests
+  if [ -d "lua/keymap-utils/tests" ]; then
+    echo "=== Running keymap-utils tests ==="
+    nvim --headless \
+      -c "PlenaryBustedFile lua/keymap-utils/tests/keymap_utils_spec.lua" \
+      -c "qa"
   fi
 
   # Test 3: Additional test files in test directory

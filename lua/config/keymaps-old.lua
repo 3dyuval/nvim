@@ -5,7 +5,7 @@
 local code = require("utils.code")
 local editor = require("utils.editor")
 local helpers = require("utils.helpers")
-local kmu = require("plugins.keymap-utils")
+local kmu = require("keymap-utils")
 local search = require("utils.search")
 
 local cmd = kmu.cmd

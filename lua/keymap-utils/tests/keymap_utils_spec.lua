@@ -1,78 +1,68 @@
 -- Plenary tests for keymap-utils
--- Run with: PlenaryBustedFile lua/plugins/keymap-utils/tests/keymap_utils_spec.lua
+-- Run with: PlenaryBustedFile lua/keymap-utils/tests/keymap_utils_spec.lua
 
 describe("keymap-utils", function()
-  local ku = require("plugins.keymap-utils")
+  local ku = require("keymap-utils")
 
   before_each(function()
     ku.clear_collected_keymaps()
   end)
 
-  describe("desc", function()
-    it("accepts table arg with desc and value", function()
-      local result = ku.desc({ desc = "Table description", value = "table_action" })
-      assert.equals("table_action", result[1])
-      local has_desc = false
-      for k, v in pairs(result) do
-        if type(v) == "table" and v.desc == "Table description" then
-          has_desc = true
-        end
-      end
-      assert.is_true(has_desc)
+  describe("create_smart_map table syntax", function()
+    local test_key = "<leader>_smartmap_test"
+    local map = ku.create_smart_map()
+
+    after_each(function()
+      pcall(vim.keymap.del, "n", test_key)
+      pcall(vim.keymap.del, "n", test_key .. "a")
+      pcall(vim.keymap.del, "n", test_key .. "b")
     end)
 
-    it("accepts table arg with expr", function()
-      local result = ku.desc({ desc = "Expr table", value = "expr_action", expr = true })
-      local has_expr = false
-      for k, v in pairs(result) do
-        if type(v) == "table" and v.expr == true then
-          has_expr = true
-        end
-      end
-      assert.is_true(has_expr)
-    end)
-
-    it("accepts table arg with noremap", function()
-      local result = ku.desc({ desc = "Noremap test", value = "noremap_action", noremap = true })
-      local has_noremap = false
-      for k, v in pairs(result) do
-        if type(v) == "table" and v.noremap == true then
-          has_noremap = true
-        end
-      end
-      assert.is_true(has_noremap)
-    end)
-
-    it("accepts table arg with silent", function()
-      local result = ku.desc({ desc = "Silent test", value = "silent_action", silent = true })
-      local has_silent = false
-      for k, v in pairs(result) do
-        if type(v) == "table" and v.silent == true then
-          has_silent = true
-        end
-      end
-      assert.is_true(has_silent)
-    end)
-
-    it("accepts table arg with multiple opts", function()
-      local result = ku.desc({
-        desc = "Multi opts",
-        value = "multi_action",
-        expr = true,
-        silent = true,
-        noremap = true,
+    it("accepts action at [1] with desc", function()
+      map({
+        [test_key] = { ":echo 'test'<CR>", desc = "Test action" },
       })
-      local opts_found = nil
-      for k, v in pairs(result) do
-        if type(v) == "table" and v.desc then
-          opts_found = v
+      local mapping = vim.fn.maparg(test_key, "n", false, true)
+      assert.equals("Test action", mapping.desc)
+    end)
+
+    it("accepts rhs as alternative to [1]", function()
+      map({
+        [test_key] = { rhs = ":echo 'rhs test'<CR>", desc = "RHS test" },
+      })
+      local mapping = vim.fn.maparg(test_key, "n", false, true)
+      assert.equals("RHS test", mapping.desc)
+    end)
+
+    it("supports nested groups", function()
+      map({
+        [test_key] = {
+          a = { ":echo 'nested a'<CR>", desc = "Nested A" },
+          b = { ":echo 'nested b'<CR>", desc = "Nested B" },
+        },
+      })
+      local mapping_a = vim.fn.maparg(test_key .. "a", "n", false, true)
+      local mapping_b = vim.fn.maparg(test_key .. "b", "n", false, true)
+      assert.equals("Nested A", mapping_a.desc)
+      assert.equals("Nested B", mapping_b.desc)
+    end)
+
+    it("supports group descriptions for which-key", function()
+      -- This test verifies groups are collected, not that which-key receives them
+      map({
+        [test_key] = {
+          group = "Test Group",
+          a = { ":echo 'in group'<CR>", desc = "In group" },
+        },
+      })
+      local groups = ku.get_group_descriptions()
+      local found = false
+      for _, g in ipairs(groups) do
+        if g[1] == test_key and g.group == "Test Group" then
+          found = true
         end
       end
-      assert.is_not_nil(opts_found)
-      assert.equals("Multi opts", opts_found.desc)
-      assert.is_true(opts_found.expr)
-      assert.is_true(opts_found.silent)
-      assert.is_true(opts_found.noremap)
+      assert.is_true(found)
     end)
   end)
 

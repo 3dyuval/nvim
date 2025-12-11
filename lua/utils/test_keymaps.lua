@@ -103,10 +103,10 @@ function M.test_graphite_layout()
   -- Specific test for custom Graphite keyboard layout
 end
 
--- Keymap Introspection Functions (leveraging lil.nvim)
+-- Keymap Introspection Functions
 function M.get_all_keymaps()
   -- Load the keymap utils module
-  local keymap_utils = require("plugins.keymap-utils")
+  local keymap_utils = require("keymap-utils")
 
   -- Clear any previous collected data
   keymap_utils.clear_collected_keymaps()
@@ -114,17 +114,8 @@ function M.get_all_keymaps()
   -- Local collection for vim.keymap.set interception
   local collected_keymaps = {}
 
-  -- Create a mock environment that mimics keymaps.lua dependencies
-  local test_env = {
-    -- Core lil components
-    lil = keymap_utils.lil,
-    func = keymap_utils.func,
-    opts = keymap_utils.opts,
-    mode = keymap_utils.mode,
-    x = require("lil").mod("x"),
-    n = require("lil").mod("n"),
-
-    -- Mock utility modules that keymaps.lua requires
+  -- Create mock utility modules that keymaps.lua requires
+  local mock_utils = {
     clipboard = {},
     code = {},
     editor = {},
@@ -140,108 +131,70 @@ function M.get_all_keymaps()
   local function mock_function()
     return function() end
   end
-  for module_name, module_table in pairs(test_env) do
-    if type(module_table) == "table" and module_name ~= "lil" then
-      setmetatable(module_table, {
-        __index = function()
-          return mock_function
-        end,
-      })
-    end
+  for _, module_table in pairs(mock_utils) do
+    setmetatable(module_table, {
+      __index = function()
+        return mock_function
+      end,
+    })
   end
 
-  -- Store original requires and globals
+  -- Store originals
   local original_require = require
-  local original_lil = _G.lil
-  local original_func = _G.func
-  local original_opts = _G.opts
-  local original_mode = _G.mode
-  local original_x = _G.x
-  local original_n = _G.n
-
-  -- BETTER APPROACH: Intercept vim.keymap.set directly!
-  -- This catches ALL keymap setting, regardless of local function overrides
   local original_keymap_set = vim.keymap.set
-  vim.keymap.set = function(mode, key, action, opts)
-    -- Capture debug info using Lua's debug library
-    local info = debug.getinfo(2, "Sl") -- Get caller info (2 levels up)
 
-    -- Helper function to get clean filename
+  -- Intercept vim.keymap.set to capture keymaps
+  vim.keymap.set = function(mode, key, action, opts)
+    local info = debug.getinfo(2, "Sl")
+
     local function get_clean_filename(source)
       if not source then
         return "unknown"
       end
-
-      -- Handle different source formats
       local file = source:match("@(.+)") or source
-
-      -- Get just the filename (not full path)
       local filename = file:match("[^/]+$") or file
-
-      -- Handle config-relative paths
       if filename:match("%.config/nvim/") then
         filename = filename:gsub(".*%.config/nvim/", "")
       end
-
       return filename
     end
 
-    -- Collect keymap data with source location
     table.insert(collected_keymaps, {
       mode = mode,
       key = key,
       action = action,
       opts = opts or {},
-      -- NEW: Source location metadata
       source = {
         file = info.source and get_clean_filename(info.source) or "unknown",
         line = info.currentline or 0,
         short_src = info.short_src or "unknown",
       },
     })
-    -- Don't actually set the keymap in test mode
   end
 
-  -- Mock require function to return our test environment
+  -- Mock require function to return mock utils
   _G.require = function(module_name)
-    -- Return mock modules for utility requires
     if module_name:match("^utils%.") then
       local util_name = module_name:match("^utils%.(.+)")
-      return test_env[util_name:gsub("%-", "_")] or {}
+      return mock_utils[util_name:gsub("%-", "_")] or {}
     end
-    -- Use original require for everything else
     return original_require(module_name)
   end
 
-  -- Replace globals normally (keeping original lil, but with mocked utils)
-  _G.lil = require("lil") -- Use original lil, but vim.keymap.set is intercepted
-  _G.func = test_env.func
-  _G.opts = test_env.opts
-  _G.mode = test_env.mode
-  _G.x = test_env.x
-  _G.n = test_env.n
-
   -- Reload keymaps.lua to collect data
   package.loaded["config.keymaps"] = nil
-  local success, err = pcall(function()
+  local success = pcall(function()
     require("config.keymaps")
   end)
 
   -- Restore everything
   _G.require = original_require
-  _G.lil = original_lil
-  _G.func = original_func
-  _G.opts = original_opts
-  _G.mode = original_mode
-  _G.x = original_x
-  _G.n = original_n
   vim.keymap.set = original_keymap_set
 
   if not success then
     return {}
   end
 
-  -- Return keymaps collected by intercepting vim.keymap.set
   return collected_keymaps
 end
 
