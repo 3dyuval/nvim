@@ -1,114 +1,30 @@
--- This is just an empty plugin spec since the AI functionality is in utils
--- Just checking our new ai commit
 return {
-  "sudo-tee/opencode.nvim",
-  dependencies = {
-    "nvim-lua/plenary.nvim", -- Required for git operations
-  },
-  enabled = false,
-  config = function()
-    require("opencode").setup({
-      default_global_keymaps = false, -- If false, disables all default global keymaps
-      preferred_picker = "snacks",
-      debug = {
-        enabled = true,
+  {
+    dir = "/home/yuv/proj/run-ai.run.nvim",
+    name = "run-ai-run",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "folke/noice.nvim",
+      "3dyuval/colortweak.nvim",
+    },
+    opts = {
+      bin = "/home/yuv/.nvm/versions/node/v20.19.6/bin/claude",
+      log_level = "debug",
+      notify_level = "warn", -- nil = off, "debug"/"info"/"warn"/"error" = show in noice
+      highlights = {
+        normal = "ClaudeNormal",
+        thinking = "ClaudeThinking",
       },
-      keymap = {
-        global = {
-          toggle = "<leader>cct", -- Open opencode. Close if opened
-          open_input = "<leader>cci", -- Opens and focuses on input window
-          select_session = "<leader>ccs", -- Select and load a opencode session
-        },
-        window = {
-          slash_commands = "/",
-        },
-      },
-    })
-  end,
-  -- require("claude-code").setup({
-  --   enable = false,
-  --   keymap = {
-  --     toggle = false, -- Keymaps now handled in keymaps.lua
-  --     window_navigation = false, -- Disable default HJKL navigation
-  --   },
-  --   window = {
-  --     hide_numbers = true, -- Hide line numbers in Claude Code terminal
-  --     hide_signcolumn = true, -- Hide sign column in Claude Code terminal
-  --   },
-  --   terminal = {
-  --     auto_insert = true, -- Always stay in insert/terminal mode
-  --     disable_normal_mode = true, -- Prevent switching to normal mode
-  --   },
-  -- })
+    },
+    config = function(_, opts)
+      local tweak = require("colortweak.tweak")
 
-  -- Set up autocmd to exclude Claude Code buffers from various operations
-  --   vim.api.nvim_create_autocmd("BufEnter", {
-  --     pattern = "*",
-  --     callback = function(args)
-  --       local bufname = vim.api.nvim_buf_get_name(args.buf)
-  --       local buftype = vim.bo[args.buf].buftype
-  --
-  --       -- Check if this is a Claude Code buffer
-  --       if
-  --         buftype == "terminal"
-  --         and (
-  --           bufname:match("claude%-code")
-  --           or bufname:match("claude_code")
-  --           or vim.b[args.buf].terminal_job_id -- Generic terminal check
-  --         )
-  --       then
-  --         -- Mark buffer to exclude from search/replace operations
-  --         vim.b[args.buf].claude_code_terminal = true
-  --         vim.b[args.buf].no_search_replace = true
-  --         -- Also exclude from various other operations
-  --         vim.b[args.buf].miniindentscope_disable = true
-  --         vim.b[args.buf].snacks_indent = false
-  --         vim.b[args.buf].snacks_scope = false
-  --
-  --         -- Force terminal mode when entering Claude Code buffer
-  --         vim.schedule(function()
-  --           if vim.api.nvim_buf_is_valid(args.buf) and vim.bo[args.buf].buftype == "terminal" then
-  --             vim.cmd("startinsert")
-  --           end
-  --         end)
-  --       end
-  --     end,
-  --   })
-  --
-  --   -- Set up custom HAEI navigation for Claude Code terminal
-  --   local claude_code = require("claude-code")
-  --   local original_setup_terminal_navigation = claude_code.setup_terminal_navigation
-  --
-  --   -- Override the terminal navigation setup to disable mode switching and focus on input
-  --   function claude_code.setup_terminal_navigation()
-  --     local current_instance = claude_code.claude_code.current_instance
-  --     local buf = current_instance and claude_code.claude_code.instances[current_instance]
-  --     if buf and vim.api.nvim_buf_is_valid(buf) then
-  --       -- Disable ALL default keymaps that cause mode switching
-  --       -- Keep Claude Code terminal focused on input only
-  --
-  --       -- Disable default window navigation (stays in terminal mode)
-  --       vim.api.nvim_buf_set_keymap(buf, "t", "<C-h>", "<Nop>", { noremap = true, silent = true })
-  --       vim.api.nvim_buf_set_keymap(buf, "t", "<C-j>", "<Nop>", { noremap = true, silent = true })
-  --       vim.api.nvim_buf_set_keymap(buf, "t", "<C-k>", "<Nop>", { noremap = true, silent = true })
-  --       vim.api.nvim_buf_set_keymap(buf, "t", "<C-l>", "<Nop>", { noremap = true, silent = true })
-  --
-  --       -- Disable scrolling that exits insert mode
-  --       vim.api.nvim_buf_set_keymap(buf, "t", "<C-f>", "<Nop>", { noremap = true, silent = true })
-  --       vim.api.nvim_buf_set_keymap(buf, "t", "<C-b>", "<Nop>", { noremap = true, silent = true })
-  --
-  --       -- Disable escape sequences that could exit terminal mode
-  --       vim.api.nvim_buf_set_keymap(buf, "t", "<Esc>", "<Nop>", { noremap = true, silent = true })
-  --
-  --       -- Disable any other common keys that might switch modes
-  --       vim.api.nvim_buf_set_keymap(
-  --         buf,
-  --         "t",
-  --         "<C-\\><C-n>",
-  --         "<Nop>",
-  --         { noremap = true, silent = true }
-  --       )
-  --     end
-  --   end
-  -- end,
+      tweak.hl({
+        ClaudeNormal = { "DiagnosticInfo", { h = -5, s = 1 } },
+        ClaudeThinking = { "DiagnosticHint", { h = 15, s = 1.5 } },
+      })
+
+      require("run-ai-run").setup(opts)
+    end,
+  },
 }
