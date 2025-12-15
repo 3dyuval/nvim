@@ -280,7 +280,7 @@ return {
         explorer = {
           auto_close = true,
           hidden = true,
-          ignored = true,
+          ignored = false,
           git = {
             enabled = true, -- Enable git status display (enabled by default in 2.18.0+)
           },

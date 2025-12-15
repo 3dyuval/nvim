@@ -22,9 +22,7 @@ return {
             },
             workspace = {
               checkThirdParty = false,
-              library = {
-                vim.env.VIMRUNTIME,
-              },
+              -- library managed by lazydev.nvim
             },
             telemetry = {
               enable = false,
