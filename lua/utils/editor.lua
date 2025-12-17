@@ -43,4 +43,36 @@ M.paste_inline = function()
   end
 end
 
+-- Run visual selection with interpreter
+-- Usage: editor.run_selection("node -e")
+-- For stdin-based: editor.run_selection("lua -", true)
+M.run_selection = function(command, stdin)
+  return function()
+    local _, ls, cs = unpack(vim.fn.getpos("v"))
+    local _, le, ce = unpack(vim.fn.getpos("."))
+    if ls > le or (ls == le and cs > ce) then
+      ls, le = le, ls
+      cs, ce = ce, cs
+    end
+    local lines = vim.api.nvim_buf_get_lines(0, ls - 1, le, false)
+    if #lines == 0 then
+      return
+    end
+    lines[#lines] = lines[#lines]:sub(1, ce)
+    lines[1] = lines[1]:sub(cs)
+    local text = table.concat(lines, "\n")
+
+    local result
+    if stdin then
+      result = vim.fn.system(command, text)
+    else
+      result = vim.fn.system(command .. ' "' .. text:gsub('"', '\\"') .. '"')
+    end
+    print(result)
+    if vim.v.shell_error ~= 0 then
+      print("exit: " .. vim.v.shell_error)
+    end
+  end
+end
+
 return M
