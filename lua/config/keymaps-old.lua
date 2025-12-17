@@ -242,10 +242,15 @@ vim.keymap.set({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })
 vim.keymap.set({ "v" }, "tD", "aW", { desc = "Around WORD (visual)" })
 
 -- Code block text objects
+
 vim.keymap.set({ "o", "x" }, "r`", function()
   code.select_fenced_code_block(true)
+  -- TODO: should move cursor into the fence
+  -- TEST: add to @./tests/keymaps.test.lua
 end, { desc = "Inner code block" })
 vim.keymap.set({ "o", "x" }, "t`", function()
+  -- TODO: should move cursor into the fence
+  -- TEST: add to @./tests/keymaps.test.lua
   code.select_fenced_code_block(false)
 end, { desc = "Around code block" })
 

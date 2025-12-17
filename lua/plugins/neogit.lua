@@ -96,12 +96,8 @@ return {
         end
       end,
       NeogitCommitPopup = function(popup)
-        popup:action("d", "Diny Message", function(popup_instance)
-          -- Close the popup first
-          popup_instance:close()
-
-          -- Use the reusable function
-          require("utils.ai_popup").generate_diny_and_commit()
+        popup:action("I", "AI Commit", function()
+          require("utils.ai_popup").create()
         end)
       end,
       NeogitRebasePopup = function(popup)
