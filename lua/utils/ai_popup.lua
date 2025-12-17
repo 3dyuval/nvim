@@ -84,6 +84,7 @@ local function run_generate(settings)
             file:close()
 
             a.run(function()
+              -- Use -F file with --edit: reads from file, opens editor, quit=cancel, save=commit
               client.wrap(git.cli.commit.edit.args("-F", template_file), {
                 autocmd = "NeogitCommitComplete",
                 msg = {
@@ -93,7 +94,6 @@ local function run_generate(settings)
                 interactive = true,
                 show_diff = neogit_config.values.commit_editor.show_staged_diff,
               })
-              -- Clean up temp file
               os.remove(template_file)
             end)
           else
