@@ -104,7 +104,9 @@ elseif format == "md" or format == "markdown" then
       for prefix in pairs(group_names) do
         table.insert(sorted_prefixes, prefix)
       end
-      table.sort(sorted_prefixes, function(a, b) return #a > #b end)
+      table.sort(sorted_prefixes, function(a, b)
+        return #a > #b
+      end)
 
       for _, prefix in ipairs(sorted_prefixes) do
         if key:sub(1, #prefix) == prefix then

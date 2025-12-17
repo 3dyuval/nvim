@@ -15,6 +15,7 @@ local remap = kmu.remap
 -- GRAPHITE LAYOUT: Core Navigation (HAEI)
 -- ============================================================================
 
+kmu.safe_del({ "n", "x" }, "s")
 -- Line operations and find
 vim.keymap.set({ "n" }, "j", "o", { desc = "Open line below" })
 vim.keymap.set({ "n" }, "J", "O", { desc = "Open line above" })
@@ -241,8 +242,7 @@ vim.keymap.set({ "v" }, "td", "aw", { desc = "Around word (visual)" })
 vim.keymap.set({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })
 vim.keymap.set({ "v" }, "tD", "aW", { desc = "Around WORD (visual)" })
 
--- Code block text objects
-
+-- Custom text objects (fenced code blocks)
 vim.keymap.set({ "o", "x" }, "r`", function()
   code.select_fenced_code_block(true)
   -- TODO: should move cursor into the fence
@@ -254,24 +254,6 @@ vim.keymap.set({ "o", "x" }, "t`", function()
   code.select_fenced_code_block(false)
 end, { desc = "Around code block" })
 
--- Surround text objects
-vim.keymap.set({ "o" }, "r(", "i(", { desc = "Inner parentheses (for nvim-surround)" })
-vim.keymap.set({ "o" }, "r)", "i)", { desc = "Inner parentheses (for nvim-surround)" })
-vim.keymap.set({ "o" }, "r[", "i[", { desc = "Inner brackets (for nvim-surround)" })
-vim.keymap.set({ "o" }, "r]", "i]", { desc = "Inner brackets (for nvim-surround)" })
-vim.keymap.set({ "o" }, "r{", "i{", { desc = "Inner braces (for nvim-surround)" })
-vim.keymap.set({ "o" }, "r}", "i}", { desc = "Inner braces (for nvim-surround)" })
-vim.keymap.set({ "o" }, 'r"', 'i"', { desc = "Inner quotes (for nvim-surround)" })
-vim.keymap.set({ "o" }, "r'", "i'", { desc = "Inner single quotes (for nvim-surround)" })
-vim.keymap.set({ "o" }, "t(", "a(", { desc = "Around parentheses (for nvim-surround)" })
-vim.keymap.set({ "o" }, "t)", "a)", { desc = "Around parentheses (for nvim-surround)" })
-vim.keymap.set({ "o" }, "t[", "a[", { desc = "Around brackets (for nvim-surround)" })
-vim.keymap.set({ "o" }, "t]", "a]", { desc = "Around brackets (for nvim-surround)" })
-vim.keymap.set({ "o" }, "t{", "a{", { desc = "Around braces (for nvim-surround)" })
-vim.keymap.set({ "o" }, "t}", "a}", { desc = "Around braces (for nvim-surround)" })
-vim.keymap.set({ "o" }, 't"', 'a"', { desc = "Around quotes (for nvim-surround)" })
-vim.keymap.set({ "o" }, "t'", "a'", { desc = "Around single quotes (for nvim-surround)" })
-
 vim.keymap.set(
   { "n", "o", "v" },
   "te",
@@ -282,31 +264,31 @@ vim.keymap.set(
 -- ============================================================================
 -- TREEWALKER SWAP
 -- ============================================================================
-
-vim.keymap.set(
-  "n",
-  "<M-e>",
-  cmd("Treewalker SwapUp"),
-  { silent = true, desc = "Treewalker SwapUp" }
-)
-vim.keymap.set(
-  "n",
-  "<M-a>",
-  cmd("Treewalker SwapDown"),
-  { silent = true, desc = "Treewalker SwapDown" }
-)
-vim.keymap.set(
-  "n",
-  "<M-h>",
-  cmd("Treewalker SwapLeft"),
-  { silent = true, desc = "Treewalker SwapLeft" }
-)
-vim.keymap.set(
-  "n",
-  "<M-i>",
-  cmd("Treewalker SwapRight"),
-  { silent = true, desc = "Treewalker SwapRight" }
-)
+--
+-- vim.keymap.set(
+--   "n",
+--   "<M-e>",
+--   cmd("Treewalker SwapUp"),
+--   { silent = true, desc = "Treewalker SwapUp" }
+-- )
+-- vim.keymap.set(
+--   "n",
+--   "<M-a>",
+--   cmd("Treewalker SwapDown"),
+--   { silent = true, desc = "Treewalker SwapDown" }
+-- )
+-- vim.keymap.set(
+--   "n",
+--   "<M-h>",
+--   cmd("Treewalker SwapLeft"),
+--   { silent = true, desc = "Treewalker SwapLeft" }
+-- )
+-- vim.keymap.set(
+--   "n",
+--   "<M-i>",
+--   cmd("Treewalker SwapRight"),
+--   { silent = true, desc = "Treewalker SwapRight" }
+-- )
 
 -- ============================================================================
 -- GRUG-FAR VISUAL MODE

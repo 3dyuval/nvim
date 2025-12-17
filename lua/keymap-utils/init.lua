@@ -475,6 +475,9 @@ function M.get_flags()
     func = kmu_utils.flags.func,
     opts = kmu_utils.flags.opts,
     mode = kmu_utils.flags.mode,
+    log = kmu_utils.flags.log,
+    off = kmu_utils.flags.off,
+    raw = kmu_utils.flags.raw,
   }
 end
 

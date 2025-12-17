@@ -40,6 +40,41 @@ map({
   ["."] = { "$", desc = "End of line" },
 })
 
+-- Text objects: r=inner, t=around
+map({
+  [mode] = { "o", "x" },
+  ["r("] = { "i(", desc = "Inner parentheses" },
+  ["r)"] = { "i)", desc = "Inner parentheses" },
+  ["r["] = { "i[", desc = "Inner brackets" },
+  ["r]"] = { "i]", desc = "Inner brackets" },
+  ["r{"] = { "i{", desc = "Inner braces" },
+  ["r}"] = { "i}", desc = "Inner braces" },
+  ['r"'] = { 'i"', desc = "Inner quotes" },
+  ["r'"] = { "i'", desc = "Inner single quotes" },
+  ["rw"] = { "iw", desc = "Inner word" },
+  ["rW"] = { "iW", desc = "Inner WORD" },
+  ["rp"] = { "ip", desc = "Inner paragraph" },
+  ["rb"] = { "ib", desc = "Inner block" },
+  ["rB"] = { "iB", desc = "Inner Block" },
+  ["r<"] = { "i<", desc = "Inner angle brackets" },
+  ["r>"] = { "i>", desc = "Inner angle brackets" },
+  ["t("] = { "a(", desc = "Around parentheses" },
+  ["t)"] = { "a)", desc = "Around parentheses" },
+  ["t["] = { "a[", desc = "Around brackets" },
+  ["t]"] = { "a]", desc = "Around brackets" },
+  ["t{"] = { "a{", desc = "Around braces" },
+  ["t}"] = { "a}", desc = "Around braces" },
+  ['t"'] = { 'a"', desc = "Around quotes" },
+  ["t'"] = { "a'", desc = "Around single quotes" },
+  ["tw"] = { "aw", desc = "Around word" },
+  ["tW"] = { "aW", desc = "Around WORD" },
+  ["tp"] = { "ap", desc = "Around paragraph" },
+  ["tb"] = { "ab", desc = "Around block" },
+  ["tB"] = { "aB", desc = "Around Block" },
+  ["t<"] = { "a<", desc = "Around angle brackets" },
+  ["t>"] = { "a>", desc = "Around angle brackets" },
+})
+
 map({
   x = {
     x = { "dd", desc = "Delete line" }, -- xx → dd
@@ -119,12 +154,6 @@ map({
       end,
       desc = 'Copy file name with "@" prefix',
     },
-    t = {
-      function()
-        os.execute("kitten @ send-text --match 'CLD=1' " .. "test")
-      end,
-      desc = "Send selected text to Claude",
-    },
     o = { clipboard.copy_code_path, desc = "Copy object path" },
     O = { clipboard.copy_code_path_with_types, desc = "Copy object path (with types)" },
     w = { cmd("OpenFileInRepo"), desc = "Open file in web browser" },
@@ -144,17 +173,43 @@ map({
   },
 })
 
+-- map({
+--   c = {
+--     ["h"] = {
+--       [mode] = { "v", "x", "o" },
+--       cli.smart_send_selection("l", false),
+--       desc = "Send left",
+--     },
+--     ["a"] = {
+--       [mode] = { "v", "x", "o" },
+--       cli.smart_send_selection("d", false),
+--       desc = "Send down",
+--     },
+--     ["e"] = {
+--       [mode] = { "v", "x", "o" },
+--       cli.smart_send_selection("u", false),
+--       desc = "Send up",
+--     },
+--
+--     ["i"] = {
+--       [mode] = { "v", "x", "o" },
+--       cli.smart_send_selection("r", false),
+--       desc = "Send right",
+--     },
+--   },
+-- })
+
 map({
   ["<leader>c"] = {
     -- TypeScript/Import operations
     o = { code.organize_imports, desc = "Organize + Remove Unused Imports" },
     O = { code.organize_imports_and_fix, desc = "Organize Imports + Fix All Diagnostics" },
-    i = { code.add_missing_imports, desc = "Add missing imports" },
+    I = { code.add_missing_imports, desc = "Add missing imports" },
     u = { code.remove_unused_imports, desc = "Remove unused imports" },
     F = { code.fix_all, desc = "Fix all diagnostics" },
     V = { code.select_ts_version, desc = "Select TS workspace version" },
     t = { editor.typescript_check, desc = "TypeScript type check" },
-    P = { clipboard.copy_file_contents, desc = "Copy file contents" },
+    C = { ":Claude<CR>", desc = "Claude replace" },
   },
 })
 
@@ -470,14 +525,14 @@ map({
 })
 
 -- ============================================================================
--- LOAD LEGACY KEYMAPS
--- TODO: Migrate vim.keymap.set() style keymaps to map({}) style above
--- ============================================================================
-
-require("config.keymaps-old")
-
--- ============================================================================
 -- REGISTER GROUP DESCRIPTIONS WITH WHICH-KEY
 -- ============================================================================
 
 kmu.register_groups()
+
+-- ============================================================================
+-- LOAD LEGACY KEYMAPS (at bottom to avoid being overwritten)
+-- TODO: Migrate vim.keymap.set() style keymaps to map({}) style above
+-- ============================================================================
+
+require("config.keymaps-old")

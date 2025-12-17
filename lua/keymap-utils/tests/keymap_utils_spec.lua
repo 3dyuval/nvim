@@ -64,6 +64,29 @@ describe("keymap-utils", function()
       end
       assert.is_true(found)
     end)
+
+    it("supports remap option for chaining mappings", function()
+      local test_remap_key = "<leader>_remap_test"
+      map({
+        [test_remap_key] = { "j", desc = "Remap to j", remap = true },
+      })
+      local mapping = vim.fn.maparg(test_remap_key, "n", false, true)
+      assert.equals("Remap to j", mapping.desc)
+      -- noremap=0 means remap is enabled (will follow other mappings)
+      assert.equals(0, mapping.noremap)
+      pcall(vim.keymap.del, "n", test_remap_key)
+    end)
+
+    it("defaults to noremap (no remap) when remap not specified", function()
+      local test_noremap_key = "<leader>_noremap_test"
+      map({
+        [test_noremap_key] = { "j", desc = "Default noremap" },
+      })
+      local mapping = vim.fn.maparg(test_noremap_key, "n", false, true)
+      -- noremap=1 means it won't follow other mappings
+      assert.equals(1, mapping.noremap)
+      pcall(vim.keymap.del, "n", test_noremap_key)
+    end)
   end)
 
   describe("detect_conflicts", function()
