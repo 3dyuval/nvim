@@ -886,6 +886,80 @@ local contexts = {
     end,
   },
 
+  lsp_symbols = {
+    detect = function(picker)
+      if not validate_picker(picker) then
+        return false
+      end
+
+      local source = picker.opts and picker.opts.source
+      if source == "lsp_symbols" or source == "lsp_workspace_symbols" then
+        return true
+      end
+
+      -- Check if current item has symbol-like properties
+      local current, err = safe_picker_call(picker, "current")
+      if not err and current then
+        if current.kind or current.symbol or current.lnum then
+          return true
+        end
+      end
+
+      return false
+    end,
+    get_items = function(picker)
+      local items = {}
+      local selected, err = safe_picker_call(picker, "selected")
+      if not err and selected and #selected > 0 then
+        items = selected
+      end
+      if #items == 0 then
+        local current, err = safe_picker_call(picker, "current")
+        if not err and current then
+          items = { current }
+        end
+      end
+      return items
+    end,
+  },
+
+  grep = {
+    detect = function(picker)
+      if not validate_picker(picker) then
+        return false
+      end
+
+      local source = picker.opts and picker.opts.source
+      if source == "grep" or source == "grep_word" or source == "grep_buffers" then
+        return true
+      end
+
+      -- Check if current item has grep-like properties (line content)
+      local current, err = safe_picker_call(picker, "current")
+      if not err and current then
+        if current.line and current.file and current.pos then
+          return true
+        end
+      end
+
+      return false
+    end,
+    get_items = function(picker)
+      local items = {}
+      local selected, err = safe_picker_call(picker, "selected")
+      if not err and selected and #selected > 0 then
+        items = selected
+      end
+      if #items == 0 then
+        local current, err = safe_picker_call(picker, "current")
+        if not err and current then
+          items = { current }
+        end
+      end
+      return items
+    end,
+  },
+
   git_branches = {
     detect = function(picker)
       if not validate_picker(picker) then
@@ -1520,8 +1594,16 @@ local function detect_context(picker)
   end
 
   -- Check contexts in specific order (most specific first)
-  local context_order =
-    { "sidebar_explorer", "explorer", "git_branches", "git_status", "buffers", "files" }
+  local context_order = {
+    "sidebar_explorer",
+    "explorer",
+    "git_branches",
+    "git_status",
+    "lsp_symbols",
+    "grep",
+    "buffers",
+    "files",
+  }
 
   for _, context_name in ipairs(context_order) do
     local context = contexts[context_name]
@@ -2158,10 +2240,330 @@ M.copy_references = function(picker)
   end)
 end
 
+-- ============================================================================
+-- GENERALIZED COPY ACTION
+-- ============================================================================
+
+-- Build symbol path by traversing parent chain
+local function get_symbol_path(item)
+  local parts = {}
+  local current = item
+  while current do
+    if current.text or current.name then
+      table.insert(parts, 1, current.text or current.name)
+    end
+    current = current.parent
+  end
+  return table.concat(parts, ".")
+end
+
+-- Get copy options based on context
+local function get_copy_options(ctx, picker, items)
+  local options = {}
+  local is_multi = #items > 1
+
+  if ctx == "explorer" or ctx == "files" then
+    -- File/directory copy options
+    if is_multi then
+      local paths_cwd = {}
+      local paths_home = {}
+      local filenames = {}
+      local paths_abs = {}
+
+      for _, item in ipairs(items) do
+        table.insert(paths_cwd, vim.fn.fnamemodify(item.file, ":."))
+        table.insert(paths_home, vim.fn.fnamemodify(item.file, ":~"))
+        table.insert(filenames, vim.fn.fnamemodify(item.file, ":t"))
+        table.insert(paths_abs, item.file)
+      end
+
+      options = {
+        { label = "Relative paths", value = table.concat(paths_cwd, "\n"), icon = "󰉋" },
+        { label = "From home", value = table.concat(paths_home, "\n"), icon = "󰋜" },
+        { label = "Filenames", value = table.concat(filenames, "\n"), icon = "󰈔" },
+        { label = "Absolute paths", value = table.concat(paths_abs, "\n"), icon = "󰆏" },
+      }
+    else
+      local item = items[1]
+      options = {
+        { label = "Relative path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" },
+        { label = "From home", value = vim.fn.fnamemodify(item.file, ":~"), icon = "󰋜" },
+        { label = "Filename", value = vim.fn.fnamemodify(item.file, ":t"), icon = "󰈔" },
+        { label = "Absolute path", value = item.file, icon = "󰆏" },
+        { label = "Basename", value = vim.fn.fnamemodify(item.file, ":t:r"), icon = "󰈙" },
+        { label = "Extension", value = vim.fn.fnamemodify(item.file, ":e"), icon = "󰈙" },
+      }
+    end
+  elseif ctx == "lsp_symbols" then
+    -- LSP symbol copy options
+    if is_multi then
+      local names = {}
+      local locations = {}
+      for _, item in ipairs(items) do
+        local name = item.text or item.name or ""
+        table.insert(names, name)
+        if item.file and item.pos then
+          table.insert(
+            locations,
+            string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1])
+          )
+        end
+      end
+      options = {
+        { label = "Symbol names", value = table.concat(names, "\n"), icon = "󰊕" },
+        { label = "File:line locations", value = table.concat(locations, "\n"), icon = "󰆏" },
+      }
+    else
+      local item = items[1]
+      local name = item.text or item.name or ""
+      local symbol_path = get_symbol_path(item)
+      options = {
+        { label = "Symbol name", value = name, icon = "󰊕" },
+      }
+      if symbol_path ~= name and symbol_path ~= "" then
+        table.insert(options, { label = "Symbol path", value = symbol_path, icon = "󰙅" })
+      end
+      if item.file and item.pos then
+        table.insert(options, {
+          label = "File:line",
+          value = string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]),
+          icon = "󰆏",
+        })
+        table.insert(options, {
+          label = "File:symbol",
+          value = string.format("%s:%s", vim.fn.fnamemodify(item.file, ":."), name),
+          icon = "󰈔",
+        })
+      end
+    end
+  elseif ctx == "grep" then
+    -- Grep result copy options
+    if is_multi then
+      local locations = {}
+      local lines = {}
+      local paths = {}
+      local seen_paths = {}
+
+      for _, item in ipairs(items) do
+        if item.file and item.pos then
+          table.insert(
+            locations,
+            string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1])
+          )
+        end
+        if item.line then
+          table.insert(lines, item.line)
+        elseif item.text then
+          table.insert(lines, item.text)
+        end
+        if item.file and not seen_paths[item.file] then
+          seen_paths[item.file] = true
+          table.insert(paths, vim.fn.fnamemodify(item.file, ":."))
+        end
+      end
+
+      options = {
+        { label = "File:line locations", value = table.concat(locations, "\n"), icon = "󰆏" },
+        { label = "Matched lines", value = table.concat(lines, "\n"), icon = "󰈙" },
+        { label = "Unique paths", value = table.concat(paths, "\n"), icon = "󰉋" },
+      }
+    else
+      local item = items[1]
+      options = {}
+      if item.file and item.pos then
+        table.insert(options, {
+          label = "File:line",
+          value = string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]),
+          icon = "󰆏",
+        })
+      end
+      if item.line then
+        table.insert(options, { label = "Matched line", value = item.line, icon = "󰈙" })
+      elseif item.text then
+        table.insert(options, { label = "Matched text", value = item.text, icon = "󰈙" })
+      end
+      if item.file then
+        table.insert(
+          options,
+          { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" }
+        )
+      end
+    end
+  elseif ctx == "git_branches" then
+    -- Git branch copy options
+    if is_multi then
+      local names = {}
+      for _, item in ipairs(items) do
+        local branch = M.get_branch_name(item)
+        if branch then
+          table.insert(names, branch)
+        end
+      end
+      options = {
+        { label = "Branch names", value = table.concat(names, "\n"), icon = "" },
+      }
+    else
+      local item = items[1]
+      local branch = M.get_branch_name(item)
+      if branch then
+        options = {
+          { label = "Branch name", value = branch, icon = "" },
+        }
+        -- Add remote format if it looks like a remote branch
+        if branch:match("/") then
+          local remote, name = branch:match("^([^/]+)/(.+)$")
+          if remote and name then
+            table.insert(options, { label = "Remote branch", value = branch, icon = "󰊢" })
+            table.insert(options, { label = "Branch only", value = name, icon = "" })
+          end
+        end
+      end
+    end
+  elseif ctx == "git_status" then
+    -- Git status file copy options
+    if is_multi then
+      local paths = {}
+      for _, item in ipairs(items) do
+        table.insert(paths, vim.fn.fnamemodify(item.file, ":."))
+      end
+      options = {
+        { label = "File paths", value = table.concat(paths, "\n"), icon = "󰉋" },
+      }
+    else
+      local item = items[1]
+      options = {
+        { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" },
+      }
+      if item.status then
+        table.insert(options, { label = "Status", value = item.status, icon = "󰊢" })
+      end
+    end
+  elseif ctx == "buffers" then
+    -- Buffer copy options
+    if is_multi then
+      local paths = {}
+      local names = {}
+      for _, item in ipairs(items) do
+        local bufname = item.file or (item.bufnr and vim.api.nvim_buf_get_name(item.bufnr)) or ""
+        if bufname ~= "" then
+          table.insert(paths, vim.fn.fnamemodify(bufname, ":."))
+          table.insert(names, vim.fn.fnamemodify(bufname, ":t"))
+        end
+      end
+      options = {
+        { label = "File paths", value = table.concat(paths, "\n"), icon = "󰉋" },
+        { label = "Buffer names", value = table.concat(names, "\n"), icon = "󰈔" },
+      }
+    else
+      local item = items[1]
+      local bufname = item.file or (item.bufnr and vim.api.nvim_buf_get_name(item.bufnr)) or ""
+      if bufname ~= "" then
+        options = {
+          { label = "File path", value = vim.fn.fnamemodify(bufname, ":."), icon = "󰉋" },
+          { label = "Buffer name", value = vim.fn.fnamemodify(bufname, ":t"), icon = "󰈔" },
+          { label = "Absolute path", value = bufname, icon = "󰆏" },
+        }
+      end
+    end
+  else
+    -- Default/unknown context - use whatever properties are available
+    if is_multi then
+      local texts = {}
+      local files = {}
+      for _, item in ipairs(items) do
+        if item.text then
+          table.insert(texts, item.text)
+        end
+        if item.file then
+          table.insert(files, vim.fn.fnamemodify(item.file, ":."))
+        end
+      end
+      if #texts > 0 then
+        table.insert(options, { label = "Text", value = table.concat(texts, "\n"), icon = "󰈙" })
+      end
+      if #files > 0 then
+        table.insert(options, { label = "Files", value = table.concat(files, "\n"), icon = "󰉋" })
+      end
+    else
+      local item = items[1]
+      if item.text then
+        table.insert(options, { label = "Text", value = item.text, icon = "󰈙" })
+      end
+      if item.file then
+        table.insert(
+          options,
+          { label = "File", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" }
+        )
+      end
+    end
+  end
+
+  return options
+end
+
+-- Generalized copy action for all picker types
+M.copy = function(picker, item)
+  -- Detect context
+  local ctx, context = detect_context(picker)
+
+  -- Get items (selected or current)
+  local items = {}
+  if context and context.get_items then
+    items = context.get_items(picker)
+  elseif item then
+    items = { item }
+  else
+    local selected, err = safe_picker_call(picker, "selected")
+    if not err and selected and #selected > 0 then
+      items = selected
+    else
+      local current, err = safe_picker_call(picker, "current")
+      if not err and current then
+        items = { current }
+      end
+    end
+  end
+
+  if #items == 0 then
+    vim.notify("No items to copy", vim.log.levels.WARN)
+    return
+  end
+
+  -- Get context-appropriate copy options
+  local options = get_copy_options(ctx, picker, items)
+
+  if #options == 0 then
+    vim.notify("No copy options available", vim.log.levels.WARN)
+    return
+  end
+
+  -- Build menu
+  local menu_items = {}
+  for i, opt in ipairs(options) do
+    local preview = opt.value
+    if #preview > 40 then
+      preview = preview:sub(1, 37) .. "..."
+    end
+    preview = preview:gsub("\n", " ↵ ")
+    menu_items[i] = string.format("%s %s: %s", opt.icon or "󰆏", opt.label, preview)
+  end
+
+  vim.ui.select(menu_items, {
+    prompt = string.format("Copy (%s):", ctx),
+  }, function(_, idx)
+    if idx and options[idx] then
+      vim.fn.setreg("+", options[idx].value)
+      local count_info = #items > 1 and string.format(" (%d items)", #items) or ""
+      Snacks.notify.info("Copied: " .. options[idx].label .. count_info)
+    end
+  end)
+end
+
 -- Export all picker action functions for use in snacks.lua
 M.actions = {
   open_multiple_buffers = M.open_multiple_buffers,
   copy_file_path = M.copy_file_path,
+  copy = M.copy, -- Generalized copy action for all picker types
   copy_references = M.copy_references,
   search_in_directory = M.search_in_directory,
   diff_selected = M.diff_selected,
