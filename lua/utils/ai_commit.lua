@@ -38,12 +38,15 @@ local function build_prompt(msg_opts)
   local parts = { "write a commit message" }
 
   if msg_opts.conventional then
-    local conv = "using conventional commit format (<type>(<scope>): <subject>)"
-    if msg_opts.commit_type then
-      conv = conv .. ", type must be " .. msg_opts.commit_type
-    end
-    if msg_opts.scope then
-      conv = conv .. ", scope must be " .. msg_opts.scope
+    local conv = "using conventional commit format: <type>(<scope>): <subject>"
+    if msg_opts.commit_type and msg_opts.scope then
+      conv = conv .. ". Use type=" .. msg_opts.commit_type .. " and scope=" .. msg_opts.scope
+    elseif msg_opts.commit_type then
+      conv = conv .. ". Use type=" .. msg_opts.commit_type .. ", infer appropriate scope from the diff"
+    elseif msg_opts.scope then
+      conv = conv .. ". Use scope=" .. msg_opts.scope .. ", infer appropriate type (feat/fix/chore/etc) from the diff"
+    else
+      conv = conv .. ". Infer appropriate type and scope from the diff"
     end
     table.insert(parts, conv)
   end
