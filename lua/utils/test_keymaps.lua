@@ -103,7 +103,7 @@ function M.test_graphite_layout()
   -- Specific test for custom Graphite keyboard layout
 end
 
--- Keymap Introspection Functions
+-- Keymap Inspection Functions
 function M.get_all_keymaps()
   -- Load the keymap utils module
   local keymap_utils = require("keymap-utils")

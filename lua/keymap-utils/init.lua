@@ -1,9 +1,11 @@
--- Keymap Utilities - Clean keymap management and introspection
+-- Keymap Utilities - Clean keymap management and inspection
 -- Provides both simple vim.keymap.set wrappers and lil-style declarative mapping
 
 local M = {}
 local collected_keymaps = {}
 local group_descriptions = {}
+local disabled_keymaps = {}
+local keymap_tree = {} -- Hierarchical tree of keymaps registered via keymap-utils
 
 -- Import local keymap-utils modules
 local kmu_core = require("keymap-utils.core")
@@ -127,10 +129,10 @@ end
 -- ============================================================================
 
 -- Check if a table is a keymap definition (has action) vs a group (nested keymaps)
--- Keymap definition: { "action", desc = "..." } or { rhs = "action", desc = "..." }
+-- Keymap definition: { "action", desc = "..." } or { rhs = "action", desc = "..." } or { cmd = "...", desc = "..." }
 -- Group: { a = {...}, b = {...} } with only nested tables
 local function is_keymap_definition(t)
-  return t[1] ~= nil or t.rhs ~= nil
+  return t[1] ~= nil or t.rhs ~= nil or t.cmd ~= nil
 end
 
 -- Create smart wrapper around kmu_map that auto-extracts group descriptions
@@ -140,21 +142,24 @@ end
 --   h = { "h", desc = "Left" }              -- shorthand: action at [1]
 --   h = { rhs = "h", desc = "Left" }        -- explicit: using rhs
 --   h = { rhs = fn, desc = "Do something" } -- function as action
+--   h = { cmd = "Neogit", desc = "Open" }   -- command: becomes <Cmd>Neogit<CR>
+--   h = { cmd = "Octo ", exec = false }     -- prefill only: becomes :Octo
 --   h = { "h", desc = "Left", del = "j" }   -- also delete key 'j'
 --   h = { "h", desc = "Left", expr = true } -- with vim keymap options
 --
 -- Nesting works infinitely:
 --   ["<leader>g"] = {
 --     group = "Git",  -- which-key group name
---     n = { ":Neogit", desc = "Open Neogit" },
+--     n = { cmd = "Neogit", desc = "Open Neogit" },
 --     d = {
 --       group = "Diff",
---       o = { ":DiffviewOpen", desc = "Open" },
+--       o = { cmd = "DiffviewOpen", desc = "Open" },
 --     },
 --   }
 function M.create_smart_map()
   local kmu_opts_flag = kmu_utils.flags.opts
   local kmu_func_flag = kmu_utils.flags.func
+  local kmu_disabled_flag = kmu_utils.flags.disabled
 
   -- Define func_map that handles 'del' option
   local function func_map(m, l, r, o, _next)
@@ -168,25 +173,82 @@ function M.create_smart_map()
   end
 
   return function(map_def)
+    -- Capture source location of the map() call for jump-to-definition
+    local source_info = debug.getinfo(2, "Sl")
+    local source_file = source_info and source_info.source and source_info.source:sub(2) or nil
+    local source_line = source_info and source_info.currentline or nil
+
     -- Track visited tables to prevent infinite recursion
     local visited = {}
+    -- Track current mode context (cascades to children)
+    local current_modes = { "n" }
+    -- Track current disabled state (cascades to children)
+    local current_disabled = false
+
+    -- Helper to insert a node into the keymap tree
+    -- path_parts: array of key segments leading to this node
+    -- node_data: the metadata for this node
+    local function insert_into_tree(path_parts, node_data)
+      local current = keymap_tree
+      for i, part in ipairs(path_parts) do
+        if not current[part] then
+          current[part] = { _meta = nil }
+        end
+        if i == #path_parts then
+          -- Final node - set metadata
+          current[part]._meta = node_data
+        else
+          -- Intermediate node - traverse
+          current = current[part]
+        end
+      end
+    end
 
     -- Process tables recursively to transform syntax and extract groups
-    local function process_table(prefix, t)
+    -- groups_path: array of {key_part, group_name} for parent groups
+    local function process_table(prefix, t, path_parts, groups_path)
       if visited[t] then
         return
       end
       visited[t] = true
 
+      path_parts = path_parts or {}
+      groups_path = groups_path or {}
+
+      -- Check for mode specification at this level (cascades)
+      local mode_flag = kmu_utils.flags.mode
+      if t[mode_flag] then
+        current_modes = t[mode_flag]
+      end
+
+      -- Check for disabled flag at this level (cascades)
+      if t[kmu_disabled_flag] ~= nil then
+        current_disabled = t[kmu_disabled_flag]
+      end
+
       for key, value in pairs(t) do
         -- Only process string keys (skip kmu flags)
         if type(key) == "string" and type(value) == "table" then
           local full_key = prefix .. key
+          local new_path = vim.list_extend({}, path_parts)
+          table.insert(new_path, key)
 
           if is_keymap_definition(value) then
             -- Transform simple table syntax to core-compatible format
             -- { "action", desc = "...", expr = true } → { "action", [opts] = { desc, expr } }
             local action = value[1] or value.rhs
+            -- Handle cmd = "..." syntax
+            if value.cmd then
+              if value.exec == false then
+                -- Prefill only, no execution
+                action = ":" .. value.cmd
+              else
+                -- Execute command
+                action = "<Cmd>" .. value.cmd .. "<CR>"
+              end
+            end
+            -- Combine cascaded disabled with individual disabled = true
+            local is_disabled = current_disabled or value.disabled == true
             local keymap_opts = {
               desc = value.desc,
               expr = value.expr,
@@ -197,6 +259,49 @@ function M.create_smart_map()
               remap = value.remap,
             }
 
+            -- Build groups array from groups_path
+            local groups = {}
+            for _, gp in ipairs(groups_path) do
+              if gp.group then
+                table.insert(groups, gp.group)
+              end
+            end
+
+            -- Insert into tree for each mode
+            for _, mode in ipairs(current_modes) do
+              insert_into_tree(new_path, {
+                type = "keymap",
+                mode = mode,
+                key = full_key,
+                key_part = key,
+                desc = value.desc,
+                action = action,
+                groups = groups,
+                disabled = is_disabled,
+                opts = keymap_opts,
+                source_file = source_file,
+                source_line = source_line,
+              })
+
+              -- Also store disabled keymaps in flat collection
+              if is_disabled then
+                table.insert(disabled_keymaps, {
+                  mode = mode,
+                  key = full_key,
+                  action = action,
+                  desc = value.desc,
+                  disabled = true,
+                  groups = groups,
+                  source_file = source_file,
+                  source_line = source_line,
+                })
+              end
+            end
+
+            if is_disabled then
+              value[kmu_disabled_flag] = true
+            end
+
             -- Store 'del' in the table for func_map to access via _next
             if value.del then
               value.del = value.del -- keep it for _next context
@@ -205,6 +310,8 @@ function M.create_smart_map()
             -- Clear the named keys and set core-compatible format
             value[1] = action
             value.rhs = nil
+            value.cmd = nil
+            value.exec = nil
             value.desc = nil
             value.expr = nil
             value.silent = nil
@@ -212,21 +319,37 @@ function M.create_smart_map()
             value.buffer = nil
             value.nowait = nil
             value.remap = nil
+            value.disabled = nil
             value[kmu_opts_flag] = keymap_opts
           else
             -- It's a group - check for group description
-            if value.group then
-              table.insert(group_descriptions, { full_key, group = value.group })
+            local group_name = value.group
+            local new_groups_path = vim.list_extend({}, groups_path)
+
+            if group_name then
+              table.insert(group_descriptions, { full_key, group = group_name })
+              table.insert(new_groups_path, { key = full_key, key_part = key, group = group_name })
+
+              -- Insert group node into tree
+              insert_into_tree(new_path, {
+                type = "group",
+                key = full_key,
+                key_part = key,
+                group = group_name,
+                modes = current_modes,
+              })
+
               value.group = nil -- remove so it doesn't interfere with recursion
             end
+
             -- Recurse into nested tables
-            process_table(full_key, value)
+            process_table(full_key, value, new_path, new_groups_path)
           end
         end
       end
     end
 
-    process_table("", map_def)
+    process_table("", map_def, {}, {})
 
     -- Auto-inject [func] = func_map if not already present
     if not map_def[kmu_func_flag] then
@@ -250,9 +373,87 @@ function M.register_groups()
   end
 end
 
--- Get collected group descriptions (for export/introspection)
+-- Get collected group descriptions (for export/inspection)
 function M.get_group_descriptions()
   return group_descriptions
+end
+
+-- Get disabled keymaps (for inspection/printing)
+function M.get_disabled_keymaps()
+  return disabled_keymaps
+end
+
+-- Clear disabled keymaps (for testing)
+function M.clear_disabled_keymaps()
+  disabled_keymaps = {}
+end
+
+-- Get keymap tree (hierarchical structure of keymap-utils keymaps)
+function M.get_keymap_tree()
+  return keymap_tree
+end
+
+-- Clear keymap tree (for testing)
+function M.clear_keymap_tree()
+  keymap_tree = {}
+end
+
+-- Flatten the keymap tree into a list of items for display
+-- Returns items with depth info for tree-like rendering
+function M.flatten_keymap_tree(tree, depth, parent_key)
+  tree = tree or keymap_tree
+  depth = depth or 0
+  parent_key = parent_key or ""
+
+  local items = {}
+
+  -- Sort keys for consistent ordering
+  local keys = {}
+  for k in pairs(tree) do
+    if k ~= "_meta" then
+      table.insert(keys, k)
+    end
+  end
+  table.sort(keys)
+
+  for _, key in ipairs(keys) do
+    local node = tree[key]
+    local meta = node._meta
+
+    if meta then
+      local item = {
+        depth = depth,
+        key_part = key,
+        key = meta.key or (parent_key .. key),
+        type = meta.type,
+        mode = meta.mode or (meta.modes and meta.modes[1]) or "n",
+        desc = meta.desc,
+        group = meta.group,
+        action = meta.action,
+        disabled = meta.disabled,
+        groups = meta.groups or {},
+        has_children = false,
+      }
+
+      -- Check if this node has children (other than _meta)
+      for k in pairs(node) do
+        if k ~= "_meta" then
+          item.has_children = true
+          break
+        end
+      end
+
+      table.insert(items, item)
+
+      -- Recursively add children
+      local children = M.flatten_keymap_tree(node, depth + 1, meta.key or (parent_key .. key))
+      for _, child in ipairs(children) do
+        table.insert(items, child)
+      end
+    end
+  end
+
+  return items
 end
 
 -- ============================================================================
@@ -436,16 +637,16 @@ local function keymap_collector(mode, key, action, opts, context)
 end
 
 -- Create custom config that uses our collector
-function M.create_introspect_config()
-  local introspect_config = kmu_utils.copy(kmu_core.config)
-  introspect_config[kmu_utils.flags.func] = keymap_collector
+function M.create_inspect_config()
+  local inspect_config = kmu_utils.copy(kmu_core.config)
+  inspect_config[kmu_utils.flags.func] = keymap_collector
 
   return function(map)
-    return kmu_core.builtin(introspect_config, "", map)
+    return kmu_core.builtin(inspect_config, "", map)
   end
 end
 
--- Public API for introspection
+-- Public API for inspection
 function M.get_flat_keymaps_table()
   return collected_keymaps
 end
@@ -458,10 +659,10 @@ function M.get_keymap_count()
   return #collected_keymaps
 end
 
--- Export interface that uses introspection
-function M.create_introspect_interface()
+-- Export interface that uses inspection
+function M.create_inspect_interface()
   return {
-    map = M.create_introspect_config(),
+    map = M.create_inspect_config(),
     flags = kmu_utils.flags,
     mod = M.mod,
     key = M.key,
@@ -476,9 +677,37 @@ function M.get_flags()
     opts = kmu_utils.flags.opts,
     mode = kmu_utils.flags.mode,
     log = kmu_utils.flags.log,
-    off = kmu_utils.flags.off,
+    disabled = kmu_utils.flags.disabled,
     raw = kmu_utils.flags.raw,
   }
 end
+
+-- ============================================================================
+-- KEYMAP INSPECTION (Snacks Picker Integration)
+-- ============================================================================
+
+-- Lazy-load inspect module
+local inspect_module = nil
+local function get_inspect_module()
+  if not inspect_module then
+    inspect_module = require("keymap-utils.inspect")
+  end
+  return inspect_module
+end
+
+-- Setup KMUInspect command
+function M.setup_inspect()
+  get_inspect_module().setup()
+end
+
+-- Open keymaps picker directly
+function M.inspect(opts)
+  get_inspect_module().open(opts)
+end
+
+-- Direct flag exports for convenience
+-- Usage: local disabled = kmu.disabled
+M.disabled = kmu_utils.flags.disabled
+M.mode = kmu_utils.flags.mode
 
 return M

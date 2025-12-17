@@ -87,6 +87,41 @@ describe("keymap-utils", function()
       assert.equals(1, mapping.noremap)
       pcall(vim.keymap.del, "n", test_noremap_key)
     end)
+
+    it("supports cmd = '...' syntax for commands", function()
+      local test_cmd_key = "<leader>_cmd_test"
+      map({
+        [test_cmd_key] = { cmd = "echo 'hello'", desc = "Echo command" },
+      })
+      local mapping = vim.fn.maparg(test_cmd_key, "n", false, true)
+      assert.equals("<Cmd>echo 'hello'<CR>", mapping.rhs)
+      assert.equals("Echo command", mapping.desc)
+      pcall(vim.keymap.del, "n", test_cmd_key)
+    end)
+
+    it("supports cmd with exec = false for prefill only", function()
+      local test_prefill_key = "<leader>_prefill_test"
+      map({
+        [test_prefill_key] = { cmd = "Octo ", exec = false, desc = "Octo prefill" },
+      })
+      local mapping = vim.fn.maparg(test_prefill_key, "n", false, true)
+      assert.equals(":Octo ", mapping.rhs)
+      assert.equals("Octo prefill", mapping.desc)
+      pcall(vim.keymap.del, "n", test_prefill_key)
+    end)
+
+    it("supports cmd in nested groups", function()
+      local test_nested_cmd_key = "<leader>_nested_cmd"
+      map({
+        [test_nested_cmd_key] = {
+          group = "Test",
+          a = { cmd = "Neogit", desc = "Open Neogit" },
+        },
+      })
+      local mapping = vim.fn.maparg(test_nested_cmd_key .. "a", "n", false, true)
+      assert.equals("<Cmd>Neogit<CR>", mapping.rhs)
+      pcall(vim.keymap.del, "n", test_nested_cmd_key .. "a")
+    end)
   end)
 
   describe("detect_conflicts", function()
@@ -240,7 +275,7 @@ describe("keymap-utils", function()
     end)
   end)
 
-  describe("introspection", function()
+  describe("inspection", function()
     it("starts with empty collected keymaps", function()
       ku.clear_collected_keymaps()
       assert.equals(0, ku.get_keymap_count())
@@ -249,6 +284,158 @@ describe("keymap-utils", function()
     it("get_flat_keymaps_table returns table", function()
       local keymaps = ku.get_flat_keymaps_table()
       assert.is_table(keymaps)
+    end)
+  end)
+
+  describe("disabled keymaps", function()
+    local test_key = "<leader>_disabled_test"
+    local map = ku.create_smart_map()
+
+    before_each(function()
+      ku.clear_disabled_keymaps()
+    end)
+
+    after_each(function()
+      pcall(vim.keymap.del, "n", test_key)
+      pcall(vim.keymap.del, "n", test_key .. "a")
+      pcall(vim.keymap.del, "n", test_key .. "b")
+    end)
+
+    it("does not map keymap with disabled = true", function()
+      map({
+        [test_key] = { ":echo 'disabled'<CR>", desc = "Disabled keymap", disabled = true },
+      })
+      local mapping = vim.fn.maparg(test_key, "n", false, true)
+      assert.equals("", mapping.rhs or "")
+    end)
+
+    it("stores disabled keymap in collection", function()
+      map({
+        [test_key] = { ":echo 'disabled'<CR>", desc = "Disabled keymap", disabled = true },
+      })
+      local disabled = ku.get_disabled_keymaps()
+      assert.equals(1, #disabled)
+      assert.equals(test_key, disabled[1].key)
+      assert.equals("Disabled keymap", disabled[1].desc)
+      assert.is_true(disabled[1].disabled)
+    end)
+
+    it("maps active keymaps while storing disabled ones", function()
+      map({
+        [test_key] = {
+          a = { ":echo 'active'<CR>", desc = "Active keymap" },
+          b = { ":echo 'disabled'<CR>", desc = "Disabled keymap", disabled = true },
+        },
+      })
+      local mapping_a = vim.fn.maparg(test_key .. "a", "n", false, true)
+      local mapping_b = vim.fn.maparg(test_key .. "b", "n", false, true)
+      assert.equals("Active keymap", mapping_a.desc)
+      assert.equals("", mapping_b.rhs or "")
+
+      local disabled = ku.get_disabled_keymaps()
+      assert.equals(1, #disabled)
+      assert.equals(test_key .. "b", disabled[1].key)
+    end)
+
+    it("clear_disabled_keymaps empties the collection", function()
+      map({
+        [test_key] = { ":echo 'disabled'<CR>", desc = "Disabled", disabled = true },
+      })
+      assert.equals(1, #ku.get_disabled_keymaps())
+      ku.clear_disabled_keymaps()
+      assert.equals(0, #ku.get_disabled_keymaps())
+    end)
+  end)
+
+  describe("keymap tree", function()
+    local test_key = "<leader>_tree_test"
+    local map = ku.create_smart_map()
+
+    before_each(function()
+      ku.clear_keymap_tree()
+      ku.clear_disabled_keymaps()
+    end)
+
+    after_each(function()
+      pcall(vim.keymap.del, "n", test_key .. "a")
+      pcall(vim.keymap.del, "n", test_key .. "b")
+      pcall(vim.keymap.del, "n", test_key .. "ga")
+    end)
+
+    it("builds tree for simple keymaps", function()
+      map({
+        [test_key] = {
+          a = { ":echo 'a'<CR>", desc = "Action A" },
+          b = { ":echo 'b'<CR>", desc = "Action B" },
+        },
+      })
+      local tree = ku.get_keymap_tree()
+      assert.is_not_nil(tree[test_key])
+      assert.is_not_nil(tree[test_key]["a"])
+      assert.is_not_nil(tree[test_key]["b"])
+    end)
+
+    it("builds tree with group metadata", function()
+      map({
+        [test_key] = {
+          group = "Test Group",
+          a = { ":echo 'a'<CR>", desc = "Action A" },
+        },
+      })
+      local tree = ku.get_keymap_tree()
+      assert.is_not_nil(tree[test_key]._meta)
+      assert.equals("group", tree[test_key]._meta.type)
+      assert.equals("Test Group", tree[test_key]._meta.group)
+    end)
+
+    it("stores keymap metadata in tree nodes", function()
+      map({
+        [test_key] = {
+          a = { ":echo 'a'<CR>", desc = "Action A" },
+        },
+      })
+      local tree = ku.get_keymap_tree()
+      local meta = tree[test_key]["a"]._meta
+      assert.equals("keymap", meta.type)
+      assert.equals("Action A", meta.desc)
+      assert.equals(test_key .. "a", meta.key)
+    end)
+
+    it("flatten_keymap_tree returns items with depth", function()
+      map({
+        [test_key] = {
+          group = "Test",
+          a = { ":echo 'a'<CR>", desc = "Action A" },
+        },
+      })
+      local flat = ku.flatten_keymap_tree()
+      assert.is_true(#flat >= 2) -- at least group + keymap
+
+      local has_group = false
+      local has_keymap = false
+      for _, item in ipairs(flat) do
+        if item.type == "group" and item.group == "Test" then
+          has_group = true
+          assert.equals(0, item.depth)
+        end
+        if item.type == "keymap" and item.desc == "Action A" then
+          has_keymap = true
+          assert.equals(1, item.depth)
+        end
+      end
+      assert.is_true(has_group)
+      assert.is_true(has_keymap)
+    end)
+
+    it("clear_keymap_tree empties the tree", function()
+      map({
+        [test_key] = {
+          a = { ":echo 'a'<CR>", desc = "Action A" },
+        },
+      })
+      assert.is_not_nil(next(ku.get_keymap_tree()))
+      ku.clear_keymap_tree()
+      assert.is_nil(next(ku.get_keymap_tree()))
     end)
   end)
 end)

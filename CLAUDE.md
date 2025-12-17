@@ -30,16 +30,22 @@ map({
   -- Function as action
   ["<leader>f"] = { some_function, desc = "Do something" },
 
+  -- Command syntax (preferred for vim commands)
+  ["<leader>w"] = { cmd = "w", desc = "Save" },
+
+  -- Command prefill (no execution, for interactive commands)
+  ["<leader>o"] = { cmd = "Octo ", exec = false, desc = "Octo command" },
+
   -- With vim keymap options
   gf = { notes.smart_follow_link, desc = "Follow link", expr = true },
 
   -- Nested groups (infinite nesting supported)
   ["<leader>g"] = {
     group = "Git",  -- which-key group name
-    n = { cmd("Neogit"), desc = "Open Neogit" },
+    n = { cmd = "Neogit", desc = "Open Neogit" },
     d = {
       group = "Diff",
-      o = { cmd("DiffviewOpen"), desc = "Open" },
+      o = { cmd = "DiffviewOpen", desc = "Open" },
     },
   },
 })
@@ -47,9 +53,11 @@ map({
 
 Key points:
 1. Action at `[1]` or use `rhs = action` (both work)
-2. `desc` for which-key description
-3. `group` for which-key group names
-4. Supports `expr`, `silent`, `noremap`, `buffer`, etc.
+2. `cmd = "Command"` for vim commands (becomes `<Cmd>Command<CR>`)
+3. `cmd = "Command", exec = false` for prefill-only commands (becomes `:Command`)
+4. `desc` for which-key description
+5. `group` for which-key group names
+6. Supports `expr`, `silent`, `noremap`, `buffer`, etc.
 
 ### Utils Module Pattern
 Each util module exports focused functions:

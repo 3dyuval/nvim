@@ -94,7 +94,7 @@ test-keymaps:
 	@nvim --headless -c "lua require('utils.test_keymaps').analyze_keymap_conflicts()" -c "qa"
 	@echo "✅ Keymap tests completed"
 
-# Export keymaps to README.md using keymap-utils introspection
+# Export keymaps to README.md using keymap-utils inspection
 export-keymaps:
 	@echo "=== Exporting Keymaps to README.md ==="
 	@nvim --headless -c "lua require('config.keymaps'); arg = {'md', 'README.md'}; dofile('scripts/export-keymaps.lua')" -c "qa"

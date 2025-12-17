@@ -40,7 +40,7 @@ M.printable = printable
 M.flags = {
   opts = {},
   func = function() end, -- highlight as function
-  off = {},
+  disabled = {},
   mode = {},
   log = {},
   raw = {},
@@ -51,7 +51,7 @@ M.symbols = {
   [M.flags.opts] = true,
   [M.flags.func] = true,
   [M.flags.raw] = true,
-  [M.flags.off] = true,
+  [M.flags.disabled] = true,
   [M.flags.mode] = true,
   [M.flags.log] = true,
 }

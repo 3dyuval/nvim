@@ -21,7 +21,7 @@ local outside = type(vim) == "table"
 local config = {
   [flags.func] = outside,
   [flags.opts] = {},
-  [flags.off] = false,
+  [flags.disabled] = false,
   [flags.raw] = false,
   [flags.log] = false,
   "",
@@ -47,7 +47,7 @@ local function builtin(prev, left, right)
   next.expects = false
   next[1], next[2] = "", ""
 
-  if next[flags.off] then
+  if next[flags.disabled] then
     return nil
   end
   if utils.symbols[left] then

@@ -13,10 +13,10 @@ local smart_diff = require("utils.smart-diff")
 
 -- Keymap-utils declarative mapping
 local mode = kmu.flags.mode
+local disabled = kmu.flags.disabled
 local x = kmu.mod("x")
 local ctrl = kmu.key("C")
 local _ = kmu._
-local cmd = kmu.cmd
 local remap = kmu.remap
 local map = kmu.create_smart_map()
 
@@ -115,10 +115,10 @@ map({
     R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
 
     -- Neogit and diffview commands
-    n = { cmd(":Neogit cwd=%:p:h"), desc = "Neogit in current dir" },
-    c = { cmd(":Neogit commit"), desc = "Neogit commit" },
-    d = { cmd("DiffviewOpen"), desc = "Diff view open" },
-    S = { cmd("DiffviewFileHistory -g --range=stash"), desc = "Diff view stash" },
+    n = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" },
+    c = { cmd = ":Neogit commit", desc = "Neogit commit" },
+    d = { cmd = "DiffviewOpen", desc = "Diff view open" },
+    S = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
     h = { ":DiffviewFileHistory %", desc = "Current file history" },
     D = { helpers.compare_current_file_with_branch, desc = "Compare current file with branch" },
     f = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
@@ -132,10 +132,10 @@ map({
   -- Gitsigns toggle commands under <leader>ug
   ["<leader>ug"] = {
     g = { "<leader>uG", desc = "Toggle Git Signs" }, -- Maps to default LazyVim toggle
-    l = { cmd("Gitsigns toggle_linehl"), desc = "Toggle line highlights" },
-    n = { cmd("Gitsigns toggle_numhl"), desc = "Toggle number highlights" },
-    w = { cmd("Gitsigns toggle_word_diff"), desc = "Toggle word diff" },
-    b = { cmd("Gitsigns toggle_current_line_blame"), desc = "Toggle current line blame" },
+    l = { cmd = "Gitsigns toggle_linehl", desc = "Toggle line highlights" },
+    n = { cmd = "Gitsigns toggle_numhl", desc = "Toggle number highlights" },
+    w = { cmd = "Gitsigns toggle_word_diff", desc = "Toggle word diff" },
+    b = { cmd = "Gitsigns toggle_current_line_blame", desc = "Toggle current line blame" },
   },
 })
 
@@ -156,9 +156,9 @@ map({
     },
     o = { clipboard.copy_code_path, desc = "Copy object path" },
     O = { clipboard.copy_code_path_with_types, desc = "Copy object path (with types)" },
-    w = { cmd("OpenFileInRepo"), desc = "Open file in web browser" },
+    w = { cmd = "OpenFileInRepo", desc = "Open file in web browser" },
     l = { clipboard.copy_file_path_with_line, desc = "Copy file path to clipboard" },
-    L = { cmd("YankLineUrl +"), desc = "Copy file URL with line to clipboard" },
+    L = { cmd = "YankLineUrl +", desc = "Copy file URL with line to clipboard" },
   },
 })
 
@@ -233,11 +233,11 @@ map({
   ["<leader>h"] = {
     h = { history.local_file_history, desc = "Local file history" },
     H = { history.all_files_in_backup, desc = "All files in backup" },
-    b = { cmd("BrowserBookmarks"), desc = "Browser bookmarks" },
-    f = { cmd("BrowserHistory"), desc = "Browser history" },
+    b = { cmd = "BrowserBookmarks", desc = "Browser bookmarks" },
+    f = { cmd = "BrowserHistory", desc = "Browser history" },
     s = { history.smart_file_history, desc = "Smart history picker" },
     l = { history.git_log_picker, desc = "Git log" },
-    u = { cmd("undolist"), desc = "View undo list" },
+    u = { cmd = "undolist", desc = "View undo list" },
     T = { history.manual_backup_with_tag, desc = "Manual backup with tag" },
     p = { history.project_files_history, desc = "Project files history" },
     y = { Snacks.picker.yanky, desc = "Yank history" },
@@ -251,8 +251,8 @@ map({
 map({
   [mode] = { "n" },
   [ctrl + _] = {
-    p = { cmd("BufferLineCyclePrev"), desc = "Previous buffer" },
-    ["."] = { cmd("BufferLineCycleNext"), desc = "Next buffer" },
+    p = { cmd = "BufferLineCyclePrev", desc = "Previous buffer" },
+    ["."] = { cmd = "BufferLineCycleNext", desc = "Next buffer" },
   },
 })
 
@@ -264,7 +264,7 @@ map({
   ["<leader>r"] = {
     c = { editor.reload_config, desc = "Reload config" },
     r = { editor.reload_keymaps, desc = "Reload keymaps" },
-    l = { cmd("Lazy sync"), desc = "Lazy sync plugins" },
+    l = { cmd = "Lazy sync", desc = "Lazy sync plugins" },
   },
 })
 
@@ -276,8 +276,8 @@ map({
   ["]t"] = { require("todo-comments").jump_next, desc = "Next Todo Comment" },
   ["[t"] = { require("todo-comments").jump_prev, desc = "Previous Todo Comment" },
   ["<leader>x"] = {
-    t = { cmd("Trouble todo toggle"), desc = "Todo (Trouble)" },
-    T = { cmd("Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}"), desc = "Todo/Fix/Fixme" },
+    t = { cmd = "Trouble todo toggle", desc = "Todo (Trouble)" },
+    T = { cmd = "Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}", desc = "Todo/Fix/Fixme" },
   },
 })
 
@@ -287,7 +287,8 @@ map({
 
 map({
   ["<leader>s"] = {
-    D = { cmd("ProjectDiagnostics"), desc = "Project Diagnostics" },
+    K = { cmd = "KMUInspect", exec = false, desc = "KMU only inspect" },
+    D = { cmd = "ProjectDiagnostics", desc = "Project Diagnostics" },
     r = { search.grug_far_range, desc = "Search/Replace within range (Grug-far)" },
     F = { search.grug_far_current_file, desc = "Search/Replace in current file (Grug-far)" },
     R = {
@@ -303,10 +304,10 @@ map({
 
 map({
   ["<leader>db"] = {
-    u = { cmd("DBUIToggle"), desc = "Toggle DBUI" },
-    f = { cmd("DBUIFindBuffer"), desc = "Find buffer" },
-    r = { cmd("DBUIRenameTab"), desc = "Rename buffer" },
-    q = { cmd("DBUILastQueryInfo"), desc = "Last query info" },
+    u = { cmd = "DBUIToggle", desc = "Toggle DBUI" },
+    f = { cmd = "DBUIFindBuffer", desc = "Find buffer" },
+    r = { cmd = "DBUIRenameTab", desc = "Rename buffer" },
+    q = { cmd = "DBUILastQueryInfo", desc = "Last query info" },
   },
 })
 
@@ -351,11 +352,11 @@ map({
         end,
         desc = "Issues (filter by author)",
       },
-      C = { cmd("Octo issue create"), desc = "Create new issue" },
+      C = { cmd = "Octo issue create", desc = "Create new issue" },
       A = {
         group = "Assignees",
-        a = { cmd("Octo assignee add ", false), desc = "Add assignee to issue" },
-        d = { cmd("Octo assignee remove ", false), desc = "Remove assignee from issue" },
+        a = { cmd = "Octo assignee add ", exec = false, desc = "Add assignee to issue" },
+        d = { cmd = "Octo assignee remove ", exec = false, desc = "Remove assignee from issue" },
       },
     },
 
@@ -392,37 +393,37 @@ map({
         end,
         desc = "PRs (draft only)",
       },
-      C = { cmd("Octo pr create"), desc = "Create new PR" },
+      C = { cmd = "Octo pr create", desc = "Create new PR" },
       R = {
         group = "Reviewers",
-        a = { cmd("Octo reviewer add ", false), desc = "Add reviewer to PR" },
-        d = { cmd("Octo reviewer remove ", false), desc = "Remove reviewer from PR" },
+        a = { cmd = "Octo reviewer add ", exec = false, desc = "Add reviewer to PR" },
+        d = { cmd = "Octo reviewer remove ", exec = false, desc = "Remove reviewer from PR" },
       },
     },
 
     -- Review operations (Octo - advanced workflow)
     v = {
       group = "Review",
-      s = { cmd("Octo review start"), desc = "Start review" },
-      r = { cmd("Octo review resume"), desc = "Resume review" },
-      S = { cmd("Octo review submit"), desc = "Submit review" },
-      d = { cmd("Octo review discard"), desc = "Discard review" },
-      c = { cmd("Octo review comments"), desc = "Review comments" },
+      s = { cmd = "Octo review start", desc = "Start review" },
+      r = { cmd = "Octo review resume", desc = "Resume review" },
+      S = { cmd = "Octo review submit", desc = "Submit review" },
+      d = { cmd = "Octo review discard", desc = "Discard review" },
+      c = { cmd = "Octo review comments", desc = "Review comments" },
     },
 
     -- Thread operations (Octo only)
     t = {
       group = "Threads",
-      r = { cmd("Octo thread resolve"), desc = "Resolve thread" },
-      u = { cmd("Octo thread unresolve"), desc = "Unresolve thread" },
+      r = { cmd = "Octo thread resolve", desc = "Resolve thread" },
+      u = { cmd = "Octo thread unresolve", desc = "Unresolve thread" },
     },
 
     -- Repo operations (Octo)
     r = {
       group = "Repository",
-      w = { cmd("Octo repo browser"), desc = "Browse repo" },
-      i = { cmd("Octo repo list"), desc = "My repositories" },
-      l = { cmd("Octo repo url"), desc = "Copy url" },
+      w = { cmd = "Octo repo browser", desc = "Browse repo" },
+      i = { cmd = "Octo repo list", desc = "My repositories" },
+      l = { cmd = "Octo repo url", desc = "Copy url" },
     },
 
     -- Comment operations
@@ -448,7 +449,7 @@ map({
     },
 
     -- Notifications (Octo)
-    n = { cmd("Octo notifications"), desc = "Notifications" },
+    n = { cmd = "Octo notifications", desc = "Notifications" },
   },
 })
 
@@ -458,37 +459,37 @@ map({
 
 map({
   ["<leader>t"] = {
-    r = { cmd("Checkmate create"), desc = "Todo: Create new" },
-    n = { cmd("Checkmate toggle"), desc = "Todo: Toggle state" },
-    c = { cmd("Checkmate check"), desc = "Todo: Check (mark done)" },
-    u = { cmd("Checkmate uncheck"), desc = "Todo: Uncheck" },
-    a = { cmd("Checkmate archive"), desc = "Todo: Archive completed" },
-    ["="] = { cmd("Checkmate cycle_next"), desc = "Todo: Next state" },
-    ["-"] = { cmd("Checkmate cycle_previous"), desc = "Todo: Previous state" },
-    l = { cmd("Checkmate lint"), desc = "Todo: Lint buffer" },
-    ["]"] = { cmd("Checkmate metadata jump_next"), desc = "Todo: Jump to next metadata" },
-    ["["] = { cmd("Checkmate metadata jump_previous"), desc = "Todo: Jump to previous metadata" },
-    v = { cmd("Checkmate metadata select_value"), desc = "Todo: Select metadata value" },
+    r = { cmd = "Checkmate create", desc = "Todo: Create new" },
+    n = { cmd = "Checkmate toggle", desc = "Todo: Toggle state" },
+    c = { cmd = "Checkmate check", desc = "Todo: Check (mark done)" },
+    u = { cmd = "Checkmate uncheck", desc = "Todo: Uncheck" },
+    a = { cmd = "Checkmate archive", desc = "Todo: Archive completed" },
+    ["="] = { cmd = "Checkmate cycle_next", desc = "Todo: Next state" },
+    ["-"] = { cmd = "Checkmate cycle_previous", desc = "Todo: Previous state" },
+    l = { cmd = "Checkmate lint", desc = "Todo: Lint buffer" },
+    ["]"] = { cmd = "Checkmate metadata jump_next", desc = "Todo: Jump to next metadata" },
+    ["["] = { cmd = "Checkmate metadata jump_previous", desc = "Todo: Jump to previous metadata" },
+    v = { cmd = "Checkmate metadata select_value", desc = "Todo: Select metadata value" },
     t = {
       r = {
-        s = { cmd("Checkmate metadata add started"), desc = "Todo Metadata: Add @started" },
-        d = { cmd("Checkmate metadata add done"), desc = "Todo Metadata: Add @done" },
-        p = { cmd("Checkmate metadata add priority"), desc = "Todo Metadata: Add @priority" },
+        s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
+        d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
+        p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
       },
       n = {
-        s = { cmd("Checkmate metadata toggle started"), desc = "Todo Metadata: Toggle @started" },
-        d = { cmd("Checkmate metadata toggle done"), desc = "Todo Metadata: Toggle @done" },
-        p = { cmd("Checkmate metadata toggle priority"), desc = "Todo Metadata: Toggle @priority" },
+        s = { cmd = "Checkmate metadata toggle started", desc = "Todo Metadata: Toggle @started" },
+        d = { cmd = "Checkmate metadata toggle done", desc = "Todo Metadata: Toggle @done" },
+        p = { cmd = "Checkmate metadata toggle priority", desc = "Todo Metadata: Toggle @priority" },
       },
       x = {
-        a = { cmd("Checkmate remove_all_metadata"), desc = "Todo Metadata: Remove all" },
-        s = { cmd("Checkmate metadata remove started"), desc = "Todo Metadata: Remove @started" },
-        d = { cmd("Checkmate metadata remove done"), desc = "Todo Metadata: Remove @done" },
-        p = { cmd("Checkmate metadata remove priority"), desc = "Todo Metadata: Remove @priority" },
+        a = { cmd = "Checkmate remove_all_metadata", desc = "Todo Metadata: Remove all" },
+        s = { cmd = "Checkmate metadata remove started", desc = "Todo Metadata: Remove @started" },
+        d = { cmd = "Checkmate metadata remove done", desc = "Todo Metadata: Remove @done" },
+        p = { cmd = "Checkmate metadata remove priority", desc = "Todo Metadata: Remove @priority" },
       },
-      s = { cmd("Checkmate metadata add started"), desc = "Todo Metadata: Add @started" },
-      d = { cmd("Checkmate metadata add done"), desc = "Todo Metadata: Add @done" },
-      p = { cmd("Checkmate metadata add priority"), desc = "Todo Metadata: Add @priority" },
+      s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
+      d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
+      p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
     },
   },
 })
@@ -500,25 +501,26 @@ map({
 local notes = require("utils.notes")
 
 map({
+  [disabled] = true,
   ["<leader>n"] = {
-    n = { cmd("ObsidianNew"), desc = "New note" },
-    t = { cmd("ObsidianToday"), desc = "Today's note" },
-    y = { cmd("ObsidianYesterday"), desc = "Yesterday's note" },
-    T = { cmd("ObsidianTomorrow"), desc = "Tomorrow's note" },
-    s = { cmd("ObsidianSearch"), desc = "Search notes" },
-    f = { cmd("ObsidianQuickSwitch"), desc = "Find note" },
-    b = { cmd("ObsidianBacklinks"), desc = "Backlinks" },
-    l = { cmd("ObsidianLinks"), desc = "Links in note" },
-    g = { cmd("ObsidianTags"), desc = "Search tags" },
-    te = { cmd("ObsidianTemplate"), desc = "Insert template" },
-    to = { cmd("ObsidianTOC"), desc = "Table of contents" },
-    r = { cmd("ObsidianRename"), desc = "Rename note" },
-    p = { cmd("ObsidianPasteImg"), desc = "Paste image" },
-    o = { cmd("ObsidianOpen"), desc = "Open in Obsidian app" },
-    w = { cmd("ObsidianWorkspace"), desc = "Switch workspace" },
+    n = { cmd = "ObsidianNew", desc = "New note" },
+    t = { cmd = "ObsidianToday", desc = "Today's note" },
+    y = { cmd = "ObsidianYesterday", desc = "Yesterday's note" },
+    T = { cmd = "ObsidianTomorrow", desc = "Tomorrow's note" },
+    s = { cmd = "ObsidianSearch", desc = "Search notes" },
+    f = { cmd = "ObsidianQuickSwitch", desc = "Find note" },
+    b = { cmd = "ObsidianBacklinks", desc = "Backlinks" },
+    l = { cmd = "ObsidianLinks", desc = "Links in note" },
+    g = { cmd = "ObsidianTags", desc = "Search tags" },
+    te = { cmd = "ObsidianTemplate", desc = "Insert template" },
+    to = { cmd = "ObsidianTOC", desc = "Table of contents" },
+    r = { cmd = "ObsidianRename", desc = "Rename note" },
+    p = { cmd = "ObsidianPasteImg", desc = "Paste image" },
+    o = { cmd = "ObsidianOpen", desc = "Open in Obsidian app" },
+    w = { cmd = "ObsidianWorkspace", desc = "Switch workspace" },
     d = { notes.open_notes_directory, desc = "Open notes directory" },
-    L = { [x] = { cmd("ObsidianLinkNew"), desc = "Link to new note" } },
-    k = { [x] = { cmd("ObsidianLink"), desc = "Link to existing note" } },
+    L = { [x] = { cmd = "ObsidianLinkNew", desc = "Link to new note" } },
+    k = { [x] = { cmd = "ObsidianLink", desc = "Link to existing note" } },
   },
   gf = { notes.smart_follow_link, desc = "Follow link or file", expr = true },
   ["<leader>N"] = { notes.create_inbox_note, desc = "New note in inbox" },
@@ -529,6 +531,12 @@ map({
 -- ============================================================================
 
 kmu.register_groups()
+
+-- ============================================================================
+-- SETUP KEYMAP INSPECT COMMAND
+-- ============================================================================
+
+kmu.setup_inspect()
 
 -- ============================================================================
 -- LOAD LEGACY KEYMAPS (at bottom to avoid being overwritten)
