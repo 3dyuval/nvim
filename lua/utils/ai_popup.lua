@@ -71,23 +71,34 @@ local function run_generate(settings)
           vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(message, "\n"))
           vim.notify("Dry run: commit message preview", vim.log.levels.INFO)
         else
-          -- Use Neogit's native commit with message pre-filled
+          -- Write message to temp file, use Neogit's native commit
           local git = require("neogit.lib.git")
           local client = require("neogit.client")
-          local config = require("neogit.config")
+          local neogit_config = require("neogit.config")
           local a = require("plenary.async")
 
-          a.run(function()
-            client.wrap(git.cli.commit.with_message(message).edit, {
-              autocmd = "NeogitCommitComplete",
-              msg = {
-                success = "Committed",
-                fail = "Commit failed",
-              },
-              interactive = true,
-              show_diff = config.values.commit_editor.show_staged_diff,
-            })
-          end)
+          local template_file = vim.fn.tempname()
+          local file = io.open(template_file, "w")
+          if file then
+            file:write(message .. "\n")
+            file:close()
+
+            a.run(function()
+              client.wrap(git.cli.commit.edit.args("-F", template_file), {
+                autocmd = "NeogitCommitComplete",
+                msg = {
+                  success = "Committed",
+                  fail = "Commit failed",
+                },
+                interactive = true,
+                show_diff = neogit_config.values.commit_editor.show_staged_diff,
+              })
+              -- Clean up temp file
+              os.remove(template_file)
+            end)
+          else
+            vim.notify("Error: Could not write template file", vim.log.levels.ERROR)
+          end
         end
       end)
     end,
