@@ -260,6 +260,14 @@ return {
       enabled = true,
       hidden = true,
       ignored = false,
+      -- Global actions available in all pickers
+      actions = {
+        copy = {
+          action = function(picker, item)
+            require("utils.picker-extensions").actions.copy(picker, item)
+          end,
+        },
+      },
       win = {
         input = {
           keys = {
@@ -273,6 +281,7 @@ return {
             ["<C-p>"] = "toggle_preview", -- Toggle preview globally
             ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
             ["<C-a>"] = false, -- Disable select all - it's distracting
+            ["y"] = "copy", -- Universal copy action (context-aware)
           },
         },
       },
