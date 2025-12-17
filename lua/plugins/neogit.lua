@@ -96,9 +96,21 @@ return {
         end
       end,
       NeogitCommitPopup = function(popup)
-        popup:action("I", "AI Commit", function()
-          require("utils.ai_popup").create()
-        end)
+        -- Insert AI actions into the "Create" column (first action group)
+        table.insert(popup.state.actions[1], {
+          keys = { "i" },
+          description = "AI Commit",
+          callback = function()
+            require("utils.ai_popup").create()
+          end,
+        })
+        table.insert(popup.state.actions[1], {
+          keys = { "C" },
+          description = "Repeat AI",
+          callback = function()
+            require("utils.ai_popup").repeat_last()
+          end,
+        })
       end,
       NeogitRebasePopup = function(popup)
         -- Add strategy options for conflict resolution (-Xtheirs, -Xours)
@@ -116,9 +128,6 @@ return {
         ["m"] = false, -- disable merge to use your custom binding
         ["s"] = "Stage", -- override 's' key to stage files
         ["<leader>q"] = "Close", -- Close Neogit
-        ["I"] = function()
-          require("utils.ai_popup").create()
-        end,
         ["E"] = function()
           require("utils.neogit-commands").create_conflict_popup()
         end,
