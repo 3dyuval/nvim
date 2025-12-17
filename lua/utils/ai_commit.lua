@@ -27,8 +27,24 @@ local function open_debug_buffer(info)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
   vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
+  vim.api.nvim_buf_set_name(buf, "AI Commit Debug")
   vim.cmd("vsplit")
   vim.api.nvim_win_set_buf(0, buf)
+end
+
+-- Close debug buffer if it exists
+function M.close_debug_buffer()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name:match("AI Commit Debug$") then
+      local wins = vim.fn.win_findbuf(buf)
+      for _, win in ipairs(wins) do
+        vim.api.nvim_win_close(win, true)
+      end
+      vim.api.nvim_buf_delete(buf, { force = true })
+      break
+    end
+  end
 end
 
 --- Build prompt from message options
