@@ -400,13 +400,7 @@ function M.analyze_keymap_conflicts()
     print("=== BUILT-IN VIM KEYMAP OVERRIDES ===")
     for _, conflict in ipairs(builtin_overrides) do
       print(string.format("ℹ️  Mode: %s, Key: '%s'", conflict.mode, conflict.key))
-      print(
-        string.format(
-          "  Built-in: %s (%s)",
-          conflict.first.action,
-          conflict.first.opts.desc or "No description"
-        )
-      )
+      print(string.format("  Built-in: %s (%s)", conflict.first.action, conflict.first.opts.desc or "No description"))
       print(
         string.format(
           "  Override: %s (%s) at %s",

@@ -15,8 +15,7 @@ local smart_diff = require("utils.smart-diff")
 local mode = kmu.flags.mode
 local disabled = kmu.flags.disabled
 local x = kmu.mod("x")
-local v = kmu.mod("v")
-local ctrl = kmu.key("C")
+local ctrl = kmu.ctrl
 local _ = kmu._
 local remap = kmu.remap
 local map = kmu.create_smart_map()
@@ -26,29 +25,24 @@ pcall(vim.keymap.del, "n", "<leader>gd")
 pcall(vim.keymap.del, "n", "<leader> ")
 pcall(vim.keymap.del, "n", "<leader><space>")
 
--- ============================================================================
--- GRAPHITE LAYOUT: Core Navigation (HAEI) + Basic Operations
--- ============================================================================
-
 map({
   [mode] = { "n", "o", "x" },
-  h = { "h", desc = "Left" },
-  e = { "k", desc = "Up" },
-  a = { "j", desc = "Down" },
-  i = { "l", desc = "Right" },
-  p = { "^", desc = "First non-blank character" },
+  ["h"] = { "h", desc = "Left" },
+  ["e"] = { "k", desc = "Up" },
+  ["a"] = { "j", desc = "Down" },
+  ["i"] = { "l", desc = "Right" },
+  ["p"] = { "^", desc = "First non-blank character" },
   ["0"] = { "0", desc = "Beginning of line" },
   ["."] = { "$", desc = "End of line" },
 })
 
 -- Undo/redo (z replaces u)
 map({
-  z = { "u", desc = "Undo", remap = true },
-  Z = { "<C-r>", desc = "Redo" },
-  gz = { "U", desc = "Undo line", remap = true },
+  ["z"] = { "u", desc = "Undo", remap = true },
+  ["Z"] = { "<C-r>", desc = "Redo" },
+  ["gz"] = { "U", desc = "Undo line", remap = true },
 })
 
--- Text objects: r=inner, t=around
 map({
   [mode] = { "o", "x" },
   ["r`"] = { code.select_fenced_code_block_inner, desc = "Inner code block" },
@@ -92,7 +86,7 @@ map({
 
 map({
   x = {
-    x = { "dd", desc = "Delete line" }, -- xx → dd
+    ["x"] = { "dd", desc = "Delete line" }, -- xx → dd
   },
   [x] = {
     x = { "d", desc = "Delete" }, -- Visual mode x → d
@@ -113,28 +107,19 @@ map({
   gs = { "zz", desc = "Center screen (Graphite)" },
 })
 
--- ============================================================================
--- GIT OPERATIONS
--- ============================================================================
-
 local gs = require("gitsigns")
 
 map({
-  -- Smart context-aware diff operations (lowercase)
   g = {
-    o = { smart_diff.smart_diffget, desc = "Get hunk (smart)" },
-    p = { smart_diff.smart_diffput, desc = "Put hunk (smart)" },
-    i = { "gg", desc = "Go to top" },
+    o = { smart_diff.smart_diffget, desc = "Get hunk (smart)", disabled = true },
+    p = { smart_diff.smart_diffput, desc = "Put hunk (smart)", disabled = true },
     h = { "G", desc = "Go to bottom" },
   },
   ["<leader>g"] = {
-    -- Git conflict resolution (uppercase - file-level operations)
     P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },
     O = { smart_diff.smart_resolve_theirs, desc = "Resolve file: theirs" },
     U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
     R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
-
-    -- Neogit and diffview commands
     n = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" },
     c = { cmd = ":Neogit commit", desc = "Neogit commit" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
@@ -143,7 +128,6 @@ map({
     D = { helpers.compare_current_file_with_branch, desc = "Compare current file with branch" },
     f = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
 
-    -- Git tools
     z = { git.lazygit_root, desc = "Lazygit (Root Dir)" },
     Z = { git.lazygit_cwd, desc = "Lazygit (cwd)" },
     b = { git.git_branches_picker, desc = "Git branches (all)" },
@@ -218,20 +202,14 @@ map({
   },
 })
 
--- ============================================================================
--- COPY FILE TO CLIPBOARD
--- ============================================================================
-
 map({
   ["<leader>p"] = {
     c = { clipboard.copy_file_path, desc = "Copy file path (relative to cwd)" },
     p = { clipboard.copy_file_path_from_home, desc = "Copy file path (from home)" },
     n = { clipboard.copy_file_name, desc = "Copy file name" },
     a = {
-      function()
-        clipboard.copy_file_path_claude_style()
-      end,
-      desc = 'Copy file name with "@" prefix',
+      clipboard.copy_file_path_claude_style,
+      desc = 'Copy file w "@" prefix',
     },
     o = { clipboard.copy_code_path, desc = "Copy object path" },
     O = { clipboard.copy_code_path_with_types, desc = "Copy object path (with types)" },
@@ -273,42 +251,12 @@ map({
   },
 })
 
--- ============================================================================
--- CODE OPERATIONS
--- ============================================================================
-
 map({
   g = {
     D = { code.go_to_source_definition, desc = "Go to source definition" },
     R = { code.file_references, desc = "File references" },
   },
 })
-
--- map({
---   c = {
---     ["h"] = {
---       [mode] = { "v", "x", "o" },
---       cli.smart_send_selection("l", false),
---       desc = "Send left",
---     },
---     ["a"] = {
---       [mode] = { "v", "x", "o" },
---       cli.smart_send_selection("d", false),
---       desc = "Send down",
---     },
---     ["e"] = {
---       [mode] = { "v", "x", "o" },
---       cli.smart_send_selection("u", false),
---       desc = "Send up",
---     },
---
---     ["i"] = {
---       [mode] = { "v", "x", "o" },
---       cli.smart_send_selection("r", false),
---       desc = "Send right",
---     },
---   },
--- })
 
 map({
   ["<leader>c"] = {
@@ -324,10 +272,6 @@ map({
   },
 })
 
--- ============================================================================
--- FILE OPERATIONS
--- ============================================================================
-
 map({
   [ctrl] = {
     f = { files.find_files_snacks, desc = "Find files (snacks + fff)" },
@@ -335,10 +279,6 @@ map({
     S = { files.save_and_stage_file, desc = "Save and stage file" },
   },
 })
-
--- ============================================================================
--- HISTORY OPERATIONS
--- ============================================================================
 
 map({
   ["<leader>h"] = {
@@ -351,25 +291,15 @@ map({
     u = { cmd = "undolist", desc = "View undo list" },
     T = { history.manual_backup_with_tag, desc = "Manual backup with tag" },
     p = { history.project_files_history, desc = "Project files history" },
-    y = { Snacks.picker.yanky, desc = "Yank history" },
   },
 })
 
--- ============================================================================
--- BUFFER NAVIGATION
--- ============================================================================
-
 map({
-  [mode] = { "n" },
-  [ctrl + _] = {
-    p = { cmd = "BufferLineCyclePrev", desc = "Previous buffer" },
+  [ctrl] = {
+    ["p"] = { cmd = "BufferLineCyclePrev", desc = "Previous buffer" },
     ["."] = { cmd = "BufferLineCycleNext", desc = "Next buffer" },
   },
 })
-
--- ============================================================================
--- RELOAD/CONFIG
--- ============================================================================
 
 map({
   ["<leader>r"] = {
@@ -379,18 +309,10 @@ map({
   },
 })
 
--- ============================================================================
--- TODO COMMENTS
--- ============================================================================
-
 map({
   ["]t"] = { require("todo-comments").jump_next, desc = "Next Todo Comment" },
   ["[t"] = { require("todo-comments").jump_prev, desc = "Previous Todo Comment" },
 })
-
--- ============================================================================
--- DIAGNOSTICS (Trouble)
--- ============================================================================
 
 map({
   ["<leader>x"] = {
@@ -431,13 +353,9 @@ map({
   },
 })
 
--- ============================================================================
--- SEARCH/REPLACE
--- ============================================================================
-
 map({
   ["<leader>s"] = {
-    K = { cmd = "KMUInspect", exec = false, desc = "KMU only inspect" },
+    K = { cmd = "KMUInspect", exec = true, desc = "KMU only inspect" },
     D = { cmd = "ProjectDiagnostics", desc = "Project Diagnostics" },
     F = { search.grug_far_current_file, desc = "Search/Replace in current file (Grug-far)" },
     r = { cmd = "GrugFar", desc = "Search and replace (Grug-far)" },
@@ -448,10 +366,6 @@ map({
   },
 })
 
--- ============================================================================
--- DATABASE KEYMAPS (vim-dadbod operations)
--- ============================================================================
-
 map({
   ["<leader>db"] = {
     u = { cmd = "DBUIToggle", desc = "Toggle DBUI" },
@@ -460,10 +374,6 @@ map({
     q = { cmd = "DBUILastQueryInfo", desc = "Last query info" },
   },
 })
-
--- ============================================================================
--- GITHUB KEYMAPS (Snacks GH + Octo hybrid)
--- ============================================================================
 
 map({
   ["<leader>o"] = {
@@ -603,10 +513,6 @@ map({
   },
 })
 
--- ============================================================================
--- TODO/CHECKMATE KEYMAPS
--- ============================================================================
-
 map({
   ["<leader>t"] = {
     r = { cmd = "Checkmate create", desc = "Todo: Create new" },
@@ -644,10 +550,6 @@ map({
   },
 })
 
--- ============================================================================
--- NOTES MANAGEMENT (Marksman + obsidian.nvim)
--- ============================================================================
-
 local notes = require("utils.notes")
 
 map({
@@ -683,21 +585,8 @@ map({
   ["<leader>N"] = { notes.create_inbox_note, desc = "New note in inbox" },
 })
 
--- ============================================================================
--- REGISTER GROUP DESCRIPTIONS WITH WHICH-KEY
--- ============================================================================
-
 kmu.register_groups()
 
--- ============================================================================
--- SETUP KEYMAP INSPECT COMMAND
--- ============================================================================
-
 kmu.setup_inspect()
-
--- ============================================================================
--- LOAD LEGACY KEYMAPS (at bottom to avoid being overwritten)
--- TODO: Migrate vim.keymap.set() style keymaps to map({}) style above
--- ============================================================================
 
 require("config.keymaps-old")

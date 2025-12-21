@@ -38,8 +38,8 @@ vim.keymap.set({ "n" }, "o", "<C-o>", { desc = "Jumplist backward" })
 vim.keymap.set({ "n" }, "O", "<C-i>", { desc = "Jumplist forward" })
 
 -- PageUp/PageDown
-vim.keymap.set({ "n", "x" }, "<C-.>", "<PageUp>", { desc = "Page Up" })
-vim.keymap.set({ "n", "x" }, "<C-p>", "<PageDown>", { desc = "Page Down" })
+-- vim.keymap.set({ "n", "x" }, "<C-.>", "<PageUp>", { desc = "Page Up" })
+-- vim.keymap.set({ "n", "x" }, "<C-p>", "<PageDown>", { desc = "Page Down" })
 
 -- Word left/right
 vim.keymap.set({ "n", "o", "x" }, "l", "b", { desc = "Word back" })
