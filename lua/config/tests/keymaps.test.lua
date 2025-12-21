@@ -1,8 +1,11 @@
--- This document tests for critical keys tested in neovim using plenery
--- the describe blocks can have semantic/pasitional/organizational meaning
+-- This document tests for critical keys tested in neovim using plenary
+-- the describe blocks can have semantic/positional/organizational meaning
 -- or it should test different implementations, to document workarounds
 -- made while using highly customized keyboard layout and mappings
 -- for more context on the organizational methodology @../../../CLAUDE.md
+--
+-- Entry point for all config tests. Include other test modules here:
+require("config.tests.fences.test")
 
 -- # Editing
 describe("normal inserts/replace", function()

@@ -43,10 +43,26 @@ return {
       ["`"] = {
         add = function()
           local lang = require("nvim-surround.config").get_input("Language: ")
-          return { { "```" .. (lang or "") }, { "```" } }
+          -- Schedule cursor move to inside the fence and enter insert mode
+          vim.schedule(function()
+            local row = vim.api.nvim_win_get_cursor(0)[1]
+            vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
+            vim.cmd("startinsert")
+          end)
+          -- Each array element is a line; empty string = blank line
+          return { { "```" .. (lang or ""), "" }, { "", "```" } }
         end,
-        find = "```.-\n.-```",
-        delete = "^(```.-\n)().-(```)()$",
+        find = function()
+          local config = require("nvim-surround.config")
+          return config.get_selection({ motion = "a`" })
+        end,
+        delete = function()
+          local config = require("nvim-surround.config")
+          return config.get_selections({
+            char = "`",
+            pattern = "^(```.-\n)().*(```\n?)()$",
+          })
+        end,
       },
 
       -- CUSTOM INPUT SURROUND: Prompt for custom delimiter pair

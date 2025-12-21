@@ -42,13 +42,9 @@ no-utils:
 # Run all tests (includes linting)
 test: lint no-utils
 	@echo "Running all tests..."
-	@if [ -f "test/ci.sh" ]; then \
-		./test/ci.sh; \
-	else \
-		echo "⚠️ Test runner script not found"; \
-		echo "=== Basic config test ==="; \
-		nvim --headless -c "lua print('✅ Neovim config loaded successfully')" -c "qa"; \
-	fi
+	@echo "=== Plenary Tests ==="
+	@nvim --headless -c "PlenaryBustedFile lua/config/tests/keymaps.test.lua" -c "qa"
+	@echo "✅ All tests completed"
 
 # Format code using stylua
 format:

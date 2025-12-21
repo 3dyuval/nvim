@@ -242,25 +242,6 @@ vim.keymap.set({ "v" }, "td", "aw", { desc = "Around word (visual)" })
 vim.keymap.set({ "v" }, "rD", "iW", { desc = "Inner WORD (visual)" })
 vim.keymap.set({ "v" }, "tD", "aW", { desc = "Around WORD (visual)" })
 
--- Custom text objects (fenced code blocks)
-vim.keymap.set({ "o", "x" }, "r`", function()
-  code.select_fenced_code_block(true)
-  -- TODO: should move cursor into the fence
-  -- TEST: add to @./tests/keymaps.test.lua
-end, { desc = "Inner code block" })
-vim.keymap.set({ "o", "x" }, "t`", function()
-  -- TODO: should move cursor into the fence
-  -- TEST: add to @./tests/keymaps.test.lua
-  code.select_fenced_code_block(false)
-end, { desc = "Around code block" })
-
-vim.keymap.set(
-  { "n", "o", "v" },
-  "te",
-  helpers.select_jsx_self_closing_element,
-  { desc = "Select JSX self-closing element" }
-)
-
 -- ============================================================================
 -- TREEWALKER SWAP
 -- ============================================================================

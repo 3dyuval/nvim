@@ -126,62 +126,122 @@ M.set_buffer_file_type_with_lsp = function(ft)
   vim.bo.filetype = ft
 end
 
---- Select fenced code block (works from inside injected language)
----@param inner boolean If true, select inner content only; if false, include fences
-M.select_fenced_code_block = function(inner)
+-- ============================================================================
+-- FENCED CODE BLOCK API
+-- ============================================================================
+
+--- Find the fenced_code_block node at cursor position
+---@return TSNode|nil node, number|nil bufnr
+M.find_fence_at_cursor = function()
   local row = vim.api.nvim_win_get_cursor(0)[1]
   local bufnr = vim.api.nvim_get_current_buf()
 
-  -- Try to get markdown parser (may be the root or we need to find it)
   local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
   if not ok or not parser then
-    return
+    return nil, nil
   end
 
-  -- Find fenced_code_block containing cursor
-  local function find_code_block(tree_root, lang)
-    if lang ~= "markdown" then
-      return nil
-    end
-
-    local query = vim.treesitter.query.parse("markdown", "(fenced_code_block) @block")
-    for _, node in query:iter_captures(tree_root, bufnr) do
-      local sr, _, er, _ = node:range()
-      -- range is 0-indexed, row is 1-indexed
-      if row > sr and row <= er + 1 then
-        return node
-      end
-    end
-    return nil
-  end
-
-  -- Check all trees (markdown might be root or injected)
   local block = nil
   parser:for_each_tree(function(tree, ltree)
-    if not block then
-      block = find_code_block(tree:root(), ltree:lang())
+    if block or ltree:lang() ~= "markdown" then
+      return
+    end
+    local query = vim.treesitter.query.parse("markdown", "(fenced_code_block) @block")
+    for _, node in query:iter_captures(tree:root(), bufnr) do
+      local sr, _, er, _ = node:range()
+      if row > sr and row <= er + 1 then
+        block = node
+        return
+      end
     end
   end)
 
-  if not block then
+  return block, bufnr
+end
+
+--- Get the language type from a fence node
+---@param node TSNode
+---@param bufnr? number
+---@return string|nil
+M.get_fence_type = function(node, bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  for child in node:iter_children() do
+    if child:type() == "info_string" then
+      return vim.treesitter.get_node_text(child, bufnr)
+    end
+  end
+  return nil
+end
+
+--- Select fenced code block inner content (linewise)
+M.select_fenced_code_block_inner = function()
+  local node, _ = M.find_fence_at_cursor()
+  if not node then
+    vim.notify("Not inside a code block", vim.log.levels.WARN)
+    return
+  end
+  local sr, _, er, _ = node:range() -- 0-based, er is exclusive (past last row)
+  -- Inner: skip opening fence, exclude closing fence
+  -- 1-based: first content line = sr+2, last content line = er-1
+  vim.api.nvim_win_set_cursor(0, { sr + 2, 0 })
+  vim.cmd("normal! V")
+  vim.api.nvim_win_set_cursor(0, { er - 1, 0 })
+end
+
+--- Select fenced code block including fences (linewise)
+M.select_fenced_code_block_around = function()
+  local node, _ = M.find_fence_at_cursor()
+  if not node then
+    vim.notify("Not inside a code block", vim.log.levels.WARN)
+    return
+  end
+  local sr, _, er, _ = node:range() -- 0-based, er is exclusive (past last row)
+  -- Around: all lines, 1-based: sr+1 to er (er is already 1-based equivalent)
+  vim.api.nvim_win_set_cursor(0, { sr + 1, 0 })
+  vim.cmd("normal! V")
+  vim.api.nvim_win_set_cursor(0, { er, 0 })
+end
+
+--- Change or add fence type (language) for code block at cursor
+---@param new_type string|nil The new language type, or nil to prompt
+M.change_or_add_fence_type = function(new_type)
+  local node, bufnr = M.find_fence_at_cursor()
+  if not node then
     vim.notify("Not inside a code block", vim.log.levels.WARN)
     return
   end
 
-  local sr, sc, er, ec = block:range()
-  local start_row, end_row
-  if inner then
-    -- Select content only (skip opening and closing fence lines)
-    start_row = sr + 2 -- skip ```lang line
-    end_row = er -- exclude closing ``` line
-  else
-    -- Select entire block including fences
-    start_row = sr + 1
-    end_row = er + 1
+  if not new_type then
+    local current = M.get_fence_type(node, bufnr) or ""
+    new_type = vim.fn.input("Fence type: ", current)
+    if new_type == "" then
+      return
+    end
   end
 
-  -- Use visual line mode for selection
-  vim.cmd("normal! " .. start_row .. "GV" .. end_row .. "G")
+  local sr = node:range() -- 0-based
+  local lines = vim.api.nvim_buf_get_lines(bufnr, sr, sr + 1, false)
+  local new_line = lines[1]:gsub("^(```)[%w%-]*", "%1" .. new_type)
+  vim.api.nvim_buf_set_lines(bufnr, sr, sr + 1, false, { new_line })
+end
+
+--- Create a new empty fence and position cursor inside
+---@param fence_type string|nil The language type, or nil to prompt
+M.create_fence = function(fence_type)
+  if not fence_type then
+    fence_type = vim.fn.input("Language: ")
+  end
+
+  local bufnr = vim.api.nvim_get_current_buf()
+  local row = vim.api.nvim_win_get_cursor(0)[1] - 1 -- 0-indexed
+
+  -- Insert fence lines: ```{type}, empty line, ```
+  local lines = { "```" .. (fence_type or ""), "", "```" }
+  vim.api.nvim_buf_set_lines(bufnr, row, row, false, lines)
+
+  -- Move cursor to the empty line inside the fence and enter insert mode
+  vim.api.nvim_win_set_cursor(0, { row + 2, 0 })
+  vim.cmd("startinsert")
 end
 
 return M

@@ -44,6 +44,8 @@ map({
 -- Text objects: r=inner, t=around
 map({
   [mode] = { "o", "x" },
+  ["r`"] = { code.select_fenced_code_block_inner, desc = "Inner code block" },
+  ["t`"] = { code.select_fenced_code_block_around, desc = "Around code block" },
   ["r("] = { "i(", desc = "Inner parentheses" },
   ["r)"] = { "i)", desc = "Inner parentheses" },
   ["r["] = { "i[", desc = "Inner brackets" },
@@ -74,6 +76,11 @@ map({
   ["tB"] = { "aB", desc = "Around Block" },
   ["t<"] = { "a<", desc = "Around angle brackets" },
   ["t>"] = { "a>", desc = "Around angle brackets" },
+  te = {
+    [mode] = { "n", "o", "v" },
+    helpers.select_jsx_self_closing_element,
+    desc = "Select JSX element",
+  },
 })
 
 map({
