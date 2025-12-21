@@ -241,6 +241,38 @@ map({
   },
 })
 
+-- noice keys override
+map({
+  ["<leader>sn"] = {
+    L = {
+      function()
+        local messages = require("noice.message.manager").get({}, { history = true, sort = true })
+        local last = messages[#messages]
+        if last then
+          vim.fn.setreg("+", last:content())
+          vim.notify("Copied to clipboard")
+        end
+      end,
+      desc = "Copied last notification to clipboard",
+    },
+    a = {
+      cmd = "NoiceAll",
+      desc = "Show all notifications",
+    },
+    l = {
+      cmd = "NoiceLast",
+      desc = "Show last notification",
+    },
+    -- { "l", false }, -- Noice Last Message
+    -- { "h", false }, -- Noice History
+    -- { "d", false }, -- Dismiss All notifications
+    -- { "t", false }, -- Noice Picker (Telescope/FzfLua)
+    -- { "<S-Enter>", false }, -- Redirect cmdline output to split
+    -- { "<c-f>", false }, -- Scroll forward in LSP docs/signature
+    -- { "<c-b>", false }, -- Scroll backward in LSP docs/signature
+  },
+})
+
 -- ============================================================================
 -- CODE OPERATIONS
 -- ============================================================================
@@ -619,26 +651,33 @@ map({
 local notes = require("utils.notes")
 
 map({
-  [disabled] = true,
-  ["<leader>n"] = {
-    n = { cmd = "ObsidianNew", desc = "New note" },
+  [disabled] = false,
+  ["<leader>O"] = {
+    n = { cmd = "ObsidianNew", desc = "New note [title]", icon = "" },
+    N = {
+      function()
+        vim.api.nvim_feedkeys(os.date(":ObsidianNew %y-%m-%d "), "n", false)
+      end,
+      desc = "New note [YY-MM-DD-title]",
+      icon = "",
+    },
+    o = { cmd = "ObsidianOpen", exec = false, desc = "Open note [query]" },
+    q = { cmd = "ObsidianQuickSwitch", desc = "Quick switch [query]" },
     t = { cmd = "ObsidianToday", desc = "Today's note" },
     y = { cmd = "ObsidianYesterday", desc = "Yesterday's note" },
     T = { cmd = "ObsidianTomorrow", desc = "Tomorrow's note" },
-    s = { cmd = "ObsidianSearch", desc = "Search notes" },
-    f = { cmd = "ObsidianQuickSwitch", desc = "Find note" },
+    s = { cmd = "ObsidianSearch", desc = "Search notes [query]" },
     b = { cmd = "ObsidianBacklinks", desc = "Backlinks" },
     l = { cmd = "ObsidianLinks", desc = "Links in note" },
-    g = { cmd = "ObsidianTags", desc = "Search tags" },
-    te = { cmd = "ObsidianTemplate", desc = "Insert template" },
-    to = { cmd = "ObsidianTOC", desc = "Table of contents" },
-    r = { cmd = "ObsidianRename", desc = "Rename note" },
-    p = { cmd = "ObsidianPasteImg", desc = "Paste image" },
-    o = { cmd = "ObsidianOpen", desc = "Open in Obsidian app" },
-    w = { cmd = "ObsidianWorkspace", desc = "Switch workspace" },
+    g = { cmd = "ObsidianTags", desc = "Search tags [query]" },
+    te = { disabled = true, cmd = "ObsidianTemplate", desc = "Insert template [name]" },
+    to = { disabled = true, cmd = "ObsidianTOC", desc = "Table of contents" },
+    r = { cmd = "ObsidianRename", desc = "Rename note [name]" },
+    p = { cmd = "ObsidianPasteImg", desc = "Paste image [name]" },
+    w = { cmd = "ObsidianWorkspace", desc = "Switch workspace [name]" },
     d = { notes.open_notes_directory, desc = "Open notes directory" },
-    L = { [x] = { cmd = "ObsidianLinkNew", desc = "Link to new note" } },
-    k = { [x] = { cmd = "ObsidianLink", desc = "Link to existing note" } },
+    L = { [x] = { cmd = "ObsidianLinkNew", desc = "Link to new note [title]" } },
+    k = { [x] = { cmd = "ObsidianLink", desc = "Link to existing note [query]" } },
   },
   gf = { notes.smart_follow_link, desc = "Follow link or file", expr = true },
   ["<leader>N"] = { notes.create_inbox_note, desc = "New note in inbox" },

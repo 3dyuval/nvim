@@ -31,8 +31,8 @@ return {
       [")"] = { add = { "( ", " )" } }, -- Custom: spaced (default was non-spaced)
       ["{"] = { add = { "{", "}" } }, -- Custom: non-spaced (default was spaced)
       ["}"] = { add = { "{ ", " }" } }, -- Custom: spaced (default was non-spaced)
-      ["<"] = { add = { "<", ">" } }, -- Custom: non-spaced (default was spaced)
-      [">"] = { add = { "< ", " >" } }, -- Custom: spaced (default was non-spaced)
+      ["<"] = { add = { "< ", " >" } },
+      [">"] = { add = { "<", ">" } },
       ["["] = { add = { "[", "]" } }, -- Custom: always non-spaced (default was spaced)
       ["]"] = { add = { "[ ", " ]" } }, -- Custom: spaced (default was non-spaced)
 

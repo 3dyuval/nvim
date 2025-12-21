@@ -95,6 +95,17 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Optimize for SSHFS mounts - disable swap/undo/backup to reduce network I/O
+vim.api.nvim_create_autocmd("BufReadPre", {
+  pattern = { vim.fn.expand("~") .. "/mnt/*", vim.fn.expand("~") .. "/.sshfs/*" },
+  callback = function()
+    vim.opt_local.swapfile = false
+    vim.opt_local.undofile = false
+    vim.opt_local.backup = false
+    vim.opt_local.writebackup = false
+  end,
+})
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "javascript", "typescript", "json", "lua", "python", "css", "scss" },
   callback = function()

@@ -276,6 +276,7 @@ function M.create_smart_map()
                 key_part = key,
                 desc = value.desc,
                 action = action,
+                icon = value.icon,
                 groups = groups,
                 disabled = is_disabled,
                 opts = keymap_opts,
@@ -290,6 +291,7 @@ function M.create_smart_map()
                   key = full_key,
                   action = action,
                   desc = value.desc,
+                  icon = value.icon,
                   disabled = true,
                   groups = groups,
                   source_file = source_file,
@@ -320,6 +322,7 @@ function M.create_smart_map()
             value.nowait = nil
             value.remap = nil
             value.disabled = nil
+            value.icon = nil
             value[kmu_opts_flag] = keymap_opts
           else
             -- It's a group - check for group description
@@ -327,8 +330,9 @@ function M.create_smart_map()
             local new_groups_path = vim.list_extend({}, groups_path)
 
             if group_name then
-              table.insert(group_descriptions, { full_key, group = group_name })
-              table.insert(new_groups_path, { key = full_key, key_part = key, group = group_name })
+              local group_icon = value.icon
+              table.insert(group_descriptions, { full_key, group = group_name, icon = group_icon })
+              table.insert(new_groups_path, { key = full_key, key_part = key, group = group_name, icon = group_icon })
 
               -- Insert group node into tree
               insert_into_tree(new_path, {
@@ -336,10 +340,12 @@ function M.create_smart_map()
                 key = full_key,
                 key_part = key,
                 group = group_name,
+                icon = group_icon,
                 modes = current_modes,
               })
 
               value.group = nil -- remove so it doesn't interfere with recursion
+              value.icon = nil -- remove so it doesn't interfere with recursion
             end
 
             -- Recurse into nested tables

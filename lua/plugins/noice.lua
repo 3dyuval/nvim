@@ -1,6 +1,17 @@
 return {
   "folke/noice.nvim",
   event = "VeryLazy",
+  keys = {
+    { "<leader>sn", false }, -- +noice group prefix
+    -- { "<S-Enter>", false }, -- Redirect cmdline output to split
+    { "<leader>snl", false }, -- Noice Last Message
+    { "<leader>snh", false }, -- Noice History
+    { "<leader>sna", false }, -- Noice All messages
+    { "<leader>snd", false }, -- Dismiss All notifications
+    { "<leader>snt", false }, -- Noice Picker (Telescope/FzfLua)
+    -- { "<c-f>", false }, -- Scroll forward in LSP docs/signature
+    -- { "<c-b>", false }, -- Scroll backward in LSP docs/signature
+  },
   opts = {
     cmdline = {
       view = "cmdline_popup", -- Use floating cmdline but we'll position it at bottom
