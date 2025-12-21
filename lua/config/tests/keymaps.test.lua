@@ -6,6 +6,7 @@
 --
 -- Entry point for all config tests. Include other test modules here:
 require("config.tests.fences.test")
+require("config.tests.tags.test")
 
 -- # Editing
 describe("normal inserts/replace", function()

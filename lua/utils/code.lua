@@ -244,4 +244,91 @@ M.create_fence = function(fence_type)
   vim.cmd("startinsert")
 end
 
+-- ============================================================================
+-- SELF-CLOSING TAG API (HTML/JSX)
+-- ============================================================================
+
+-- Self-closing tag node types by language
+local self_closing_types = {
+  self_closing_tag = true, -- HTML/Vue
+  jsx_self_closing_element = true, -- TSX/JSX
+}
+
+--- Find the self_closing_tag node at cursor position
+---@return TSNode|nil node, number|nil bufnr
+M.find_self_closing_tag_at_cursor = function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row, col = cursor[1] - 1, cursor[2] -- 0-based
+
+  local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+  if not ok or not parser then
+    return nil, nil
+  end
+
+  -- Parse all trees (important for multi-language files)
+  parser:parse(true)
+
+  -- Try vim.treesitter.get_node first (works in normal usage)
+  local node = vim.treesitter.get_node({ bufnr = bufnr, pos = { row, col } })
+
+  -- Walk up to find self-closing tag
+  while node do
+    if self_closing_types[node:type()] then
+      return node, bufnr
+    end
+    node = node:parent()
+  end
+
+  -- Fallback: manually search trees for self-closing tag at position
+  -- (needed when get_node returns nil, e.g., in headless tests)
+  local found = nil
+
+  local function find_at_pos(n)
+    if found then
+      return
+    end
+    -- Check if this is a self-closing tag
+    if self_closing_types[n:type()] then
+      local sr, sc, er, ec = n:range()
+      -- Check if cursor is within this node's range
+      local in_row = row >= sr and row <= er
+      local in_col = (row > sr or col >= sc) and (row < er or col < ec)
+      if in_row and in_col then
+        found = n
+        return
+      end
+    end
+    -- Always recurse into children (don't prune based on range)
+    for child in n:iter_children() do
+      find_at_pos(child)
+    end
+  end
+
+  -- Get all trees and search each one
+  local trees = parser:trees()
+  for _, tree in ipairs(trees) do
+    find_at_pos(tree:root())
+    if found then
+      return found, bufnr
+    end
+  end
+
+  return nil, nil
+end
+
+--- Select self-closing tag at cursor (visual mode)
+M.select_self_closing_tag = function()
+  local node, _ = M.find_self_closing_tag_at_cursor()
+  if not node then
+    vim.notify("Not inside a self-closing tag", vim.log.levels.WARN)
+    return
+  end
+
+  local sr, sc, er, ec = node:range() -- 0-based, ec is exclusive
+  vim.api.nvim_buf_set_mark(0, "<", sr + 1, sc, {})
+  vim.api.nvim_buf_set_mark(0, ">", er + 1, ec - 1, {})
+  vim.cmd("normal! gv")
+end
+
 return M

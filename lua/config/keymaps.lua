@@ -78,8 +78,8 @@ map({
   ["t>"] = { "a>", desc = "Around angle brackets" },
   te = {
     [mode] = { "n", "o", "v" },
-    helpers.select_jsx_self_closing_element,
-    desc = "Select JSX element",
+    require("utils.code").select_self_closing_tag,
+    desc = "Select self-closing tag",
   },
 })
 
@@ -93,7 +93,10 @@ map({
 })
 
 -- Handle count-aware 'x' separately (needs different logic than nested xx)
-remap({ "n" }, "x", helpers.count_aware_delete, { desc = "Delete", expr = true })
+remap({ "n" }, "x", function()
+  local count = vim.v.count1
+  return count == 1 and "d" or (count .. "d")
+end, { desc = "Delete", expr = true })
 
 -- Smooth scrolling (Graphite layout) - works with snacks.scroll
 map({
