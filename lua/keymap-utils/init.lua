@@ -1,4 +1,4 @@
--- Keymap Utilities - Clean keymap management and inspection
+-- Keymap Utils
 -- Provides both simple vim.keymap.set wrappers and lil-style declarative mapping
 
 local M = {}
@@ -7,23 +7,16 @@ local group_descriptions = {}
 local disabled_keymaps = {}
 local keymap_tree = {} -- Hierarchical tree of keymaps registered via keymap-utils
 
--- Import local keymap-utils modules
-local kmu_core = require("keymap-utils.core")
-local kmu_key = require("keymap-utils.key")
-local kmu_utils = require("keymap-utils.utils")
-
--- ============================================================================
--- KEYMAP-UTILS API EXPORTS
--- ============================================================================
+local core = require("keymap-utils.core")
+local key = require("keymap-utils.key")
+local utils = require("keymap-utils.utils")
 
 -- Export flags for direct access
-M.flags = kmu_utils.flags
-
+M.flags = utils.flags
 -- Export key constructor for modifier keys like ctrl, shift, alt
-M.key = kmu_key
-
+M.key = key
 -- Export _ (expects template) for <C-_> style mappings
-M._ = kmu_key({ expects = true })
+M._ = key({ expects = true })
 
 -- Mode modifier constructor
 -- Usage: local n = lil.mod("n") then [n] = { ... }
@@ -42,8 +35,17 @@ M.modes = {
   t = { mode = { "t" } },
 }
 
+-- Direct flag exports for convenience
+-- Usage: local disabled = kmu.disabled
+M.ctrl = utils.flags.ctrl
+M.shift = utils.flags.shift
+M.alt = utils.flags.alt
+M.meta = utils.flags.meta
+M.disabled = utils.flags.disabled
+M.mode = utils.flags.mode
+
 -- Main declarative map function
-M.kmu_map = kmu_core.map
+M.kmu_map = core.map
 
 -- ============================================================================
 -- CORE KEYMAP ABSTRACTIONS
@@ -109,8 +111,8 @@ function M.register(config, base_modes)
   base_modes = base_modes or "n"
   for prefix, mappings in pairs(config) do
     if type(mappings) == "table" then
-      for key, mapping in pairs(mappings) do
-        local full_key = prefix == "" and key or prefix .. key
+      for k, mapping in pairs(mappings) do
+        local full_key = prefix == "" and k or prefix .. k
         if type(mapping) == "table" and mapping[1] then
           -- Format: {action, "description", {opts}}
           local action = mapping[1]
@@ -157,9 +159,9 @@ end
 --     },
 --   }
 function M.create_smart_map()
-  local kmu_opts_flag = kmu_utils.flags.opts
-  local kmu_func_flag = kmu_utils.flags.func
-  local kmu_disabled_flag = kmu_utils.flags.disabled
+  local kmu_opts_flag = utils.flags.opts
+  local kmu_func_flag = utils.flags.func
+  local kmu_disabled_flag = utils.flags.disabled
 
   -- Define func_map that handles 'del' option
   local function func_map(m, l, r, o, _next)
@@ -184,6 +186,32 @@ function M.create_smart_map()
     local current_modes = { "n" }
     -- Track current disabled state (cascades to children)
     local current_disabled = false
+    -- Track current modifiers (cascades to children)
+    local current_modifiers = { ctrl = false, shift = false, alt = false, meta = false }
+    -- Collect modifier entries to add after processing (avoids iteration issues)
+    local deferred_entries = {}
+
+    -- Helper to apply modifiers to a key string
+    local function apply_modifiers(k, mods)
+      if not (mods.ctrl or mods.shift or mods.alt or mods.meta) then
+        return k
+      end
+      -- Build modifier prefix: <C-S-A-M-key>
+      local prefix = ""
+      if mods.ctrl then
+        prefix = prefix .. "C-"
+      end
+      if mods.shift then
+        prefix = prefix .. "S-"
+      end
+      if mods.alt then
+        prefix = prefix .. "A-"
+      end
+      if mods.meta then
+        prefix = prefix .. "M-"
+      end
+      return "<" .. prefix .. k .. ">"
+    end
 
     -- Helper to insert a node into the keymap tree
     -- path_parts: array of key segments leading to this node
@@ -216,7 +244,7 @@ function M.create_smart_map()
       groups_path = groups_path or {}
 
       -- Check for mode specification at this level (cascades)
-      local mode_flag = kmu_utils.flags.mode
+      local mode_flag = utils.flags.mode
       if t[mode_flag] then
         current_modes = t[mode_flag]
       end
@@ -226,12 +254,29 @@ function M.create_smart_map()
         current_disabled = t[kmu_disabled_flag]
       end
 
+      -- Modifier flag lookup table
+      local modifier_flags = {
+        [utils.flags.ctrl] = "ctrl",
+        [utils.flags.shift] = "shift",
+        [utils.flags.alt] = "alt",
+        [utils.flags.meta] = "meta",
+      }
+
       for key, value in pairs(t) do
-        -- Only process string keys (skip kmu flags)
-        if type(key) == "string" and type(value) == "table" then
-          local full_key = prefix .. key
+        local mod_name = modifier_flags[key]
+        -- Handle modifier flag keys - recurse with modifier enabled
+        if mod_name and type(value) == "table" then
+          local saved = current_modifiers[mod_name]
+          current_modifiers[mod_name] = true
+          process_table(prefix, value, path_parts, groups_path)
+          current_modifiers[mod_name] = saved
+        -- Only process string keys (skip other kmu flags)
+        elseif type(key) == "string" and type(value) == "table" then
+          -- Apply modifiers to the key
+          local modified_key = apply_modifiers(key, current_modifiers)
+          local full_key = prefix .. modified_key
           local new_path = vim.list_extend({}, path_parts)
-          table.insert(new_path, key)
+          table.insert(new_path, modified_key)
 
           if is_keymap_definition(value) then
             -- Transform simple table syntax to core-compatible format
@@ -273,7 +318,7 @@ function M.create_smart_map()
                 type = "keymap",
                 mode = mode,
                 key = full_key,
-                key_part = key,
+                key_part = modified_key,
                 desc = value.desc,
                 action = action,
                 icon = value.icon,
@@ -324,6 +369,14 @@ function M.create_smart_map()
             value.disabled = nil
             value.icon = nil
             value[kmu_opts_flag] = keymap_opts
+
+            -- When modifiers are active, defer adding entry to avoid iteration issues
+            if modified_key ~= key then
+              table.insert(deferred_entries, {
+                key = full_key,
+                value = { action, [kmu_opts_flag] = keymap_opts },
+              })
+            end
           else
             -- It's a group - check for group description
             local group_name = value.group
@@ -332,13 +385,13 @@ function M.create_smart_map()
             if group_name then
               local group_icon = value.icon
               table.insert(group_descriptions, { full_key, group = group_name, icon = group_icon })
-              table.insert(new_groups_path, { key = full_key, key_part = key, group = group_name, icon = group_icon })
+              table.insert(new_groups_path, { key = full_key, key_part = modified_key, group = group_name, icon = group_icon })
 
               -- Insert group node into tree
               insert_into_tree(new_path, {
                 type = "group",
                 key = full_key,
-                key_part = key,
+                key_part = modified_key,
                 group = group_name,
                 icon = group_icon,
                 modes = current_modes,
@@ -357,13 +410,18 @@ function M.create_smart_map()
 
     process_table("", map_def, {}, {})
 
+    -- Add deferred modifier entries to map_def
+    for _, entry in ipairs(deferred_entries) do
+      map_def[entry.key] = entry.value
+    end
+
     -- Auto-inject [func] = func_map if not already present
     if not map_def[kmu_func_flag] then
       map_def[kmu_func_flag] = func_map
     end
 
     -- Call kmu_core.map
-    kmu_core.map(map_def)
+    core.map(map_def)
   end
 end
 
@@ -628,7 +686,7 @@ function M.detect_conflicts(keymaps, include_builtins)
 end
 
 -- ============================================================================
--- INTROSPECTION COMPATIBILITY
+-- INSPECTION
 -- ============================================================================
 
 -- Collector function that captures keymap data instead of setting keymaps
@@ -644,11 +702,11 @@ end
 
 -- Create custom config that uses our collector
 function M.create_inspect_config()
-  local inspect_config = kmu_utils.copy(kmu_core.config)
-  inspect_config[kmu_utils.flags.func] = keymap_collector
+  local inspect_config = utils.copy(core.config)
+  inspect_config[utils.flags.func] = keymap_collector
 
   return function(map)
-    return kmu_core.builtin(inspect_config, "", map)
+    return core.builtin(inspect_config, "", map)
   end
 end
 
@@ -669,7 +727,7 @@ end
 function M.create_inspect_interface()
   return {
     map = M.create_inspect_config(),
-    flags = kmu_utils.flags,
+    flags = utils.flags,
     mod = M.mod,
     key = M.key,
     modes = M.modes,
@@ -679,12 +737,12 @@ end
 -- Export utilities for compatibility
 function M.get_flags()
   return {
-    func = kmu_utils.flags.func,
-    opts = kmu_utils.flags.opts,
-    mode = kmu_utils.flags.mode,
-    log = kmu_utils.flags.log,
-    disabled = kmu_utils.flags.disabled,
-    raw = kmu_utils.flags.raw,
+    func = utils.flags.func,
+    opts = utils.flags.opts,
+    mode = utils.flags.mode,
+    log = utils.flags.log,
+    disabled = utils.flags.disabled,
+    raw = utils.flags.raw,
   }
 end
 
@@ -710,10 +768,5 @@ end
 function M.inspect(opts)
   get_inspect_module().open(opts)
 end
-
--- Direct flag exports for convenience
--- Usage: local disabled = kmu.disabled
-M.disabled = kmu_utils.flags.disabled
-M.mode = kmu_utils.flags.mode
 
 return M

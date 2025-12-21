@@ -438,4 +438,90 @@ describe("keymap-utils", function()
       assert.is_nil(next(ku.get_keymap_tree()))
     end)
   end)
+
+  describe("modifier flags", function()
+    local map = ku.create_smart_map()
+    local ctrl = ku.ctrl
+    local shift = ku.shift
+    local alt = ku.alt
+
+    before_each(function()
+      ku.clear_keymap_tree()
+    end)
+
+    after_each(function()
+      pcall(vim.keymap.del, "n", "<C-p>")
+      pcall(vim.keymap.del, "n", "<C-.>")
+      pcall(vim.keymap.del, "n", "<S-a>")
+      pcall(vim.keymap.del, "n", "<A-x>")
+      pcall(vim.keymap.del, "n", "<C-S-p>")
+    end)
+
+    it("applies ctrl modifier to child keys", function()
+      map({
+        [ctrl] = {
+          p = { ":echo 'ctrl-p'<CR>", desc = "Ctrl P" },
+        },
+      })
+      local mapping = vim.fn.maparg("<C-p>", "n", false, true)
+      assert.equals("Ctrl P", mapping.desc)
+    end)
+
+    it("applies shift modifier to child keys", function()
+      map({
+        [shift] = {
+          a = { ":echo 'shift-a'<CR>", desc = "Shift A" },
+        },
+      })
+      local mapping = vim.fn.maparg("<S-a>", "n", false, true)
+      assert.equals("Shift A", mapping.desc)
+    end)
+
+    it("applies alt modifier to child keys", function()
+      map({
+        [alt] = {
+          x = { ":echo 'alt-x'<CR>", desc = "Alt X" },
+        },
+      })
+      local mapping = vim.fn.maparg("<A-x>", "n", false, true)
+      assert.equals("Alt X", mapping.desc)
+    end)
+
+    it("combines nested modifiers", function()
+      map({
+        [ctrl] = {
+          [shift] = {
+            p = { ":echo 'ctrl-shift-p'<CR>", desc = "Ctrl Shift P" },
+          },
+        },
+      })
+      local mapping = vim.fn.maparg("<C-S-p>", "n", false, true)
+      assert.equals("Ctrl Shift P", mapping.desc)
+    end)
+
+    it("applies modifier to multiple children", function()
+      map({
+        [ctrl] = {
+          p = { ":echo 'prev'<CR>", desc = "Previous" },
+          ["."] = { ":echo 'next'<CR>", desc = "Next" },
+        },
+      })
+      local mapping_p = vim.fn.maparg("<C-p>", "n", false, true)
+      local mapping_dot = vim.fn.maparg("<C-.>", "n", false, true)
+      assert.equals("Previous", mapping_p.desc)
+      assert.equals("Next", mapping_dot.desc)
+    end)
+
+    it("stores modified key in tree", function()
+      map({
+        [ctrl] = {
+          p = { ":echo 'ctrl-p'<CR>", desc = "Ctrl P" },
+        },
+      })
+      local tree = ku.get_keymap_tree()
+      assert.is_not_nil(tree["<C-p>"])
+      assert.is_not_nil(tree["<C-p>"]._meta)
+      assert.equals("<C-p>", tree["<C-p>"]._meta.key)
+    end)
+  end)
 end)
