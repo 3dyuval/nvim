@@ -41,6 +41,13 @@ map({
   ["."] = { "$", desc = "End of line" },
 })
 
+-- Undo/redo (z replaces u)
+map({
+  z = { "u", desc = "Undo", remap = true },
+  Z = { "<C-r>", desc = "Redo" },
+  gz = { "U", desc = "Undo line", remap = true },
+})
+
 -- Text objects: r=inner, t=around
 map({
   [mode] = { "o", "x" },

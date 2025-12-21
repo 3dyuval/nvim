@@ -82,7 +82,7 @@ vim.keymap.set({ "n", "o", "x" }, "c", "y", { desc = "Yank (copy)" })
 vim.keymap.set({ "n", "x" }, "v", "p", { desc = "Paste" })
 vim.keymap.set({ "n" }, "C", "y$", { desc = "Yank to end of line" })
 vim.keymap.set({ "x" }, "C", "y", { desc = "Yank selection" })
-vim.keymap.set("x", "cc", helpers.yank_visible, { desc = "Yank visible lines (exclude folded)" })
+-- vim.keymap.set("x", "cc", helpers.yank_visible, { desc = "Yank visible lines (exclude folded)" })
 vim.keymap.set({ "n", "x" }, "V", "P", { desc = "Paste before" })
 vim.keymap.set({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
 
@@ -204,7 +204,7 @@ vim.keymap.set({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 -- TERMINAL
 -- ============================================================================
 
-vim.keymap.set({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
+-- vim.keymap.set({ "n", "o", "x" }, "<C-/>", helpers.toggle_terminal, { desc = "Toggle Terminal" })
 
 -- ============================================================================
 -- PASTE INLINE
@@ -216,18 +216,18 @@ vim.keymap.set({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" }
 -- TEXT OBJECTS
 -- ============================================================================
 
-vim.keymap.set(
-  { "x", "o" },
-  "rf",
-  helpers.select_inner_function,
-  { desc = "Select inner function" }
-)
-vim.keymap.set(
-  { "x", "o" },
-  "tf",
-  helpers.select_outer_function,
-  { desc = "Select outer function" }
-)
+-- vim.keymap.set(
+--   { "x", "o" },
+--   "rf",
+--   helpers.select_inner_function,
+--   { desc = "Select inner function" }
+-- )
+-- vim.keymap.set(
+--   { "x", "o" },
+--   "tf",
+--   helpers.select_outer_function,
+--   { desc = "Select outer function" }
+-- )
 
 vim.keymap.set({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })
 vim.keymap.set({ "n", "o", "v" }, "t", "a", { desc = "O/V mode: a/an (a)" })

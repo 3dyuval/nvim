@@ -321,7 +321,6 @@ end
 M.select_self_closing_tag = function()
   local node, _ = M.find_self_closing_tag_at_cursor()
   if not node then
-    vim.notify("Not inside a self-closing tag", vim.log.levels.WARN)
     return
   end
 
