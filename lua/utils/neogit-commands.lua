@@ -218,12 +218,7 @@ local function resolve_all_conflicts_simple(strategy)
   end
 
   vim.notify(
-    string.format(
-      "Resolved %d/%d files with '%s' strategy (git checkout)",
-      resolved,
-      resolved + failed,
-      strategy
-    ),
+    string.format("Resolved %d/%d files with '%s' strategy (git checkout)", resolved, resolved + failed, strategy),
     vim.log.levels.INFO
   )
 
@@ -246,8 +241,7 @@ function M.create_conflict_popup()
   local current_item = status.buffer.ui:get_item_under_cursor()
   local has_current_file = current_item and current_item.absolute_path
 
-  local heading = has_current_file and ("File Resolution for: " .. current_item.name)
-    or "File Resolution"
+  local heading = has_current_file and ("File Resolution for: " .. current_item.name) or "File Resolution"
 
   -- Create action functions that take popup as parameter
   local function make_resolve_action(strategy)

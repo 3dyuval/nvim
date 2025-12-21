@@ -16,8 +16,7 @@ M.diffview_open_buffer_diff = function(item, data)
 
   -- Trust that DiffView is available and handle errors gracefully
   local success, err = pcall(function()
-    local cmd =
-      string.format("DiffviewOpen %s -- %s", item.hash, vim.fn.fnamemodify(current_file, ":."))
+    local cmd = string.format("DiffviewOpen %s -- %s", item.hash, vim.fn.fnamemodify(current_file, ":."))
     vim.cmd(cmd)
   end)
 

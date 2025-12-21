@@ -11,8 +11,7 @@ function M.yank_visible()
   vim.cmd("let @z = ''")
 
   -- Build the command to yank only non-folded lines
-  local cmd =
-    string.format("'<,'>g/^/if line('.')==foldclosed('.') || foldclosed('.')==-1|y Z |endif")
+  local cmd = string.format("'<,'>g/^/if line('.')==foldclosed('.') || foldclosed('.')==-1|y Z |endif")
 
   -- Execute the command
   vim.cmd(cmd)

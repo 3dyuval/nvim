@@ -153,10 +153,7 @@ return {
         local file_count = 0
         for _, client in pairs(clients) do
           vim.schedule(function()
-            vim.notify(
-              "Scanning workspace for " .. client.name .. " diagnostics...",
-              vim.log.levels.INFO
-            )
+            vim.notify("Scanning workspace for " .. client.name .. " diagnostics...", vim.log.levels.INFO)
           end)
 
           pcall(workspace_diagnostics.populate_workspace_diagnostics, client)
@@ -174,10 +171,7 @@ return {
 
         if file_count > 0 then
           vim.schedule(function()
-            vim.notify(
-              string.format("Processing diagnostics for %d files...", file_count),
-              vim.log.levels.INFO
-            )
+            vim.notify(string.format("Processing diagnostics for %d files...", file_count), vim.log.levels.INFO)
           end)
         end
 

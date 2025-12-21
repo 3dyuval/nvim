@@ -42,8 +42,7 @@ local function finder(opts, ctx)
     end
   end
 
-  local fff_result =
-    file_picker.search_files(ctx.filter.search, 100, 4, M.state.current_file_cache, false)
+  local fff_result = file_picker.search_files(ctx.filter.search, 100, 4, M.state.current_file_cache, false)
 
   ---@type snacks.picker.finder.Item[]
   local items = {}
@@ -88,9 +87,7 @@ local function format_file_git_status(item, picker)
   end
 
   local text_icon = status.status:sub(1, 1):upper()
-  text_icon = status.status == "untracked" and "?"
-    or status.status == "ignored" and "!"
-    or text_icon
+  text_icon = status.status == "untracked" and "?" or status.status == "ignored" and "!" or text_icon
 
   ret[#ret + 1] = { icon, hl }
   ret[#ret + 1] = { " ", virtual = true }

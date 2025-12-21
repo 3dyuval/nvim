@@ -58,15 +58,9 @@ local function build_prompt(msg_opts)
     if msg_opts.commit_type and msg_opts.scope then
       conv = conv .. ". Use type=" .. msg_opts.commit_type .. " and scope=" .. msg_opts.scope
     elseif msg_opts.commit_type then
-      conv = conv
-        .. ". Use type="
-        .. msg_opts.commit_type
-        .. ", infer appropriate scope from the diff"
+      conv = conv .. ". Use type=" .. msg_opts.commit_type .. ", infer appropriate scope from the diff"
     elseif msg_opts.scope then
-      conv = conv
-        .. ". Use scope="
-        .. msg_opts.scope
-        .. ", infer appropriate type (feat/fix/chore/etc) from the diff"
+      conv = conv .. ". Use scope=" .. msg_opts.scope .. ", infer appropriate type (feat/fix/chore/etc) from the diff"
     else
       conv = conv .. ". Infer appropriate type and scope from the diff"
     end

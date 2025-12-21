@@ -52,7 +52,10 @@ local function key(tbl)
       if type(t1) == "string" then
         t1 = { modifiers = { t1 } }
       end
-      assert(type(t1) == "table" and type(t2) == "table", "mod key additions are only supported between mod keys or strings")
+      assert(
+        type(t1) == "table" and type(t2) == "table",
+        "mod key additions are only supported between mod keys or strings"
+      )
       local modifiers = {}
       for _, m in ipairs(t1.modifiers) do
         table.insert(modifiers, m)

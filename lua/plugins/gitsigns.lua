@@ -14,12 +14,7 @@ return {
         map("n", "]h", gs.next_hunk, "Next Hunk")
         map("n", "[h", gs.prev_hunk, "Prev Hunk")
         vim.keymap.set("n", "]]", "]x", { buffer = buffer, desc = "Next conflict", remap = true })
-        vim.keymap.set(
-          "n",
-          "[[",
-          "[x",
-          { buffer = buffer, desc = "Previous conflict", remap = true }
-        )
+        vim.keymap.set("n", "[[", "[x", { buffer = buffer, desc = "Previous conflict", remap = true })
 
         -- Stage/reset hunks
         map({ "n", "v" }, "<leader>gg", ":Gitsigns stage_hunk<CR>", "Stage Hunk")

@@ -181,8 +181,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     vim.b.tailwind_checked = true
 
     -- Check if tailwind config exists in project root
-    local config_files =
-      { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs" }
+    local config_files = { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs" }
 
     for _, config_file in ipairs(config_files) do
       if vim.fn.filereadable(config_file) == 1 then
@@ -202,8 +201,7 @@ vim.defer_fn(function()
   if vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON then
     local window_id = vim.env.KITTY_WINDOW_ID
     local socket = vim.env.KITTY_LISTEN_ON
-    local cmd =
-      string.format("kitten @ --to %s set-spacing --match id:%s padding=0", socket, window_id)
+    local cmd = string.format("kitten @ --to %s set-spacing --match id:%s padding=0", socket, window_id)
     vim.fn.system(cmd)
   end
 end, 100)
@@ -213,8 +211,7 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
     if vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON then
       local window_id = vim.env.KITTY_WINDOW_ID
       local socket = vim.env.KITTY_LISTEN_ON
-      local cmd =
-        string.format("kitten @ --to %s set-spacing --match id:%s padding=12", socket, window_id)
+      local cmd = string.format("kitten @ --to %s set-spacing --match id:%s padding=12", socket, window_id)
       vim.fn.system(cmd)
     end
   end,

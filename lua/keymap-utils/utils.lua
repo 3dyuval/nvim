@@ -44,6 +44,11 @@ M.flags = {
   mode = {},
   log = {},
   raw = {},
+  -- Modifier flags (cascade to children)
+  ctrl = {},
+  shift = {},
+  alt = {},
+  meta = {},
 }
 
 -- Symbol lookup table for flag detection
@@ -54,6 +59,10 @@ M.symbols = {
   [M.flags.disabled] = true,
   [M.flags.mode] = true,
   [M.flags.log] = true,
+  [M.flags.ctrl] = true,
+  [M.flags.shift] = true,
+  [M.flags.alt] = true,
+  [M.flags.meta] = true,
 }
 
 -- Cascade symbols from source to target

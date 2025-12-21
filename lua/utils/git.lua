@@ -51,8 +51,7 @@ end
 
 -- GitHub repository detection
 M.get_upstream_repo = function()
-  local upstream_url =
-    vim.fn.system("git config --get remote.upstream.url 2>/dev/null"):gsub("%s+", "")
+  local upstream_url = vim.fn.system("git config --get remote.upstream.url 2>/dev/null"):gsub("%s+", "")
 
   if vim.v.shell_error ~= 0 or upstream_url == "" then
     return nil
@@ -60,8 +59,7 @@ M.get_upstream_repo = function()
 
   -- Extract owner/repo from URL
   -- Handles: https://github.com/owner/repo.git or git@github.com:owner/repo.git
-  local owner_repo = upstream_url:match("github%.com[:/](.+/.+)%.git$")
-    or upstream_url:match("github%.com[:/](.+/.+)$")
+  local owner_repo = upstream_url:match("github%.com[:/](.+/.+)%.git$") or upstream_url:match("github%.com[:/](.+/.+)$")
 
   return owner_repo
 end

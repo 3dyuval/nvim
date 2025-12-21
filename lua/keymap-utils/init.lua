@@ -385,7 +385,10 @@ function M.create_smart_map()
             if group_name then
               local group_icon = value.icon
               table.insert(group_descriptions, { full_key, group = group_name, icon = group_icon })
-              table.insert(new_groups_path, { key = full_key, key_part = modified_key, group = group_name, icon = group_icon })
+              table.insert(
+                new_groups_path,
+                { key = full_key, key_part = modified_key, group = group_name, icon = group_icon }
+              )
 
               -- Insert group node into tree
               insert_into_tree(new_path, {

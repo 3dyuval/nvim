@@ -22,8 +22,7 @@ return {
       keys[#keys + 1] = { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action" }
 
       -- Reference keymaps
-      keys[#keys + 1] =
-        { "<leader>cR", vim.lsp.buf.references, desc = "References (quickfix)", mode = { "n" } }
+      keys[#keys + 1] = { "<leader>cR", vim.lsp.buf.references, desc = "References (quickfix)", mode = { "n" } }
       keys[#keys + 1] = {
         "<leader>cx",
         require("utils.files").smart_references,

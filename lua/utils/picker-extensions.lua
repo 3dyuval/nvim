@@ -363,18 +363,14 @@ M.copy_file_path = function(picker, item)
         local content_str = table.concat(all_contents, "\n")
         vim.fn.setreg("+", content_str)
 
-        Snacks.notify.info(
-          string.format("Copied %d file(s) to clipboard (%d lines)", file_count, total_lines)
-        )
+        Snacks.notify.info(string.format("Copied %d file(s) to clipboard (%d lines)", file_count, total_lines))
       elseif selected_option.key == "tree" then
         -- Generate tree structure using tree command
         local items_count = #selected_option.items
 
         -- Check if single directory
         local single_dir = items_count == 1
-          and (
-            selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1
-          )
+          and (selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1)
 
         local tree_output
         if single_dir then
@@ -580,10 +576,7 @@ local function format_files_action(picker, items)
       if not success then
         errors = errors + 1
         vim.notify(
-          "Error formatting "
-            .. vim.fn.fnamemodify(item.file, ":t")
-            .. ": "
-            .. (err or "unknown error"),
+          "Error formatting " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
           vim.log.levels.WARN
         )
       end
@@ -591,13 +584,7 @@ local function format_files_action(picker, items)
   end
 
   if processed > 0 then
-    vim.notify(
-      string.format(
-        "Formatted %d files%s",
-        processed,
-        errors > 0 and " (" .. errors .. " errors)" or ""
-      )
-    )
+    vim.notify(string.format("Formatted %d files%s", processed, errors > 0 and " (" .. errors .. " errors)" or ""))
   else
     vim.notify("No files formatted", vim.log.levels.WARN)
   end
@@ -721,11 +708,7 @@ local contexts = {
       -- (explorer items can have status but aren't git status items)
       local has_explorer_actions = picker.opts
         and picker.opts.actions
-        and (
-          picker.opts.actions.explorer_add
-          or picker.opts.actions.explorer_del
-          or picker.opts.actions.explorer_open
-        )
+        and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del or picker.opts.actions.explorer_open)
 
       if not has_explorer_actions then
         -- Fallback: check if current item has git status properties
@@ -978,12 +961,7 @@ local contexts = {
         -- Check for folke's git branch item structure
         if type(current) == "table" then
           -- Look for git branch specific fields (from folke's git.lua)
-          if
-            current.branch
-            or current.commit
-            or current.current ~= nil
-            or current.detached ~= nil
-          then
+          if current.branch or current.commit or current.current ~= nil or current.detached ~= nil then
             return true
           end
 
@@ -1121,8 +1099,7 @@ local actions = {
       key = "d",
       desc = "Delete file",
       action = function(picker, item)
-        local confirm =
-          vim.fn.confirm("Delete " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 1)
+        local confirm = vim.fn.confirm("Delete " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 1)
         if confirm == 1 then
           local ok, err = os.remove(item.file)
           if ok then
@@ -1217,11 +1194,8 @@ local actions = {
       key = "d",
       desc = "Delete directory",
       action = function(picker, item)
-        local confirm = vim.fn.confirm(
-          "Delete directory " .. vim.fn.fnamemodify(item.file, ":t") .. "?",
-          "&Yes\n&No",
-          2
-        )
+        local confirm =
+          vim.fn.confirm("Delete directory " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
         if confirm == 1 then
           vim.fn.delete(item.file, "rf")
           vim.notify("Deleted directory " .. vim.fn.fnamemodify(item.file, ":t"))
@@ -1404,10 +1378,7 @@ local actions = {
               -- Notify and refresh after all items processed
               if moved + failed == #items then
                 if failed > 0 then
-                  vim.notify(
-                    string.format("Moved %d items, %d failed", moved, failed),
-                    vim.log.levels.WARN
-                  )
+                  vim.notify(string.format("Moved %d items, %d failed", moved, failed), vim.log.levels.WARN)
                 else
                   vim.notify(string.format("Moved %d items to %s", moved, dest_dir))
                 end
@@ -1853,8 +1824,7 @@ M.git_context_menu = function(picker, item)
 
   -- Conflict filter toggle action
   local is_conflict_filter_active = picker._conflict_filter_active or false
-  local conflict_toggle_text = is_conflict_filter_active and "󰍉 Show All Files"
-    or "󰍉 Show Only Conflicts"
+  local conflict_toggle_text = is_conflict_filter_active and "󰍉 Show All Files" or "󰍉 Show Only Conflicts"
   table.insert(options, conflict_toggle_text)
   table.insert(actions, function()
     -- Use the proper toggle function
@@ -1890,11 +1860,7 @@ M.git_context_menu = function(picker, item)
       local file = target_item.file
       if
         target_item.status
-        and (
-          target_item.status:match("^M")
-          or target_item.status:match("^A")
-          or target_item.status:match("^D")
-        )
+        and (target_item.status:match("^M") or target_item.status:match("^A") or target_item.status:match("^D"))
       then
         -- File is staged, unstage it
         vim.system({ "git", "restore", "--staged", file })
@@ -1943,8 +1909,7 @@ M.buffer_context_menu = function(picker, item)
   end
 
   local target_items = { item }
-  local menu_title = "󰈙 "
-    .. (item.name or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(item.bufnr or 0), ":t"))
+  local menu_title = "󰈙 " .. (item.name or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(item.bufnr or 0), ":t"))
 
   -- Create menu options
   local options = {}
@@ -2156,10 +2121,7 @@ M.duplicate_file = function(picker, item)
           picker:refresh()
         end
       else
-        vim.notify(
-          "Failed to duplicate directory: " .. (result or "unknown error"),
-          vim.log.levels.ERROR
-        )
+        vim.notify("Failed to duplicate directory: " .. (result or "unknown error"), vim.log.levels.ERROR)
       end
     else
       -- Duplicate file
@@ -2171,10 +2133,7 @@ M.duplicate_file = function(picker, item)
           picker:refresh()
         end
       else
-        vim.notify(
-          "Failed to duplicate file: " .. (result or "unknown error"),
-          vim.log.levels.ERROR
-        )
+        vim.notify("Failed to duplicate file: " .. (result or "unknown error"), vim.log.levels.ERROR)
       end
     end
   end
@@ -2232,10 +2191,7 @@ M.copy_references = function(picker)
   }, function(_, idx)
     if idx and copy_options[idx] then
       vim.fn.setreg("+", copy_options[idx].value)
-      vim.notify(
-        string.format("Copied %d references (%s)", #items, copy_options[idx].key),
-        vim.log.levels.INFO
-      )
+      vim.notify(string.format("Copied %d references (%s)", #items, copy_options[idx].key), vim.log.levels.INFO)
     end
   end)
 end
@@ -2303,10 +2259,7 @@ local function get_copy_options(ctx, picker, items)
         local name = item.text or item.name or ""
         table.insert(names, name)
         if item.file and item.pos then
-          table.insert(
-            locations,
-            string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1])
-          )
+          table.insert(locations, string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]))
         end
       end
       options = {
@@ -2346,10 +2299,7 @@ local function get_copy_options(ctx, picker, items)
 
       for _, item in ipairs(items) do
         if item.file and item.pos then
-          table.insert(
-            locations,
-            string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1])
-          )
+          table.insert(locations, string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]))
         end
         if item.line then
           table.insert(lines, item.line)
@@ -2383,10 +2333,7 @@ local function get_copy_options(ctx, picker, items)
         table.insert(options, { label = "Matched text", value = item.text, icon = "󰈙" })
       end
       if item.file then
-        table.insert(
-          options,
-          { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" }
-        )
+        table.insert(options, { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" })
       end
     end
   elseif ctx == "git_branches" then
@@ -2490,10 +2437,7 @@ local function get_copy_options(ctx, picker, items)
         table.insert(options, { label = "Text", value = item.text, icon = "󰈙" })
       end
       if item.file then
-        table.insert(
-          options,
-          { label = "File", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" }
-        )
+        table.insert(options, { label = "File", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" })
       end
     end
   end

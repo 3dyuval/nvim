@@ -9,12 +9,7 @@ return {
       local formatters
 
       -- For JS/TS files, use our custom logic
-      if
-        vim.tbl_contains(
-          { "javascript", "typescript", "javascriptreact", "typescriptreact", "json" },
-          filetype
-        )
-      then
+      if vim.tbl_contains({ "javascript", "typescript", "javascriptreact", "typescriptreact", "json" }, filetype) then
         local bufname = vim.api.nvim_buf_get_name(buf)
         local dirname = vim.fn.fnamemodify(bufname, ":h")
 
@@ -33,14 +28,9 @@ return {
           "prettier.config.mjs",
         }
 
-        local has_prettier = vim.fs.find(
-          prettier_configs,
-          { path = dirname, upward = true, limit = 1 }
-        )[1] ~= nil
-        local has_biome = vim.fs.find(
-          { "biome.json", "biome.jsonc" },
-          { path = dirname, upward = true, limit = 1 }
-        )[1] ~= nil
+        local has_prettier = vim.fs.find(prettier_configs, { path = dirname, upward = true, limit = 1 })[1] ~= nil
+        local has_biome = vim.fs.find({ "biome.json", "biome.jsonc" }, { path = dirname, upward = true, limit = 1 })[1]
+          ~= nil
 
         if has_prettier then
           formatters = { { name = "prettier" } }

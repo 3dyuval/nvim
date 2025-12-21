@@ -116,9 +116,7 @@ local function run_test_module(test_info)
     end
   end
 
-  print(
-    "  ⚠ No test runner function found (tried: " .. table.concat(runner_functions, ", ") .. ")"
-  )
+  print("  ⚠ No test runner function found (tried: " .. table.concat(runner_functions, ", ") .. ")")
   return false
 end
 

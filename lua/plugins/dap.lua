@@ -64,8 +64,7 @@ return {
       })
 
       -- Use js-debug from Mason installation
-      local js_debug_path = vim.fn.stdpath("data")
-        .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
+      local js_debug_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
 
       if vim.fn.filereadable(js_debug_path) == 0 then
         vim.notify("DAP: js-debug-adapter not found at " .. js_debug_path, vim.log.levels.ERROR)
@@ -209,20 +208,14 @@ return {
           if config.type == "pwa-chrome" and not config.runtimeExecutable then
             config.runtimeExecutable = chrome_path
             config.runtimeArgs = config.runtimeArgs or {}
-            vim.list_extend(
-              config.runtimeArgs,
-              { "--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors" }
-            )
+            vim.list_extend(config.runtimeArgs, { "--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors" })
           end
         end
         for _, config in pairs(dap.configurations.typescript or {}) do
           if config.type == "pwa-chrome" and not config.runtimeExecutable then
             config.runtimeExecutable = chrome_path
             config.runtimeArgs = config.runtimeArgs or {}
-            vim.list_extend(
-              config.runtimeArgs,
-              { "--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors" }
-            )
+            vim.list_extend(config.runtimeArgs, { "--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors" })
           end
         end
       end
@@ -247,10 +240,7 @@ return {
       vim.fn.sign_define("DapBreakpointCondition", { text = "🔶", texthl = "DiagnosticWarn" })
       vim.fn.sign_define("DapBreakpointRejected", { text = "🚫", texthl = "DiagnosticError" })
       vim.fn.sign_define("DapLogPoint", { text = "📝", texthl = "DiagnosticInfo" })
-      vim.fn.sign_define(
-        "DapStopped",
-        { text = "▶️", texthl = "DiagnosticOk", linehl = "DapStoppedLine" }
-      )
+      vim.fn.sign_define("DapStopped", { text = "▶️", texthl = "DiagnosticOk", linehl = "DapStoppedLine" })
 
       -- Create highlight group for current line
       vim.api.nvim_set_hl(0, "DapStoppedLine", { bg = "#2d3748" })

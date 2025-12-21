@@ -301,8 +301,7 @@ local function collect_tree_keymaps(opts)
           local prefix = item.disabled and "*" or ""
           local display = item.type == "group" and item.group or item.desc
           local action_str = meta.action or ""
-          item.text =
-            string.format("%s%s [%s] %s %s", prefix, item.key, mode, display or "", action_str)
+          item.text = string.format("%s%s [%s] %s %s", prefix, item.key, mode, display or "", action_str)
 
           items[#items + 1] = item
           item_map[item.key] = item
@@ -398,8 +397,7 @@ local function format_tree_keymap(item, picker)
 
   -- Key (show key_part for tree, aligned)
   local key_display = item.key_part or item.key or ""
-  local key_hl = item.disabled and disabled_hl
-    or (item.type == "group" and "Directory" or "SnacksPickerKeymapLhs")
+  local key_hl = item.disabled and disabled_hl or (item.type == "group" and "Directory" or "SnacksPickerKeymapLhs")
   ret[#ret + 1] = { a(key_display, 12), key_hl }
   ret[#ret + 1] = { " " }
 
@@ -483,10 +481,7 @@ local function format_flat_keymap(item, picker)
   ret[#ret + 1] = { " " }
 
   -- Nowait icon
-  local icon_nowait = picker.opts.icons
-      and picker.opts.icons.keymaps
-      and picker.opts.icons.keymaps.nowait
-    or "󰓅 "
+  local icon_nowait = picker.opts.icons and picker.opts.icons.keymaps and picker.opts.icons.keymaps.nowait or "󰓅 "
   local km = item.item or {}
   if km.nowait == 1 then
     local nowait_hl = item.disabled and disabled_hl or "SnacksPickerKeymapNowait"
@@ -568,10 +563,7 @@ local function build_preview_text(item)
   table.insert(lines, string.format("│ Disabled:    %-40s │", item.disabled and "Yes" or "No"))
 
   if item.groups and #item.groups > 0 then
-    table.insert(
-      lines,
-      string.format("│ Groups:      %-40s │", table.concat(item.groups, " > "))
-    )
+    table.insert(lines, string.format("│ Groups:      %-40s │", table.concat(item.groups, " > ")))
   end
 
   if item.file then
@@ -654,12 +646,8 @@ function M.open(opts)
       disabled_count
     )
   else
-    title = string.format(
-      "Keymaps [%s] (%d active, %d disabled)",
-      title_suffix,
-      #items - disabled_count,
-      disabled_count
-    )
+    title =
+      string.format("Keymaps [%s] (%d active, %d disabled)", title_suffix, #items - disabled_count, disabled_count)
   end
 
   Snacks.picker({
@@ -709,10 +697,7 @@ function M.open(opts)
         elseif item.disabled then
           vim.notify("This keymap is disabled", vim.log.levels.INFO)
         else
-          vim.notify(
-            string.format("Keymap: %s -> %s", item.key, item.desc or ""),
-            vim.log.levels.INFO
-          )
+          vim.notify(string.format("Keymap: %s -> %s", item.key, item.desc or ""), vim.log.levels.INFO)
         end
       end,
     },

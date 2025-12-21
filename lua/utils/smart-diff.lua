@@ -126,34 +126,17 @@ function M.smart_resolve_union()
 
   -- Create temporary files for merge-file command
   vim.cmd(
-    "!git show :1:"
-      .. vim.fn.shellescape(file)
-      .. " > "
-      .. temp_base
-      .. " 2>/dev/null || echo '' > "
-      .. temp_base
+    "!git show :1:" .. vim.fn.shellescape(file) .. " > " .. temp_base .. " 2>/dev/null || echo '' > " .. temp_base
   )
   vim.cmd(
-    "!git show :2:"
-      .. vim.fn.shellescape(file)
-      .. " > "
-      .. temp_ours
-      .. " 2>/dev/null || echo '' > "
-      .. temp_ours
+    "!git show :2:" .. vim.fn.shellescape(file) .. " > " .. temp_ours .. " 2>/dev/null || echo '' > " .. temp_ours
   )
   vim.cmd(
-    "!git show :3:"
-      .. vim.fn.shellescape(file)
-      .. " > "
-      .. temp_theirs
-      .. " 2>/dev/null || echo '' > "
-      .. temp_theirs
+    "!git show :3:" .. vim.fn.shellescape(file) .. " > " .. temp_theirs .. " 2>/dev/null || echo '' > " .. temp_theirs
   )
 
   -- Perform union merge
-  vim.cmd(
-    "!git merge-file --union " .. vim.fn.shellescape(file) .. " " .. temp_base .. " " .. temp_theirs
-  )
+  vim.cmd("!git merge-file --union " .. vim.fn.shellescape(file) .. " " .. temp_base .. " " .. temp_theirs)
 
   -- Clean up temporary files
   vim.fn.delete(temp_base)

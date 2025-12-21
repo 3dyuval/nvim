@@ -126,12 +126,7 @@ return {
     -- Graphite layout: Direct mappings to <Plug> functions (bypasses global remaps)
     -- Set AFTER setup() so <Plug> mappings exist and take precedence over global w/x/c
     vim.keymap.set("n", "ws", "<Plug>(nvim-surround-change)", { desc = "Change surround" })
-    vim.keymap.set(
-      "n",
-      "xs",
-      "<Plug>(nvim-surround-delete)",
-      { desc = "Delete surround", nowait = true }
-    )
+    vim.keymap.set("n", "xs", "<Plug>(nvim-surround-delete)", { desc = "Delete surround", nowait = true })
     vim.keymap.set("n", "xst", function()
       vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("dst", true, false, true), "m", false)
     end, { desc = "Delete surrounding tag", nowait = true })

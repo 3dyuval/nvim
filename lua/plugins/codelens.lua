@@ -29,23 +29,13 @@ return {
           local line_content = ""
           local bufnr = vim.uri_to_bufnr(ref.uri)
           if vim.api.nvim_buf_is_loaded(bufnr) then
-            line_content = vim.api.nvim_buf_get_lines(
-              bufnr,
-              ref.range.start.line,
-              ref.range.start.line + 1,
-              false
-            )[1] or ""
+            line_content = vim.api.nvim_buf_get_lines(bufnr, ref.range.start.line, ref.range.start.line + 1, false)[1]
+              or ""
           end
 
           table.insert(items, {
             file = vim.uri_to_fname(ref.uri),
-            text = string.format(
-              "%s:%d:%d %s",
-              filename,
-              line_num,
-              col_num,
-              line_content:gsub("^%s+", "")
-            ),
+            text = string.format("%s:%d:%d %s", filename, line_num, col_num, line_content:gsub("^%s+", "")),
             pos = { line_num, col_num },
             idx = i,
             score = 1,
@@ -220,21 +210,12 @@ return {
         local lens_items = {}
         for i, lens in ipairs(lenses) do
           local line_num = lens.range.start.line + 1
-          local line_content = vim.api.nvim_buf_get_lines(
-            0,
-            lens.range.start.line,
-            lens.range.start.line + 1,
-            false
-          )[1] or ""
+          local line_content = vim.api.nvim_buf_get_lines(0, lens.range.start.line, lens.range.start.line + 1, false)[1]
+            or ""
           local title = lens.command and lens.command.title or "Unknown"
 
           table.insert(lens_items, {
-            text = string.format(
-              "Line %d: %s - %s",
-              line_num,
-              title,
-              line_content:gsub("^%s+", "")
-            ),
+            text = string.format("Line %d: %s - %s", line_num, title, line_content:gsub("^%s+", "")),
             lens = lens,
             line = line_num,
           })

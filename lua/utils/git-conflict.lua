@@ -89,8 +89,7 @@ function M.get_merge_state()
   if vim.fn.filereadable(git_dir .. "/MERGE_HEAD") == 1 then
     return "merge"
   elseif
-    vim.fn.filereadable(git_dir .. "/rebase-merge") == 1
-    or vim.fn.filereadable(git_dir .. "/rebase-apply") == 1
+    vim.fn.filereadable(git_dir .. "/rebase-merge") == 1 or vim.fn.filereadable(git_dir .. "/rebase-apply") == 1
   then
     return "rebase"
   elseif vim.fn.filereadable(git_dir .. "/CHERRY_PICK_HEAD") == 1 then

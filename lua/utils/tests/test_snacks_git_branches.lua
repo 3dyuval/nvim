@@ -152,13 +152,7 @@ function M.test_all_branches_listing()
 
   local total_all = local_count + remote_count
   if total_all > local_only_count then
-    print(
-      "✓ All branches ("
-        .. total_all
-        .. ") > local only ("
-        .. local_only_count
-        .. ") - Fix verified!"
-    )
+    print("✓ All branches (" .. total_all .. ") > local only (" .. local_only_count .. ") - Fix verified!")
     return true
   else
     print("✗ ERROR: All branches should show more than local only")

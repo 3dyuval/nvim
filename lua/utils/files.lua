@@ -242,23 +242,12 @@ local function show_references_picker(results)
     local line_content = ""
     local bufnr = vim.uri_to_bufnr(uri)
     if vim.api.nvim_buf_is_loaded(bufnr) then
-      line_content = vim.api.nvim_buf_get_lines(
-        bufnr,
-        ref.range.start.line,
-        ref.range.start.line + 1,
-        false
-      )[1] or ""
+      line_content = vim.api.nvim_buf_get_lines(bufnr, ref.range.start.line, ref.range.start.line + 1, false)[1] or ""
     end
 
     table.insert(items, {
       file = vim.uri_to_fname(uri),
-      text = string.format(
-        "%s:%d:%d %s",
-        filename,
-        line_num,
-        col_num,
-        line_content:gsub("^%s+", "")
-      ),
+      text = string.format("%s:%d:%d %s", filename, line_num, col_num, line_content:gsub("^%s+", "")),
       pos = { line_num, col_num },
       idx = i,
       score = 1,
@@ -429,7 +418,7 @@ M.smart_rename = function()
   local position_encoding = client.offset_encoding or "utf-16"
   local params = vim.lsp.util.make_position_params(0, position_encoding)
 
-  client.request("textDocument/prepareRename", params, function(_, result)
+  client.request("textDocument/prepareRename", params, function(err, result)
     if result then
       -- Extract placeholder from prepareRename result
       local placeholder = result.placeholder
@@ -445,6 +434,9 @@ M.smart_rename = function()
           )[1]
         )
       vim.lsp.buf.rename(placeholder)
+    elseif err == nil and client.server_capabilities.renameProvider then
+      -- prepareRename returned nil but client supports rename (e.g., lua_ls)
+      vim.lsp.buf.rename()
     elseif is_import_path() then
       resolve_import_file(function(file_path)
         if file_path then
