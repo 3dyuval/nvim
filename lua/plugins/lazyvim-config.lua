@@ -62,5 +62,15 @@ return {
   { "EdenEast/nightfox.nvim", enabled = false },
   { "sainnhe/everforest", enabled = false },
   { "loctvl842/monokai-pro.nvim", enabled = false },
+
+  -- Opt out of LazyVim keymaps - bind explicitly in keymaps.lua
+  { "MagicDuck/grug-far.nvim", keys = {} },
+  { "folke/trouble.nvim", keys = {} },
+  {
+    "lewis6991/gitsigns.nvim",
+    opts = {
+      on_attach = function() end, -- Disable default keymaps, defined in keymaps.lua
+    },
+  },
   -- Note: LSP keymaps are now consolidated in lua/plugins/lsp-keymaps.lua
 }

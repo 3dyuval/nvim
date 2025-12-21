@@ -15,6 +15,7 @@ local smart_diff = require("utils.smart-diff")
 local mode = kmu.flags.mode
 local disabled = kmu.flags.disabled
 local x = kmu.mod("x")
+local v = kmu.mod("v")
 local ctrl = kmu.key("C")
 local _ = kmu._
 local remap = kmu.remap
@@ -99,6 +100,8 @@ map({
 -- GIT OPERATIONS
 -- ============================================================================
 
+local gs = require("gitsigns")
+
 map({
   -- Smart context-aware diff operations (lowercase)
   g = {
@@ -129,6 +132,31 @@ map({
     b = { git.git_branches_picker, desc = "Git branches (all)" },
   },
 
+  -- Gitsigns hunk operations
+  ["<leader>gh"] = {
+    group = "Hunks",
+    s = { [mode] = { "n", "x" }, cmd = "Gitsigns stage_hunk", desc = "Stage Hunk" },
+    r = { [mode] = { "n", "x" }, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk" },
+    S = { gs.stage_buffer, desc = "Stage Buffer" },
+    u = { gs.undo_stage_hunk, desc = "Undo Stage Hunk" },
+    R = { gs.reset_buffer, desc = "Reset Buffer" },
+    p = { gs.preview_hunk_inline, desc = "Preview Hunk Inline" },
+    b = {
+      function()
+        gs.blame_line({ full = true })
+      end,
+      desc = "Blame Line",
+    },
+    B = { gs.blame, desc = "Blame Buffer" },
+    d = { gs.diffthis, desc = "Diff This" },
+    D = {
+      function()
+        gs.diffthis("~")
+      end,
+      desc = "Diff This ~",
+    },
+  },
+
   -- Gitsigns toggle commands under <leader>ug
   ["<leader>ug"] = {
     g = { "<leader>uG", desc = "Toggle Git Signs" }, -- Maps to default LazyVim toggle
@@ -136,6 +164,40 @@ map({
     n = { cmd = "Gitsigns toggle_numhl", desc = "Toggle number highlights" },
     w = { cmd = "Gitsigns toggle_word_diff", desc = "Toggle word diff" },
     b = { cmd = "Gitsigns toggle_current_line_blame", desc = "Toggle current line blame" },
+  },
+
+  -- Hunk navigation
+  ["]h"] = {
+    function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "]c", bang = true })
+      else
+        gs.nav_hunk("next")
+      end
+    end,
+    desc = "Next Hunk",
+  },
+  ["[h"] = {
+    function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "[c", bang = true })
+      else
+        gs.nav_hunk("prev")
+      end
+    end,
+    desc = "Prev Hunk",
+  },
+  ["]H"] = {
+    function()
+      gs.nav_hunk("last")
+    end,
+    desc = "Last Hunk",
+  },
+  ["[H"] = {
+    function()
+      gs.nav_hunk("first")
+    end,
+    desc = "First Hunk",
   },
 })
 
@@ -275,9 +337,48 @@ map({
 map({
   ["]t"] = { require("todo-comments").jump_next, desc = "Next Todo Comment" },
   ["[t"] = { require("todo-comments").jump_prev, desc = "Previous Todo Comment" },
+})
+
+-- ============================================================================
+-- DIAGNOSTICS (Trouble)
+-- ============================================================================
+
+map({
   ["<leader>x"] = {
+    x = { cmd = "Trouble diagnostics toggle", desc = "Diagnostics (Trouble)" },
+    X = { cmd = "Trouble diagnostics toggle filter.buf=0", desc = "Buffer Diagnostics (Trouble)" },
+    L = { cmd = "Trouble loclist toggle", desc = "Location List (Trouble)" },
+    Q = { cmd = "Trouble qflist toggle", desc = "Quickfix List (Trouble)" },
+    s = { cmd = "Trouble symbols toggle", desc = "Symbols (Trouble)" },
+    S = { cmd = "Trouble lsp toggle", desc = "LSP references/definitions (Trouble)" },
     t = { cmd = "Trouble todo toggle", desc = "Todo (Trouble)" },
     T = { cmd = "Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}", desc = "Todo/Fix/Fixme" },
+  },
+  ["[q"] = {
+    function()
+      if require("trouble").is_open() then
+        require("trouble").prev({ skip_groups = true, jump = true })
+      else
+        local ok, err = pcall(vim.cmd.cprev)
+        if not ok then
+          vim.notify(err, vim.log.levels.ERROR)
+        end
+      end
+    end,
+    desc = "Previous Trouble/Quickfix Item",
+  },
+  ["]q"] = {
+    function()
+      if require("trouble").is_open() then
+        require("trouble").next({ skip_groups = true, jump = true })
+      else
+        local ok, err = pcall(vim.cmd.cnext)
+        if not ok then
+          vim.notify(err, vim.log.levels.ERROR)
+        end
+      end
+    end,
+    desc = "Next Trouble/Quickfix Item",
   },
 })
 
@@ -289,8 +390,8 @@ map({
   ["<leader>s"] = {
     K = { cmd = "KMUInspect", exec = false, desc = "KMU only inspect" },
     D = { cmd = "ProjectDiagnostics", desc = "Project Diagnostics" },
-    r = { search.grug_far_range, desc = "Search/Replace within range (Grug-far)" },
     F = { search.grug_far_current_file, desc = "Search/Replace in current file (Grug-far)" },
+    r = { cmd = "GrugFar", desc = "Search and replace (Grug-far)" },
     R = {
       search.grug_far_current_directory,
       desc = "Search/Replace in current directory (Grug-far)",
