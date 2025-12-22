@@ -260,6 +260,13 @@ return {
       enabled = true,
       hidden = true,
       ignored = false,
+      -- Toggle indicators shown in title bar
+      toggles = {
+        follow = "f",
+        hidden = "h",
+        ignored = "i",
+        tree = "t",
+      },
       -- Global actions available in all pickers
       actions = {
         copy = {
@@ -297,6 +304,10 @@ return {
             preset = "default",
             preview = false,
           },
+          -- Custom formatter that respects tree toggle (hides tree lines in flat mode)
+          format = function(item, picker)
+            return require("utils.picker-extensions").format_file_tree_aware(item, picker)
+          end,
           filter = function(item)
             -- Default explorer behavior - show all files and directories
             return true
@@ -344,6 +355,11 @@ return {
                 require("utils.picker-extensions").actions.context_menu(picker, item)
               end,
             },
+            toggle_tree_persist = {
+              action = function(picker)
+                require("utils.picker-extensions").actions.toggle_tree_persist(picker)
+              end,
+            },
           },
           win = {
             list = {
@@ -373,6 +389,7 @@ return {
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
                 ["f"] = "context_menu",
+                ["T"] = "toggle_tree_persist",
               },
             },
           },

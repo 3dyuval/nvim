@@ -1,1 +1,1 @@
-return { "jrop/u.nvim", lazy = true }
+return { "jrop/u.nvim", branch = "v2", lazy = true }

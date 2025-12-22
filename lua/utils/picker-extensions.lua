@@ -2503,6 +2503,97 @@ M.copy = function(picker, item)
   end)
 end
 
+-- Persistent state for picker toggles (survives across picker instances)
+local persistent_state = {
+  tracker = nil, -- lazy loaded u.tracker
+  signals = {}, -- signal storage by name
+}
+
+-- Get or create a persistent signal
+local function get_persistent_signal(name, default_value)
+  if not persistent_state.tracker then
+    local ok, t = pcall(require, "u.tracker")
+    if ok then
+      persistent_state.tracker = t
+    else
+      return nil
+    end
+  end
+
+  if not persistent_state.signals[name] then
+    persistent_state.signals[name] = persistent_state.tracker.create_signal(default_value)
+  end
+
+  return persistent_state.signals[name]
+end
+
+-- Toggle tree/flat view for explorer (persists across picker instances)
+-- Updates opts.tree, formatters.file.filename_only, and clears parent refs for flat view
+-- Also collapses all directories when switching to flat mode
+M.toggle_tree_persist = function(picker)
+  if not picker or not picker.opts then
+    return
+  end
+
+  -- Get or create persistent signal for tree state
+  local s_tree = get_persistent_signal("tree", picker.opts.tree ~= false)
+
+  -- Toggle tree state
+  local new_tree = not picker.opts.tree
+  picker.opts.tree = new_tree
+
+  -- Update signal if available
+  if s_tree then
+    s_tree:set(new_tree)
+  end
+
+  -- Update formatter to match tree state
+  picker.opts.formatters = picker.opts.formatters or {}
+  picker.opts.formatters.file = picker.opts.formatters.file or {}
+  picker.opts.formatters.file.filename_only = new_tree
+
+  -- Store tree preference for format override
+  picker._tree_mode = new_tree
+
+  -- Expand all directories recursively when switching to flat mode
+  if not new_tree then
+    local ok, Tree = pcall(require, "snacks.explorer.tree")
+    if ok then
+      local root = Tree:find(picker:cwd())
+      if root then
+        Tree:walk(root, function(node)
+          if node.dir then
+            node.open = true
+            Tree:expand(node)
+          end
+        end, { all = true })
+      end
+    end
+  end
+
+  -- Refresh the picker
+  picker.list:set_target()
+  picker:find()
+end
+
+-- Custom file formatter that respects tree mode toggle
+-- Use this in explorer config: format = require("utils.picker-extensions").format_file_tree_aware
+M.format_file_tree_aware = function(item, picker)
+  -- If tree mode is off, temporarily hide parent to prevent tree rendering
+  local original_parent = item.parent
+  if picker._tree_mode == false then
+    item.parent = nil
+  end
+
+  -- Call the default file formatter
+  local ret = Snacks.picker.format.file(item, picker)
+
+  -- Restore parent
+  item.parent = original_parent
+
+  return ret
+end
+
 -- Export all picker action functions for use in snacks.lua
 M.actions = {
   open_multiple_buffers = M.open_multiple_buffers,
@@ -2523,6 +2614,8 @@ M.actions = {
   context_menu = M.context_menu,
   git_context_menu = M.git_context_menu,
   buffer_context_menu = M.buffer_context_menu,
+  -- Toggle actions (persist = survives across picker instances)
+  toggle_tree_persist = M.toggle_tree_persist,
 }
 
 return M
