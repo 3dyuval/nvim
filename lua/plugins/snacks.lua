@@ -355,9 +355,9 @@ return {
                 require("utils.picker-extensions").actions.context_menu(picker, item)
               end,
             },
-            toggle_tree_persist = {
+            toggle_tree = {
               action = function(picker)
-                require("utils.picker-extensions").actions.toggle_tree_persist(picker)
+                require("utils.picker-extensions").actions.toggle_tree(picker)
               end,
             },
           },
@@ -389,7 +389,7 @@ return {
                 ["R"] = "explorer_rename", -- Rename on 'R',
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
                 ["f"] = "context_menu",
-                ["T"] = "toggle_tree_persist",
+                ["T"] = "toggle_tree",
               },
             },
           },

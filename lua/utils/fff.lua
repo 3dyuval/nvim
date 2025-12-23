@@ -42,7 +42,7 @@ local function finder(opts, ctx)
     end
   end
 
-  local fff_result = file_picker.search_files(ctx.filter.search, 100, 4, M.state.current_file_cache, false)
+  local fff_result = file_picker.search_files(ctx.filter.search, M.state.current_file_cache, 100, 4, nil)
 
   ---@type snacks.picker.finder.Item[]
   local items = {}
@@ -125,6 +125,30 @@ local function format(item, picker)
   return ret
 end
 
+-- Session storage for fff layout persistence
+-- Must start with uppercase for persistence.nvim to save it
+local DEFAULT_LAYOUT = "default"
+
+local function get_persisted_layout()
+  return vim.g.FFFLayout or DEFAULT_LAYOUT
+end
+
+local function set_persisted_layout(layout)
+  vim.g.FFFLayout = layout
+end
+
+-- Toggle between default and sidebar layouts
+local function toggle_layout(picker)
+  local current = picker.opts.layout and picker.opts.layout.preset or DEFAULT_LAYOUT
+  local new_layout = current == "sidebar" and "default" or "sidebar"
+  set_persisted_layout(new_layout)
+  -- Reopen picker with new layout
+  picker:close()
+  vim.schedule(function()
+    M.fff()
+  end)
+end
+
 function M.fff()
   local file_picker = require("fff.file_picker")
   if not file_picker.is_initialized() then
@@ -133,12 +157,39 @@ function M.fff()
       vim.notify("Failed to initialize file picker", vim.log.levels.ERROR)
     end
   end
+
+  local ext = require("utils.picker-extensions")
+  local layout = get_persisted_layout()
+
   Snacks.picker({
     title = "FFFiles",
     finder = finder,
     on_close = on_close,
     format = format,
     live = true,
+    layout = { preset = layout },
+    actions = {
+      copy_file_path = function(picker, item)
+        ext.copy_file_path(picker, item)
+      end,
+      copy = function(picker, item)
+        ext.copy(picker, item)
+      end,
+      toggle_layout = toggle_layout,
+    },
+    win = {
+      input = {
+        keys = {
+          ["<C-l>"] = { "toggle_layout", mode = { "i", "n" } },
+        },
+      },
+      list = {
+        keys = {
+          ["p"] = "copy_file_path",
+          ["<C-l>"] = "toggle_layout",
+        },
+      },
+    },
   })
 end
 

@@ -274,7 +274,7 @@ map({
 
 map({
   [ctrl] = {
-    f = { files.find_files_snacks, desc = "Find files (snacks + fff)" },
+    f = { files.find_files, desc = "Find files (git root)" },
     s = { files.save_file, desc = "Save file" },
     S = { files.save_and_stage_file, desc = "Save and stage file" },
   },

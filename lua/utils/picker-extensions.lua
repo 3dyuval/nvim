@@ -2503,46 +2503,46 @@ M.copy = function(picker, item)
   end)
 end
 
--- Persistent state for picker toggles (survives across picker instances)
-local persistent_state = {
+-- State for picker toggles (survives across picker instances within session)
+local picker_state = {
   tracker = nil, -- lazy loaded u.tracker
   signals = {}, -- signal storage by name
 }
 
--- Get or create a persistent signal
-local function get_persistent_signal(name, default_value)
-  if not persistent_state.tracker then
+-- Get or create a signal for reactive state
+local function get_signal(name, default_value)
+  if not picker_state.tracker then
     local ok, t = pcall(require, "u.tracker")
     if ok then
-      persistent_state.tracker = t
+      picker_state.tracker = t
     else
       return nil
     end
   end
 
-  if not persistent_state.signals[name] then
-    persistent_state.signals[name] = persistent_state.tracker.create_signal(default_value)
+  if not picker_state.signals[name] then
+    picker_state.signals[name] = picker_state.tracker.create_signal(default_value)
   end
 
-  return persistent_state.signals[name]
+  return picker_state.signals[name]
 end
 
--- Toggle tree/flat view for explorer (persists across picker instances)
+-- Toggle tree/flat view for explorer
 -- Updates opts.tree, formatters.file.filename_only, and clears parent refs for flat view
--- Also collapses all directories when switching to flat mode
-M.toggle_tree_persist = function(picker)
+-- Also expands all directories when switching to flat mode
+M.toggle_tree = function(picker)
   if not picker or not picker.opts then
     return
   end
 
-  -- Get or create persistent signal for tree state
-  local s_tree = get_persistent_signal("tree", picker.opts.tree ~= false)
+  -- Get or create signal for tree state
+  local s_tree = get_signal("tree", picker.opts.tree ~= false)
 
   -- Toggle tree state
   local new_tree = not picker.opts.tree
   picker.opts.tree = new_tree
 
-  -- Update signal if available
+  -- Update signal
   if s_tree then
     s_tree:set(new_tree)
   end
@@ -2615,7 +2615,7 @@ M.actions = {
   git_context_menu = M.git_context_menu,
   buffer_context_menu = M.buffer_context_menu,
   -- Toggle actions (persist = survives across picker instances)
-  toggle_tree_persist = M.toggle_tree_persist,
+  toggle_tree = M.toggle_tree,
 }
 
 return M
