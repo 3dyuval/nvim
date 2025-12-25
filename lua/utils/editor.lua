@@ -30,8 +30,26 @@ M.reload_keymaps = function()
   end
 end
 
+-- Run TypeScript type check (tsc)
 M.typescript_check = function()
-  vim.cmd("split | terminal tsgo --noEmit")
+  local tsconfig = vim.fs.find("tsconfig.json", { upward = true })[1]
+  if tsconfig then
+    local root = vim.fs.dirname(tsconfig)
+    vim.cmd("split | terminal cd " .. vim.fn.shellescape(root) .. " && npx tsc --noEmit --pretty")
+  else
+    vim.notify("No tsconfig.json found", vim.log.levels.WARN)
+  end
+end
+
+-- Run TypeScript type check with tsgo (faster)
+M.typescript_check_go = function()
+  local tsconfig = vim.fs.find("tsconfig.json", { upward = true })[1]
+  if tsconfig then
+    local root = vim.fs.dirname(tsconfig)
+    vim.cmd("split | terminal cd " .. vim.fn.shellescape(root) .. " && tsgo --noEmit --pretty")
+  else
+    vim.notify("No tsconfig.json found", vim.log.levels.WARN)
+  end
 end
 
 M.paste_inline = function()
