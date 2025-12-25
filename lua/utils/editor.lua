@@ -31,7 +31,7 @@ M.reload_keymaps = function()
 end
 
 M.typescript_check = function()
-  vim.cmd("split | terminal tsc --noEmit")
+  vim.cmd("split | terminal tsgo --noEmit")
 end
 
 M.paste_inline = function()

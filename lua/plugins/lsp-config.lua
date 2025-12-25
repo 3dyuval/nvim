@@ -1,7 +1,21 @@
 return {
   "neovim/nvim-lspconfig",
-  opts = {
-    servers = {
+  opts = function(_, opts)
+    -- Register custom tsgo server
+    local lspconfig = require("lspconfig")
+    local configs = require("lspconfig.configs")
+
+    if not configs.tsgo then
+      configs.tsgo = {
+        default_config = {
+          cmd = { "tsgo", "--lsp", "--stdio" },
+          filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+          root_dir = lspconfig.util.root_pattern("tsconfig.json", "jsconfig.json", "package.json", ".git"),
+        },
+      }
+    end
+
+    opts.servers = opts.servers or {
       -- Global server config
       ["*"] = {
         capabilities = {
@@ -89,6 +103,9 @@ return {
           },
         },
       },
+      -- === TypeScript Go (tsgo) ===
+      tsgo = { enabled = true },
+
       -- Disable formatters that Mason tries to use as LSP servers
       stylua = { enabled = false }, -- stylua is only a formatter (via conform.nvim), not an LSP
 
@@ -196,9 +213,10 @@ return {
           },
         },
       },
-    },
-    setup = {
-      vue_ls = function(_, opts)
+    }
+
+    opts.setup = opts.setup or {}
+    opts.setup.vue_ls = function(_, opts)
         Snacks.util.lsp.on({ name = "vue_ls" }, function(bufnr, client)
           -- Disable rename in hybrid mode (vtsls handles it)
           client.server_capabilities.renameProvider = false
@@ -206,7 +224,6 @@ return {
             require("nvim-navic").attach(client, bufnr)
           end
         end)
-      end,
-    },
-  },
+    end
+  end,
 }
