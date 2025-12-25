@@ -1,33 +1,67 @@
-local function js_formatter(bufnr)
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
-  local dirname = vim.fn.fnamemodify(bufname, ":h")
+local prettier_configs = {
+  ".prettierrc",
+  ".prettierrc.json",
+  ".prettierrc.yml",
+  ".prettierrc.yaml",
+  ".prettierrc.json5",
+  ".prettierrc.js",
+  ".prettierrc.cjs",
+  ".prettierrc.mjs",
+  ".prettierrc.toml",
+  "prettier.config.js",
+  "prettier.config.cjs",
+  "prettier.config.mjs",
+}
 
-  local prettier_configs = {
-    ".prettierrc",
-    ".prettierrc.json",
-    ".prettierrc.yml",
-    ".prettierrc.yaml",
-    ".prettierrc.json5",
-    ".prettierrc.js",
-    ".prettierrc.cjs",
-    ".prettierrc.mjs",
-    ".prettierrc.toml",
-    "prettier.config.js",
-    "prettier.config.cjs",
-    "prettier.config.mjs",
-  }
+-- Path-based biome presets (use biome with specific config for these paths)
+-- Maps path prefix to biome preset name in formatters/biome-{preset}.json
+local biome_presets = {
+  [vim.env.HOME .. "/gc/web"] = "html-multiline",
+}
 
-  local has_prettier = vim.fs.find(prettier_configs, {
-    path = dirname,
-    upward = true,
-    limit = 1,
-  })[1] ~= nil
-
-  if has_prettier then
-    return { "prettier" }
-  else
-    return { "biome" }
+-- Get biome preset for a file path (returns preset name or nil)
+local function get_biome_preset(filepath)
+  for path_prefix, preset in pairs(biome_presets) do
+    if filepath:sub(1, #path_prefix) == path_prefix then
+      return preset
+    end
   end
+  return nil
+end
+
+-- Search upward from file for prettier config (stops at filesystem root)
+local function has_prettier_config(bufnr)
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+  if filepath == "" then
+    return false
+  end
+
+  local found = vim.fs.find(prettier_configs, {
+    upward = true,
+    path = vim.fs.dirname(filepath),
+    stop = vim.env.HOME,
+  })[1]
+
+  return found ~= nil
+end
+
+local function js_formatter(bufnr)
+  local filepath = vim.api.nvim_buf_get_name(bufnr)
+  local preset = get_biome_preset(filepath)
+
+  if has_prettier_config(bufnr) then
+    -- Prettier + biome chain if preset exists
+    if preset then
+      return { "prettier", "biome_" .. preset }
+    end
+    return { "prettier" }
+  end
+
+  -- Biome only
+  if preset then
+    return { "biome_" .. preset }
+  end
+  return { "biome" }
 end
 
 -- Helper to run LSP code action by kind
@@ -111,11 +145,23 @@ return {
       javascriptreact = js_formatter,
       json = js_formatter,
       html = js_formatter,
-      -- vue uses LSP formatting (Prettier can't handle TS generics in Vue SFCs)
+      vue = js_formatter,
       css = js_formatter,
       scss = js_formatter,
     },
     formatters = {
+      -- Biome with html-multiline preset
+      ["biome_html-multiline"] = {
+        command = "biome",
+        args = {
+          "format",
+          "--config-path",
+          vim.fn.stdpath("config") .. "/formatters/biome-html-multiline.json",
+          "--stdin-file-path",
+          "$FILENAME",
+        },
+        stdin = true,
+      },
       -- Custom ZMK keymap formatter
       zmk_keymap_formatter = {
         command = function()

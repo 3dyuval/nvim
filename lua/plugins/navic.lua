@@ -17,6 +17,7 @@ return {
     end,
     lsp = {
       auto_attach = true,
+      preference = { "vue_ls", "vtsls", "tsgo", "lua_ls", "gopls", "rust_analyzer" },
     },
     -- Remove icons (text-only)
     icons = {
