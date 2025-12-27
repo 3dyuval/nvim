@@ -1,7 +1,15 @@
 local run_ai_run = require("run-ai-run")
 local M = {}
 
-local DEBUG = true
+local DEBUG = false
+
+-- Files to exclude from full diff (noisy/generated files)
+M.ignored_files = {
+  "lazy-lock.json",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+}
 
 local function open_debug_buffer(info)
   local buf = vim.api.nvim_create_buf(false, true)
@@ -47,34 +55,37 @@ function M.close_debug_buffer()
   end
 end
 
---- Build prompt from message options
----@param msg_opts table Message options (conventional, body, short, detailed, footer, type, scope)
+-- Message options (conventional, body, short, detailed, footer, type, scope)
+---@param msg_opts table
 ---@return string prompt
 local function build_prompt(msg_opts)
   local parts = { "write a commit message" }
 
+  -- User-provided values or placeholders
+  local subject_wrap = msg_opts.subject_wrap or 50
+  local body_wrap = msg_opts.wrap or 72
+  local _type = (msg_opts.commit_type and msg_opts.commit_type ~= "") and msg_opts.commit_type or "<TYPE>"
+  local _scope = (msg_opts.scope and msg_opts.scope ~= "") and msg_opts.scope or "<SCOPE>"
+  local _subject = (msg_opts.subject and msg_opts.subject ~= "") and msg_opts.subject or "<SUBJECT>"
+
   if msg_opts.conventional then
-    local conv = "using conventional commit format: <type>(<scope>): <subject>"
-    if msg_opts.commit_type and msg_opts.scope then
-      conv = conv .. ". Use type=" .. msg_opts.commit_type .. " and scope=" .. msg_opts.scope
-    elseif msg_opts.commit_type then
-      conv = conv .. ". Use type=" .. msg_opts.commit_type .. ", infer appropriate scope from the diff"
-    elseif msg_opts.scope then
-      conv = conv .. ". Use scope=" .. msg_opts.scope .. ", infer appropriate type (feat/fix/chore/etc) from the diff"
-    else
-      conv = conv .. ". Infer appropriate type and scope from the diff"
-    end
-    table.insert(parts, conv)
+    table.insert(parts, "using conventional commit format: " .. _type .. "(" .. _scope .. "): " .. _subject)
+    table.insert(parts, "complete fields marked with <> based on the diff")
+  elseif msg_opts.subject and msg_opts.subject ~= "" then
+    table.insert(parts, msg_opts.subject)
   end
 
-  if msg_opts.short then
-    table.insert(parts, "max 10 words")
-  elseif msg_opts.detailed then
-    table.insert(parts, "with full detailed context")
-  end
+  table.insert(parts, "subject line max " .. subject_wrap .. " characters")
 
   if msg_opts.body then
-    table.insert(parts, "include detailed body explaining WHY")
+    if msg_opts.body_format == "paragraph" then
+      table.insert(parts, "include body as natural paragraph explaining WHY")
+    else
+      table.insert(parts, "include body as bullet points describing WHAT changed at high level")
+    end
+    table.insert(parts, "wrap body lines at " .. body_wrap .. " characters")
+  else
+    table.insert(parts, "subject line ONLY, no body")
   end
 
   if msg_opts.footer and msg_opts.footer ~= "" then
@@ -109,6 +120,36 @@ function M.generateCommitMessage(opts)
     end)
   end
 
+  -- Preview prompt mode: show prompt and wait for confirmation
+  if msg_options.preview_prompt then
+    local buf = vim.api.nvim_create_buf(false, true)
+    local lines = vim.split(prompt, "\n")
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
+    vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
+    vim.api.nvim_buf_set_name(buf, "AI Prompt Preview")
+
+    vim.cmd("split")
+    vim.api.nvim_win_set_buf(0, buf)
+
+    -- Keymaps: <CR> to proceed, q to cancel
+    vim.keymap.set("n", "<CR>", function()
+      vim.api.nvim_win_close(0, true)
+      vim.api.nvim_buf_delete(buf, { force = true })
+      msg_options.preview_prompt = false -- prevent recursion
+      M.generateCommitMessage(opts)
+    end, { buffer = buf, desc = "Proceed with AI generation" })
+
+    vim.keymap.set("n", "q", function()
+      vim.api.nvim_win_close(0, true)
+      vim.api.nvim_buf_delete(buf, { force = true })
+      vim.notify("AI commit cancelled", vim.log.levels.INFO)
+    end, { buffer = buf, desc = "Cancel" })
+
+    vim.notify("Press <CR> to proceed, q to cancel", vim.log.levels.INFO)
+    return
+  end
+
   run_ai_run.run(prompt, {
     on_success = function(message)
       message = message:gsub("[\n\r]+$", "")
@@ -124,62 +165,4 @@ function M.generateCommitMessage(opts)
   })
 end
 
--- TODO: neogit staged view can be stale, using direct diff pass instead
--- function M.generateCommitMessageFromGit(opts)
---   opts = opts or {}
---   local diff_options = opts.diff_options or { cached = true }
---   local msg_options = opts.msg_options or {}
---   local on_success = opts.on_success or function(message) end
---   local on_error = opts.on_error or function(error_msg) end
---   local diff_args = { "diff" }
---   if diff_options.cached then
---     table.insert(diff_args, "--cached")
---   end
---   if diff_options.stat then
---     table.insert(diff_args, "--stat")
---   end
---   if diff_options.name_only then
---     table.insert(diff_args, "--name-only")
---   end
---   if diff_options.ignore_whitespace then
---     table.insert(diff_args, "--ignore-all-space")
---   end
---   if diff_options.find_renames then
---     table.insert(diff_args, "-M")
---   end
---   if diff_options.find_copies then
---     table.insert(diff_args, "-C")
---   end
---
---   local git_cmd = "git " .. table.concat(diff_args, " ")
---
---   run_ai_run
---     .job({
---       command = "git",
---       args = diff_args,
---       on_exit = function(diff_job, return_val)
---         if return_val ~= 0 then
---           vim.schedule(function()
---             on_error("Git diff failed")
---           end)
---           return
---         end
---         local diff = table.concat(diff_job:result(), "\n")
---         if diff == "" then
---           vim.schedule(function()
---             on_error("No changes found")
---           end)
---           return
---         end
---
---         M.generateCommitMessage({
---           diff = diff,
---           msg_options = msg_options,
---           on_success = on_success,
---           on_error = on_error,
---         })
---       end,
---     })
---     :start()
--- end
 return M

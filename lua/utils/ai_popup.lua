@@ -5,24 +5,21 @@ local M = {}
 -- Store last used settings
 local last_settings = nil
 
--- Get type from the last commit (if conventional format)
-local function get_last_type()
+-- Parse last commit for conventional format info
+-- Returns: { conventional = bool, type = string, scope = string }
+local function get_last_commit_info()
   local result = vim.fn.systemlist({ "git", "log", "-1", "--format=%s" })
   if result and result[1] then
-    local commit_type = result[1]:match("^(%w+)[%(:]")
-    return commit_type or ""
+    local subject = result[1]
+    local commit_type = subject:match("^(%w+)[%(:]")
+    local scope = subject:match("^%w+%(([^%)]+)%)!?:") or ""
+    return {
+      conventional = commit_type ~= nil,
+      type = commit_type or "",
+      scope = scope,
+    }
   end
-  return ""
-end
-
--- Get scope from the last commit (if conventional format)
-local function get_last_scope()
-  local result = vim.fn.systemlist({ "git", "log", "-1", "--format=%s" })
-  if result and result[1] then
-    local scope = result[1]:match("^%w+%(([^%)]+)%)!?:")
-    return scope or ""
-  end
-  return ""
+  return { conventional = false, type = "", scope = "" }
 end
 
 -- Run AI commit generation with given settings
@@ -33,19 +30,30 @@ local function run_generate(settings)
   last_settings = vim.deepcopy(settings)
 
   local msg_opts = {
-    conventional = settings.commit_type ~= nil or settings.scope ~= nil,
-    short = settings.length == "short",
-    detailed = settings.length == "detailed",
+    conventional = settings.conventional,
+    body = settings.body,
     commit_type = settings.commit_type,
     scope = settings.scope,
+    subject = settings.subject,
+    wrap = settings.wrap,
+    subject_wrap = settings.subject_wrap,
+    footer = settings.footer,
+    preview_prompt = settings.preview_prompt,
   }
 
   -- Get diff based on format
+  local ai = require("utils.ai_commit")
   local diff_cmd = { "git", "diff", "--cached" }
   if settings.diff_format == "stat" then
     table.insert(diff_cmd, "--stat")
   elseif settings.diff_format == "names" then
     table.insert(diff_cmd, "--name-only")
+  end
+  -- Exclude noisy files
+  table.insert(diff_cmd, "--")
+  table.insert(diff_cmd, ".")
+  for _, file in ipairs(ai.ignored_files) do
+    table.insert(diff_cmd, ":!" .. file)
   end
   local result = vim.fn.systemlist(diff_cmd)
   local diff = table.concat(result, "\n")
@@ -55,7 +63,6 @@ local function run_generate(settings)
     return
   end
 
-  local ai = require("utils.ai_commit")
   ai.generateCommitMessage({
     diff = diff,
     msg_options = msg_opts,
@@ -130,40 +137,30 @@ local function get_settings_from_popup(p)
 
   local args = p:get_arguments()
   return {
-    length = get_switch("_length") or "",
     diff_format = get_switch("_format") or "full",
+    conventional = vim.tbl_contains(args, "--conventional"),
     dry_run = vim.tbl_contains(args, "--dry-run"),
+    body = vim.tbl_contains(args, "--body"),
+    body_format = get_switch("_body_format") or "bullets",
+    preview_prompt = vim.tbl_contains(args, "--prompt"),
     commit_type = get_opt("type"),
     scope = get_opt("scope"),
+    wrap = tonumber(get_opt("wrap")) or 72,
+    subject_wrap = tonumber(get_opt("subject-wrap")) or 50,
+    footer = get_opt("footer"),
   }
 end
 
 function M.create()
+  local last = get_last_commit_info()
   local p = popup
     .builder()
     :name("NeogitAIPopup")
-    :arg_heading("Diff")
-    :switch("d", "full", "Format", {
-      cli_suffix = "_format",
-      options = {
-        { display = "full", value = "full" },
-        { display = "stat", value = "stat" },
-        { display = "names", value = "names" },
-      },
+    :arg_heading("Conventional")
+    :switch("c", "conventional", "Conventional format", {
+      enabled = last.conventional,
     })
-    :arg_heading("Message")
-    :switch("l", "", "Length", {
-      cli_suffix = "_length",
-      options = {
-        { display = "", value = "" },
-        { display = "short", value = "short" },
-        { display = "detailed", value = "detailed" },
-      },
-    })
-    :switch("n", "dry-run", "Dry run", {
-      enabled = false,
-    })
-    :option("t", "type", get_last_type(), "Type", {
+    :option("t", "type", last.type, "Type", {
       choices = {
         "build",
         "chore",
@@ -178,12 +175,49 @@ function M.create()
         "test",
       },
     })
-    :option("s", "scope", get_last_scope(), "Scope", {
+    :option("s", "scope", last.scope, "Scope", {
       choices = { "ui", "api", "core", "config", "deps", "docs", "test", "build", "ci" },
     })
+    :arg_heading("Options")
+    :switch("d", "full", "Diff format", {
+      cli_suffix = "_format",
+      options = {
+        { display = "full", value = "full" },
+        { display = "stat", value = "stat" },
+        { display = "names", value = "names" },
+      },
+    })
+    :switch("b", "body", "Include body", {
+      enabled = false,
+    })
+    :switch("B", "bullets", "Body format", {
+      cli_suffix = "_body_format",
+      options = {
+        { display = "bullets", value = "bullets" },
+        { display = "paragraph", value = "paragraph" },
+      },
+    })
+    :switch("n", "dry-run", "Dry run", {
+      enabled = false,
+    })
+    :switch("P", "prompt", "Preview prompt", {
+      enabled = false,
+    })
+    :option("f", "footer", "", "Footer")
+    :arg_heading("Limits")
+    :option("w", "wrap", "72", "Body wrap")
+    :option("W", "subject-wrap", "50", "Subject wrap")
     :group_heading("Actions")
-    :action("c", "Generate & commit", function(p)
+    :action("i", "Generate & commit", function(p)
       run_generate(get_settings_from_popup(p))
+    end)
+    :action("I", "Generate with subject", function(p)
+      local subject = vim.fn.input("Subject: ")
+      if subject ~= "" then
+        local settings = get_settings_from_popup(p)
+        settings.subject = subject
+        run_generate(settings)
+      end
     end)
     :build()
   p:show()
