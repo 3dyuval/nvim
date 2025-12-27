@@ -116,11 +116,7 @@ map({
     h = { "G", desc = "Go to bottom" },
   },
   ["<leader>g"] = {
-    P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },
-    O = { smart_diff.smart_resolve_theirs, desc = "Resolve file: theirs" },
-    U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
-    R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
-    n = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" },
+    g = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" },
     c = { cmd = ":Neogit commit", desc = "Neogit commit" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
     S = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
@@ -131,6 +127,11 @@ map({
     z = { git.lazygit_root, desc = "Lazygit (Root Dir)" },
     Z = { git.lazygit_cwd, desc = "Lazygit (cwd)" },
     b = { git.git_branches_picker, desc = "Git branches (all)" },
+
+    R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
+    P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },
+    O = { smart_diff.smart_resolve_theirs, desc = "Resolve file: theirs" },
+    U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
   },
 
   -- Gitsigns hunk operations
@@ -210,6 +211,15 @@ map({
     a = {
       clipboard.copy_file_path_claude_style,
       desc = 'Copy file w "@" prefix',
+    },
+    g = {
+      function()
+        local path =
+          vim.fn.system("git ls-files --full-name " .. vim.fn.shellescape(vim.fn.expand("%:p"))):gsub("\n", "")
+        vim.fn.setreg("+", path)
+        vim.notify("Copied: " .. path, vim.log.levels.INFO)
+      end,
+      desc = "Copy file path (relative to git)",
     },
     o = { clipboard.copy_code_path, desc = "Copy object path" },
     O = { clipboard.copy_code_path_with_types, desc = "Copy object path (with types)" },
