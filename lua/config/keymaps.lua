@@ -277,7 +277,8 @@ map({
     u = { code.remove_unused_imports, desc = "Remove unused imports" },
     F = { code.fix_all, desc = "Fix all diagnostics" },
     V = { code.select_ts_version, desc = "Select TS workspace version" },
-    t = { editor.typescript_check, desc = "TypeScript type check" },
+    t = { editor.typescript_check, desc = "TypeScript check (tsc)" },
+    g = { editor.typescript_check_go, desc = "TypeScript check (tsgo)" },
     C = { ":Claude<CR>", desc = "Claude replace" },
   },
 })
