@@ -1,5 +1,9 @@
 local M = {}
---- Open explorer with shortmess handling to avoid swap file prompts
+
+-- Simple state for layout persistence (survives across picker instances within session)
+local explorer_layout = "sidebar" -- default
+
+--- Open explorer with shortmess handling and persisted layout
 ---@param opts table|nil Optional config to merge with defaults
 M.open_explorer = function(opts)
   local old_shortmess = vim.o.shortmess
@@ -7,6 +11,8 @@ M.open_explorer = function(opts)
 
   local config = vim.tbl_deep_extend("force", {
     root = false,
+    layout = { preset = explorer_layout },
+    auto_close = explorer_layout == "default",
   }, opts or {})
 
   Snacks.picker.explorer(config)
@@ -2503,57 +2509,36 @@ M.copy = function(picker, item)
   end)
 end
 
--- State for picker toggles (survives across picker instances within session)
-local picker_state = {
-  tracker = nil, -- lazy loaded u.tracker
-  signals = {}, -- signal storage by name
-}
+-- Get persisted explorer layout
+M.get_explorer_layout = function()
+  return explorer_layout
+end
 
--- Get or create a signal for reactive state
-local function get_signal(name, default_value)
-  if not picker_state.tracker then
-    local ok, t = pcall(require, "u.tracker")
-    if ok then
-      picker_state.tracker = t
-    else
-      return nil
-    end
-  end
+-- Toggle explorer layout between sidebar and default (float)
+M.toggle_layout = function(picker)
+  local new_layout = explorer_layout == "sidebar" and "default" or "sidebar"
+  explorer_layout = new_layout
 
-  if not picker_state.signals[name] then
-    picker_state.signals[name] = picker_state.tracker.create_signal(default_value)
-  end
-
-  return picker_state.signals[name]
+  local layout = Snacks.picker.config.layout({ layout = { preset = new_layout } })
+  picker:set_layout(layout)
+  picker.opts.auto_close = new_layout == "default"
 end
 
 -- Toggle tree/flat view for explorer
--- Updates opts.tree, formatters.file.filename_only, and clears parent refs for flat view
--- Also expands all directories when switching to flat mode
+-- Updates opts.tree and expands all directories when switching to flat mode
 M.toggle_tree = function(picker)
   if not picker or not picker.opts then
     return
   end
 
-  -- Get or create signal for tree state
-  local s_tree = get_signal("tree", picker.opts.tree ~= false)
-
-  -- Toggle tree state
   local new_tree = not picker.opts.tree
   picker.opts.tree = new_tree
-
-  -- Update signal
-  if s_tree then
-    s_tree:set(new_tree)
-  end
+  picker._tree_mode = new_tree
 
   -- Update formatter to match tree state
   picker.opts.formatters = picker.opts.formatters or {}
   picker.opts.formatters.file = picker.opts.formatters.file or {}
   picker.opts.formatters.file.filename_only = new_tree
-
-  -- Store tree preference for format override
-  picker._tree_mode = new_tree
 
   -- Expand all directories recursively when switching to flat mode
   if not new_tree then
@@ -2571,7 +2556,6 @@ M.toggle_tree = function(picker)
     end
   end
 
-  -- Refresh the picker
   picker.list:set_target()
   picker:find()
 end
@@ -2592,6 +2576,41 @@ M.format_file_tree_aware = function(item, picker)
   item.parent = original_parent
 
   return ret
+end
+
+-- Confirm action with multi-select warning
+-- Shows confirmation dialog when multiple files are selected
+-- For directories: uses default explorer toggle behavior
+M.confirm_multi = function(picker, item, action)
+  -- For directories, use default explorer confirm (toggle open/close)
+  if item and item.dir then
+    local Tree = require("snacks.explorer.tree")
+    Tree:toggle(item.file)
+    require("snacks.explorer.actions").update(picker, { refresh = true })
+    return
+  end
+
+  -- For files, check multi-select
+  local selected = picker:selected()
+  if #selected > 1 then
+    local files = {}
+    for i, sel in ipairs(selected) do
+      if i <= 5 then
+        table.insert(files, "  " .. (sel.file and vim.fn.fnamemodify(sel.file, ":t") or sel.text))
+      end
+    end
+    if #selected > 5 then
+      table.insert(files, "  ... and " .. (#selected - 5) .. " more")
+    end
+    local msg = "Open " .. #selected .. " files?\n" .. table.concat(files, "\n")
+    vim.ui.select({ "Yes", "No" }, { prompt = msg }, function(choice)
+      if choice == "Yes" then
+        Snacks.picker.actions.confirm(picker, item, action or {})
+      end
+    end)
+  else
+    Snacks.picker.actions.confirm(picker, item, action or {})
+  end
 end
 
 -- Export all picker action functions for use in snacks.lua
@@ -2616,6 +2635,9 @@ M.actions = {
   buffer_context_menu = M.buffer_context_menu,
   -- Toggle actions (persist = survives across picker instances)
   toggle_tree = M.toggle_tree,
+  toggle_layout = M.toggle_layout,
+  -- Confirm with multi-select warning
+  confirm_multi = M.confirm_multi,
 }
 
 return M

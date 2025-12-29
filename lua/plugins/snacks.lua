@@ -191,39 +191,6 @@ return {
       preset = {
         keys = {
           {
-            icon = "󰈞",
-            key = "e",
-            desc = "Files Explorer",
-            action = function()
-              -- Set shortmess to avoid swap file prompts
-              local old_shortmess = vim.o.shortmess
-              vim.o.shortmess = vim.o.shortmess .. "A"
-
-              open_explorer({
-                auto_close = false,
-                focus = "list",
-                layout = {
-                  preset = "left",
-                  preview = false,
-                },
-              })
-
-              -- Restore shortmess
-              vim.o.shortmess = old_shortmess
-            end,
-          },
-          {
-            icon = "󰈞",
-            key = "f",
-            desc = "Find Files",
-            action = function()
-              open_explorer({
-                auto_close = true,
-                focus = "input",
-              })
-            end,
-          },
-          {
             icon = "󱎸",
             key = "g",
             desc = "Live Grep",
@@ -360,14 +327,14 @@ return {
                 require("utils.picker-extensions").actions.toggle_tree(picker)
               end,
             },
+            confirm_multi = {
+              action = function(picker, item, action)
+                require("utils.picker-extensions").actions.confirm_multi(picker, item, action)
+              end,
+            },
             toggle_layout = {
               action = function(picker)
-                local current = picker.resolved_layout and picker.resolved_layout.preset or "sidebar"
-                local new_layout = current == "sidebar" and "default" or "sidebar"
-                local layout = Snacks.picker.config.layout({ layout = { preset = new_layout } })
-                picker:set_layout(layout)
-                -- Adjust auto_close based on layout
-                picker.opts.auto_close = new_layout == "default"
+                require("utils.picker-extensions").actions.toggle_layout(picker)
               end,
             },
           },
@@ -379,6 +346,7 @@ return {
             },
             list = {
               keys = {
+                ["<CR>"] = "confirm_multi", -- Confirm with multi-select warning
                 ["<BS>"] = false, -- Disable backspace navigation
                 ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
                 ["c"] = "explorer_copy", -- Copy file/folder
@@ -585,6 +553,9 @@ return {
   keys = {
     -- Disable LazyVim defaults that conflict with our explicit keymaps
     { "<leader>n", false }, -- We define this explicitly in keymaps.lua for notes
+    { "<leader>ff", false }, -- Disable LazyVim Find Files - we use fff
+    { "<leader>e", false }, -- Disable LazyVim Explorer - we use <C-l>
+    { "<leader>fe", false }, -- Disable LazyVim Explorer (root dir)
 
     -- {
     --   "<leader>gC",
@@ -629,8 +600,13 @@ return {
       desc = "Explorer (open files only)",
     },
     {
-      "<leader>e",
+      "<C-l>",
       function()
+        -- Only open if no explorer picker is already active
+        local explorers = Snacks.picker.get({ source = "explorer" })
+        if #explorers > 0 then
+          return -- Already open, do nothing
+        end
         open_explorer()
       end,
       desc = "Explorer",
