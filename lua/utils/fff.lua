@@ -137,16 +137,15 @@ local function set_persisted_layout(layout)
   vim.g.FFFLayout = layout
 end
 
--- Toggle between default and sidebar layouts
+-- Toggle between default and sidebar layouts (without reopening)
 local function toggle_layout(picker)
-  local current = picker.opts.layout and picker.opts.layout.preset or DEFAULT_LAYOUT
+  local current = picker.resolved_layout and picker.resolved_layout.preset or DEFAULT_LAYOUT
   local new_layout = current == "sidebar" and "default" or "sidebar"
   set_persisted_layout(new_layout)
-  -- Reopen picker with new layout
-  picker:close()
-  vim.schedule(function()
-    M.fff()
-  end)
+
+  -- Use snacks built-in set_layout to switch without reopening
+  local layout = Snacks.picker.config.layout({ layout = { preset = new_layout } })
+  picker:set_layout(layout)
 end
 
 function M.fff()

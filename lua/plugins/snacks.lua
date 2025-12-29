@@ -294,14 +294,14 @@ return {
       },
       sources = {
         explorer = {
-          auto_close = true,
+          auto_close = false,
           hidden = true,
           ignored = false,
           git = {
             enabled = true, -- Enable git status display (enabled by default in 2.18.0+)
           },
           layout = {
-            preset = "default",
+            preset = "sidebar",
             preview = false,
           },
           -- Custom formatter that respects tree toggle (hides tree lines in flat mode)
@@ -360,8 +360,23 @@ return {
                 require("utils.picker-extensions").actions.toggle_tree(picker)
               end,
             },
+            toggle_layout = {
+              action = function(picker)
+                local current = picker.resolved_layout and picker.resolved_layout.preset or "sidebar"
+                local new_layout = current == "sidebar" and "default" or "sidebar"
+                local layout = Snacks.picker.config.layout({ layout = { preset = new_layout } })
+                picker:set_layout(layout)
+                -- Adjust auto_close based on layout
+                picker.opts.auto_close = new_layout == "default"
+              end,
+            },
           },
           win = {
+            input = {
+              keys = {
+                ["<C-l>"] = { "toggle_layout", mode = { "i", "n" } },
+              },
+            },
             list = {
               keys = {
                 ["<BS>"] = false, -- Disable backspace navigation
@@ -390,6 +405,7 @@ return {
                 ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
                 ["f"] = "context_menu",
                 ["T"] = "toggle_tree",
+                ["<C-l>"] = "toggle_layout",
               },
             },
           },
@@ -613,27 +629,11 @@ return {
       desc = "Explorer (open files only)",
     },
     {
-      "<leader>E",
-      function()
-        open_explorer({
-          auto_close = false,
-          layout = {
-            preset = "left",
-            preview = false,
-          },
-        })
-      end,
-      desc = "Explorer (sidebar)",
-    },
-    {
       "<leader>e",
       function()
-        open_explorer({
-          auto_close = true,
-          preview = true,
-        })
+        open_explorer()
       end,
-      desc = "Explorer (window)",
+      desc = "Explorer",
     },
     {
       "<leader>z",
