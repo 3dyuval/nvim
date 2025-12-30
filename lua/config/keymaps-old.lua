@@ -50,8 +50,6 @@ vim.keymap.set({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 -- Map semicolon to repeat last command (instead of dot)
 vim.keymap.set({ "n" }, ";", ".", { desc = "Repeat last command" })
 vim.keymap.set({ "n" }, "'", "gv", { desc = "Repeat last visual selection" })
-vim.keymap.set({ "n", "o", "x" }, "g;", ";", { desc = "Repeat find forward" })
-vim.keymap.set({ "n", "o", "x" }, "-", ",", { desc = "Repeat find backward" })
 vim.keymap.set({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
 -- Treewalker navigation

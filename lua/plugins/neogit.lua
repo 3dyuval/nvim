@@ -7,7 +7,7 @@ return {
   --     git merge upstream/master --no-edit || git merge --abort
   --   ]],
   dependencies = {
-    "nvim-lua/plenary.nvim,
+    "nvim-lua/plenary.nvim",
     "sindrets/diffview.nvim",
     "folke/snacks.nvim",
   },

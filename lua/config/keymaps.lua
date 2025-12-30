@@ -34,6 +34,8 @@ map({
   ["p"] = { "^", desc = "First non-blank character" },
   ["0"] = { "0", desc = "Beginning of line" },
   ["."] = { "$", desc = "End of line" },
+  ["gf"] = { ";", desc = "Repeat find forward" },
+  ["gF"] = { ",", desc = "Repeat find backward" },
 })
 
 -- Undo/redo (z replaces u)
@@ -592,7 +594,6 @@ map({
     L = { [x] = { cmd = "ObsidianLinkNew", desc = "Link to new note [title]" } },
     k = { [x] = { cmd = "ObsidianLink", desc = "Link to existing note [query]" } },
   },
-  gf = { notes.smart_follow_link, desc = "Follow link or file", expr = true },
   ["<leader>N"] = { notes.create_inbox_note, desc = "New note in inbox" },
 })
 
