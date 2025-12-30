@@ -1,17 +1,22 @@
 return {
-  "eero-lehtinen/oklch-color-picker.nvim",
-  event = "VeryLazy",
-  version = "*",
-  keys = {
-    -- One handed keymap recommended, you will be using the mouse
-    {
-      "<leader>cp",
-      function()
-        require("oklch-color-picker").pick_under_cursor()
-      end,
-      desc = "Color pick under cursor",
-    },
+  {
+    "3dyuval/colortweak.nvim",
   },
-  ---@type oklch.Opts
-  opts = {},
+  {
+    "eero-lehtinen/oklch-color-picker.nvim",
+    event = "VeryLazy",
+    version = "*",
+    keys = {
+      -- One handed keymap recommended, you will be using the mouse
+      {
+        "<leader>cp",
+        function()
+          require("oklch-color-picker").pick_under_cursor()
+        end,
+        desc = "Color pick under cursor",
+      },
+    },
+    ---@type oklch.Opts
+    opts = {},
+  },
 }

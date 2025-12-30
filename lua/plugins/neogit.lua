@@ -1,7 +1,13 @@
 return {
   "NeogitOrg/neogit",
+  branch = "master",
+  -- build = [[
+  --     git remote add upstream https://github.com/3dyuval/neogit.git 2>/dev/null
+  --     git fetch upstream
+  --     git merge upstream/master --no-edit || git merge --abort
+  --   ]],
   dependencies = {
-    "nvim-lua/plenary.nvim",
+    "nvim-lua/plenary.nvim,
     "sindrets/diffview.nvim",
     "folke/snacks.nvim",
   },

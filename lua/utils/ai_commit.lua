@@ -6,6 +6,7 @@ local DEBUG = false
 -- Files to exclude from full diff (noisy/generated files)
 M.ignored_files = {
   "lazy-lock.json",
+  "Cargo.lock",
   "package-lock.json",
   "pnpm-lock.yaml",
   "yarn.lock",
