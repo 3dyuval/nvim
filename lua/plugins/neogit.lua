@@ -10,6 +10,7 @@ return {
     "nvim-lua/plenary.nvim",
     "sindrets/diffview.nvim",
     "folke/snacks.nvim",
+    "3dyuval/git-resolve-conflict.nvim",
   },
   config = function(_, opts)
     require("utils.neogit-commands").setup()

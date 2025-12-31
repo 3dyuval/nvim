@@ -2,12 +2,40 @@ local popup = require("neogit.lib.popup")
 
 local M = {}
 
--- Store last used settings
-local last_settings = nil
+-- Usage:
+--   require("utils.ai_popup").create()       -- Open AI commit popup
+--   require("utils.ai_popup").repeat_last()  -- Repeat with last settings
+--
+-- Single command setup (add to your config):
+--   vim.api.nvim_create_user_command("AiCommit", function(opts)
+--     if opts.args == "--preview" or opts.args == "-p" then
+--       local settings = vim.g.AiCommitLastSettings or {}
+--       settings.dry_run = true
+--       require("utils.ai_popup").run_generate(settings)
+--     elseif opts.args == "--repeat" or opts.args == "-r" then
+--       require("utils.ai_popup").repeat_last()
+--     else
+--       require("utils.ai_popup").create()
+--     end
+--   end, { nargs = "?" })
+--
+-- Then use:
+--   :AiCommit            -- Open popup
+--   :AiCommit --preview  -- Dry run with last settings
+--   :AiCommit --repeat   -- Repeat last commit generation
 
--- Parse last commit for conventional format info
+-- Store last used settings (persisted per session via persistence.nvim)
+-- Must start with uppercase for persistence.nvim to save it
+-- vim.g.AiCommitLastSettings = nil (initialized on first use)
+
+-- Parse last commit for conventional commit format
+-- opts: { include_type = bool, include_scope = bool }
 -- Returns: { conventional = bool, type = string, scope = string }
-local function get_last_commit_info()
+local function get_conventional_defaults(opts)
+  opts = opts or {}
+  local include_type = opts.include_type or false
+  local include_scope = opts.include_scope or false
+
   local result = vim.fn.systemlist({ "git", "log", "-1", "--format=%s" })
   if result and result[1] then
     local subject = result[1]
@@ -15,28 +43,32 @@ local function get_last_commit_info()
     local scope = subject:match("^%w+%(([^%)]+)%)!?:") or ""
     return {
       conventional = commit_type ~= nil,
-      type = commit_type or "",
-      scope = scope,
+      type = include_type and (commit_type or "") or "",
+      scope = include_scope and scope or "",
     }
   end
   return { conventional = false, type = "", scope = "" }
 end
 
 -- Run AI commit generation with given settings
-local function run_generate(settings)
+function M.run_generate(settings)
   vim.notify("Generating AI commit message...", vim.log.levels.INFO)
 
-  -- Save settings for repeat
-  last_settings = vim.deepcopy(settings)
+  -- Save settings for repeat (persisted per session, excluding subject)
+  local to_persist = vim.deepcopy(settings)
+  to_persist.subject = nil -- subject is per-commit, don't persist
+  vim.g.AiCommitLastSettings = to_persist
 
   local msg_opts = {
     conventional = settings.conventional,
+    breaking = settings.breaking,
     body = settings.body,
     commit_type = settings.commit_type,
     scope = settings.scope,
     subject = settings.subject,
-    wrap = settings.wrap,
-    subject_wrap = settings.subject_wrap,
+    extra_prompt = settings.extra_prompt,
+    header_max = settings.header_max,
+    body_max = settings.body_max,
     footer = settings.footer,
     preview_prompt = settings.preview_prompt,
   }
@@ -139,28 +171,44 @@ local function get_settings_from_popup(p)
   return {
     diff_format = get_switch("_format") or "full",
     conventional = vim.tbl_contains(args, "--conventional"),
+    breaking = vim.tbl_contains(args, "--breaking"),
     dry_run = vim.tbl_contains(args, "--dry-run"),
     body = vim.tbl_contains(args, "--body"),
     body_format = get_switch("_body_format") or "bullets",
     preview_prompt = vim.tbl_contains(args, "--prompt"),
     commit_type = get_opt("type"),
     scope = get_opt("scope"),
-    wrap = tonumber(get_opt("wrap")) or 72,
-    subject_wrap = tonumber(get_opt("subject-wrap")) or 50,
-    footer = get_opt("footer"),
+    header_max = tonumber(get_opt("header-max")) or 100,
+    body_max = tonumber(get_opt("body-max")) or 100,
+    footer = vim.tbl_contains(args, "--footer"),
+    extra_prompt = get_opt("guide") or (vim.g.AiCommitLastSettings or {}).extra_prompt or "",
   }
 end
 
 function M.create()
-  local last = get_last_commit_info()
+  local last = get_conventional_defaults({
+    include_type = false,
+    include_scope = false,
+  })
+  -- Get persisted extra prompt (truncate for display)
+  local saved = vim.g.AiCommitLastSettings or {}
+  local extra_prompt = saved.extra_prompt or ""
+  local extra_prompt_display = #extra_prompt > 20 and extra_prompt:sub(1, 20) .. "…" or extra_prompt
   local p = popup
     .builder()
     :name("NeogitAIPopup")
-    :arg_heading("Conventional")
+    :switch("d", "full", "Diff in Prompt", {
+      cli_suffix = "_format",
+      options = {
+        { display = "full", value = "full" },
+        { display = "stat", value = "stat" },
+        { display = "names", value = "names" },
+      },
+    })
     :switch("c", "conventional", "Conventional format", {
       enabled = last.conventional,
     })
-    :option("t", "type", last.type, "Type", {
+    :option_if(last.conventional, "t", "type", last.type, "Type", {
       choices = {
         "build",
         "chore",
@@ -175,48 +223,47 @@ function M.create()
         "test",
       },
     })
-    :option("s", "scope", last.scope, "Scope", {
+    :option_if(last.conventional, "s", "scope", last.scope, "Scope", {
       choices = { "ui", "api", "core", "config", "deps", "docs", "test", "build", "ci" },
     })
-    :arg_heading("Options")
-    :switch("d", "full", "Diff format", {
-      cli_suffix = "_format",
-      options = {
-        { display = "full", value = "full" },
-        { display = "stat", value = "stat" },
-        { display = "names", value = "names" },
-      },
-    })
-    :switch("b", "body", "Include body", {
+    :switch_if(last.conventional, "!", "breaking", "Breaking change (!)", {
       enabled = false,
     })
-    :switch("B", "bullets", "Body format", {
+    :arg_heading("Format")
+    :switch("i", "body", "Include body", {
+      enabled = false,
+    })
+    :switch("b", "bullets", "Body format", {
       cli_suffix = "_body_format",
       options = {
         { display = "bullets", value = "bullets" },
         { display = "paragraph", value = "paragraph" },
       },
     })
-    :switch("n", "dry-run", "Dry run", {
+    :switch("p", "prompt", "Preview diffs pass to AI prompt", {
       enabled = false,
     })
-    :switch("P", "prompt", "Preview prompt", {
+    :switch("f", "footer", "Include footer", {
       enabled = false,
     })
-    :option("f", "footer", "", "Footer")
-    :arg_heading("Limits")
-    :option("w", "wrap", "72", "Body wrap")
-    :option("W", "subject-wrap", "50", "Subject wrap")
+    :option("g", "guide", extra_prompt_display, "Extra prompt guide")
+    :option("h", "header-max", "100", "Header max length")
+    :option("b", "body-max", "100", "Body line max length")
     :group_heading("Actions")
-    :action("i", "Generate & commit", function(p)
-      run_generate(get_settings_from_popup(p))
+    :action("U", "Dry Run (Preview)", function(p)
+      local settings = get_settings_from_popup(p)
+      settings.dry_run = true
+      M.run_generate(settings)
     end)
-    :action("I", "Generate with subject", function(p)
+    :action("C", "Generate & commit", function(p)
+      M.run_generate(get_settings_from_popup(p))
+    end)
+    :action("S", "Generate with subject", function(p)
       local subject = vim.fn.input("Subject: ")
       if subject ~= "" then
         local settings = get_settings_from_popup(p)
         settings.subject = subject
-        run_generate(settings)
+        M.run_generate(settings)
       end
     end)
     :build()
@@ -225,8 +272,8 @@ function M.create()
 end
 
 function M.repeat_last()
-  if last_settings then
-    run_generate(last_settings)
+  if vim.g.AiCommitLastSettings then
+    M.run_generate(vim.g.AiCommitLastSettings)
   else
     vim.notify("No previous AI commit settings to repeat", vim.log.levels.WARN)
   end

@@ -19,6 +19,7 @@ return {
         default = {
           layout = "diff2_horizontal",
           winbar_info = true, -- Show commit hash and info in window bar
+          win_config = { position = "bottom" },
         },
         merge_tool = {
           layout = "diff1_plain",
@@ -28,31 +29,46 @@ return {
         file_history = {
           layout = "diff2_horizontal",
           winbar_info = true,
+          win_config = { position = "bottom" },
         },
       },
       diff_binaries = false,
       file_panel = {
         listing_style = "tree",
         tree_options = {
-          flatten_dirs = true,
+          flatten_dirs = false,
           folder_statuses = "only_folded",
         },
       },
       keymaps = {
         disable_defaults = true,
         view = {
+          -- Smart diff get/put
           {
             "n",
-            "gr",
-            actions.conflict_choose("theirs"),
-            { desc = "Choole right (conflict)" },
+            "dr",
+            function()
+              if vim.opt_local.diff:get() then
+                vim.cmd("diffget")
+              else
+                actions.conflict_choose("theirs")
+              end
+            end,
+            { desc = "Get from right" },
           },
           {
             "n",
-            "gl",
-            actions.conflict_choose("ours"),
-            { desc = "Choose left conflict" },
+            "dl",
+            function()
+              if vim.opt_local.diff:get() then
+                vim.cmd("diffput")
+              else
+                actions.conflict_choose("ours")
+              end
+            end,
+            { desc = "Put to left" },
           },
+
           -- Navigation (HAEI compatible)
           { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
           { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
@@ -61,6 +77,7 @@ return {
 
           -- Common actions
           { "n", "<leader>.", actions.cycle_layout, { desc = "Cycle layout" } },
+          -- { "n", "<leader>f", actions., { desc = "Toggle File Panel" } },
           { "n", "q", actions.close, { desc = "Close diffview" } },
           { "n", "<tab>", actions.select_next_entry, { desc = "Open diff for next file" } },
           { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open diff for previous file" } },
@@ -71,11 +88,29 @@ return {
         file_panel = {
           {
             "n",
+            "dr",
+            actions.restore_entry,
+            { desc = "Restore file (get from right)" },
+          },
+          {
+            "n",
+            "dl",
+            function()
+              actions.toggle_stage_entry()
+            end,
+            { desc = "Stage file (get from left)" },
+          },
+          {
+            "n",
+            "<C-R>",
+            actions.refresh_files,
+            { desc = "Refresh Files" },
+          },
+          {
+            "n",
             "m",
             "<Cmd>windo normal! ]c<Cr>",
-            {
-              desc = "Next hunk",
-            },
+            { desc = "Next hunk" },
           },
           {
             "n",

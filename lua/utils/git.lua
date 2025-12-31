@@ -49,6 +49,44 @@ M.git_branches_picker = function()
   Snacks.picker.git_branches({ all = true })
 end
 
+-- Browse branches and preview/checkout current file from selected branch
+M.git_branches_file_picker = function()
+  local current_file = vim.fn.expand("%:p")
+  local root = Snacks.git.get_root()
+  if not root then
+    vim.notify("Not in a git repository", vim.log.levels.WARN)
+    return
+  end
+  local rel_file = current_file:sub(#root + 2)
+
+  Snacks.picker.git_branches({
+    all = true,
+    title = "Branches (" .. rel_file .. ")",
+    preview = function(ctx)
+      local item = ctx.item
+      if not item or not item.branch then
+        return
+      end
+      -- Strip remotes/origin/ prefix if present
+      local branch = item.branch:gsub("^remotes/origin/", "origin/")
+      return Snacks.picker.preview.cmd(
+        { "git", "show", branch .. ":" .. rel_file },
+        ctx,
+        { notify = false } -- suppress errors for files that don't exist on branch
+      )
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if not item or not item.branch then
+        return
+      end
+      vim.cmd("!git checkout " .. item.branch .. " -- " .. vim.fn.shellescape(current_file))
+      vim.cmd("e!")
+      vim.notify("Checked out " .. rel_file .. " from " .. item.branch, vim.log.levels.INFO)
+    end,
+  })
+end
+
 -- GitHub repository detection
 M.get_upstream_repo = function()
   local upstream_url = vim.fn.system("git config --get remote.upstream.url 2>/dev/null"):gsub("%s+", "")

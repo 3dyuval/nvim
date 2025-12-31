@@ -1,4 +1,4 @@
--- Import utility modules
+--QImport utility modules
 local cli = require("utils.cli")
 local clipboard = require("utils.clipboard")
 local code = require("utils.code")
@@ -119,16 +119,18 @@ map({
   },
   ["<leader>g"] = {
     g = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" },
-    c = { cmd = ":Neogit commit", desc = "Neogit commit" },
+    i = { cmd = "Neogit commit", desc = "Neogit commit" },
+    I = { cmd = "AiCommit", desc = "AI commit popup" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
     S = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
-    h = { ":DiffviewFileHistory %", desc = "Current file history" },
+    h = { cmd = ":DiffviewFileHistory %", desc = "Current file history" },
     D = { helpers.compare_current_file_with_branch, desc = "Compare current file with branch" },
     f = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
 
     z = { git.lazygit_root, desc = "Lazygit (Root Dir)" },
     Z = { git.lazygit_cwd, desc = "Lazygit (cwd)" },
     b = { git.git_branches_picker, desc = "Git branches (all)" },
+    B = { git.git_branches_file_picker, desc = "Checkout file from branch" },
 
     R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
     P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },

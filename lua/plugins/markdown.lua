@@ -37,6 +37,10 @@ return {
         "*",
       },
       keys = false,
+      -- Guard against non-modifiable buffers (fixes session restore error)
+      enabled = function(bufnr)
+        return vim.bo[bufnr].modifiable
+      end,
     },
   },
 

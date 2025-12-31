@@ -1,3 +1,18 @@
+local ai_popup = require("utils.ai_popup")
+
+-- Register :AiCommit command
+vim.api.nvim_create_user_command("AiCommit", function(opts)
+  if opts.args == "--preview" or opts.args == "-p" then
+    local settings = vim.g.AiCommitLastSettings or {}
+    settings.dry_run = true
+    ai_popup.run_generate(settings)
+  elseif opts.args == "--repeat" or opts.args == "-r" then
+    ai_popup.repeat_last()
+  else
+    ai_popup.create()
+  end
+end, { nargs = "?", desc = "AI commit popup" })
+
 -- Auto-save only buffers modified by LSP workspace edits (e.g., import updates on file rename)
 -- https://github.com/yioneko/vtsls/issues/287
 local original_apply_workspace_edit = vim.lsp.util.apply_workspace_edit
