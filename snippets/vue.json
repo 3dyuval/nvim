@@ -1,0 +1,109 @@
+{
+  "Vue 3 Setup": {
+    "prefix": "vuesetup",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "$1",
+      "</script>",
+      "",
+      "<template>",
+      "  $0",
+      "</template>",
+      "",
+      "<style lang=\"scss\">",
+      "</style>"
+    ],
+    "description": "Vue 3 component with script setup, template, and scss"
+  },
+  "Define Props": {
+    "prefix": "vp",
+    "body": [
+      "defineProps<Props>()",
+      "",
+      "type Props = {",
+      "  $0",
+      "}"
+    ],
+    "description": "defineProps with Props type"
+  },
+  "Define Emits": {
+    "prefix": "ve",
+    "body": [
+      "defineEmits<Emits>()",
+      "",
+      "type Emits = {",
+      "  $0",
+      "}"
+    ],
+    "description": "defineEmits with Emits type"
+  },
+  "Define Props with const": {
+    "prefix": "vpr",
+    "body": [
+      "const props = defineProps<Props>()",
+      "",
+      "type Props = {",
+      "  $0",
+      "}"
+    ],
+    "description": "const props = defineProps with Props type"
+  },
+  "Define Emits with const": {
+    "prefix": "ver",
+    "body": [
+      "const emit = defineEmits<Emits>()",
+      "",
+      "type Emits = {",
+      "  $0",
+      "}"
+    ],
+    "description": "const emit = defineEmits with Emits type"
+  },
+  "Define Slots": {
+    "prefix": "vs",
+    "body": [
+      "defineSlots<Slots>()",
+      "",
+      "type Slots = {",
+      "  ${1:default}(props: { ${2:item}: $0 }): any;",
+      "}"
+    ],
+    "description": "defineSlots with Slots type"
+  },
+  "Define Slots with const": {
+    "prefix": "vsr",
+    "body": [
+      "const slots = defineSlots<Slots>()",
+      "",
+      "type Slots = {",
+      "  ${1:default}(props: { ${2:item}: $0 }): any;",
+      "}"
+    ],
+    "description": "const slots = defineSlots with Slots type"
+  },
+  "Define Options": {
+    "prefix": "vo",
+    "body": [
+      "defineOptions({",
+      "  $0",
+      "})"
+    ],
+    "description": "defineOptions"
+  },
+  "Define Model": {
+    "prefix": "vm",
+    "body": [
+      "defineModel<${1:string}>()",
+      "$0"
+    ],
+    "description": "defineModel with type"
+  },
+  "Define Model with const": {
+    "prefix": "vmr",
+    "body": [
+      "const ${1:model} = defineModel<${2:string}>()",
+      "$0"
+    ],
+    "description": "const model = defineModel with type"
+  }
+}

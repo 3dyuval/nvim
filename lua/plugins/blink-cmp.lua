@@ -1,5 +1,9 @@
 return {
-  "saghen/blink.cmp",
+  -- Disable friendly-snippets (use only custom snippets)
+  { "rafamadriz/friendly-snippets", enabled = false },
+
+  {
+    "saghen/blink.cmp",
 
   opts = {
     sources = {
@@ -8,6 +12,16 @@ return {
         sql = { "dadbod", "buffer" },
         mysql = { "dadbod", "buffer" },
         plsql = { "dadbod", "buffer" },
+        -- Disable snippets for JS/TS/Vue (use LSP completions only)
+        javascript = { "lsp", "path", "buffer" },
+        javascriptreact = { "lsp", "path", "buffer" },
+        typescript = { "lsp", "path", "buffer" },
+        typescriptreact = { "lsp", "path", "buffer" },
+        vue = { "lsp", "path", "snippets", "buffer" },  -- custom snippets only (friendly-snippets disabled)
+        html = { "lsp", "path", "buffer" },
+        css = { "lsp", "path", "buffer" },
+        scss = { "lsp", "path", "buffer" },
+        json = { "lsp", "path", "buffer" },
       },
       providers = {
         lsp = {
@@ -39,5 +53,6 @@ return {
         },
       },
     },
+  },
   },
 }

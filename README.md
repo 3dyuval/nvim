@@ -1,6 +1,6 @@
 # Keymap Reference
 
-Total keymaps: 627
+Total keymaps: 683
 
 _Auto-generated with `make export-keymaps`_
 
@@ -13,13 +13,29 @@ _Auto-generated with `make export-keymaps`_
 | `n` | ` /` | Grep (Root Dir) |
 | `n` | ` :` | Command History |
 | `n` | ` ?` | Buffer Keymaps (which-key) |
-| `n` | ` E` | Explorer (sidebar) |
+| `n` | ` E` | Explorer Snacks (cwd) |
 | `n` | ` N` | New note in inbox |
+| `n` | ` ON` | New note [YY-MM-DD-title] |
+| `n` | ` OT` | Tomorrow's note |
+| `n` | ` Ob` | Backlinks |
+| `n` | ` Od` | Open notes directory |
+| `n` | ` Og` | Search tags [query] |
+| `n` | ` Ol` | Links in note |
+| `n` | ` On` | New note [title] |
+| `n` | ` Oo` | Open note [query] |
+| `n` | ` Op` | Paste image [name] |
+| `n` | ` Oq` | Quick switch [query] |
+| `n` | ` Or` | Rename note [name] |
+| `n` | ` Os` | Search notes [query] |
+| `n` | ` Ot` | Today's note |
+| `n` | ` Ow` | Switch workspace [name] |
+| `n` | ` Oy` | Yesterday's note |
 | `n` | ` S` | Select Scratch Buffer |
 | `n` | ` bP` | Delete Non-Pinned Buffers |
 | `n` | ` bl` | Delete Buffers to the Left |
 | `n` | ` bp` | Toggle Pin |
 | `n` | ` br` | Delete Buffers to the Right |
+| `n` | ` cC` | Claude replace |
 | `n` | ` cF` | Fix all diagnostics |
 | `v` | ` cF` | Format Injected Langs |
 | `x` | ` cF` | Format Injected Langs |
@@ -27,10 +43,12 @@ _Auto-generated with `make export-keymaps`_
 | `n` | ` cO` | Organize Imports + Fix All Diagnostics |
 | `n` | ` cS` | LSP references/definitions/... (Trouble) |
 | `n` | ` cV` | Select TS workspace version |
+| `n` | ` cg` | TypeScript check (tsgo) |
 | `n` | ` cm` | Mason |
 | `n` | ` co` | Organize + Remove Unused Imports |
+| `n` | ` cp` | Color pick under cursor |
 | `n` | ` cs` | Symbols (Trouble) |
-| `n` | ` ct` | TypeScript type check |
+| `n` | ` ct` | TypeScript check (tsc) |
 | `n` | ` cu` | Remove unused imports |
 | `n` | ` dB` | Breakpoint Condition |
 | `n` | ` dC` | Run to Cursor |
@@ -58,20 +76,15 @@ _Auto-generated with `make export-keymaps`_
 | `n` | ` dt` | Terminate |
 | `n` | ` du` | Dap UI |
 | `n` | ` dw` | Widgets |
-| `n` | ` e` | Explorer (window) |
 | `n` | ` fB` | Buffers (all) |
 | `n` | ` fE` | Explorer Snacks (cwd) |
 | `n` | ` fF` | Find Files (cwd) |
 | `n` | ` fR` | Recent (cwd) |
-| `n` | ` fS` | Save and stage file |
 | `n` | ` fb` | Buffers |
 | `n` | ` fc` | Find Config File |
-| `n` | ` fe` | Explorer Snacks (root dir) |
-| `n` | ` ff` | Find files (snacks + fff) |
 | `n` | ` fg` | Find Files (git-files) |
 | `n` | ` fp` | Projects |
 | `n` | ` fr` | Recent |
-| `n` | ` fs` | Save file |
 | `n` | ` gC` | Git Conflicts Explorer |
 | `n` | ` gD` | Compare current file with branch |
 | `n` | ` gI` | GitHub Issues (all) |
@@ -85,17 +98,16 @@ _Auto-generated with `make export-keymaps`_
 | `n` | ` gc` | Neogit commit |
 | `n` | ` gd` | Diff view open |
 | `n` | ` gf` | Compare current file with file |
-| `n` | ` gh` | Current file history |
+| `n` | ` gg` | Neogit in current dir |
 | `n` | ` gi` | GitHub Issues (open) |
-| `n` | ` gn` | Neogit in current dir |
 | `n` | ` gp` | GitHub Pull Requests (open) |
 | `n` | ` gs` | Git Status |
 | `n` | ` gy` | Copy git link |
 | `n` | ` gz` | Lazygit (Root Dir) |
-| `n` | ` hF` | Browser bookmarks |
 | `n` | ` hH` | All files in backup |
 | `n` | ` hT` | Manual backup with tag |
-| `n` | ` hf` | Browser search (history + bookmarks) |
+| `n` | ` hb` | Browser bookmarks |
+| `n` | ` hf` | Browser history |
 | `n` | ` hh` | Local file history |
 | `n` | ` hl` | Git log |
 | `n` | ` hp` | Project files history |
@@ -105,31 +117,14 @@ _Auto-generated with `make export-keymaps`_
 | `n` | ` ka` | Add cursor below |
 | `n` | ` ke` | Add cursor above |
 | `n` | ` kk` | Multi-cursor word |
-| `v` | ` nL` | Link to new note |
-| `x` | ` nL` | Link to new note |
-| `n` | ` nT` | Tomorrow's note |
-| `n` | ` nb` | Backlinks |
-| `n` | ` nd` | Open notes directory |
-| `n` | ` nf` | Find note |
-| `n` | ` ng` | Search tags |
-| `v` | ` nk` | Link to existing note |
-| `x` | ` nk` | Link to existing note |
-| `n` | ` nl` | Links in note |
-| `n` | ` nn` | New note |
-| `n` | ` no` | Open in Obsidian app |
-| `n` | ` np` | Paste image |
-| `n` | ` nr` | Rename note |
-| `n` | ` ns` | Search notes |
-| `n` | ` nt` | Today's note |
-| `n` | ` nte` | Insert template |
-| `n` | ` nto` | Table of contents |
-| `n` | ` nw` | Switch workspace |
-| `n` | ` ny` | Yesterday's note |
 | `n` | ` pL` | Copy file URL with line to clipboard |
-| `n` | ` pP` | Copy file path (relative to cwd) |
-| `n` | ` pa` | Copy text directy to Claude Code |
-| `n` | ` pc` | Copy file contents |
+| `n` | ` pO` | Copy object path (with types) |
+| `n` | ` pa` | Copy file w "@" prefix |
+| `n` | ` pc` | Copy file path (relative to cwd) |
+| `n` | ` pg` | Copy file path (relative to git) |
 | `n` | ` pl` | Copy file path to clipboard |
+| `n` | ` pn` | Copy file name |
+| `n` | ` po` | Copy object path |
 | `n` | ` pp` | Copy file path (from home) |
 | `n` | ` pw` | Open file in web browser |
 | `n` | ` qS` | Select Session |
@@ -149,6 +144,7 @@ _Auto-generated with `make export-keymaps`_
 | `x` | ` sF` | Search/Replace selection in current file (Grug-far) |
 | `n` | ` sG` | Grep (cwd) |
 | `n` | ` sH` | Highlights |
+| `n` | ` sK` | KMU only inspect |
 | `n` | ` sM` | Man Pages |
 | `n` | ` sR` | Search/Replace in current directory (Grug-far) |
 | `n` | ` sT` | Todo/Fix/Fixme |
@@ -167,15 +163,12 @@ _Auto-generated with `make export-keymaps`_
 | `n` | ` sk` | Keymaps |
 | `n` | ` sl` | Location List |
 | `n` | ` sm` | Marks |
-| `n` | ` sn` | +noice |
-| `n` | ` sna` | Noice All |
-| `n` | ` snd` | Dismiss All |
-| `n` | ` snh` | Noice History |
-| `n` | ` snl` | Noice Last Message |
-| `n` | ` snt` | Noice Picker (Telescope/FzfLua) |
+| `n` | ` snL` | Copied last notification to clipboard |
+| `n` | ` sna` | Show all notifications |
+| `n` | ` snl` | Show last notification |
 | `n` | ` sp` | Search for Plugin Spec |
 | `n` | ` sq` | Quickfix List |
-| `n` | ` sr` | Search/Replace within range (Grug-far) |
+| `n` | ` sr` | Search and replace (Grug-far) |
 | `v` | ` sr` | Search and Replace |
 | `x` | ` sr` | Search and Replace |
 | `n` | ` st` | Todo |
@@ -219,16 +212,39 @@ _Auto-generated with `make export-keymaps`_
 | `n` | ` wf` | Move Word Forward |
 | `n` | ` xL` | Location List (Trouble) |
 | `n` | ` xQ` | Quickfix List (Trouble) |
+| `n` | ` xS` | LSP references/definitions (Trouble) |
 | `n` | ` xT` | Todo/Fix/Fixme |
 | `n` | ` xX` | Buffer Diagnostics (Trouble) |
+| `n` | ` xs` | Symbols (Trouble) |
 | `n` | ` xt` | Todo (Trouble) |
 | `n` | ` xx` | Diagnostics (Trouble) |
 | `n` | ` z` | Zoxide (smart directories) |
+
+## Hunks
+
+| Mode | Key | Description |
+|------|-----|-------------|
+| `n` | ` gh` | Current file history |
+| `n` | ` ghB` | Blame Buffer |
+| `n` | ` ghD` | Diff This ~ |
+| `n` | ` ghR` | Reset Buffer |
+| `n` | ` ghS` | Stage Buffer |
+| `n` | ` ghb` | Blame Line |
+| `n` | ` ghd` | Diff This |
+| `n` | ` ghp` | Preview Hunk Inline |
+| `n` | ` ghr` | Reset Hunk |
+| `v` | ` ghr` | Reset Hunk |
+| `x` | ` ghr` | Reset Hunk |
+| `n` | ` ghs` | Stage Hunk |
+| `v` | ` ghs` | Stage Hunk |
+| `x` | ` ghs` | Stage Hunk |
+| `n` | ` ghu` | Undo Stage Hunk |
 
 ## GitHub
 
 | Mode | Key | Description |
 |------|-----|-------------|
+| `n` | ` oa` | Add comment |
 | `n` | ` on` | Notifications |
 
 ## Issues
@@ -307,7 +323,6 @@ _Auto-generated with `make export-keymaps`_
 | `v` | `*` | :help v_star-default |
 | `x` | `*` | :help v_star-default |
 | `n` | `-` | Paste inline |
-| `o` | `-` | Repeat find backward |
 | `v` | `-` | Paste inline |
 | `x` | `-` | Paste inline |
 | `n` | `.` | End of line |
@@ -318,18 +333,8 @@ _Auto-generated with `make export-keymaps`_
 | `o` | `0` | Beginning of line |
 | `v` | `0` | Beginning of line |
 | `x` | `0` | Beginning of line |
-| `n` | `8` | Previous search match |
-| `o` | `8` | Previous search match |
-| `v` | `8` | Previous search match |
-| `x` | `8` | Previous search match |
 | `n` | `;` | Repeat last command |
 | `n` | `<C-.>` | Next buffer |
-| `v` | `<C-.>` | Page Up |
-| `x` | `<C-.>` | Page Up |
-| `n` | `<C-/>` | Toggle Terminal |
-| `o` | `<C-/>` | Toggle Terminal |
-| `v` | `<C-/>` | Toggle Terminal |
-| `x` | `<C-/>` | Toggle Terminal |
 | `n` | `<C-A>` | Window down |
 | `v` | `<C-A>` | Increment |
 | `x` | `<C-A>` | Increment |
@@ -338,16 +343,15 @@ _Auto-generated with `make export-keymaps`_
 | `v` | `<C-B>` | Scroll Backward |
 | `n` | `<C-E>` | Window up |
 | `i` | `<C-F>` | Scroll Forward |
-| `n` | `<C-F>` | Scroll Forward |
+| `n` | `<C-F>` | Find files (git root) |
 | `v` | `<C-F>` | Scroll Forward |
 | `n` | `<C-H>` | Left window |
 | `n` | `<C-I>` | Right window |
-| `n` | `<C-L>` | :help CTRL-L-default |
+| `n` | `<C-L>` | Explorer |
 | `n` | `<C-N>` | Visual block mode |
 | `n` | `<C-P>` | Previous buffer |
-| `v` | `<C-P>` | Page Down |
-| `x` | `<C-P>` | Page Down |
 | `i` | `<C-S>` | vim.lsp.buf.signature_help() |
+| `n` | `<C-S>` | Save and stage file |
 | `v` | `<C-S>` | vim.lsp.buf.signature_help() |
 | `n` | `<C-T>` | Toggle alternate |
 | `i` | `<C-U>` | :help i_CTRL-U-default |
@@ -367,18 +371,18 @@ _Auto-generated with `make export-keymaps`_
 | `n` | `<M-C-E>` | Window up |
 | `n` | `<M-C-H>` | Left window |
 | `n` | `<M-C-I>` | Right window |
-| `n` | `<M-a>` | Treewalker SwapDown |
+| `n` | `<M-a>` | Move Line Down |
 | `v` | `<M-a>` | Move Block Down |
 | `x` | `<M-a>` | Move Block Down |
-| `n` | `<M-e>` | Treewalker SwapUp |
+| `n` | `<M-e>` | Move Line Up |
 | `v` | `<M-e>` | Move Block Up |
 | `x` | `<M-e>` | Move Block Up |
-| `n` | `<M-h>` | Treewalker SwapLeft |
+| `n` | `<M-h>` | End of WORD back |
 | `o` | `<M-h>` | End of WORD back |
 | `v` | `<M-h>` | End of WORD back |
 | `v` | `<M-h>` | Move Block Left |
 | `x` | `<M-h>` | End of WORD back |
-| `n` | `<M-i>` | Treewalker SwapRight |
+| `n` | `<M-i>` | Move Character Right |
 | `v` | `<M-i>` | Move Block Right |
 | `x` | `<M-i>` | Move Block Right |
 | `n` | `<M-o>` | End of WORD forward |
@@ -388,18 +392,12 @@ _Auto-generated with `make export-keymaps`_
 | `c` | `<S-CR>` | Redirect Cmdline |
 | `v` | `<S-Tab>` | vim.snippet.jump if active, otherwise <S-Tab> |
 | `v` | `<Tab>` | vim.snippet.jump if active, otherwise <Tab> |
-| `n` | `<lt>P` | Put before and indent left |
-| `n` | `<lt>p` | Put and indent left |
-| `n` | `=P` | Put before with filter |
-| `n` | `=p` | Put after with filter |
-| `n` | `>P` | Put before and indent right |
-| `n` | `>p` | Put and indent right |
 | `v` | `@` | :help v_@-default |
 | `x` | `@` | :help v_@-default |
-| `n` | `A` | Next search match |
-| `o` | `A` | Next search match |
-| `v` | `A` | Next search match |
-| `x` | `A` | Next search match |
+| `n` | `A` | Next code block |
+| `o` | `A` | Next code block |
+| `v` | `A` | Next code block |
+| `x` | `A` | Next code block |
 | `v` | `B` | Replace selected text |
 | `x` | `B` | Replace selected text |
 | `n` | `C` | Yank to end of line |
@@ -409,27 +407,28 @@ _Auto-generated with `make export-keymaps`_
 | `o` | `D` | WORD forward |
 | `v` | `D` | WORD forward |
 | `x` | `D` | WORD forward |
-| `n` | `E` | Previous search match |
-| `o` | `E` | Previous search match |
-| `v` | `E` | Previous search match |
-| `x` | `E` | Previous search match |
+| `n` | `E` | Previous code block |
+| `o` | `E` | Previous code block |
+| `v` | `E` | Previous code block |
+| `x` | `E` | Previous code block |
 | `n` | `H` | Prev Buffer |
 | `n` | `J` | Open line above |
+| `n` | `K` | Till before backward |
+| `o` | `K` | Till before backward |
+| `v` | `K` | Till before backward |
+| `x` | `K` | Till before backward |
 | `n` | `L` | WORD back |
 | `o` | `L` | WORD back |
 | `v` | `L` | WORD back |
 | `x` | `L` | WORD back |
-| `n` | `M` | Previous diff hunk |
-| `o` | `M` | Previous diff hunk |
-| `v` | `M` | Previous diff hunk |
-| `x` | `M` | Previous diff hunk |
+| `n` | `M` | Previous search match |
+| `o` | `M` | Previous search match |
+| `v` | `M` | Previous search match |
+| `x` | `M` | Previous search match |
 | `n` | `N` | Visual line mode |
 | `v` | `N` | Visual line mode |
 | `x` | `N` | Visual line mode |
 | `n` | `O` | Jumplist forward |
-| `n` | `P` | Put before cursor |
-| `v` | `P` | Put before cursor |
-| `x` | `P` | Put before cursor |
 | `n` | `Q` | replay the 'q' macro |
 | `v` | `Q` | :help v_Q-default |
 | `x` | `Q` | :help v_Q-default |
@@ -445,10 +444,7 @@ _Auto-generated with `make export-keymaps`_
 | `o` | `X` | Replace |
 | `v` | `X` | Replace |
 | `x` | `X` | Replace |
-| `n` | `Y` | Till before backward |
-| `o` | `Y` | Till before backward |
-| `v` | `Y` | Till before backward |
-| `x` | `Y` | Till before backward |
+| `n` | `Y` | :help Y-default |
 | `n` | `Z` | Redo |
 | `n` | `[ ` | Add empty line above cursor |
 | `n` | `[<C-L>` | :lpfile |
@@ -457,16 +453,16 @@ _Auto-generated with `make export-keymaps`_
 | `n` | `[A` | :rewind |
 | `n` | `[B` | Move buffer prev |
 | `n` | `[D` | Jump to the first diagnostic in the current buffer |
+| `n` | `[H` | First Hunk |
 | `n` | `[L` | :lrewind |
-| `n` | `[P` | Put indented before |
 | `n` | `[Q` | :crewind |
 | `n` | `[T` | :trewind |
 | `n` | `[[` | Previous git conflict |
 | `n` | `[a` | :previous |
 | `n` | `[b` | Prev Buffer |
 | `n` | `[d` | Jump to the previous diagnostic in the current buffer |
+| `n` | `[h` | Prev Hunk |
 | `n` | `[l` | :lprevious |
-| `n` | `[p` | Put indented before |
 | `n` | `[q` | Previous Trouble/Quickfix Item |
 | `n` | `[t` | Previous Todo Comment |
 | `n` | `] ` | Add empty line below cursor |
@@ -476,16 +472,16 @@ _Auto-generated with `make export-keymaps`_
 | `n` | `]A` | :last |
 | `n` | `]B` | Move buffer next |
 | `n` | `]D` | Jump to the last diagnostic in the current buffer |
+| `n` | `]H` | Last Hunk |
 | `n` | `]L` | :llast |
-| `n` | `]P` | Put indented after |
 | `n` | `]Q` | :clast |
 | `n` | `]T` | :tlast |
 | `n` | `]]` | Next git conflict |
 | `n` | `]a` | :next |
 | `n` | `]b` | Next Buffer |
 | `n` | `]d` | Jump to the next diagnostic in the current buffer |
+| `n` | `]h` | Next Hunk |
 | `n` | `]l` | :lnext |
-| `n` | `]p` | Put indented after |
 | `n` | `]q` | Next Trouble/Quickfix Item |
 | `n` | `]t` | Next Todo Comment |
 | `n` | `a` | Down |
@@ -500,8 +496,6 @@ _Auto-generated with `make export-keymaps`_
 | `o` | `c` | Yank (copy) |
 | `v` | `c` | Yank (copy) |
 | `x` | `c` | Yank (copy) |
-| `v` | `cc` | Yank visible lines (exclude folded) |
-| `x` | `cc` | Yank visible lines (exclude folded) |
 | `n` | `d` | Word forward |
 | `o` | `d` | Word forward |
 | `v` | `d` | Word forward |
@@ -528,10 +522,6 @@ _Auto-generated with `make export-keymaps`_
 | `n` | `fu` | Close fold (fold one) |
 | `v` | `fu` | Close fold (fold one) |
 | `x` | `fu` | Close fold (fold one) |
-| `n` | `g;` | Repeat find forward |
-| `o` | `g;` | Repeat find forward |
-| `v` | `g;` | Repeat find forward |
-| `x` | `g;` | Repeat find forward |
 | `n` | `g<C-A>` | Increment |
 | `v` | `g<C-A>` | Increment |
 | `x` | `g<C-A>` | Increment |
@@ -539,13 +529,14 @@ _Auto-generated with `make export-keymaps`_
 | `v` | `g<C-X>` | Decrement |
 | `x` | `g<C-X>` | Decrement |
 | `n` | `gD` | Go to source definition |
+| `n` | `gF` | Repeat find backward |
+| `o` | `gF` | Repeat find backward |
+| `v` | `gF` | Repeat find backward |
+| `x` | `gF` | Repeat find backward |
 | `n` | `gK` | Lookup keyword |
 | `v` | `gK` | Lookup keyword |
 | `x` | `gK` | Lookup keyword |
 | `n` | `gO` | vim.lsp.buf.document_symbol() |
-| `n` | `gP` | Put before and leave cursor |
-| `v` | `gP` | Put before and leave cursor |
-| `x` | `gP` | Put before and leave cursor |
 | `n` | `gQ` | Ex mode |
 | `v` | `gQ` | Ex mode |
 | `x` | `gQ` | Ex mode |
@@ -569,21 +560,20 @@ _Auto-generated with `make export-keymaps`_
 | `v` | `ge` | Scroll up (Graphite) |
 | `v` | `ge` | Scroll up (Graphite) |
 | `x` | `ge` | Scroll up (Graphite) |
-| `n` | `gf` | Follow link or file |
+| `n` | `gf` | Repeat find forward |
+| `o` | `gf` | Repeat find forward |
+| `v` | `gf` | Repeat find forward |
+| `x` | `gf` | Repeat find forward |
 | `n` | `gh` | Lookup keyword |
 | `v` | `gh` | Lookup keyword |
 | `x` | `gh` | Lookup keyword |
-| `n` | `gi` | Go to top |
-| `n` | `go` | Get hunk (smart) |
-| `n` | `gp` | Put hunk (smart) |
-| `v` | `gp` | Put after and leave cursor |
-| `x` | `gp` | Put after and leave cursor |
 | `n` | `gra` | vim.lsp.buf.code_action() |
 | `v` | `gra` | vim.lsp.buf.code_action() |
 | `x` | `gra` | vim.lsp.buf.code_action() |
 | `n` | `gri` | vim.lsp.buf.implementation() |
 | `n` | `grn` | vim.lsp.buf.rename() |
 | `n` | `grr` | vim.lsp.buf.references() |
+| `n` | `grt` | vim.lsp.buf.type_definition() |
 | `n` | `gs` | Center screen (Graphite) |
 | `v` | `gs` | Center screen (Graphite) |
 | `v` | `gs` | Center screen (Graphite) |
@@ -601,14 +591,18 @@ _Auto-generated with `make export-keymaps`_
 | `v` | `i` | Right |
 | `x` | `i` | Right |
 | `n` | `j` | Open line below |
+| `n` | `k` | Till before |
+| `o` | `k` | Till before |
+| `v` | `k` | Till before |
+| `x` | `k` | Till before |
 | `n` | `l` | Word back |
 | `o` | `l` | Word back |
 | `v` | `l` | Word back |
 | `x` | `l` | Word back |
-| `n` | `m` | Next diff hunk |
-| `o` | `m` | Next diff hunk |
-| `v` | `m` | Next diff hunk |
-| `x` | `m` | Next diff hunk |
+| `n` | `m` | Next search match |
+| `o` | `m` | Next search match |
+| `v` | `m` | Next search match |
+| `x` | `m` | Next search match |
 | `n` | `n` | Visual mode |
 | `v` | `n` | Visual mode |
 | `x` | `n` | Visual mode |
@@ -621,62 +615,129 @@ _Auto-generated with `make export-keymaps`_
 | `o` | `r` | O/V mode: inner (i) |
 | `v` | `r` | O/V mode: inner (i) |
 | `x` | `r` | O/V mode: inner (i) |
-| `o` | `r"` | Inner quotes (for nvim-surround) |
-| `o` | `r'` | Inner single quotes (for nvim-surround) |
-| `o` | `r(` | Inner parentheses (for nvim-surround) |
-| `o` | `r)` | Inner parentheses (for nvim-surround) |
+| `o` | `r"` | Inner quotes |
+| `v` | `r"` | Inner quotes |
+| `x` | `r"` | Inner quotes |
+| `o` | `r'` | Inner single quotes |
+| `v` | `r'` | Inner single quotes |
+| `x` | `r'` | Inner single quotes |
+| `o` | `r(` | Inner parentheses |
+| `v` | `r(` | Inner parentheses |
+| `x` | `r(` | Inner parentheses |
+| `o` | `r)` | Inner parentheses |
+| `v` | `r)` | Inner parentheses |
+| `x` | `r)` | Inner parentheses |
+| `o` | `r<lt>` | Inner angle brackets |
+| `v` | `r<lt>` | Inner angle brackets |
+| `x` | `r<lt>` | Inner angle brackets |
+| `o` | `r>` | Inner angle brackets |
+| `v` | `r>` | Inner angle brackets |
+| `x` | `r>` | Inner angle brackets |
+| `o` | `rB` | Inner Block |
+| `v` | `rB` | Inner Block |
+| `x` | `rB` | Inner Block |
 | `o` | `rD` | Inner WORD |
 | `v` | `rD` | Inner WORD (visual) |
 | `x` | `rD` | Inner WORD (visual) |
-| `o` | `r[` | Inner brackets (for nvim-surround) |
-| `o` | `r]` | Inner brackets (for nvim-surround) |
+| `o` | `rW` | Inner WORD |
+| `v` | `rW` | Inner WORD |
+| `x` | `rW` | Inner WORD |
+| `o` | `r[` | Inner brackets |
+| `v` | `r[` | Inner brackets |
+| `x` | `r[` | Inner brackets |
+| `o` | `r]` | Inner brackets |
+| `v` | `r]` | Inner brackets |
+| `x` | `r]` | Inner brackets |
+| `o` | `r`` | Inner code block |
+| `v` | `r`` | Inner code block |
+| `x` | `r`` | Inner code block |
+| `o` | `rb` | Inner block |
+| `v` | `rb` | Inner block |
+| `x` | `rb` | Inner block |
 | `o` | `rd` | Inner word |
 | `v` | `rd` | Inner word (visual) |
 | `x` | `rd` | Inner word (visual) |
-| `o` | `rf` | Select inner function |
-| `v` | `rf` | Select inner function |
-| `x` | `rf` | Select inner function |
-| `o` | `r{` | Inner braces (for nvim-surround) |
-| `o` | `r}` | Inner braces (for nvim-surround) |
+| `o` | `rp` | Inner paragraph |
+| `v` | `rp` | Inner paragraph |
+| `x` | `rp` | Inner paragraph |
+| `o` | `rw` | Inner word |
+| `v` | `rw` | Inner word |
+| `x` | `rw` | Inner word |
+| `o` | `r{` | Inner braces |
+| `v` | `r{` | Inner braces |
+| `x` | `r{` | Inner braces |
+| `o` | `r}` | Inner braces |
+| `v` | `r}` | Inner braces |
+| `x` | `r}` | Inner braces |
 | `n` | `t` | O/V mode: a/an (a) |
 | `o` | `t` | O/V mode: a/an (a) |
 | `v` | `t` | O/V mode: a/an (a) |
 | `x` | `t` | O/V mode: a/an (a) |
-| `o` | `t"` | Around quotes (for nvim-surround) |
-| `o` | `t'` | Around single quotes (for nvim-surround) |
-| `o` | `t(` | Around parentheses (for nvim-surround) |
-| `o` | `t)` | Around parentheses (for nvim-surround) |
+| `o` | `t"` | Around quotes |
+| `v` | `t"` | Around quotes |
+| `x` | `t"` | Around quotes |
+| `o` | `t'` | Around single quotes |
+| `v` | `t'` | Around single quotes |
+| `x` | `t'` | Around single quotes |
+| `o` | `t(` | Around parentheses |
+| `v` | `t(` | Around parentheses |
+| `x` | `t(` | Around parentheses |
+| `o` | `t)` | Around parentheses |
+| `v` | `t)` | Around parentheses |
+| `x` | `t)` | Around parentheses |
+| `o` | `t<lt>` | Around angle brackets |
+| `v` | `t<lt>` | Around angle brackets |
+| `x` | `t<lt>` | Around angle brackets |
+| `o` | `t>` | Around angle brackets |
+| `v` | `t>` | Around angle brackets |
+| `x` | `t>` | Around angle brackets |
+| `o` | `tB` | Around Block |
+| `v` | `tB` | Around Block |
+| `x` | `tB` | Around Block |
 | `o` | `tD` | Around WORD |
 | `v` | `tD` | Around WORD (visual) |
 | `x` | `tD` | Around WORD (visual) |
-| `o` | `t[` | Around brackets (for nvim-surround) |
-| `o` | `t]` | Around brackets (for nvim-surround) |
+| `o` | `tW` | Around WORD |
+| `v` | `tW` | Around WORD |
+| `x` | `tW` | Around WORD |
+| `o` | `t[` | Around brackets |
+| `v` | `t[` | Around brackets |
+| `x` | `t[` | Around brackets |
+| `o` | `t]` | Around brackets |
+| `v` | `t]` | Around brackets |
+| `x` | `t]` | Around brackets |
+| `o` | `t`` | Around code block |
+| `v` | `t`` | Around code block |
+| `x` | `t`` | Around code block |
+| `o` | `tb` | Around block |
+| `v` | `tb` | Around block |
+| `x` | `tb` | Around block |
 | `o` | `td` | Around word |
 | `v` | `td` | Around word (visual) |
 | `x` | `td` | Around word (visual) |
-| `n` | `te` | Select JSX self-closing element |
-| `o` | `te` | Select JSX self-closing element |
-| `v` | `te` | Select JSX self-closing element |
-| `x` | `te` | Select JSX self-closing element |
-| `o` | `tf` | Select outer function |
-| `v` | `tf` | Select outer function |
-| `x` | `tf` | Select outer function |
-| `o` | `t{` | Around braces (for nvim-surround) |
-| `o` | `t}` | Around braces (for nvim-surround) |
+| `n` | `te` | Select self-closing tag |
+| `o` | `te` | Select self-closing tag |
+| `v` | `te` | Select self-closing tag |
+| `x` | `te` | Select self-closing tag |
+| `o` | `tp` | Around paragraph |
+| `v` | `tp` | Around paragraph |
+| `x` | `tp` | Around paragraph |
+| `o` | `tw` | Around word |
+| `v` | `tw` | Around word |
+| `x` | `tw` | Around word |
+| `o` | `t{` | Around braces |
+| `v` | `t{` | Around braces |
+| `x` | `t{` | Around braces |
+| `o` | `t}` | Around braces |
+| `v` | `t}` | Around braces |
+| `x` | `t}` | Around braces |
 | `n` | `u` | Unmapped (now z) |
 | `n` | `v` | Paste |
 | `v` | `v` | Paste |
 | `x` | `v` | Paste |
 | `n` | `w` | Change |
-| `o` | `w` | Change |
 | `v` | `w` | Change |
 | `x` | `w` | Change |
 | `n` | `x` | Delete |
-| `v` | `x` | Delete |
-| `x` | `x` | Delete |
 | `n` | `xx` | Delete line |
-| `n` | `y` | Till before |
-| `o` | `y` | Till before |
-| `v` | `y` | Till before |
-| `x` | `y` | Till before |
 | `n` | `z` | Undo |
