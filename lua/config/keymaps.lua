@@ -316,8 +316,10 @@ map({
 
 map({
   [ctrl] = {
-    ["p"] = { cmd = "BufferLineCyclePrev", desc = "Previous buffer" },
-    ["."] = { cmd = "BufferLineCycleNext", desc = "Next buffer" },
+    -- Bento buffer navigation
+    ["p"] = { cmd = "bprev", desc = "Previous buffer" },
+    ["."] = { cmd = "bnext", desc = "Next buffer" },
+    ["-"] = { cmd = "BentoToggle", desc = "Toggle buffer menu" },
   },
 })
 

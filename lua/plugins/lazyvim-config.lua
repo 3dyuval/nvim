@@ -15,6 +15,7 @@ return {
   },
 
   -- Enable colorschemes used by omarchy themes
+  { "serhez/teide.nvim", enabled = true },
   { "folke/tokyonight.nvim", enabled = true },
   { "catppuccin/nvim", name = "catppuccin", enabled = true },
   { "ellisonleao/gruvbox.nvim", enabled = true },

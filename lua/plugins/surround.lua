@@ -125,6 +125,13 @@ return {
 
     -- Graphite layout: Direct mappings to <Plug> functions (bypasses global remaps)
     -- Set AFTER setup() so <Plug> mappings exist and take precedence over global w/x/c
+    --
+    -- TODO: Change surround (ws) doesn't work due to layering issues:
+    -- 1. w→c remap intercepts before ws can be recognized
+    -- 2. Any prefix+s combo triggers default s (substitute) unless we:
+    --    a) Disable default s: vim.keymap.set("n", "s", "<Nop>")
+    --    b) Use different prefix not ending in s (e.g., wr, <leader>s)
+    --    c) Map specific combos: cs", cs', cs(, etc. (tedious)
     vim.keymap.set("n", "ws", "<Plug>(nvim-surround-change)", { desc = "Change surround" })
     vim.keymap.set("n", "xs", "<Plug>(nvim-surround-delete)", { desc = "Delete surround", nowait = true })
     vim.keymap.set("n", "xst", function()

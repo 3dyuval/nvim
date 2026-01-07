@@ -1,31 +1,25 @@
 return {
-  "akinsho/bufferline.nvim",
-  dependencies = {
-    "lewis6991/gitsigns.nvim",
-    "nvim-tree/nvim-web-devicons",
-  },
-  opts = {
-    options = {
-      animation = true,
-      truncate_names = true,
-      termguicolors = false,
-      separator_style = "slant",
-      groupns = {
-        items = {
-          require("bufferline.groups").builtin.pinned:with({ icon = " " }),
+  -- Disable bufferline in favor of bento.nvim
+  { "akinsho/bufferline.nvim", enabled = false },
+
+  -- Bento: buffer manager with tabline
+  {
+    "serhez/bento.nvim",
+    opts = {
+      ui = {
+        mode = "tabline",
+        tabline = {
+          separator_symbol = " ",
         },
       },
-    },
-    highlights = {
-      fill = {
-        bg = {
-          attribute = "fg",
-          highlight = "Pmenu",
-        },
-      },
-      buffer_selected = {
-        bold = true,
-        italic = false,
+      highlights = {
+        current = "Bold",
+        active = "Normal",
+        inactive = "Comment",
+        modified = "DiagnosticWarn",
+        label_minimal = "Comment",
+        window_bg = "Normal",
+        separator = "Comment",
       },
     },
   },
