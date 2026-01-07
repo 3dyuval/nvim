@@ -106,7 +106,11 @@ map({
   [mode] = { "n", "v", "x" },
   ga = { "<C-d>zz", desc = "Scroll down (Graphite)" },
   ge = { "<C-u>zz", desc = "Scroll up (Graphite)" },
-  gs = { "zz", desc = "Center screen (Graphite)" },
+})
+
+-- Jump between matching HTML/JSX tags
+map({
+  gs = { code.jump_to_matching_tag, desc = "Jump to matching tag" },
 })
 
 local gs = require("gitsigns")
@@ -608,8 +612,7 @@ vim.api.nvim_create_autocmd("FileType", {
     map({
       g = {
         t = { code.goto_template, desc = "Go to template", buffer = args.buf },
-        T = { code.goto_template_end, desc = "Go to template end", buffer = args.buf },
-        s = { code.goto_style, desc = "Go to style", buffer = args.buf },
+        T = { code.goto_style, desc = "Go to style", buffer = args.buf },
       },
     })
   end,

@@ -331,15 +331,79 @@ M.select_self_closing_tag = function()
 end
 
 -- ============================================================================
+-- HTML TAG NAVIGATION
+-- ============================================================================
+
+--- Jump between matching start/end tags using treesitter
+M.jump_to_matching_tag = function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row, col = cursor[1] - 1, cursor[2]
+
+  local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+  if not ok or not parser then
+    vim.notify("No treesitter parser", vim.log.levels.WARN)
+    return
+  end
+
+  parser:parse(true)
+  local node = vim.treesitter.get_node({ bufnr = bufnr, pos = { row, col } })
+  if not node then
+    return
+  end
+
+  -- Walk up to find element node
+  local element = node
+  while element do
+    local type = element:type()
+    if type == "element" or type == "jsx_element" then
+      break
+    end
+    -- If we're on start_tag or end_tag, get parent element
+    if type == "start_tag" or type == "end_tag" or type == "jsx_opening_element" or type == "jsx_closing_element" then
+      element = element:parent()
+      break
+    end
+    element = element:parent()
+  end
+
+  if not element then
+    return
+  end
+
+  local start_tag, end_tag
+  for child in element:iter_children() do
+    local ctype = child:type()
+    if ctype == "start_tag" or ctype == "jsx_opening_element" then
+      start_tag = child
+    elseif ctype == "end_tag" or ctype == "jsx_closing_element" then
+      end_tag = child
+    end
+  end
+
+  if not start_tag or not end_tag then
+    return
+  end
+
+  -- Determine which tag we're in and jump to the other
+  local start_sr, start_sc, start_er, _ = start_tag:range()
+  local end_sr, end_sc, _, _ = end_tag:range()
+
+  if row >= start_sr and row <= start_er then
+    -- We're in start tag, jump to end tag
+    vim.api.nvim_win_set_cursor(0, { end_sr + 1, end_sc })
+  else
+    -- We're in end tag (or between), jump to start tag
+    vim.api.nvim_win_set_cursor(0, { start_sr + 1, start_sc })
+  end
+end
+
+-- ============================================================================
 -- VUE SFC NAVIGATION
 -- ============================================================================
 
 M.goto_template = function()
   vim.fn.search("^<template", "w")
-end
-
-M.goto_template_end = function()
-  vim.fn.search("^</template>", "w")
 end
 
 M.goto_style = function()
