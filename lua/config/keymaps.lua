@@ -227,6 +227,7 @@ map({
     },
     o = { clipboard.copy_code_path, desc = "Copy object path" },
     O = { clipboard.copy_code_path_with_types, desc = "Copy object path (with types)" },
+    s = { clipboard.copy_path_from_src, desc = "Copy path from src (@/...)" },
     w = { cmd = "OpenFileInRepo", desc = "Open file in web browser" },
     l = { clipboard.copy_file_path_with_line, desc = "Copy file path to clipboard" },
     L = { cmd = "YankLineUrl +", desc = "Copy file URL with line to clipboard" },
@@ -597,6 +598,21 @@ map({
     k = { [x] = { cmd = "ObsidianLink", desc = "Link to existing note [query]" } },
   },
   ["<leader>N"] = { notes.create_inbox_note, desc = "New note in inbox" },
+})
+
+-- Vue SFC navigation (buffer-local)
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "vue",
+  callback = function(args)
+    local map = kmu.create_smart_map()
+    map({
+      g = {
+        t = { code.goto_template, desc = "Go to template", buffer = args.buf },
+        T = { code.goto_template_end, desc = "Go to template end", buffer = args.buf },
+        s = { code.goto_style, desc = "Go to style", buffer = args.buf },
+      },
+    })
+  end,
 })
 
 kmu.register_groups()

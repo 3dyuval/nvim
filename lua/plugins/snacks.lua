@@ -241,12 +241,18 @@ return {
             require("utils.picker-extensions").actions.copy(picker, item)
           end,
         },
+        toggle_layout = {
+          action = function(picker)
+            require("utils.picker-extensions").actions.toggle_layout(picker)
+          end,
+        },
       },
       win = {
         input = {
           keys = {
             ["<Esc>"] = { "focus_list", mode = { "i" } },
             ["<Bs>"] = false,
+            ["<C-l>"] = { "toggle_layout", mode = { "i", "n" } },
           },
         },
         list = {
@@ -256,6 +262,7 @@ return {
             ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
             ["<C-a>"] = false, -- Disable select all - it's distracting
             ["y"] = "copy", -- Universal copy action (context-aware)
+            ["<C-l>"] = "toggle_layout", -- Toggle layout globally
           },
         },
       },

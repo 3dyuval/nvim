@@ -62,4 +62,18 @@ M.copy_file_name = function()
   vim.notify("Copied name: " .. file_name)
 end
 
+M.copy_path_from_src = function()
+  local full_path = vim.fn.expand("%:p")
+  -- Find "src" in the path
+  local src_pos = full_path:find("/src/")
+  if not src_pos then
+    vim.notify("No 'src' directory found in path", vim.log.levels.WARN)
+    return
+  end
+  -- Take everything after "/src/" and prefix with "@/"
+  local relative = "@" .. full_path:sub(src_pos + 4) -- +4 to skip "/src"
+  vim.fn.setreg("+", relative)
+  vim.notify("Copied: " .. relative)
+end
+
 return M

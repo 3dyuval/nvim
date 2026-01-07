@@ -330,4 +330,20 @@ M.select_self_closing_tag = function()
   vim.cmd("normal! gv")
 end
 
+-- ============================================================================
+-- VUE SFC NAVIGATION
+-- ============================================================================
+
+M.goto_template = function()
+  vim.fn.search("^<template", "w")
+end
+
+M.goto_template_end = function()
+  vim.fn.search("^</template>", "w")
+end
+
+M.goto_style = function()
+  vim.fn.search("^<style", "w")
+end
+
 return M
