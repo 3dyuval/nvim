@@ -328,6 +328,13 @@ map({
     c = { editor.reload_config, desc = "Reload config" },
     r = { editor.reload_keymaps, desc = "Reload keymaps" },
     l = { cmd = "Lazy sync", desc = "Lazy sync plugins" },
+    n = {
+      function()
+        local file = vim.fn.shellescape(vim.fn.expand("%:p"))
+        vim.api.nvim_feedkeys(":terminal node --experimental-strip-types " .. file .. " ", "n", false)
+      end,
+      desc = "Run in node",
+    },
   },
 })
 

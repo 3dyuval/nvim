@@ -162,6 +162,21 @@ return {
         },
         stdin = true,
       },
+      -- RuboCop with global config
+      rubocop = {
+        command = "rubocop",
+        args = {
+          "--autocorrect-all",
+          "--config",
+          vim.fn.stdpath("config") .. "/formatters/rubocop.yml",
+          "--format",
+          "quiet",
+          "--stderr",
+          "--stdin",
+          "$FILENAME",
+        },
+        stdin = true,
+      },
       -- Custom ZMK keymap formatter
       zmk_keymap_formatter = {
         command = function()

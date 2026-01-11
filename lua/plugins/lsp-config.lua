@@ -57,7 +57,7 @@ return {
               diagnostics = true,
               completion = true,
               hover = true,
-              formatting = true,
+              formatting = false, -- Use RuboCop via conform instead
             },
           },
         },

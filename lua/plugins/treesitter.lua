@@ -12,6 +12,9 @@ return {
   },
   {
     "nvim-treesitter/nvim-treesitter",
+    dependencies = {
+      "RRethy/nvim-treesitter-endwise", -- Auto-insert 'end' in Ruby, Lua, etc.
+    },
     init = function()
       -- Add parser directory to runtimepath before treesitter loads
       vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
@@ -45,6 +48,10 @@ return {
       },
       -- Enable indentation
       indent = {
+        enable = true,
+      },
+      -- Auto-insert 'end' after def, class, if, etc. (Ruby, Lua, Bash, etc.)
+      endwise = {
         enable = true,
       },
       incremental_selection = {
