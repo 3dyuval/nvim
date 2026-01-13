@@ -282,10 +282,10 @@ return {
           format = function(item, picker)
             return require("utils.picker-extensions").format_file_tree_aware(item, picker)
           end,
-          filter = function(item)
-            -- Default explorer behavior - show all files and directories
-            return true
-          end,
+          -- filter = function(item)
+          --   -- Default explorer behavior - show all files and directories
+          --   return true
+          -- end,
           actions = {
             -- Custom expand action (PR #1497 - not merged, define locally)
             explorer_expand = {

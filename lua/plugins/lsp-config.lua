@@ -181,6 +181,12 @@ return {
           },
         },
 
+        -- === Elixir Development ===
+        elixirls = {
+          capabilities = { positionEncoding = "utf-8" },
+          filetypes = { "elixir", "eelixir", "heex" },
+        },
+
         -- === CSS/Styling ===
         tailwindcss = {
           capabilities = { positionEncoding = "utf-8" },
