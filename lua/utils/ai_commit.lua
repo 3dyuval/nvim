@@ -89,7 +89,7 @@ local function build_prompt(msg_opts)
     table.insert(parts, "subject line ONLY, no body")
   end
 
-  if msg_opts.footer and msg_opts.footer ~= "" then
+  if type(msg_opts.footer) == "string" and msg_opts.footer ~= "" then
     table.insert(parts, "add footer: " .. msg_opts.footer)
   end
 
