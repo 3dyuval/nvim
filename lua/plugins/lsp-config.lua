@@ -40,6 +40,7 @@ return {
               },
               workspace = {
                 checkThirdParty = false,
+                ignoreDir = {}, -- Don't ignore any dirs
                 -- library managed by lazydev.nvim
               },
               telemetry = {

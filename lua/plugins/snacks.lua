@@ -16,6 +16,7 @@ return {
   lazy = false,
   ---@type snacks.Config
   opts = {
+    image = { enabled = true },
     gh = {
       keys = {
         comment = false, -- Disable "a" for "Add Comment" - conflicts with Graphite down

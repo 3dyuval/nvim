@@ -4,11 +4,14 @@ return {
   cmd = "LazyDev",
   opts = {
     library = {
-      { path = "${3rd}/luv/library", words = { "vim%.uv" } },
-      { path = "snacks.nvim", words = { "Snacks" } },
-      { path = "lazy.nvim", words = { "LazyVim" } },
-      { path = vim.fn.expand("~/proj/retro-fallout.nvim"), words = { "retro%-fallout" } },
-      { path = vim.fn.expand("~/proj/colortweak.nvim"), words = { "colortweak" } },
+      { path = "${3rd}/luv/library" },
+      { path = vim.env.VIMRUNTIME .. "/lua" },
+      { path = "snacks.nvim" },
+      { path = "lazy.nvim" },
+      { path = vim.fn.expand("~/proj/retro-fallout.nvim") },
+      { path = vim.fn.expand("~/proj/colortweak.nvim") },
+      { path = vim.fn.expand("~/proj/searxng") },
     },
+    enabled = true,
   },
 }
