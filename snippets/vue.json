@@ -17,24 +17,12 @@
   },
   "Define Props": {
     "prefix": "vp",
-    "body": [
-      "defineProps<Props>()",
-      "",
-      "type Props = {",
-      "  $0",
-      "}"
-    ],
+    "body": ["defineProps<Props>()", "", "type Props = {", "  $0", "}"],
     "description": "defineProps with Props type"
   },
   "Define Emits": {
     "prefix": "ve",
-    "body": [
-      "defineEmits<Emits>()",
-      "",
-      "type Emits = {",
-      "  $0",
-      "}"
-    ],
+    "body": ["defineEmits<Emits>()", "", "type Emits = {", "  $0", "}"],
     "description": "defineEmits with Emits type"
   },
   "Define Props with const": {
@@ -83,27 +71,22 @@
   },
   "Define Options": {
     "prefix": "vo",
-    "body": [
-      "defineOptions({",
-      "  $0",
-      "})"
-    ],
+    "body": ["defineOptions({", "  $0", "})"],
     "description": "defineOptions"
   },
   "Define Model": {
     "prefix": "vm",
-    "body": [
-      "defineModel<${1:string}>()",
-      "$0"
-    ],
+    "body": ["defineModel<${1:string}>()", "$0"],
     "description": "defineModel with type"
   },
   "Define Model with const": {
     "prefix": "vmr",
-    "body": [
-      "const ${1:model} = defineModel<${2:string}>()",
-      "$0"
-    ],
+    "body": ["const ${1:model} = defineModel<${2:string}>()", "$0"],
     "description": "const model = defineModel with type"
+  },
+  "InstanceType": {
+    "description": "Type tool for inheriting types from component",
+    "prefix": "inst",
+    "body": ["InstanceType<typeof ${1:Component}>"]
   }
 }
