@@ -18,10 +18,11 @@ return {
   { "serhez/teide.nvim", enabled = true },
   { "folke/tokyonight.nvim", enabled = true },
   { "catppuccin/nvim", name = "catppuccin", enabled = true },
-  { "ellisonleao/gruvbox.nvim", enabled = true },
+  { "sainnhe/gruvbox-material", enabled = true },
+  { "motaz-shokry/gruvbox.nvim", enabled = true },
   { "rebelot/kanagawa.nvim", enabled = true },
   { "rose-pine/neovim", name = "rose-pine", enabled = true },
-  { "neanias/everforest-nvim", enabled = true },
+  { "sainnhe/everforest", enabled = true },
   { "gthelding/monokai-pro.nvim", enabled = true },
   { "marko-cerovac/material.nvim", enabled = true },
   { "shaunsingh/nord.nvim", enabled = true, name = "nord" },
@@ -61,7 +62,6 @@ return {
   { "Mofiqul/dracula.nvim", enabled = false },
   { "navarasu/onedark.nvim", enabled = false },
   { "EdenEast/nightfox.nvim", enabled = false },
-  { "sainnhe/everforest", enabled = false },
   { "loctvl842/monokai-pro.nvim", enabled = false },
 
   -- Opt out of LazyVim keymaps - bind explicitly in keymaps.lua

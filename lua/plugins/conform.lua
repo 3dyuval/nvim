@@ -107,6 +107,8 @@ M.organize_imports = function()
     }
     vim.fn.system(cmd)
     vim.cmd("silent! checktime")
+    -- Format to fix indentation (biome organize uses 4-space, we want 2)
+    require("conform").format({ bufnr = bufnr })
   else
     -- Fallback: Use vtsls commands
     vtsls_cmd("typescript.organizeImports", filepath)
@@ -131,6 +133,9 @@ return {
   dependencies = { "mason-org/mason.nvim" }, -- Ensure Mason loads first
   opts = {
     default_format_opts = {
+      timeout_ms = 3000,
+      async = false,
+      quiet = false,
       lsp_format = "fallback", -- Use LSP when no formatter configured (e.g., Vue)
     },
     formatters_by_ft = {
