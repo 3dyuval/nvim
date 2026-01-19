@@ -23,6 +23,8 @@ return {
   { "rebelot/kanagawa.nvim", enabled = true },
   { "rose-pine/neovim", name = "rose-pine", enabled = true },
   { "sainnhe/everforest", enabled = true },
+  { "alexmozaidze/palenight.nvim", enabled = true },
+  { "hylophile/flatwhite.nvim", enabled = true },
   { "gthelding/monokai-pro.nvim", enabled = true },
   { "marko-cerovac/material.nvim", enabled = true },
   { "shaunsingh/nord.nvim", enabled = true, name = "nord" },
@@ -32,6 +34,18 @@ return {
   { "tahayvr/matteblack.nvim", enabled = true },
   { "bjarneo/aether.nvim", enabled = true },
   { "bjarneo/hackerman.nvim", enabled = true },
+  { "Verf/deepwhite.nvim", enabled = true },
+  {
+    "3dyuval/colortweak.nvim",
+    lazy = false,
+    opts = {
+      ["deepwhite"] = {
+        patterns = {
+          ["@keyword.function"] = { h = 180, s = 0.5 },
+        },
+      },
+    },
+  },
   {
     "3dyuval/retro-fallout.nvim",
     dependencies = {

@@ -325,6 +325,7 @@ map({
 
 map({
   ["<leader>r"] = {
+    a = { cmd = ":SearxngAutocomplete", desc = "SearXNG Autocomplete" },
     c = { editor.reload_config, desc = "Reload config" },
     r = { editor.reload_keymaps, desc = "Reload keymaps" },
     l = { cmd = "Lazy sync", desc = "Lazy sync plugins" },
