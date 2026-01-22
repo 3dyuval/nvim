@@ -1,5 +1,6 @@
 .env
-.claude
+.opencode
+.agents
 .aider*
-mcp-debug.log
 colorscheme.lua
+

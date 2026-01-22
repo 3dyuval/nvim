@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__mcp-git-ingest__git_directory_structure",
+      "mcp__mcp-deepwiki__deepwiki_fetch",
+      "Bash(grep:*)",
+      "Bash(make format:*)",
+      "mcp__tavily__tavily-search"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "context7",
+    "mongoDB",
+    "mcp-git-ingest",
+    "playwright",
+    "react-native-debugger-mcp",
+    "tavily",
+    "mcp-deepwiki"
+  ]
+}
