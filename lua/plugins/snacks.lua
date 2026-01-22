@@ -39,14 +39,8 @@ return {
       input = {
         enabled = true,
         icon = " ",
-        win = {
-          relative = "editor",
-          position = "float",
-          row = vim.o.lines - 3, -- Position near bottom like classic cmdline
-          height = 1,
-          width = vim.o.columns - 4,
-          border = "none",
-        },
+        row = -3, -- 3 rows from bottom (negative = from bottom)
+        border = "rounded",
       },
       indent = {
         enabled = function(buf)
@@ -240,6 +234,7 @@ return {
         enabled = true,
         hidden = true,
         ignored = false,
+        layouts = require("utils.snacks-layouts"),
         -- Toggle indicators shown in title bar
         toggles = {
           follow = "f",
@@ -575,8 +570,52 @@ return {
             layout = { preset = "ivy" },
             focus = "list",
           },
-          searxng_images = {},
+          searxng_images = {
+            layout = { preset = "large_preview" },
+          },
           searxng_videos = {},
+          searxng_packages = {
+            layout = { preset = "large_preview" },
+            actions = {
+              npm_install = {
+                action = function(picker, item)
+                  local result = item.result or item
+                  if result.package_name then
+                    picker:close()
+                    vim.cmd("split | terminal npm install " .. result.package_name)
+                  end
+                end,
+              },
+              npm_install_dev = {
+                action = function(picker, item)
+                  local result = item.result or item
+                  if result.package_name then
+                    picker:close()
+                    vim.cmd("split | terminal npm install -D " .. result.package_name)
+                  end
+                end,
+              },
+              copy_install_cmd = {
+                action = function(picker, item)
+                  local result = item.result or item
+                  if result.package_name then
+                    vim.fn.setreg("+", "npm install " .. result.package_name)
+                    vim.notify("Copied: npm install " .. result.package_name)
+                  end
+                end,
+              },
+            },
+            win = {
+              list = {
+                keys = {
+                  ["i"] = "npm_install",
+                  ["I"] = "npm_install_dev",
+                  ["y"] = "copy_install_cmd",
+                  ["<C-o>"] = "open_browser",
+                },
+              },
+            },
+          },
           searxng_news = {
             layout = { preset = "ivy" },
             focus = "list",
