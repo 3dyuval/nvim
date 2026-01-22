@@ -1,5 +1,8 @@
 -- https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 
+-- Disable dashboard for leetcode.nvim (must be at top before any config)
+local is_leetcode = vim.fn.argv(0) == "leetcode.nvim"
+
 -- Use shared explorer from picker-extensions
 local open_explorer = function(opts)
   require("utils.picker-extensions").open_explorer(opts)
@@ -212,6 +215,7 @@ return {
               desc = "Recent Files",
               action = ":lua Snacks.dashboard.pick('oldfiles')",
             },
+            { icon = "󰰍", key = "c", desc = "LeetCode", action = ":Leet" },
             {
               icon = "󰰶",
               key = "z",
@@ -663,6 +667,11 @@ return {
       require("snacks").setup(opts)
 
       -- Manual dashboard control based on conditions
+      -- Skip entirely for leetcode.nvim
+      if is_leetcode then
+        return
+      end
+
       vim.api.nvim_create_autocmd("UIEnter", {
         once = true,
         callback = function()
