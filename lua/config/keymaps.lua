@@ -297,6 +297,10 @@ map({
     f = { files.find_files, desc = "Find files (git root)" },
     s = { files.save_file, desc = "Save file" },
     S = { files.save_and_stage_file, desc = "Save and stage file" },
+    ["/"] = { cmd = ":SearxngAutocomplete", desc = "SearXNG Autocomplete" },
+    ["p"] = { cmd = "bprev", desc = "Previous buffer" },
+    ["."] = { cmd = "bnext", desc = "Next buffer" },
+    ["-"] = { cmd = "BentoToggle", desc = "Toggle buffer menu" },
   },
 })
 
@@ -315,17 +319,7 @@ map({
 })
 
 map({
-  [ctrl] = {
-    -- Bento buffer navigation
-    ["p"] = { cmd = "bprev", desc = "Previous buffer" },
-    ["."] = { cmd = "bnext", desc = "Next buffer" },
-    ["-"] = { cmd = "BentoToggle", desc = "Toggle buffer menu" },
-  },
-})
-
-map({
   ["<leader>r"] = {
-    a = { cmd = ":SearxngAutocomplete", desc = "SearXNG Autocomplete" },
     c = { editor.reload_config, desc = "Reload config" },
     r = { editor.reload_keymaps, desc = "Reload keymaps" },
     l = { cmd = "Leet run", desc = "Leet run (test)" },
@@ -384,6 +378,7 @@ map({
 })
 
 map({
+
   ["<leader>s"] = {
     K = { cmd = "KMUInspect", exec = true, desc = "KMU only inspect" },
     D = { cmd = "ProjectDiagnostics", desc = "Project Diagnostics" },
