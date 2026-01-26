@@ -28,4 +28,15 @@ return {
       require("run-ai-run").setup(opts)
     end,
   },
+  {
+    "coder/claudecode.nvim",
+    lazy = false, -- Must load on startup for WebSocket server
+    dependencies = { "folke/snacks.nvim" },
+    opts = {
+      terminal = {
+        provider = "none", -- Run Claude Code externally (tmux, separate terminal, etc.)
+      },
+    },
+    -- Keymaps configured in config/keymaps.lua
+  },
 }
