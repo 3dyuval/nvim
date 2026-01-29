@@ -1,0 +1,14 @@
+{
+  "CodeReview": {
+    "prefix": "codereview",
+    "description": "Add to specs after reviewing with third party",
+    "body": [
+      "---",
+      "## Code Review (subject: $1)",
+      "Reject/Not complete: $2",
+      "files: @[$3]",
+      "Can be improved: $4",
+      "Explore these: $5"
+    ]
+  }
+}
