@@ -1,6 +1,20 @@
 local text_filetypes = { "markdown", "text", "feature", "gitcommit" }
 
 return {
+  -- markdown-preview.nvim (from LazyVim) - add keymaps
+  {
+    "iamcco/markdown-preview.nvim",
+    keys = {
+      { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", ft = "markdown", desc = "Markdown preview" },
+    },
+  },
+  {
+    "folke/todo-comments.nvim",
+    cmd = { "TodoTrouble" },
+    event = "LazyFile",
+    opts = {},
+    -- moved to ../config/keymaps.lua
+  },
   {
     "mfussenegger/nvim-lint",
     opts = function(_, opts)
@@ -33,17 +47,10 @@ return {
     "bngarren/checkmate.nvim",
     ft = text_filetypes,
     opts = {
-      files = {
-        "*",
-      },
+      files = { "*.md", "*.markdown", "*.txt" },
       keys = false,
-      -- Guard against non-modifiable buffers (fixes session restore error)
-      enabled = function(bufnr)
-        return vim.bo[bufnr].modifiable
-      end,
     },
   },
-
   {
     "MeanderingProgrammer/render-markdown.nvim",
     ft = text_filetypes,
