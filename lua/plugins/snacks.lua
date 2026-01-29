@@ -15,7 +15,7 @@ end
 
 return {
   {
-    dir = "~/proj/searxng",
+    dir = "~/proj/searxng.nvim",
     dependencies = { "folke/snacks.nvim" },
     config = function()
       require("searxng").setup()

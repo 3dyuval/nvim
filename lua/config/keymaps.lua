@@ -324,13 +324,27 @@ map({
     c = { editor.reload_config, desc = "Reload config" },
     r = { editor.reload_keymaps, desc = "Reload keymaps" },
     l = { cmd = "Leet run", desc = "Leet run (test)" },
-    n = {
-      function()
-        local file = vim.fn.shellescape(vim.fn.expand("%:p"))
-        vim.api.nvim_feedkeys(":terminal node --experimental-strip-types " .. file .. " ", "n", false)
-      end,
-      desc = "Run in node",
-    },
+    n = { cmd = "ClaudeCode", desc = "New Claude session" },
+  },
+})
+
+-- Claude Code keymaps
+map({
+  [ctrl] = {
+    ["\\"] = { [mode] = { "n", "v", "i" }, cmd = "ClaudeCode", desc = "Toggle Claude Code" },
+    ["-"] = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
+  },
+  ["<leader>a"] = {
+    group = "AI/Claude",
+    c = { cmd = "ClaudeCode", desc = "Toggle Claude" },
+    f = { cmd = "ClaudeCodeFocus", desc = "Focus Claude" },
+    r = { cmd = "ClaudeCode --resume", desc = "Resume Claude" },
+    C = { cmd = "ClaudeCode --continue", desc = "Continue Claude" },
+    m = { cmd = "ClaudeCodeSelectModel", desc = "Select model" },
+    b = { cmd = "ClaudeCodeAdd %", desc = "Add current buffer" },
+    s = { [mode] = { "v" }, cmd = "ClaudeCodeSend", desc = "Send selection to Claude" },
+    a = { cmd = "ClaudeCodeDiffAccept", desc = "Accept diff" },
+    d = { cmd = "ClaudeCodeDiffDeny", desc = "Deny diff" },
   },
 })
 
