@@ -1,6 +1,8 @@
 return {
   {
     "3dyuval/colortweak.nvim",
+    lazy = false,
+    opts = {},
   },
   {
     "eero-lehtinen/oklch-color-picker.nvim",

@@ -13,7 +13,17 @@ return {
   },
   {
     "mfussenegger/nvim-dap",
-    event = "VeryLazy",
+    cmd = { "DapContinue", "DapToggleBreakpoint", "DapStepInto", "DapStepOver", "DapStepOut", "DapTerminate" },
+    keys = {
+      { "<leader>dt", desc = "Toggle Breakpoint" },
+      { "<leader>dc", desc = "Continue" },
+      { "<leader>di", desc = "Step Into" },
+      { "<leader>do", desc = "Step Over" },
+      { "<leader>du", desc = "Step Out" },
+      { "<leader>dr", desc = "Open REPL" },
+      { "<leader>dl", desc = "Run Last" },
+      { "<leader>dq", desc = "Terminate" },
+    },
     dependencies = {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",

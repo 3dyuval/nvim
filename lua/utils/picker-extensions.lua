@@ -2609,7 +2609,18 @@ M.confirm_multi = function(picker, item, action)
       end
     end)
   else
-    Snacks.picker.actions.confirm(picker, item, action or {})
+    -- Check if the main window (not picker) has winfixbuf (e.g. leetcode)
+    local main_win = picker.main
+    local has_winfixbuf = main_win and vim.api.nvim_win_is_valid(main_win) and vim.wo[main_win].winfixbuf
+
+    if has_winfixbuf then
+      picker:close()
+      if item and item.file then
+        vim.cmd("split " .. vim.fn.fnameescape(item.file))
+      end
+    else
+      Snacks.picker.actions.confirm(picker, item, action or {})
+    end
   end
 end
 

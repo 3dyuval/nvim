@@ -12,8 +12,8 @@ return {
       configs.tsgo = {
         default_config = {
           cmd = { "tsgo", "--lsp", "--stdio" },
-          filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-          root_dir = lspconfig.util.root_pattern("tsconfig.json", "jsconfig.json", "package.json", ".git"),
+          filetypes = { "typescript", "typescriptreact" },
+          root_dir = lspconfig.util.root_pattern("tsconfig.json", "package.json", ".git"),
         },
       }
     end
@@ -123,14 +123,37 @@ return {
         ts_ls = { enabled = false },
         volar = { enabled = false },
 
-        -- === TypeScript/JavaScript Development ===
+        -- === JavaScript Development ===
+        -- Using Deno for JavaScript
+        denols = {
+          enabled = true,
+          filetypes = { "javascript", "javascriptreact" },
+          root_dir = function(fname)
+            local lspconfig = require("lspconfig")
+            -- Prefer deno.json, fall back to package.json
+            return lspconfig.util.root_pattern("deno.json", "deno.jsonc")(fname)
+              or lspconfig.util.root_pattern("package.json")(fname)
+              or lspconfig.util.find_git_ancestor(fname)
+          end,
+          settings = {
+            deno = {
+              enable = true,
+              lint = true,
+              suggest = {
+                imports = { hosts = { ["https://deno.land"] = true } },
+              },
+            },
+          },
+        },
+
+        -- === TypeScript Development ===
         -- Using vtsls with @vue/typescript-plugin for Vue support
         -- https://github.com/vuejs/language-tools/wiki/Neovim
         vtsls = {
           enabled = true,
           -- Use local build for testing willRenameFiles support
           cmd = { vim.fn.expand("~/proj/vtsls/packages/server/bin/vtsls.js"), "--stdio" },
-          filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+          filetypes = { "typescript", "typescriptreact", "vue" },
           settings = {
             vtsls = {
               autoUseWorkspaceTsdk = false, -- Automatically use bundled TypeScript instead of projects'

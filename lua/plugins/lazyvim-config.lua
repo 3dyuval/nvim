@@ -42,6 +42,7 @@ return {
       ["deepwhite"] = {
         patterns = {
           ["@keyword.function"] = { h = 180, s = 0.5 },
+          ["leetcode_dyn_p nui.nvim"] = { l = 0.2 },
         },
       },
     },

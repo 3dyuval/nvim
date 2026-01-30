@@ -322,9 +322,19 @@ map({
 map({
   ["<leader>r"] = {
     c = { editor.reload_config, desc = "Reload config" },
-    r = { editor.reload_keymaps, desc = "Reload keymaps" },
+    R = { editor.reload_keymaps, desc = "Reload keymaps" },
     l = { cmd = "Leet run", desc = "Leet run (test)" },
     n = { cmd = "ClaudeCode", desc = "New Claude session" },
+    -- Sniprun keymaps
+    r = { [mode] = { "n", "v" }, cmd = "SnipRun", desc = "Run snippet" },
+    t = {
+      function()
+        require("sniprun").reset()
+        vim.cmd("%SnipRun")
+      end,
+      desc = "Run buffer (fresh)",
+    },
+    S = { cmd = "SnipReset", desc = "Reset sniprun" },
   },
 })
 
