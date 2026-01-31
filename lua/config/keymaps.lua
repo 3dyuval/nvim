@@ -176,6 +176,13 @@ map({
     b = { cmd = "Gitsigns toggle_current_line_blame", desc = "Toggle current line blame" },
   },
 
+  -- Lensline toggle commands under <leader>ul
+  ["<leader>ul"] = {
+    l = { require("lensline").toggle_view, desc = "Toggle visibility" },
+    e = { require("lensline").toggle_engine, desc = "Toggle engine" },
+    p = { cmd = "LenslineProfile", desc = "Cycle profiles" },
+  },
+
   -- Hunk navigation
   ["]h"] = {
     function()
