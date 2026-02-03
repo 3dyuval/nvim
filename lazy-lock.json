@@ -85,6 +85,7 @@
   "timers.nvim": { "branch": "main", "commit": "7608aa7038c5f97581328fc9268ac08e599849fe" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
   "tokyonight.nvim": { "branch": "main", "commit": "5da1b76e64daf4c5d410f06bcb6b9cb640da7dfd" },
+  "tree-sitter-amber": { "branch": "main", "commit": "107c6d4a420fb0c5962b62ebd9347b7eb0015957" },
   "treewalker.nvim": { "branch": "main", "commit": "3d5148e160ed9728b3275d37d06ea028cef5f43b" },
   "trouble.nvim": { "branch": "main", "commit": "bd67efe408d4816e25e8491cc5ad4088e708a69a" },
   "u.nvim": { "branch": "v2", "commit": "12945a4cdf9278d9c26fd35e328f135142b0ab89" },

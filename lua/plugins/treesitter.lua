@@ -19,9 +19,10 @@ return {
       -- Add parser directory to runtimepath before treesitter loads
       vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
     end,
-    opts = {
-      -- Install parsers for these languages
-      ensure_installed = {
+    opts = function(_, opts)
+      vim.filetype.add({ extension = { ab = "amber" } })
+
+      opts.ensure_installed = {
         "lua",
         "vim",
         "vimdoc",
@@ -38,23 +39,15 @@ return {
         "json",
         "yaml",
         "toml",
-      },
-      -- Auto-install missing parsers when entering buffer
-      auto_install = true,
-      -- Enable syntax highlighting
-      highlight = {
+      }
+      opts.auto_install = true
+      opts.highlight = {
         enable = true,
         additional_vim_regex_highlighting = false,
-      },
-      -- Enable indentation
-      indent = {
-        enable = true,
-      },
-      -- Auto-insert 'end' after def, class, if, etc. (Ruby, Lua, Bash, etc.)
-      endwise = {
-        enable = true,
-      },
-      incremental_selection = {
+      }
+      opts.indent = { enable = true }
+      opts.endwise = { enable = true }
+      opts.incremental_selection = {
         enable = true,
         keymaps = {
           init_selection = "<C-space>",
@@ -62,8 +55,21 @@ return {
           scope_incremental = false,
           node_decremental = "<bs>",
         },
-      },
-    },
+      }
+    end,
+  },
+  {
+    "amber-lang/tree-sitter-amber",
+    build = function()
+      local parser_dir = vim.fn.stdpath("data") .. "/site/parser"
+      vim.fn.mkdir(parser_dir, "p")
+      local src = vim.fn.stdpath("data") .. "/lazy/tree-sitter-amber/src"
+      vim.fn.system({
+        "cc", "-shared", "-fPIC", "-o",
+        parser_dir .. "/amber.so",
+        "-I" .. src, src .. "/parser.c",
+      })
+    end,
   },
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
