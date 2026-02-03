@@ -84,6 +84,14 @@ return {
       return table.concat(result, " ")
     end
 
+    -- Interview timer countdown
+    table.insert(opts.sections.lualine_z, {
+      function()
+        return require("timers.integrations.lualine").closest_timer()
+      end,
+      color = "WarningMsg",
+    })
+
     -- Add formatter status component with click handler
     table.insert(opts.sections.lualine_b, {
       formatter_status,

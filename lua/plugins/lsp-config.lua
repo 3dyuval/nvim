@@ -1,5 +1,27 @@
 return {
   "neovim/nvim-lspconfig",
+  init = function()
+    local ignored_codes = {
+      [7047] = true, -- implicit any[] rest param
+      [7044] = true, -- parameter implicitly has 'any' type (inferred)
+      [6133] = true, -- declared but never read
+    }
+    vim.api.nvim_create_autocmd("LspAttach", {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client.name == "vtsls" then
+          client.handlers["textDocument/publishDiagnostics"] = function(err, result, ctx)
+            if result and result.diagnostics then
+              result.diagnostics = vim.tbl_filter(function(d)
+                return not ignored_codes[d.code]
+              end, result.diagnostics)
+            end
+            vim.lsp.handlers["textDocument/publishDiagnostics"](err, result, ctx)
+          end
+        end
+      end,
+    })
+  end,
   opts = function(_, opts)
     -- Suppress vtsls internal notification (no client handler needed)
     vim.lsp.commands["_typescript.didOrganizeImports"] = function() end
@@ -124,36 +146,14 @@ return {
         volar = { enabled = false },
 
         -- === JavaScript Development ===
-        -- Using Deno for JavaScript
-        denols = {
-          enabled = true,
-          filetypes = { "javascript", "javascriptreact" },
-          root_dir = function(fname)
-            local lspconfig = require("lspconfig")
-            -- Prefer deno.json, fall back to package.json
-            return lspconfig.util.root_pattern("deno.json", "deno.jsonc")(fname)
-              or lspconfig.util.root_pattern("package.json")(fname)
-              or lspconfig.util.find_git_ancestor(fname)
-          end,
-          settings = {
-            deno = {
-              enable = true,
-              lint = true,
-              suggest = {
-                imports = { hosts = { ["https://deno.land"] = true } },
-              },
-            },
-          },
-        },
+        denols = { enabled = false },
 
-        -- === TypeScript Development ===
+        -- === TypeScript & JavaScript Development ===
         -- Using vtsls with @vue/typescript-plugin for Vue support
         -- https://github.com/vuejs/language-tools/wiki/Neovim
         vtsls = {
           enabled = true,
-          -- Use local build for testing willRenameFiles support
-          cmd = { vim.fn.expand("~/proj/vtsls/packages/server/bin/vtsls.js"), "--stdio" },
-          filetypes = { "typescript", "typescriptreact", "vue" },
+          filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact", "vue" },
           settings = {
             vtsls = {
               autoUseWorkspaceTsdk = false, -- Automatically use bundled TypeScript instead of projects'
@@ -180,6 +180,17 @@ return {
                 propertyDeclarationTypes = { enabled = true },
                 functionLikeReturnTypes = { enabled = false },
                 enumMemberValues = { enabled = true },
+              },
+            },
+            javascript = {
+              implicitProjectConfig = {
+                checkJs = true,
+                strictNullChecks = false,
+                strictFunctionTypes = false,
+              },
+              lib = {
+                "ES2020",
+                "DOM",
               },
             },
           },
@@ -250,6 +261,7 @@ return {
       }
 
     opts.setup = opts.setup or {}
+
     opts.setup.vue_ls = function(_, opts)
       Snacks.util.lsp.on({ name = "vue_ls" }, function(bufnr, client)
         -- Disable rename in hybrid mode (vtsls handles it)

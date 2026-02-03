@@ -5,7 +5,9 @@
       "mcp__mcp-deepwiki__deepwiki_fetch",
       "Bash(grep:*)",
       "Bash(make format:*)",
-      "mcp__tavily__tavily-search"
+      "mcp__tavily__tavily-search",
+      "mcp__tavily__tavily-crawl",
+      "mcp__tavily__tavily-extract"
     ]
   },
   "enableAllProjectMcpServers": true,

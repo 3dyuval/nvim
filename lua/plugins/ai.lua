@@ -29,14 +29,21 @@ return {
     end,
   },
   {
-    "coder/claudecode.nvim",
-    lazy = false, -- Must load on startup for WebSocket server
-    dependencies = { "folke/snacks.nvim" },
-    opts = {
-      terminal = {
-        provider = "none", -- Run Claude Code externally (tmux, separate terminal, etc.)
-      },
-    },
-    -- Keymaps configured in config/keymaps.lua
+    dir = "/home/yuv/proj/test",
+    name = "interview-timer",
+    lazy = false,
+    dependencies = { "ravsii/timers.nvim" },
+    config = function()
+      require("timers").setup({})
+      require("interview-timer").setup({
+        ["time-limit-min"] = 20,
+        provider = "claude-acp",
+        ["acp-providers"] = {
+          ["claude-acp"] = {
+            command = "/home/yuv/.nvm/versions/node/v20.19.6/bin/claude-code-acp",
+          },
+        },
+      })
+    end,
   },
 }
