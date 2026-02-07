@@ -65,9 +65,13 @@ return {
       vim.fn.mkdir(parser_dir, "p")
       local src = vim.fn.stdpath("data") .. "/lazy/tree-sitter-amber/src"
       vim.fn.system({
-        "cc", "-shared", "-fPIC", "-o",
+        "cc",
+        "-shared",
+        "-fPIC",
+        "-o",
         parser_dir .. "/amber.so",
-        "-I" .. src, src .. "/parser.c",
+        "-I" .. src,
+        src .. "/parser.c",
       })
     end,
   },

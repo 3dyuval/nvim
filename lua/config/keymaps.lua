@@ -167,20 +167,26 @@ map({
     },
   },
 
-  -- Gitsigns toggle commands under <leader>ug
-  ["<leader>ug"] = {
-    g = { "<leader>uG", desc = "Toggle Git Signs" }, -- Maps to default LazyVim toggle
-    l = { cmd = "Gitsigns toggle_linehl", desc = "Toggle line highlights" },
-    n = { cmd = "Gitsigns toggle_numhl", desc = "Toggle number highlights" },
-    w = { cmd = "Gitsigns toggle_word_diff", desc = "Toggle word diff" },
-    b = { cmd = "Gitsigns toggle_current_line_blame", desc = "Toggle current line blame" },
-  },
-
-  -- Lensline toggle commands under <leader>ul
-  ["<leader>ul"] = {
-    l = { require("lensline").toggle_view, desc = "Toggle visibility" },
-    e = { require("lensline").toggle_engine, desc = "Toggle engine" },
-    p = { cmd = "LenslineProfile", desc = "Cycle profiles" },
+  ["<leader>u"] = {
+    g = {
+      g = { "<leader>uG", desc = "Toggle Git Signs" }, -- Maps to default LazyVim toggle
+      l = { cmd = "Gitsigns toggle_linehl", desc = "Toggle line highlights" },
+      n = { cmd = "Gitsigns toggle_numhl", desc = "Toggle number highlights" },
+      w = { cmd = "Gitsigns toggle_word_diff", desc = "Toggle word diff" },
+      b = { cmd = "Gitsigns toggle_current_line_blame", desc = "Toggle current line blame" },
+    },
+    s = {
+      function()
+        vim.opt_local.spell = not vim.opt_local.spell:get()
+        vim.notify("Spell: " .. (vim.opt_local.spell:get() and "on" or "off"))
+      end,
+      desc = "Toggle spell checking",
+    },
+    l = {
+      l = { require("lensline").toggle_view, desc = "Toggle visibility" },
+      e = { require("lensline").toggle_engine, desc = "Toggle engine" },
+      p = { cmd = "LenslineProfile", desc = "Cycle profiles" },
+    },
   },
 
   -- Hunk navigation
@@ -204,6 +210,8 @@ map({
     end,
     desc = "Prev Hunk",
   },
+  ["]s"] = { "]s", desc = "Next misspelled word" },
+  ["[s"] = { "[s", desc = "Prev misspelled word" },
   ["]H"] = {
     function()
       gs.nav_hunk("last")
@@ -583,6 +591,34 @@ map({
     ["]"] = { cmd = "Checkmate metadata jump_next", desc = "Todo: Jump to next metadata" },
     ["["] = { cmd = "Checkmate metadata jump_previous", desc = "Todo: Jump to previous metadata" },
     v = { cmd = "Checkmate metadata select_value", desc = "Todo: Select metadata value" },
+    -- Spell operations
+    s = {
+      group = "Spell",
+      s = {
+        function()
+          vim.ui.select(vim.fn.spellsuggest(vim.fn.expand("<cword>")), { prompt = "Spell suggest" }, function(choice)
+            if choice then
+              vim.cmd("normal! ciw" .. choice)
+            end
+          end)
+        end,
+        desc = "Spell suggest",
+      },
+      a = {
+        function()
+          vim.cmd("normal! zg")
+          vim.notify("Added to spellfile: " .. vim.fn.expand("<cword>"))
+        end,
+        desc = "Add word to spellfile",
+      },
+      r = {
+        function()
+          vim.cmd("normal! zug")
+          vim.notify("Removed from spellfile: " .. vim.fn.expand("<cword>"))
+        end,
+        desc = "Remove word from spellfile",
+      },
+    },
     t = {
       r = {
         s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
