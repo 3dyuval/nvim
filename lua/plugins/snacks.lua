@@ -275,6 +275,9 @@ return {
           },
         },
         sources = {
+          todo_comments = {
+            exclude = { "node_modules" },
+          },
           explorer = {
             auto_close = false,
             hidden = true,

@@ -29,6 +29,7 @@ return {
     end,
   },
   {
+    enabled = false,
     dir = "/home/yuv/proj/test",
     name = "interview-timer",
     lazy = false,
