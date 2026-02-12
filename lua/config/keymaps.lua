@@ -582,9 +582,7 @@ map({
   ["<leader>t"] = {
     r = { cmd = "Checkmate create", desc = "Todo: Create new" },
     n = { cmd = "Checkmate toggle", desc = "Todo: Toggle state" },
-    c = { cmd = "Checkmate check", desc = "Todo: Check (mark done)" },
-    u = { cmd = "Checkmate uncheck", desc = "Todo: Uncheck" },
-    a = { cmd = "Checkmate archive", desc = "Todo: Archive completed" },
+    c = { cmd = "Checkmate archive", desc = "Todo: Archive completed" },
     ["="] = { cmd = "Checkmate cycle_next", desc = "Todo: Next state" },
     ["-"] = { cmd = "Checkmate cycle_previous", desc = "Todo: Previous state" },
     d = { function() Snacks.picker.todo_comments() end, desc = "Todo: Search (Picker)" },
@@ -593,33 +591,15 @@ map({
     ["]"] = { cmd = "Checkmate metadata jump_next", desc = "Todo: Jump to next metadata" },
     ["["] = { cmd = "Checkmate metadata jump_previous", desc = "Todo: Jump to previous metadata" },
     v = { cmd = "Checkmate metadata select_value", desc = "Todo: Select metadata value" },
-    -- Spell operations
     s = {
-      group = "Spell",
-      s = {
-        function()
-          vim.ui.select(vim.fn.spellsuggest(vim.fn.expand("<cword>")), { prompt = "Spell suggest" }, function(choice)
-            if choice then
-              vim.cmd("normal! ciw" .. choice)
-            end
-          end)
-        end,
-        desc = "Spell suggest",
-      },
-      a = {
-        function()
-          vim.cmd("normal! zg")
-          vim.notify("Added to spellfile: " .. vim.fn.expand("<cword>"))
-        end,
-        desc = "Add word to spellfile",
-      },
-      r = {
-        function()
-          vim.cmd("normal! zug")
-          vim.notify("Removed from spellfile: " .. vim.fn.expand("<cword>"))
-        end,
-        desc = "Remove word from spellfile",
-      },
+      function()
+        vim.ui.select(vim.fn.spellsuggest(vim.fn.expand("<cword>")), { prompt = "Spell suggest" }, function(choice)
+          if choice then
+            vim.cmd("normal! ciw" .. choice)
+          end
+        end)
+      end,
+      desc = "Spell suggest",
     },
     t = {
       r = {

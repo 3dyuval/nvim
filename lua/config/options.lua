@@ -2,6 +2,9 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
+-- Spell: don't flag missing capitalization at start of sentence
+vim.opt.spellcapcheck = ""
+
 -- Folding settings (prevent everything from folding)
 vim.opt.foldlevel = 99 -- High fold level = most folds open
 vim.opt.foldlevelstart = 99 -- Start with most folds open

@@ -8,7 +8,7 @@ return {
 
     opts = {
       sources = {
-        default = { "lsp", "path", "snippets", "buffer", "spell" },
+        default = { "lsp", "path", "snippets", "buffer" },
         per_filetype = {
           sql = { "dadbod", "buffer" },
           mysql = { "dadbod", "buffer" },
