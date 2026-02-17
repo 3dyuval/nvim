@@ -92,6 +92,9 @@ return {
       color = "WarningMsg",
     })
 
+    -- Grapple tag indicator (built-in lualine component)
+    table.insert(opts.sections.lualine_b, "grapple")
+
     -- Add formatter status component with click handler
     table.insert(opts.sections.lualine_b, {
       formatter_status,

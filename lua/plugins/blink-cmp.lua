@@ -56,6 +56,24 @@ return {
           },
         },
       },
+      cmdline = {
+        enabled = true,
+        keymap = {
+          preset = "none",
+          ["<Up>"] = { "select_prev", "fallback" },
+          ["<Down>"] = { "select_next", "fallback" },
+          ["<Tab>"] = { "accept", "fallback" },
+          ["<C-e>"] = { "cancel", "fallback" },
+        },
+        completion = {
+          list = { selection = { preselect = false } },
+          menu = {
+            auto_show = function(ctx)
+              return vim.fn.getcmdtype() == ":"
+            end,
+          },
+        },
+      },
       completion = {
         accept = {
           auto_brackets = {

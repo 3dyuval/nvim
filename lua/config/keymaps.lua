@@ -585,8 +585,18 @@ map({
     c = { cmd = "Checkmate archive", desc = "Todo: Archive completed" },
     ["="] = { cmd = "Checkmate cycle_next", desc = "Todo: Next state" },
     ["-"] = { cmd = "Checkmate cycle_previous", desc = "Todo: Previous state" },
-    d = { function() Snacks.picker.todo_comments() end, desc = "Todo: Search (Picker)" },
-    D = { function() Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } }) end, desc = "Todo: Search TODO/FIX/FIXME" },
+    d = {
+      function()
+        Snacks.picker.todo_comments()
+      end,
+      desc = "Todo: Search (Picker)",
+    },
+    D = {
+      function()
+        Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
+      end,
+      desc = "Todo: Search TODO/FIX/FIXME",
+    },
     l = { cmd = "Checkmate lint", desc = "Todo: Lint buffer" },
     ["]"] = { cmd = "Checkmate metadata jump_next", desc = "Todo: Jump to next metadata" },
     ["["] = { cmd = "Checkmate metadata jump_previous", desc = "Todo: Jump to previous metadata" },
