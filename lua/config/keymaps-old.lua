@@ -71,17 +71,7 @@ vim.keymap.set({ "n", "x" }, "fe", "zk", { desc = "Move up to fold" })
 vim.keymap.set({ "n", "x" }, "fa", "zj", { desc = "Move down to fold" })
 vim.keymap.set({ "n", "x" }, "bb", "zb", { desc = "Scroll line and cursor to bottom" })
 
--- ============================================================================
--- COPY/PASTE/YANK
--- ============================================================================
-
-vim.keymap.set({ "n", "o", "x" }, "c", "y", { desc = "Yank (copy)" })
-vim.keymap.set({ "n", "x" }, "v", "p", { desc = "Paste" })
-vim.keymap.set({ "n" }, "C", "y$", { desc = "Yank to end of line" })
-vim.keymap.set({ "x" }, "C", "y", { desc = "Yank selection" })
--- vim.keymap.set("x", "cc", helpers.yank_visible, { desc = "Yank visible lines (exclude folded)" })
-vim.keymap.set({ "n", "x" }, "V", "P", { desc = "Paste before" })
-vim.keymap.set({ "v" }, "V", "P", { desc = "Paste without losing clipboard" })
+-- COPY/PASTE/YANK: moved to keymaps.lua
 
 -- ============================================================================
 -- UNDO/REDO

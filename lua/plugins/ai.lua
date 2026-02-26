@@ -2,6 +2,7 @@ return {
   {
     name = "run-ai.run",
     dir = "/home/yuv/proj/run-ai.run.nvim",
+    enabled = false,
     dependencies = {
       "3dyuval/colortweak.nvim",
       "nvim-lua/plenary.nvim",

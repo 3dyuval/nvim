@@ -38,11 +38,38 @@ map({
   ["gF"] = { ",", desc = "Repeat find backward" },
 })
 
+-- Cmdline: arrow keys navigate wildmenu suggestions
+vim.defer_fn(function()
+  vim.keymap.set("c", "<Up>", function()
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "n", false)
+  end)
+  vim.keymap.set("c", "<Down>", function()
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-n>", true, false, true), "n", false)
+  end)
+end, 1000)
+
 -- Undo/redo (z replaces u)
 map({
   ["z"] = { "u", desc = "Undo", remap = true },
   ["Z"] = { "<C-r>", desc = "Redo" },
   ["gz"] = { "U", desc = "Undo line", remap = true },
+})
+
+-- Copy/Paste/Yank
+map({
+  [mode] = { "n", "o", "x" },
+  c = { "y", desc = "Yank (copy)" },
+})
+map({
+  C = { "y$", desc = "Yank to end of line" },
+  v = { "p", desc = "Paste" },
+  V = { "P", desc = "Paste before" },
+})
+map({
+  [mode] = { "x" },
+  C = { "y", desc = "Yank selection" },
+  v = { "P", desc = "Paste (keep register)" },
+  V = { "P", desc = "Paste before (keep register)" },
 })
 
 map({
