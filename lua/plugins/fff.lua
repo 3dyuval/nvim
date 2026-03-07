@@ -1,7 +1,10 @@
 return {
   "dmtrKovalenko/fff.nvim",
   enabled = true,
-  build = "cargo +nightly build --release",
+  commit = "10a27f9",
+  build = function()
+    require("fff.download").download_binary()
+  end,
   opts = {
     base_path = vim.fn.getcwd(),
     max_results = 100,
