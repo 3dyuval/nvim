@@ -690,6 +690,9 @@ return {
             require("snacks").config.dashboard.enabled = true
             require("snacks.dashboard").setup()
             require("snacks").config.dashboard.enabled = false -- Reset
+
+            -- Open explorer sidebar on startup
+            open_explorer()
           end
         end,
       })
