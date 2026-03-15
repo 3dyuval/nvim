@@ -23,6 +23,10 @@ return {
           css = { "lsp", "path", "buffer" },
           scss = { "lsp", "path", "buffer" },
           json = { "lsp", "path", "buffer" },
+          sh = { "curl", "jq", "lsp", "path", "buffer" },
+          bash = { "curl", "jq", "lsp", "path", "buffer" },
+          zsh = { "curl", "jq", "lsp", "path", "buffer" },
+          amber = { "curl", "jq", "lsp", "path", "buffer" },
         },
         providers = {
           lsp = {
@@ -34,6 +38,14 @@ return {
           dadbod = {
             name = "Dadbod",
             module = "vim_dadbod_completion.blink",
+          },
+          curl = {
+            name = "curl",
+            module = "blink.sources.curl",
+          },
+          jq = {
+            name = "jq",
+            module = "blink.sources.jq",
           },
           spell = {
             name = "Spell",

@@ -5,20 +5,49 @@ return {
     opts = {},
   },
   {
-    "eero-lehtinen/oklch-color-picker.nvim",
-    event = "VeryLazy",
-    version = "*",
+    dir = "~/proj/colortuner.nvim",
+    cmd = {
+      "Colortuner",
+      "ColortunerPalette",
+      "ColortunerTune",
+      "ColortunerHue",
+      "ColortunerSaturation",
+      "ColortunerLightness",
+    },
     keys = {
-      -- One handed keymap recommended, you will be using the mouse
-      {
-        "<leader>cp",
-        function()
-          require("oklch-color-picker").pick_under_cursor()
-        end,
-        desc = "Color pick under cursor",
+      { "<leader>cw", "<cmd>Colortuner<cr>", desc = "Color tuner (auto)" },
+      { "<leader>cp", "<cmd>ColortunerPalette<cr>", desc = "Color palette" },
+      { "<leader>ch", "<cmd>ColortunerHue<cr>", desc = "Color hue" },
+      { "<leader>cs", "<cmd>ColortunerSaturation<cr>", desc = "Color saturation" },
+      { "<leader>cl", "<cmd>ColortunerLightness<cr>", desc = "Color lightness" },
+    },
+    opts = {
+      ui = {
+        inline = {
+          position = "right",
+          steps = 9,
+        },
+        keys = {
+          x_inc = "i",
+          x_dec = "h",
+          y_inc = "e",
+          y_dec = "a",
+        },
       },
     },
-    ---@type oklch.Opts
-    opts = {},
+  },
+  {
+    "NvChad/nvim-colorizer.lua",
+    event = "BufReadPost",
+    keys = {
+      { "<leader>ct", "<cmd>ColorizerToggle<cr>", desc = "Color highlight toggle" },
+    },
+    opts = {
+      user_default_options = {
+        names = false,
+        css = true,
+        tailwind = true,
+      },
+    },
   },
 }
