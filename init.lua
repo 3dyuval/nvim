@@ -1,3 +1,8 @@
--- Add NVM node to PATH before plugins load (required for Treesitter + LSP)
-vim.env.PATH = vim.env.HOME .. "/.nvm/versions/node/v20.19.3/bin:" .. vim.env.PATH
+-- Hotpot (Fennel compiler, must load before lazy)
+local hotpot_path = vim.fn.stdpath("config") .. "/pack/hotpot/start/hotpot.nvim"
+vim.opt.runtimepath:prepend(hotpot_path)
+package.path = hotpot_path .. "/lua/?.lua;" .. hotpot_path .. "/lua/?/init.lua;" .. package.path
+require("hotpot")
+
+-- Plugins
 require("config.lazy")
