@@ -6,6 +6,7 @@ return {
   {
     "serhez/bento.nvim",
     opts = {
+      main_keymap = ";",
       ui = {
         mode = "tabline",
         tabline = {

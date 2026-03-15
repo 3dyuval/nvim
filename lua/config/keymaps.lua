@@ -341,9 +341,8 @@ map({
     S = { files.save_and_stage_file, desc = "Save and stage file" },
     ["/"] = { cmd = ":SearxngAutocomplete", desc = "SearXNG Autocomplete" },
     ["\\"] = { cmd = ":SearxngEngines", desc = "SearXNG Engines" },
-    ["p"] = { cmd = "bprev", desc = "Previous buffer" },
-    ["."] = { cmd = "bnext", desc = "Next buffer" },
-    ["-"] = { cmd = "BentoToggle", desc = "Toggle buffer menu" },
+    k = { cmd = "bprev", desc = "Previous buffer" },
+    y = { cmd = "bnext", desc = "Next buffer" },
   },
 })
 
