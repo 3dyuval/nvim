@@ -52,8 +52,8 @@ vim.keymap.set({ "n" }, "'", "gv", { desc = "Repeat last visual selection" })
 vim.keymap.set({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
 -- Treewalker navigation
-vim.keymap.set({ "n", "o", "x" }, "A", "<cmd>Treewalker Down<cr>", { desc = "Next code block" })
-vim.keymap.set({ "n", "o", "x" }, "E", "<cmd>Treewalker Up<cr>", { desc = "Previous code block" })
+vim.keymap.set({ "n", "o", "x" }, "}", "<cmd>Treewalker Down<cr>", { desc = "Next code block" })
+vim.keymap.set({ "n", "o", "x" }, "{", "<cmd>Treewalker Up<cr>", { desc = "Previous code block" })
 
 -- End of word left/right
 vim.keymap.set({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })

@@ -41,6 +41,10 @@ map({
 
 -- Cmdline: arrow keys navigate wildmenu suggestions
 vim.defer_fn(function()
+  vim.keymap.set("c", "<C-S-V>", function()
+    local reg = vim.fn.getcharstr()
+    return "<C-r>=trim(getreg('" .. reg .. "'))<CR>"
+  end, { expr = true, desc = "Paste trimmed from register" })
   vim.keymap.set("c", "<Up>", function()
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "n", false)
   end)
@@ -344,6 +348,8 @@ map({
     ["\\"] = { cmd = ":SearxngEngines", desc = "SearXNG Engines" },
     k = { cmd = "bprev", desc = "Previous buffer" },
     y = { cmd = "bnext", desc = "Next buffer" },
+    ["<C-S-PageDown>"] = { cmd = "bnext", desc = "Next buffer" },
+    ["<C-S-PageUp>"] = { cmd = "bprev", desc = "Previous buffer" },
   },
 })
 

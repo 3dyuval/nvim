@@ -686,13 +686,11 @@ return {
           end
 
           if should_show then
+            local session_file = require("persistence").current()
             -- Temporarily enable dashboard for this one setup call
             require("snacks").config.dashboard.enabled = true
             require("snacks.dashboard").setup()
             require("snacks").config.dashboard.enabled = false -- Reset
-
-            -- Open explorer sidebar on startup
-            open_explorer()
           end
         end,
       })

@@ -43,7 +43,7 @@ return {
       keymaps = {
         disable_defaults = true,
         view = {
-          -- Smart diff get/put
+          -- Diff get/put (current hunk)
           {
             "n",
             "dr",
@@ -68,12 +68,15 @@ return {
             end,
             { desc = "Put to left" },
           },
+          -- Diff get/put (all hunks)
+          { "n", "Dr", "<Cmd>%diffget<CR>", { desc = "Get all from right" } },
+          { "n", "Dl", "<Cmd>%diffput<CR>", { desc = "Put all to left" } },
 
           -- Navigation (HAEI compatible)
           { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
           { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
-          { "n", "m", "]c", { desc = "Next diff hunk" } },
-          { "n", "M", "[c", { desc = "Previous diff hunk" } },
+          { "n", "A", "]c", { desc = "Next diff hunk" } },
+          { "n", "E", "[c", { desc = "Previous diff hunk" } },
 
           -- Common actions
           { "n", "<leader>.", actions.cycle_layout, { desc = "Cycle layout" } },
@@ -106,24 +109,20 @@ return {
             actions.refresh_files,
             { desc = "Refresh Files" },
           },
-          {
-            "n",
-            "m",
-            "<Cmd>windo normal! ]c<Cr>",
-            { desc = "Next hunk" },
-          },
-          {
-            "n",
-            "M",
-            "<Cmd>windo normal! [c<Cr>",
-            { desc = "Prev hunk" },
-          },
+          { "n", "A", "<Cmd>windo normal! ]c<Cr>", { desc = "Next hunk" } },
+          { "n", "E", "<Cmd>windo normal! [c<Cr>", { desc = "Prev hunk" } },
+          { "n", "<C-M-A>", actions.select_next_entry, { desc = "Next file" } },
+          { "n", "<C-M-E>", actions.select_prev_entry, { desc = "Prev file" } },
           { "n", "<cr>", actions.select_entry, { desc = "Open diff" } },
           { "n", "o", actions.select_entry, { desc = "Open diff" } },
           { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close diffview" } },
           { "n", "?", actions.help("file_panel"), { desc = "Help" } },
         },
         file_history_panel = {
+          { "n", "A", "<Cmd>windo normal! ]c<Cr>", { desc = "Next hunk" } },
+          { "n", "E", "<Cmd>windo normal! [c<Cr>", { desc = "Prev hunk" } },
+          { "n", "<C-M-A>", actions.select_next_entry, { desc = "Next file" } },
+          { "n", "<C-M-E>", actions.select_prev_entry, { desc = "Prev file" } },
           { "n", "<cr>", actions.select_entry, { desc = "Open diff" } },
           { "n", "o", actions.select_entry, { desc = "Open diff" } },
           { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close diffview" } },

@@ -13,6 +13,8 @@ return {
         -- Navigation: ]h/[h for hunks, ]]/[[ for conflicts
         map("n", "]h", gs.next_hunk, "Next Hunk")
         map("n", "[h", gs.prev_hunk, "Prev Hunk")
+        map("n", "A", gs.next_hunk, "Next Hunk")
+        map("n", "E", gs.prev_hunk, "Prev Hunk")
         vim.keymap.set("n", "]]", "]x", { buffer = buffer, desc = "Next conflict", remap = true })
         vim.keymap.set("n", "[[", "[x", { buffer = buffer, desc = "Previous conflict", remap = true })
 

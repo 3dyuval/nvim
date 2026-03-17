@@ -1,5 +1,4 @@
 -- Surround configuration for Graphite keyboard layout
--- Consolidates: plugin spec, nvim-surround config, and explicit keymaps
 return {
   "kylechui/nvim-surround",
   version = "^3.0.0",
@@ -123,23 +122,18 @@ return {
   config = function(_, opts)
     require("nvim-surround").setup(opts)
 
-    -- Graphite layout: Direct mappings to <Plug> functions (bypasses global remaps)
-    -- Set AFTER setup() so <Plug> mappings exist and take precedence over global w/x/c
-    --
-    -- TODO: Change surround (ws) doesn't work due to layering issues:
-    -- 1. w→c remap intercepts before ws can be recognized
-    -- 2. Any prefix+s combo triggers default s (substitute) unless we:
-    --    a) Disable default s: vim.keymap.set("n", "s", "<Nop>")
-    --    b) Use different prefix not ending in s (e.g., wr, <leader>s)
-    --    c) Map specific combos: cs", cs', cs(, etc. (tedious)
-    vim.keymap.set("n", "ws", "<Plug>(nvim-surround-change)", { desc = "Change surround" })
-    vim.keymap.set("n", "xs", "<Plug>(nvim-surround-delete)", { desc = "Delete surround", nowait = true })
-    vim.keymap.set("n", "xst", function()
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("dst", true, false, true), "m", false)
-    end, { desc = "Delete surrounding tag", nowait = true })
     vim.keymap.set("x", "s", "<Plug>(nvim-surround-visual)", { desc = "Surround visual selection" })
 
-    -- ys/yss don't need explicit mapping (no global 'y' → something conflict in normal mode)
+    -- which-key group descriptions
+    require("which-key").add({
+      { "ys", group = "Add surround" },
+      { "yS", group = "Add surround (newlines)" },
+      { "ds", group = "Delete surround" },
+      { "cs", group = "Change surround" },
+      { "cS", group = "Change surround (newlines)" },
+      { "s", mode = "x", group = "Surround" },
+      { "gS", mode = "x", group = "Surround (newlines)" },
+    })
 
     -- Disable nvim-surround for non-modifiable and special buffers
     vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
@@ -153,8 +147,7 @@ return {
           or bufname == ""
 
         if should_disable then
-          -- Unmap nvim-surround keymaps for this buffer
-          local keymaps_to_disable = { "s", "S", "ys", "yss", "yS", "ySS", "xs", "ws", "cS" }
+          local keymaps_to_disable = { "s", "S", "ys", "yss", "yS", "ySS", "ds", "cs", "cS" }
           for _, key in ipairs(keymaps_to_disable) do
             pcall(vim.keymap.del, "v", key, { buffer = 0 })
             pcall(vim.keymap.del, "n", key, { buffer = 0 })

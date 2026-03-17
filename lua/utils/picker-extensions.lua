@@ -1,7 +1,17 @@
 local M = {}
 
 -- Simple state for layout persistence (survives across picker instances within session)
-local explorer_layout = "sidebar" -- default
+local explorer_layout = vim.g.explorer_layout or "sidebar"
+local _s_explorer_path = nil -- lazy-loaded signal for last focused path
+local function get_path_signal()
+  if not _s_explorer_path then
+    local ok, t = pcall(require, "u.tracker")
+    if ok then
+      _s_explorer_path = t.create_signal(nil)
+    end
+  end
+  return _s_explorer_path
+end
 
 --- Open explorer with shortmess handling and persisted layout
 ---@param opts table|nil Optional config to merge with defaults
@@ -13,6 +23,34 @@ M.open_explorer = function(opts)
     root = false,
     layout = { preset = explorer_layout },
     auto_close = explorer_layout == "default",
+    on_close = function(picker)
+      vim.g.explorer_was_open = false
+      local item = picker:current()
+      if item and (item.file or item.dir) then
+        local s = get_path_signal()
+        if s then
+          s:set(item.file or item.dir)
+        end
+      end
+    end,
+    on_show = function(picker)
+      vim.g.explorer_was_open = true
+      local s = get_path_signal()
+      local path = s and s:get()
+      if not path then
+        return
+      end
+      picker:find({
+        on_done = function()
+          for i, item in ipairs(picker.list.items) do
+            if item and (item.file == path or item.dir == path) then
+              picker.list:view(i)
+              break
+            end
+          end
+        end,
+      })
+    end,
   }, opts or {})
 
   Snacks.picker.explorer(config)
@@ -92,13 +130,9 @@ M.get_branch_name = function(item)
     local commit_pat = ("[a-z0-9]"):rep(7)
     local patterns = {
       -- e.g. "* (HEAD detached at f65a2c8) f65a2c8 chore(build): auto-generate docs"
-      "^(.)%s(%b())%s+("
-        .. commit_pat
-        .. ")%s*(.*)$",
+      "^(.)%s(%b())%s+(" .. commit_pat .. ")%s*(.*)$",
       -- e.g. "  main                       d2b2b7b [origin/main: behind 276] chore(build): auto-generate docs"
-      "^(.)%s(%S+)%s+("
-        .. commit_pat
-        .. ")%s*(.*)$",
+      "^(.)%s(%S+)%s+(" .. commit_pat .. ")%s*(.*)$",
     }
 
     for p, pattern in ipairs(patterns) do
@@ -2518,6 +2552,7 @@ end
 M.toggle_layout = function(picker)
   local new_layout = explorer_layout == "sidebar" and "default" or "sidebar"
   explorer_layout = new_layout
+  vim.g.explorer_layout = new_layout
 
   local layout = Snacks.picker.config.layout({ layout = { preset = new_layout } })
   picker:set_layout(layout)
