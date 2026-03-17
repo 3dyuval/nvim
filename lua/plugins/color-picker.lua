@@ -5,7 +5,7 @@ return {
     opts = {},
   },
   {
-    dir = "~/proj/colortuner.nvim",
+    dir = "/home/yuv/colortuner.nvim",
     cmd = {
       "Colortuner",
       "ColortunerPalette",
@@ -15,11 +15,11 @@ return {
       "ColortunerLightness",
     },
     keys = {
-      { "<leader>cw", "<cmd>Colortuner<cr>", desc = "Color tuner (auto)" },
-      { "<leader>cp", "<cmd>ColortunerPalette<cr>", desc = "Color palette" },
-      { "<leader>ch", "<cmd>ColortunerHue<cr>", desc = "Color hue" },
+      { "<leader>cw", "<cmd>Colortuner<cr>",           desc = "Color tuner (auto)" },
+      { "<leader>cp", "<cmd>ColortunerPalette<cr>",    desc = "Color palette" },
+      { "<leader>ch", "<cmd>ColortunerHue<cr>",        desc = "Color hue" },
       { "<leader>cs", "<cmd>ColortunerSaturation<cr>", desc = "Color saturation" },
-      { "<leader>cl", "<cmd>ColortunerLightness<cr>", desc = "Color lightness" },
+      { "<leader>cl", "<cmd>ColortunerLightness<cr>",  desc = "Color lightness" },
     },
     opts = {
       ui = {

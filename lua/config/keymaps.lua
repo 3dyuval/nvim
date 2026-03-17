@@ -24,6 +24,7 @@ local map = kmu.create_smart_map()
 pcall(vim.keymap.del, "n", "<leader>gd")
 pcall(vim.keymap.del, "n", "<leader> ")
 pcall(vim.keymap.del, "n", "<leader><space>")
+pcall(vim.keymap.del, "n", "<leader>:")
 
 map({
   [mode] = { "n", "o", "x" },
@@ -444,6 +445,13 @@ map({
 })
 
 map({
+
+  ["<leader><leader>"] = {
+    function()
+      Snacks.picker.command_history()
+    end,
+    desc = "Command History",
+  },
 
   ["<leader>s"] = {
     K = { cmd = "KMUInspect", exec = true, desc = "KMU only inspect" },

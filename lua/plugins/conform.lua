@@ -139,7 +139,7 @@ return {
       lsp_format = "fallback", -- Use LSP when no formatter configured (e.g., Vue)
     },
     formatters_by_ft = {
-      lua = { "stylua" },
+      lua = { "lua-format" },
       dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
       go = { "goimports", "gofumpt" }, -- Go: organize imports + format
       rust = { "rustfmt" },
