@@ -5,7 +5,8 @@ return {
     opts = {},
   },
   {
-    dir = "/home/yuv/colortuner.nvim",
+    url = "https://gitlab.com/yuvddd/colortuner.nvim",
+    name = "colortuner.nvim",
     cmd = {
       "Colortuner",
       "ColortunerPalette",

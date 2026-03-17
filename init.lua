@@ -7,7 +7,10 @@
 --
 --
 
-local hotpot_path = vim.fn.stdpath("config") .. "/pack/hotpot/start/hotpot.nvim"
+local hotpot_path = vim.fn.stdpath("data") .. "/pack/start/hotpot.nvim"
+if not vim.uv.fs_stat(hotpot_path) then
+  vim.system({ "git", "clone", "--depth", "1", "https://github.com/rktjmp/hotpot.nvim", hotpot_path }):wait()
+end
 vim.opt.runtimepath:prepend(hotpot_path)
 package.path = hotpot_path .. "/lua/?.lua;" .. hotpot_path .. "/lua/?/init.lua;" .. package.path
 require("hotpot")
