@@ -149,35 +149,14 @@ vim.api.nvim_create_autocmd("User", {
 })
 
 -- ============================================================================
--- SMART-SPLITS WINDOW NAVIGATION + BENTO BUFFER NAV
--- ctrl+; toggles bento tabline; ctrl+h/i context-aware:
---   tabline open  → bprev / bnext
---   tabline closed → smart-splits window nav, fallback to kitty tab at edge
+-- BENTO TABLINE TOGGLE
 -- ============================================================================
 
 vim.keymap.set({ "n" }, "<C-;>", function()
   vim.o.showtabline = vim.o.showtabline == 0 and 2 or 0
 end, { noremap = true, desc = "Toggle bento tabline" })
 
-local function nav(wincmd_dir, hypr_dir)
-  return function()
-    local win = vim.api.nvim_get_current_win()
-    vim.cmd('wincmd ' .. wincmd_dir)
-    if vim.api.nvim_get_current_win() == win then
-      vim.fn.jobstart({ 'hyprctl', 'dispatch', 'movefocus', hypr_dir })
-    end
-  end
-end
-
-vim.keymap.set('n', '<C-h>', nav('h', 'l'), { noremap = true, desc = 'Window left' })
-vim.keymap.set('n', '<C-a>', nav('j', 'd'), { noremap = true, desc = 'Window down' })
-vim.keymap.set('n', '<C-e>', nav('k', 'u'), { noremap = true, desc = 'Window up' })
-vim.keymap.set('n', '<C-i>', nav('l', 'r'), { noremap = true, desc = 'Window right' })
-
-vim.keymap.set('n', '<M-C-h>', function() vim.cmd('5 wincmd <') end, { noremap = true, desc = 'Shrink window left' })
-vim.keymap.set('n', '<M-C-a>', function() vim.cmd('5 wincmd +') end, { noremap = true, desc = 'Grow window down' })
-vim.keymap.set('n', '<M-C-e>', function() vim.cmd('5 wincmd -') end, { noremap = true, desc = 'Shrink window up' })
-vim.keymap.set('n', '<M-C-i>', function() vim.cmd('5 wincmd >') end, { noremap = true, desc = 'Grow window right' })
+-- Window nav + resize keymaps are owned by omarkitty (plugins/omarkitty.nvim)
 
 -- ============================================================================
 -- FUNCTION KEYS
