@@ -15,4 +15,7 @@ return {
     { '<C-e>', function() require('smart-splits').move_cursor_up() end,    desc = 'Move focus up' },
     { '<C-i>', function() require('smart-splits').move_cursor_right() end, desc = 'Move focus right' },
   },
+  config = function()
+    require("smart-splits").setup()
+  end,
 }

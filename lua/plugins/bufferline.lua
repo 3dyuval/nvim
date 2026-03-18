@@ -5,6 +5,7 @@ return {
   -- Bento: buffer manager with tabline
   {
     "serhez/bento.nvim",
+    lazy = false,
     opts = {
       main_keymap = ";",
       ui = {

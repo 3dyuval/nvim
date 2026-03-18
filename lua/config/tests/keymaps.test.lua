@@ -11,9 +11,15 @@ require("config.tests.surround.test")
 
 -- # Editing
 describe("normal inserts/replace", function()
+  before_each(function()
+    -- Graphite: r=insert before (i), t=insert after (a)
+    vim.keymap.set("n", "r", "i", { buffer = true })
+    vim.keymap.set("n", "t", "a", { buffer = true })
+  end)
+
   local function test_insert(key, position, description)
     local initial_line = "hello world"
-    local cursor_col = 6
+    local cursor_col = 5 -- 0-indexed: space between "hello" and "world"
     local expected_result = position == "before" and "helloX world" or "hello Xworld"
 
     -- Setup buffer with initial content

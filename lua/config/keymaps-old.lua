@@ -26,9 +26,7 @@ vim.keymap.set({ "n", "o", "x" }, "p", "^", { desc = "First non-blank character"
 vim.keymap.set({ "n", "o", "x" }, ".", "$", { desc = "End of line" })
 
 -- Insert/append
-vim.keymap.set({ "n" }, "r", "i", { desc = "Insert before cursor" })
 vim.keymap.set({ "n" }, "R", "I", { desc = "Insert at start of line" })
-vim.keymap.set({ "n" }, "t", "a", { desc = "Insert after cursor" })
 vim.keymap.set({ "n" }, "T", "A", { desc = "Insert at end of line" })
 vim.keymap.set({ "n" }, "b", "R", { desc = "Replace mode" })
 vim.keymap.set({ "v" }, "B", "r", { desc = "Replace selected text" })
@@ -151,21 +149,30 @@ vim.api.nvim_create_autocmd("User", {
 })
 
 -- ============================================================================
--- SMART-SPLITS WINDOW NAVIGATION
+-- SMART-SPLITS WINDOW NAVIGATION + BENTO BUFFER NAV
+-- ctrl+; toggles bento tabline; ctrl+h/i context-aware:
+--   tabline open  → bprev / bnext
+--   tabline closed → smart-splits window nav, fallback to kitty tab at edge
 -- ============================================================================
 
-vim.keymap.set({ "n" }, "<C-h>", function()
-  require("smart-splits").move_cursor_left({ same_row = false, at_edge = "stop" })
-end, { noremap = true, desc = "Left window" })
-vim.keymap.set({ "n" }, "<C-a>", function()
-  require("smart-splits").move_cursor_down({ same_row = false, at_edge = "stop" })
-end, { noremap = true, desc = "Window down" })
-vim.keymap.set({ "n" }, "<C-e>", function()
-  require("smart-splits").move_cursor_up({ same_row = false, at_edge = "stop" })
-end, { noremap = true, desc = "Window up" })
-vim.keymap.set({ "n" }, "<C-i>", function()
-  require("smart-splits").move_cursor_right({ same_row = false, at_edge = "stop" })
-end, { noremap = true, desc = "Right window" })
+vim.keymap.set({ "n" }, "<C-;>", function()
+  vim.o.showtabline = vim.o.showtabline == 0 and 2 or 0
+end, { noremap = true, desc = "Toggle bento tabline" })
+
+local function nav(method, hypr_dir, desc)
+  return function()
+    local win = vim.api.nvim_get_current_win()
+    require("smart-splits")[method]({ same_row = false, at_edge = "stop" })
+    if vim.api.nvim_get_current_win() == win then
+      vim.fn.jobstart({ "hyprctl", "dispatch", "movefocus", hypr_dir })
+    end
+  end
+end
+
+vim.keymap.set("n", "<C-h>", nav("move_cursor_left",  "l"), { noremap = true, desc = "Window left" })
+vim.keymap.set("n", "<C-a>", nav("move_cursor_down",  "d"), { noremap = true, desc = "Window down" })
+vim.keymap.set("n", "<C-e>", nav("move_cursor_up",    "u"), { noremap = true, desc = "Window up" })
+vim.keymap.set("n", "<C-i>", nav("move_cursor_right", "r"), { noremap = true, desc = "Window right" })
 
 vim.keymap.set({ "n" }, "<M-C-h>", function()
   require("smart-splits").resize_left(5)

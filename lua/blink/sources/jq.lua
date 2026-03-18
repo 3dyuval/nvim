@@ -23,12 +23,22 @@ local builtins = {
   { label = "in(obj)", detail = "Check if input is key in obj" },
   { label = "to_entries", detail = "Object → [{key, value}...]" },
   { label = "from_entries", detail = "[{key, value}...] → object" },
-  { label = "with_entries(f)", detail = "to_entries | map(f) | from_entries", insertText = "with_entries($1)", insertTextFormat = 2 },
+  {
+    label = "with_entries(f)",
+    detail = "to_entries | map(f) | from_entries",
+    insertText = "with_entries($1)",
+    insertTextFormat = 2,
+  },
   { label = "contains(other)", detail = "Deep containment check", insertText = "contains($1)", insertTextFormat = 2 },
   { label = "inside(other)", detail = "Inverse of contains", insertText = "inside($1)", insertTextFormat = 2 },
 
   -- Selection
-  { label = "select(expr)", detail = "Keep values where expr is truthy", insertText = "select($1)", insertTextFormat = 2 },
+  {
+    label = "select(expr)",
+    detail = "Keep values where expr is truthy",
+    insertText = "select($1)",
+    insertTextFormat = 2,
+  },
   { label = "empty", detail = "Produce no output" },
   { label = "error", detail = "Raise error" },
   { label = "error(msg)", detail = "Raise error with message", insertText = 'error("$1")', insertTextFormat = 2 },
@@ -85,8 +95,18 @@ local builtins = {
   { label = "match(regex)", detail = "Regex match details", insertText = 'match("$1")', insertTextFormat = 2 },
   { label = "capture(regex)", detail = "Named captures", insertText = 'capture("$1")', insertTextFormat = 2 },
   { label = "scan(regex)", detail = "All regex matches", insertText = 'scan("$1")', insertTextFormat = 2 },
-  { label = "sub(regex;replacement)", detail = "Replace first match", insertText = 'sub("$1";"$2")', insertTextFormat = 2 },
-  { label = "gsub(regex;replacement)", detail = "Replace all matches", insertText = 'gsub("$1";"$2")', insertTextFormat = 2 },
+  {
+    label = "sub(regex;replacement)",
+    detail = "Replace first match",
+    insertText = 'sub("$1";"$2")',
+    insertTextFormat = 2,
+  },
+  {
+    label = "gsub(regex;replacement)",
+    detail = "Replace all matches",
+    insertText = 'gsub("$1";"$2")',
+    insertTextFormat = 2,
+  },
   { label = "tostring", detail = "Convert to string" },
   { label = "tonumber", detail = "Convert to number" },
   { label = "implode", detail = "Codepoints → string" },
@@ -113,8 +133,18 @@ local builtins = {
   { label = "delpaths(paths)", detail = "Delete paths", insertText = "delpaths($1)", insertTextFormat = 2 },
 
   -- Reduce and foreach
-  { label = "reduce", detail = "Reduce expression", insertText = "reduce .[] as $$item (${1:init}; ${2:update})", insertTextFormat = 2 },
-  { label = "foreach", detail = "Foreach expression", insertText = "foreach .[] as $$item (${1:init}; ${2:update}; ${3:extract})", insertTextFormat = 2 },
+  {
+    label = "reduce",
+    detail = "Reduce expression",
+    insertText = "reduce .[] as $$item (${1:init}; ${2:update})",
+    insertTextFormat = 2,
+  },
+  {
+    label = "foreach",
+    detail = "Foreach expression",
+    insertText = "foreach .[] as $$item (${1:init}; ${2:update}; ${3:extract})",
+    insertTextFormat = 2,
+  },
 
   -- I/O and misc
   { label = "input", detail = "Read next input" },
@@ -129,7 +159,12 @@ local builtins = {
   { label = "not", detail = "Boolean negation" },
   { label = "if-then-else", detail = "Conditional", insertText = "if $1 then $2 else $3 end", insertTextFormat = 2 },
   { label = "try-catch", detail = "Error handling", insertText = "try $1 catch $2", insertTextFormat = 2 },
-  { label = "label-break", detail = "Loop break", insertText = 'label $$out | foreach .[] as $$x (0; . + $$x; if . > $1 then ., break $$out else . end)', insertTextFormat = 2 },
+  {
+    label = "label-break",
+    detail = "Loop break",
+    insertText = "label $$out | foreach .[] as $$x (0; . + $$x; if . > $1 then ., break $$out else . end)",
+    insertTextFormat = 2,
+  },
   { label = "def", detail = "Define function", insertText = "def $1: $2;", insertTextFormat = 2 },
   { label = "as", detail = "Bind variable", insertText = ". as $$${1:name} | $2", insertTextFormat = 2 },
   { label = "alternative //", detail = "Alternative operator", insertText = "// $1", insertTextFormat = 2 },
@@ -147,7 +182,12 @@ local jq_flags = {
   { label = "-j", detail = "Join output (no newlines)" },
   { label = "--arg", detail = "Set variable", insertText = "--arg $1 $2", insertTextFormat = 2 },
   { label = "--argjson", detail = "Set JSON variable", insertText = "--argjson $1 $2", insertTextFormat = 2 },
-  { label = "--slurpfile", detail = "Slurp file into variable", insertText = "--slurpfile $1 $2", insertTextFormat = 2 },
+  {
+    label = "--slurpfile",
+    detail = "Slurp file into variable",
+    insertText = "--slurpfile $1 $2",
+    insertTextFormat = 2,
+  },
   { label = "--rawfile", detail = "Read raw file into variable", insertText = "--rawfile $1 $2", insertTextFormat = 2 },
   { label = "--jsonargs", detail = "Treat remaining args as JSON" },
   { label = "--args", detail = "Treat remaining args as strings" },
