@@ -32,11 +32,9 @@ map({
   ["e"] = { "k", desc = "Up" },
   ["a"] = { "j", desc = "Down" },
   ["i"] = { "l", desc = "Right" },
-  ["p"] = { "^", desc = "First non-blank character" },
   ["0"] = { "0", desc = "Beginning of line" },
-  ["."] = { "$", desc = "End of line" },
-  ["gf"] = { ";", desc = "Repeat find forward" },
-  ["gF"] = { ",", desc = "Repeat find backward" },
+  ["."] = { ";", desc = "Repeat find forward" },
+  ["p"] = { ",", desc = "Repeat find backward" },
 })
 
 -- Cmdline: arrow keys navigate wildmenu suggestions
@@ -214,11 +212,7 @@ map({
       end,
       desc = "Toggle spell checking",
     },
-    l = {
-      l = { require("lensline").toggle_view, desc = "Toggle visibility" },
-      e = { require("lensline").toggle_engine, desc = "Toggle engine" },
-      p = { cmd = "LenslineProfile", desc = "Cycle profiles" },
-    },
+    l = { require("lensline").toggle_view, desc = "Toggle lensline" },
   },
 
   -- Hunk navigation
@@ -341,6 +335,8 @@ map({
 
 map({
   [ctrl] = {
+    w = { function() Snacks.bufdelete() end, desc = "Close buffer" },
+    h = { function() Snacks.picker.command_history() end, desc = "Command history" },
     f = { files.find_files, desc = "Find files (git root)" },
     s = { files.save_file, desc = "Save file" },
     S = { files.save_and_stage_file, desc = "Save and stage file" },
@@ -355,8 +351,6 @@ map({
 
 map({
   ["<leader>h"] = {
-    h = { history.local_file_history, desc = "Local file history" },
-    H = { history.all_files_in_backup, desc = "All files in backup" },
     b = { cmd = "BrowserBookmarks", desc = "Browser bookmarks" },
     f = { cmd = "BrowserHistory", desc = "Browser history" },
     s = { history.smart_file_history, desc = "Smart history picker" },
@@ -369,19 +363,19 @@ map({
 
 map({
   ["<leader>r"] = {
-    c = { editor.reload_config, desc = "Reload config" },
+    r = { editor.reload_config, desc = "Reload config" },
     R = { editor.reload_keymaps, desc = "Reload keymaps" },
     l = { cmd = "Leet run", desc = "Leet run (test)" },
     n = { cmd = "ClaudeCode", desc = "New Claude session" },
-    -- Sniprun keymaps
-    r = { [mode] = { "n", "v" }, cmd = "SnipRun", desc = "Run snippet" },
-    t = {
-      function()
-        require("sniprun").reset()
-        vim.cmd("%SnipRun")
-      end,
-      desc = "Run buffer (fresh)",
-    },
+    -- Sniprun keymaps (r/t disabled - conflicts with summon)
+    -- r = { [mode] = { "n", "v" }, cmd = "SnipRun", desc = "Run snippet" },
+    -- t = {
+    --   function()
+    --     require("sniprun").reset()
+    --     vim.cmd("%SnipRun")
+    --   end,
+    --   desc = "Run buffer (fresh)",
+    -- },
     S = { cmd = "SnipReset", desc = "Reset sniprun" },
   },
 })
@@ -454,12 +448,13 @@ map({
 
   ["<leader><leader>"] = {
     function()
-      Snacks.picker.command_history()
+      require("utils.picker-extensions").open_explorer({ layout = { preset = "default" } })
     end,
-    desc = "Command History",
+    desc = "Explorer (float)",
   },
 
   ["<leader>s"] = {
+    t = { function() require("utils.picker-extensions").open_explorer({ layout = { preset = "sidebar" } }) end, desc = "Explorer (sidebar)" },
     K = { cmd = "KMUInspect", exec = true, desc = "KMU only inspect" },
     D = { cmd = "ProjectDiagnostics", desc = "Project Diagnostics" },
     F = { search.grug_far_current_file, desc = "Search/Replace in current file (Grug-far)" },

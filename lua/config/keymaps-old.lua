@@ -22,8 +22,8 @@ vim.keymap.set({ "n" }, "J", "O", { desc = "Open line above" })
 
 -- Beginning/end of line
 vim.keymap.set({ "n", "o", "x" }, "0", "0", { desc = "Beginning of line" })
-vim.keymap.set({ "n", "o", "x" }, "p", "^", { desc = "First non-blank character" })
-vim.keymap.set({ "n", "o", "x" }, ".", "$", { desc = "End of line" })
+vim.keymap.set({ "n", "o", "x" }, "p", ",", { desc = "Repeat find backward" })
+vim.keymap.set({ "n", "o", "x" }, ".", ";", { desc = "Repeat find forward" })
 
 -- Insert/append
 vim.keymap.set({ "n" }, "R", "I", { desc = "Insert at start of line" })

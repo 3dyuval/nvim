@@ -14,6 +14,7 @@ return {
       keys[#keys + 1] = { "]]", false }
       keys[#keys + 1] = { "<leader>cc", false }
       keys[#keys + 1] = { "<leader>cr", false }
+      keys[#keys + 1] = { "<C-W>d", false } -- conflicts with summon terminal
 
       -- Standard LSP keymaps
       keys[#keys + 1] = { "<leader>cl", vim.lsp.codelens.refresh, desc = "Refresh Codelens" }

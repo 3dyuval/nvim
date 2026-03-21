@@ -9,8 +9,9 @@ return {
     height = 0.85,
     border = "rounded",
     commands = {
-      btop = { command = "btop", keymap = "<leader>rb" },
-      lazydocker = { command = "lazydocker", keymap = "<leader>rd" },
+      terminal = { type = "terminal", command = "zsh", title = " Terminal ", keymap = "<C-t>" },
+      readme = { type = "project_file", command = "README.md", title = " README ", keymap = "<leader>rt", filetype = "markdown" },
+      todo = { type = "project_file", command = "TODO.md", title = " Todo ", filetype = "markdown" },
     },
   },
 }

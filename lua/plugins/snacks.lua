@@ -601,7 +601,7 @@ return {
       -- Disable LazyVim defaults that conflict with our explicit keymaps
       { "<leader>n", false }, -- We define this explicitly in keymaps.lua for notes
       { "<leader>ff", false }, -- Disable LazyVim Find Files - we use fff
-      { "<leader>e", false }, -- Disable LazyVim Explorer - we use <C-l>
+      { "<leader>e", false }, -- Disable LazyVim Explorer - we use <leader><leader>
       { "<leader>fe", false }, -- Disable LazyVim Explorer (root dir)
 
       -- {
@@ -645,18 +645,6 @@ return {
           })
         end,
         desc = "Explorer (open files only)",
-      },
-      {
-        "<C-l>",
-        function()
-          -- Only open if no explorer picker is already active
-          local explorers = Snacks.picker.get({ source = "explorer" })
-          if #explorers > 0 then
-            return -- Already open, do nothing
-          end
-          open_explorer()
-        end,
-        desc = "Explorer",
       },
       {
         "<leader>z",
