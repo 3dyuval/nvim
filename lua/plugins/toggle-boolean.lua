@@ -45,8 +45,6 @@ return {
         },
       })
     end,
-    keys = {
-      { "<C-t>", "<cmd>ToggleAlternate<cr>", desc = "Toggle alternate" },
-    },
+    keys = {},
   },
 }

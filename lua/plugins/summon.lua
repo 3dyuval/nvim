@@ -1,8 +1,8 @@
 return {
   "salkhalil/summon.nvim",
-  cmd = "Summon",
   keys = {
     { "<leader>rs", "<cmd>Summon<cr>", desc = "Summon" },
+    { "<C-t>", function() require("summon").open("terminal") end, desc = "Terminal (summon)", mode = { "n", "i", "t" } },
   },
   opts = {
     width = 0.85,
