@@ -1,5 +1,21 @@
 return {
   {
+    "greggh/claude-code.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim", -- Required for git operations
+    },
+    config = function()
+      vim.g.claude_code_session = { position = "fload" }
+      require("claude-code").setup({
+        position = vim.g.claude_code_session.position,
+        float = {
+          width = "90%",
+          height = "70%",
+        }
+      })
+    end
+  },
+  {
     name = "run-ai.run",
     dir = "/home/yuv/proj/run-ai.run.nvim",
     enabled = false,
