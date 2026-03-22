@@ -156,7 +156,7 @@ map({
     i = { cmd = "Neogit commit", desc = "Neogit commit" },
     I = { cmd = "AiCommit", desc = "AI commit popup" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
-    S = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
+    s = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
     h = { cmd = ":DiffviewFileHistory %", desc = "Current file history" },
     D = { helpers.compare_current_file_with_branch, desc = "Compare current file with branch" },
     f = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
@@ -264,7 +264,7 @@ map({
     g = {
       function()
         local path =
-          vim.fn.system("git ls-files --full-name " .. vim.fn.shellescape(vim.fn.expand("%:p"))):gsub("\n", "")
+            vim.fn.system("git ls-files --full-name " .. vim.fn.shellescape(vim.fn.expand("%:p"))):gsub("\n", "")
         vim.fn.setreg("+", path)
         vim.notify("Copied: " .. path, vim.log.levels.INFO)
       end,
@@ -334,9 +334,9 @@ map({
 })
 
 map({
+  ["<leader>aa"] = { function() Snacks.picker.command_history() end, desc = "Command history" },
   [ctrl] = {
     w = { function() Snacks.bufdelete() end, desc = "Close buffer" },
-    h = { function() Snacks.picker.command_history() end, desc = "Command history" },
     f = { files.find_files, desc = "Find files (git root)" },
     s = { files.save_file, desc = "Save file" },
     S = { files.save_and_stage_file, desc = "Save and stage file" },

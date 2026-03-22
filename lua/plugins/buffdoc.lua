@@ -1,6 +1,5 @@
 return {
-  url = "https://gitlab.com/yuvddd/buffdoc.nvim",
-  name = "buffdoc.nvim",
+  dir = "~/buffdoc.nvim",
   ft = "buffdoc",
   config = function()
     require("buffdoc").setup({

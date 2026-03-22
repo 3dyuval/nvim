@@ -19,6 +19,12 @@ M.open_explorer = function(opts)
   local old_shortmess = vim.o.shortmess
   vim.o.shortmess = vim.o.shortmess .. "A"
 
+  -- Sync module state if caller provides explicit layout
+  if opts and opts.layout and opts.layout.preset then
+    explorer_layout = opts.layout.preset
+    vim.g.explorer_layout = explorer_layout
+  end
+
   local config = vim.tbl_deep_extend("force", {
     root = false,
     layout = { preset = explorer_layout },
@@ -2652,6 +2658,12 @@ M.confirm_multi = function(picker, item, action)
       picker:close()
       if item and item.file then
         vim.cmd("split " .. vim.fn.fnameescape(item.file))
+      end
+    elseif explorer_layout == "default" then
+      local file = item and item.file
+      picker:close()
+      if file then
+        vim.cmd("edit " .. vim.fn.fnameescape(file))
       end
     else
       Snacks.picker.actions.confirm(picker, item, action or {})

@@ -9,8 +9,8 @@ return {
     return {
       enhanced_diff_hl = true, -- Better word-level diff highlighting
       use_icons = true,
-      show_help_hints = true, -- Show keyboard shortcuts
-      watch_index = false, -- Disabled to reduce file watchers (see issue #48)
+      show_help_hints = true,  -- Show keyboard shortcuts
+      watch_index = false,     -- Disabled to reduce file watchers (see issue #48)
       default_args = {
         DiffviewOpen = { "--imply-local" },
         DiffviewFileHistory = { "--base=LOCAL" },
@@ -69,24 +69,24 @@ return {
             { desc = "Put to left" },
           },
           -- Diff get/put (all hunks)
-          { "n", "Dr", "<Cmd>%diffget<CR>", { desc = "Get all from right" } },
-          { "n", "Dl", "<Cmd>%diffput<CR>", { desc = "Put all to left" } },
+          { "n", "Dr",        "<Cmd>%diffget<CR>",       { desc = "Get all from right" } },
+          { "n", "Dl",        "<Cmd>%diffput<CR>",       { desc = "Put all to left" } },
 
           -- Navigation (HAEI compatible)
-          { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
-          { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
-          { "n", "A", "]c", { desc = "Next diff hunk" } },
-          { "n", "E", "[c", { desc = "Previous diff hunk" } },
+          { "n", "]]",        actions.next_conflict,     { desc = "Next conflict" } },
+          { "n", "[[",        actions.prev_conflict,     { desc = "Previous conflict" } },
+          { "n", "A",         "]c",                      { desc = "Next diff hunk" } },
+          { "n", "E",         "[c",                      { desc = "Previous diff hunk" } },
 
           -- Common actions
-          { "n", "<leader>.", actions.cycle_layout, { desc = "Cycle layout" } },
+          { "n", "<leader>.", actions.cycle_layout,      { desc = "Cycle layout" } },
           -- { "n", "<leader>f", actions., { desc = "Toggle File Panel" } },
-          { "n", "q", actions.close, { desc = "Close diffview" } },
-          { "n", "<tab>", actions.select_next_entry, { desc = "Open diff for next file" } },
-          { "n", "<s-tab>", actions.select_prev_entry, { desc = "Open diff for previous file" } },
-          { "n", "<leader>gf", actions.goto_file_edit, { desc = "Go to file" } },
-          { "n", "<C-s>", actions.stage_all, { desc = "Stage all" } },
-          { "n", "?", actions.help("view"), { desc = "Help" } },
+          { "n", "q",         actions.close,             { desc = "Close diffview" } },
+          { "n", "<C-S-A>",   actions.select_next_entry, { desc = "Open diff for next file" } },
+          { "n", "<C-S-E>",   actions.select_prev_entry, { desc = "Open diff for previous file" } },
+          { "n", "gf",        actions.goto_file_edit,    { desc = "Go to file" } },
+          { "n", "<C-s>",     actions.stage_all,         { desc = "Stage all" } },
+          { "n", "?",         actions.help("view"),      { desc = "Help" } },
         },
         file_panel = {
           {
@@ -109,27 +109,27 @@ return {
             actions.refresh_files,
             { desc = "Refresh Files" },
           },
-          { "n", "A", "<Cmd>windo normal! ]c<Cr>", { desc = "Next hunk" } },
-          { "n", "E", "<Cmd>windo normal! [c<Cr>", { desc = "Prev hunk" } },
-          { "n", "<C-M-A>", actions.select_next_entry, { desc = "Next file" } },
-          { "n", "<C-M-E>", actions.select_prev_entry, { desc = "Prev file" } },
-          { "n", "<cr>", actions.select_entry, { desc = "Open diff" } },
-          { "n", "o", actions.select_entry, { desc = "Open diff" } },
-          { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close diffview" } },
-          { "n", "?", actions.help("file_panel"), { desc = "Help" } },
+          { "n", "A",       "<Cmd>windo normal! ]c<Cr>", { desc = "Next hunk" } },
+          { "n", "E",       "<Cmd>windo normal! [c<Cr>", { desc = "Prev hunk" } },
+          { "n", "<C-S-A>", actions.select_next_entry,   { desc = "Next file" } },
+          { "n", "<C-S-E>", actions.select_prev_entry,   { desc = "Prev file" } },
+          { "n", "<cr>",    actions.select_entry,        { desc = "Open diff" } },
+          { "n", "o",       actions.select_entry,        { desc = "Open diff" } },
+          { "n", "q",       "<Cmd>DiffviewClose<CR>",    { desc = "Close diffview" } },
+          { "n", "?",       actions.help("file_panel"),  { desc = "Help" } },
         },
         file_history_panel = {
-          { "n", "A", "<Cmd>windo normal! ]c<Cr>", { desc = "Next hunk" } },
-          { "n", "E", "<Cmd>windo normal! [c<Cr>", { desc = "Prev hunk" } },
-          { "n", "<C-M-A>", actions.select_next_entry, { desc = "Next file" } },
-          { "n", "<C-M-E>", actions.select_prev_entry, { desc = "Prev file" } },
-          { "n", "<cr>", actions.select_entry, { desc = "Open diff" } },
-          { "n", "o", actions.select_entry, { desc = "Open diff" } },
-          { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close diffview" } },
-          { "n", "?", actions.help("file_history_panel"), { desc = "Help" } },
+          { "n", "A",       "<Cmd>windo normal! ]c<Cr>",        { desc = "Next hunk" } },
+          { "n", "E",       "<Cmd>windo normal! [c<Cr>",        { desc = "Prev hunk" } },
+          { "n", "<C-M-A>", actions.select_next_entry,          { desc = "Next file" } },
+          { "n", "<C-M-E>", actions.select_prev_entry,          { desc = "Prev file" } },
+          { "n", "<cr>",    actions.select_entry,               { desc = "Open diff" } },
+          { "n", "o",       actions.select_entry,               { desc = "Open diff" } },
+          { "n", "q",       "<Cmd>DiffviewClose<CR>",           { desc = "Close diffview" } },
+          { "n", "?",       actions.help("file_history_panel"), { desc = "Help" } },
         },
         help_panel = {
-          { "n", "q", actions.close, { desc = "Close help menu" } },
+          { "n", "q",     actions.close, { desc = "Close help menu" } },
           { "n", "<esc>", actions.close, { desc = "Close help menu" } },
         },
       },
