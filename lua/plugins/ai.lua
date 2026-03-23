@@ -1,21 +1,17 @@
 return {
   {
-    "greggh/claude-code.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim", -- Required for git operations
-    },
+    "coder/claudecode.nvim",
     opts = {
-      window = {
-        position = "float",
-        float = {
-          width = "90%",
-          height = "85%",
+      terminal = {
+        snacks_win_opts = {
+          position = "float",
+          width = 0.9,
+          height = 0.85,
+          border = "rounded",
+          keys = {
+            hide = { "<C-\\>", function(self) self:hide() end, mode = "t", desc = "Hide Claude" },
+          },
         },
-      },
-      keymaps = {
-        toggle = { normal = false, terminal = false },
-        window_navigation = false,
-        scrolling = false,
       },
     },
   },
