@@ -146,6 +146,11 @@ map({
 local gs = require("gitsigns")
 
 map({
+  A = { gs.next_hunk, desc = "Next git hunk" },
+  E = { gs.prev_hunk, desc = "Prev git hunk" },
+})
+
+map({
   g = {
     o = { smart_diff.smart_diffget, desc = "Get hunk (smart)", disabled = true },
     p = { smart_diff.smart_diffput, desc = "Put hunk (smart)", disabled = true },

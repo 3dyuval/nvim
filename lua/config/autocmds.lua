@@ -241,6 +241,22 @@ vim.api.nvim_create_user_command("BugSnippet", function(opts)
   require("utils.buffers").create_buffer_bug_snippet(bug_num)
 end, { nargs = "?" })
 
+-- Hide claude terminal when diff buffers open (so diffs are visible behind)
+-- claudecode sets vim.b.claudecode_diff_tab_name on diff buffers
+vim.api.nvim_create_autocmd("BufWinEnter", {
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    if not vim.b[buf].claudecode_diff_tab_name then return end
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local wbuf = vim.api.nvim_win_get_buf(win)
+      if vim.bo[wbuf].buftype == "terminal" and vim.api.nvim_buf_get_name(wbuf):match("claude") then
+        pcall(vim.api.nvim_win_close, win, false)
+        return
+      end
+    end
+  end,
+})
+
 -- Refocus claude float when nvim regains focus, if it was visible
 vim.api.nvim_create_autocmd("FocusGained", {
   callback = function()
