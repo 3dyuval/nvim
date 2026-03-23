@@ -307,6 +307,7 @@ M.copy_file_path = function(picker, item)
       { key = "content", icon = "󰈙", value = "file_content_multi", items = items },
       { key = "name", icon = "󰈔", value = table.concat(filenames, "\n") },
       { key = "path", icon = "󰆏", value = table.concat(paths_abs, "\n") },
+      { key = "claude", icon = "", value = "claude_add", items = items },
     }
   else
     -- Single file: keep existing behavior
@@ -320,6 +321,7 @@ M.copy_file_path = function(picker, item)
       { key = "basename", icon = "󰈙", value = vim.fn.fnamemodify(items[1].file, ":t:r") },
       { key = "extension", icon = "󰈙", value = vim.fn.fnamemodify(items[1].file, ":t:e") },
       { key = "uri", icon = "󰌷", value = vim.uri_from_fname(items[1].file) },
+      { key = "claude", icon = "", value = "claude_add", items = items },
     }
   end
 
@@ -416,7 +418,7 @@ M.copy_file_path = function(picker, item)
 
         -- Check if single directory
         local single_dir = items_count == 1
-          and (selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1)
+            and (selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1)
 
         local tree_output
         if single_dir then
@@ -496,6 +498,16 @@ M.copy_file_path = function(picker, item)
 
         vim.fn.setreg("+", tree_output)
         Snacks.notify.info("Tree structure copied to clipboard")
+      elseif selected_option.key == "claude" then
+        local claudecode = require("claudecode")
+        local count = 0
+        for _, itm in ipairs(selected_option.items) do
+          if itm.file and itm.file ~= "" then
+            claudecode.send_at_mention(itm.file, nil, nil, "snacks_picker")
+            count = count + 1
+          end
+        end
+        Snacks.notify.info(string.format("Added %d file(s) to Claude", count))
       else
         vim.fn.setreg("+", result)
         Snacks.notify.info("Yanked `" .. result .. "`")
@@ -646,8 +658,8 @@ local contexts = {
 
       -- Detect sidebar explorer by minimal action set
       local has_minimal_explorer = picker.opts
-        and picker.opts.actions
-        and (picker.opts.actions.explorer_add and picker.opts.actions.list_down)
+          and picker.opts.actions
+          and (picker.opts.actions.explorer_add and picker.opts.actions.list_down)
 
       if has_minimal_explorer then
         local action_count = 0
@@ -676,16 +688,16 @@ local contexts = {
 
       -- Check if the picker has explorer-specific actions (most reliable method)
       local has_explorer_actions = picker.opts
-        and picker.opts.actions
-        and (
-          picker.opts.actions.explorer_add
-          or picker.opts.actions.explorer_del
-          or picker.opts.actions.explorer_open
-          or picker.opts.actions.explorer_rename
-          or picker.opts.actions.explorer_close
-          or picker.opts.actions.explorer_up
-          or picker.opts.actions.explorer_focus
-        )
+          and picker.opts.actions
+          and (
+            picker.opts.actions.explorer_add
+            or picker.opts.actions.explorer_del
+            or picker.opts.actions.explorer_open
+            or picker.opts.actions.explorer_rename
+            or picker.opts.actions.explorer_close
+            or picker.opts.actions.explorer_up
+            or picker.opts.actions.explorer_focus
+          )
 
       -- Exclude sidebar explorers (they have minimal actions and different structure)
       if has_explorer_actions then
@@ -725,11 +737,11 @@ local contexts = {
       end
 
       if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
+          #items == 0
+          and picker.list
+          and picker.list.selected
+          and type(picker.list.selected) == "table"
+          and #picker.list.selected > 0
       then
         items = picker.list.selected
       end
@@ -753,8 +765,8 @@ local contexts = {
       -- Only fallback to item checking if we're NOT in an explorer
       -- (explorer items can have status but aren't git status items)
       local has_explorer_actions = picker.opts
-        and picker.opts.actions
-        and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del or picker.opts.actions.explorer_open)
+          and picker.opts.actions
+          and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del or picker.opts.actions.explorer_open)
 
       if not has_explorer_actions then
         -- Fallback: check if current item has git status properties
@@ -789,11 +801,11 @@ local contexts = {
       end
 
       if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
+          #items == 0
+          and picker.list
+          and picker.list.selected
+          and type(picker.list.selected) == "table"
+          and #picker.list.selected > 0
       then
         items = picker.list.selected
       end
@@ -816,8 +828,8 @@ local contexts = {
 
       -- Fallback: check if it has file-specific characteristics but NOT explorer actions
       local has_explorer_actions = picker.opts
-        and picker.opts.actions
-        and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del)
+          and picker.opts.actions
+          and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del)
 
       -- If no explorer actions and has file-like items, assume it's a files picker
       if not has_explorer_actions then
@@ -849,11 +861,11 @@ local contexts = {
       end
 
       if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
+          #items == 0
+          and picker.list
+          and picker.list.selected
+          and type(picker.list.selected) == "table"
+          and #picker.list.selected > 0
       then
         items = picker.list.selected
       end
@@ -902,11 +914,11 @@ local contexts = {
       end
 
       if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
+          #items == 0
+          and picker.list
+          and picker.list.selected
+          and type(picker.list.selected) == "table"
+          and #picker.list.selected > 0
       then
         items = picker.list.selected
       end
@@ -1241,7 +1253,7 @@ local actions = {
       desc = "Delete directory",
       action = function(picker, item)
         local confirm =
-          vim.fn.confirm("Delete directory " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
+            vim.fn.confirm("Delete directory " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
         if confirm == 1 then
           vim.fn.delete(item.file, "rf")
           vim.notify("Deleted directory " .. vim.fn.fnamemodify(item.file, ":t"))
@@ -1306,6 +1318,11 @@ local actions = {
         })
       end,
     },
+    {
+      key = "C",
+      desc = "Add to Claude Code",
+      action = M.claude_add_tree
+    }
   },
 
   -- Multiple files/directories actions
@@ -1839,6 +1856,16 @@ M.context_menu = function(picker, item)
     end
   end)
 
+  -- Add to Claude context
+  local selected = picker:selected()
+  local claude_label = #selected > 1
+    and (" Add " .. #selected .. " files to Claude")
+    or " Add to Claude"
+  table.insert(options, claude_label)
+  table.insert(actions, function()
+    M.claude_add_tree(picker, item)
+  end)
+
   -- Show the menu
   vim.ui.select(options, {
     prompt = menu_title .. " - Choose action:",
@@ -1905,8 +1932,8 @@ M.git_context_menu = function(picker, item)
     for _, target_item in ipairs(target_items) do
       local file = target_item.file
       if
-        target_item.status
-        and (target_item.status:match("^M") or target_item.status:match("^A") or target_item.status:match("^D"))
+          target_item.status
+          and (target_item.status:match("^M") or target_item.status:match("^A") or target_item.status:match("^D"))
       then
         -- File is staged, unstage it
         vim.system({ "git", "restore", "--staged", file })
@@ -2671,6 +2698,16 @@ M.confirm_multi = function(picker, item, action)
   end
 end
 
+M.claude_add_tree = function(picker, item)
+  local claudecode = require("claudecode")
+  for _, selected in ipairs(picker:selected({ fallback = true })) do
+    local path = Snacks.picker.util.path(selected)
+    if path then
+      claudecode.send_at_mention(path, nil, nil, "snacks_picker")
+    end
+  end
+end
+
 -- Export all picker action functions for use in snacks.lua
 M.actions = {
   open_multiple_buffers = M.open_multiple_buffers,
@@ -2687,6 +2724,7 @@ M.actions = {
   filter_conflicts = M.filter_conflicts,
   filter_conflicts_explorer = M.filter_conflicts_explorer,
   duplicate_file = M.duplicate_file,
+  claude_add_tree = M.claude_add_tree,
   -- Context menu actions (which-key based)
   context_menu = M.context_menu,
   git_context_menu = M.git_context_menu,

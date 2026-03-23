@@ -219,7 +219,7 @@ return {
               key = "S",
               desc = "Recent Sessions",
               action = function()
-                Snacks.picker.pick('sessions', {})
+                require("persistence").select()
               end,
             },
             {
