@@ -13,6 +13,7 @@
 -- This file only provides lazy loading hints via keys table
 
 return {
+  enabled = false,
   "mg979/vim-visual-multi",
   -- Remove event loading to avoid timing issues
   keys = {

@@ -1,5 +1,9 @@
 return {
   {
+    "folke/flash.nvim",
+    enabled = false, -- Completely disable Flash
+  },
+  {
     "LazyVim/LazyVim",
     init = function()
       -- Override the default wrap_spell autocmd to disable spell checking
