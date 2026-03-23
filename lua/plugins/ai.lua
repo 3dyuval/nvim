@@ -4,16 +4,20 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim", -- Required for git operations
     },
-    config = function()
-      vim.g.claude_code_session = { position = "fload" }
-      require("claude-code").setup({
-        position = vim.g.claude_code_session.position,
+    opts = {
+      window = {
+        position = "float",
         float = {
           width = "90%",
-          height = "70%",
-        }
-      })
-    end
+          height = "85%",
+        },
+      },
+      keymaps = {
+        toggle = { normal = false, terminal = false },
+        window_navigation = false,
+        scrolling = false,
+      },
+    },
   },
   {
     name = "run-ai.run",

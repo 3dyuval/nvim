@@ -157,7 +157,6 @@ map({
     I = { cmd = "AiCommit", desc = "AI commit popup" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
     s = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
-    h = { cmd = ":DiffviewFileHistory %", desc = "Current file history" },
     D = { helpers.compare_current_file_with_branch, desc = "Compare current file with branch" },
     f = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
 
@@ -175,6 +174,7 @@ map({
   -- Gitsigns hunk operations
   ["<leader>gh"] = {
     group = "Hunks",
+    h = { cmd = ":DiffviewFileHistory %", desc = "Current file history" },
     s = { [mode] = { "n", "x" }, cmd = "Gitsigns stage_hunk", desc = "Stage Hunk" },
     r = { [mode] = { "n", "x" }, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk" },
     S = { gs.stage_buffer, desc = "Stage Buffer" },

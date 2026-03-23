@@ -240,3 +240,18 @@ vim.api.nvim_create_user_command("BugSnippet", function(opts)
   local bug_num = opts.args or "X"
   require("utils.buffers").create_buffer_bug_snippet(bug_num)
 end, { nargs = "?" })
+
+-- In claude-code buffers: Esc hides the float
+-- Pattern matches the claude command in the terminal URI (term://path//pid:claude...)
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "term://*claude*",
+  callback = function(ev)
+    local function hide()
+      local wins = vim.fn.win_findbuf(ev.buf)
+      for _, win in ipairs(wins) do
+        pcall(vim.api.nvim_win_close, win, false)
+      end
+    end
+    vim.keymap.set("t", "<C-\\>", hide, { buffer = ev.buf, nowait = true, desc = "Hide Claude float" })
+  end,
+})
