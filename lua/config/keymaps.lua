@@ -25,6 +25,7 @@ pcall(vim.keymap.del, "n", "<leader>gd")
 pcall(vim.keymap.del, "n", "<leader> ")
 pcall(vim.keymap.del, "n", "<leader><space>")
 pcall(vim.keymap.del, "n", "<leader>:")
+pcall(vim.keymap.del, "n", "<leader>sb")
 
 map({
   [mode] = { "n", "o", "x" },
@@ -475,6 +476,7 @@ map({
 
   ["<leader>s"] = {
     t = { function() require("utils.picker-extensions").open_explorer({ layout = { preset = "sidebar" } }) end, desc = "Explorer (sidebar)" },
+    l = { function() Snacks.picker.lines() end, desc = "Search buffer lines" },
     K = { cmd = "KMUInspect", exec = true, desc = "KMU only inspect" },
     D = { cmd = "ProjectDiagnostics", desc = "Project Diagnostics" },
     F = { search.grug_far_current_file, desc = "Search/Replace in current file (Grug-far)" },
@@ -742,4 +744,5 @@ kmu.register_groups()
 
 kmu.setup_inspect()
 
+require("config.keymaps.insert")
 require("config.keymaps-old")
