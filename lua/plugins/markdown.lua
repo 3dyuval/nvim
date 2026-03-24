@@ -64,22 +64,6 @@ return {
       heading = {
         sign = false,
         icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
-        foregrounds = {
-          "@markup.heading.1.markdown",
-          "@markup.heading.2.markdown",
-          "@markup.heading.3.markdown",
-          "@markup.heading.4.markdown",
-          "@markup.heading.5.markdown",
-          "@markup.heading.6.markdown",
-        },
-        backgrounds = {
-          "RenderMarkdownH1Bg",
-          "RenderMarkdownH2Bg",
-          "RenderMarkdownH3Bg",
-          "RenderMarkdownH4Bg",
-          "RenderMarkdownH5Bg",
-          "RenderMarkdownH6Bg",
-        },
       },
     },
   },
