@@ -3,6 +3,7 @@ return {
     "3dyuval/heatsync.nvim",
     dir = "/home/yuv/proj/heatsync.nvim",
     dev = true,
+    build = "make hooks server",
     dependencies = { "nvzone/volt", "nvzone/menu" },
     opts = {
       actions = {
