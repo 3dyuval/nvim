@@ -404,10 +404,8 @@ map({
 
 -- Claude Code keymaps
 map({
-  [ctrl] = {
-    ["<S-t>"] = { [mode] = { "n", "v", "i" }, cmd = "ClaudeCode", desc = "Toggle Claude Code" },
-    ["<S-@>"] = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
-  },
+  ["<C-r>"] = { [mode] = { "n", "v", "i" }, cmd = "ClaudeCode", desc = "Toggle Claude Code" },
+  ["<S-@>"] = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
   ["<leader>a"] = {
     group = "AI/Claude",
     c = { cmd = "ClaudeCode", desc = "Toggle Claude" },

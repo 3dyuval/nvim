@@ -10,7 +10,7 @@ return {
           border = "rounded",
           backdrop = false,
           keys = {
-            hide = { "<C-S-t>", function(self) self:hide() end, mode = "t", desc = "Hide Claude" },
+            hide = { "<C-r>", function(self) self:hide() end, mode = "t", desc = "Hide Claude" },
           },
         },
       },
