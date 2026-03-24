@@ -16,7 +16,7 @@ end
 return {
   {
     "folke/snacks.nvim",
-    dependencies = { "3dyuval/searxng.nvim" },
+    dependencies = { "3dyuval/searxng.nvim", dir = "~/proj/searxng.nvim" },
     priority = 1000,
     lazy = false,
     ---@type snacks.Config

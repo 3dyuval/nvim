@@ -371,7 +371,6 @@ map({
     r = { editor.reload_config, desc = "Reload config" },
     R = { editor.reload_keymaps, desc = "Reload keymaps" },
     l = { cmd = "Leet run", desc = "Leet run (test)" },
-    n = { cmd = "ClaudeCode", desc = "New Claude session" },
     -- Sniprun keymaps (r/t disabled - conflicts with summon)
     -- r = { [mode] = { "n", "v" }, cmd = "SnipRun", desc = "Run snippet" },
     -- t = {
@@ -388,8 +387,8 @@ map({
 -- Claude Code keymaps
 map({
   [ctrl] = {
-    ["\\"] = { [mode] = { "n", "v", "i" }, cmd = "ClaudeCode", desc = "Toggle Claude Code" },
-    ["-"] = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
+    ["<S-t>"] = { [mode] = { "n", "v", "i" }, cmd = "ClaudeCode", desc = "Toggle Claude Code" },
+    ["<S-@>"] = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
   },
   ["<leader>a"] = {
     group = "AI/Claude",
