@@ -81,16 +81,7 @@ return {
     end,
   },
   { "briones-gabriel/darcula-solid.nvim", enabled = true },
-  {
-    "zenbones-theme/zenbones.nvim",
-    dependencies = { "rktjmp/lush.nvim" },
-    lazy = false,
-    priority = 1000,
-    config = function()
-      vim.o.background = "dark"
-      vim.g.zenbones = { darkness = "stark" }
-    end,
-  },
+  { "zenbones-theme/zenbones.nvim", dependencies = { "rktjmp/lush.nvim" }, enabled = true },
   { "navarasu/onedark.nvim",              enabled = false },
   { "EdenEast/nightfox.nvim",             enabled = false },
 
