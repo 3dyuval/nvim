@@ -183,8 +183,9 @@ return {
       dashboard = {
         enabled = false, -- We'll handle this manually
         sections = {
-          { section = "header",  enabled = true },
-          { section = "keys",    gap = 1,        padding = 1 },
+          { section = "header",            enabled = true },
+          { section = "activity_heatmap", padding = 1, align = "center" },
+          { section = "keys",             gap = 1, padding = 1 },
           { section = "startup", enabled = false },
         },
         preset = {
@@ -664,6 +665,23 @@ return {
     },
     config = function(_, opts)
       require("snacks").setup(opts)
+
+      -- Register activity heatmap as a custom dashboard section
+      require("snacks.dashboard").sections.activity_heatmap = function()
+        local ok, ui = pcall(require, "activity-heatmap.ui")
+        if not ok then return {} end
+        return {
+          {
+            text   = ("\n"):rep(6), -- reserve 7 lines in the dashboard buffer
+            render = function(d, pos)
+              local buf, row = d.buf, pos[1]
+              vim.schedule(function()
+                ui.dashboard_render(buf, row)
+              end)
+            end,
+          },
+        }
+      end
 
       -- Manual dashboard control based on conditions
       -- Skip entirely for leetcode.nvim
