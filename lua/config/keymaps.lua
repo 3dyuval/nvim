@@ -146,8 +146,26 @@ map({
 local gs = require("gitsigns")
 
 map({
-  A = { gs.next_hunk, desc = "Next git hunk" },
-  E = { gs.prev_hunk, desc = "Prev git hunk" },
+  A = {
+    function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "]c", bang = true })
+      else
+        gs.next_hunk()
+      end
+    end,
+    desc = "Next git hunk",
+  },
+  E = {
+    function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "[c", bang = true })
+      else
+        gs.prev_hunk()
+      end
+    end,
+    desc = "Prev git hunk",
+  },
 })
 
 map({
