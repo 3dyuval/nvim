@@ -1,7 +1,7 @@
 return {
   {
-    "3dyuval/activity-heatmap.nvim",
-    dir = "/home/yuv/proj/activity-heatmap.nvim",
+    "3dyuval/heatsync.nvim",
+    dir = "/home/yuv/proj/heatsync.nvim",
     dev = true,
     dependencies = { "nvzone/volt", "nvzone/menu" },
     opts = {
