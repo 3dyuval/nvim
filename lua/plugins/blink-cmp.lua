@@ -68,6 +68,11 @@ return {
           },
         },
       },
+      keymap = {
+        preset = "default",
+        ["<Tab>"] = { "accept", "snippet_forward", "fallback" },
+        ["<CR>"] = { "fallback" },
+      },
       cmdline = {
         enabled = true,
         keymap = {
