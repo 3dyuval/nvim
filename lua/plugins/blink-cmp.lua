@@ -70,8 +70,8 @@ return {
       },
       keymap = {
         preset = "default",
-        ["<Tab>"] = { "accept", "snippet_forward", "fallback" },
-        ["<CR>"] = { "fallback" },
+        ["<CR>"] = { "accept", "fallback" },
+        ["<C-CR>"] = { "fallback" },
       },
       cmdline = {
         enabled = true,
@@ -92,6 +92,7 @@ return {
         },
       },
       completion = {
+        keyword = { range = "full" },
         accept = {
           auto_brackets = {
             enabled = true,
