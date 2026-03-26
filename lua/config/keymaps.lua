@@ -745,4 +745,5 @@ kmu.register_groups()
 kmu.setup_inspect()
 
 require("config.keymaps.insert")
+require("config.keymaps.terminal")
 require("config.keymaps-old")
