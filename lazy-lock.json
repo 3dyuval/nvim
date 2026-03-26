@@ -93,7 +93,7 @@
   "tabout.nvim": { "branch": "master", "commit": "9a3499480a8e53dcaa665e2836f287e3b7764009" },
   "teide.nvim": { "branch": "main", "commit": "95041d1d78e786bd88be64bca3e1771f7b6236df" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
-  "tokyonight.nvim": { "branch": "main", "commit": "73822773d5badaeba999206179a9105f9867ac59" },
+  "tokyonight.nvim": { "branch": "main", "commit": "5da1b76e64daf4c5d410f06bcb6b9cb640da7dfd" },
   "tree-sitter-amber": { "branch": "main", "commit": "107c6d4a420fb0c5962b62ebd9347b7eb0015957" },
   "treewalker.nvim": { "branch": "main", "commit": "7baacb0efbdc2ac523ede90e266d685bc2227673" },
   "trouble.nvim": { "branch": "main", "commit": "bd67efe408d4816e25e8491cc5ad4088e708a69a" },
