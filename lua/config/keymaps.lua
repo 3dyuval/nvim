@@ -387,8 +387,13 @@ map({
 
 map({
   ["<leader>r"] = {
-    r = { editor.reload_config, desc = "Reload config" },
-    R = { editor.reload_keymaps, desc = "Reload keymaps" },
+    C = {
+      function()
+        editor.reload_config()
+        editor.reload_keymaps()
+      end,
+      desc = "Reload config and keymaps",
+    },
     l = { cmd = "Leet run", desc = "Leet run (test)" },
     -- Sniprun keymaps (r/t disabled - conflicts with summon)
     -- r = { [mode] = { "n", "v" }, cmd = "SnipRun", desc = "Run snippet" },

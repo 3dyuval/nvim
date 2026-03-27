@@ -2,6 +2,7 @@ return {
   "salkhalil/summon.nvim",
   keys = {
     { "<leader>rt", "<cmd>Summon<cr>", desc = "Summon" },
+    { "<leader>rs", function() require("summon").pick() end, desc = "Summon menu" },
   },
   opts = {
     width = 0.65,
