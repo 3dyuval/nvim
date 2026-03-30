@@ -358,8 +358,21 @@ map({
 })
 
 map({
-  ["<leader>aa"] = { function() Snacks.picker.command_history() end, desc = "Command history" },
+  ["<leader>sr"] = { function() Snacks.picker.recent() end, desc = "Recent files" },
+  ["<leader>sS"] = { function() require("persistence").select() end, desc = "Recent sessions" },
   [ctrl] = {
+    r = {
+      function()
+        local is_visual = vim.fn.mode():match("[vV\22]")
+        if is_visual then
+          require("grug-far").with_visual_selection()
+        else
+          require("grug-far").open({ prefills = { paths = vim.fn.expand("%") } })
+        end
+      end,
+      desc = "Search and replace",
+      [mode] = { "n", "v" },
+    },
     w = {
       function()
         local win = vim.api.nvim_get_current_win()

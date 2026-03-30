@@ -184,8 +184,8 @@ return {
         enabled = false, -- We'll handle this manually
         sections = {
           { section = "header",   enabled = true },
-          { section = "keys",     gap = 1,        padding = 1 },
           { section = "projects", padding = 1,    limit = 8 },
+          { section = "keys",     gap = 0,        padding = 1 },
           { section = "startup",  enabled = false },
         },
         preset = {
@@ -203,10 +203,10 @@ return {
           keys = {
             {
               icon = "󱎸",
-              key = "g",
+              key = "/",
               desc = "Live Grep",
               action = ":lua Snacks.dashboard.pick('live_grep')",
-            },
+            
             { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
             {
               icon = "",
@@ -214,24 +214,21 @@ return {
               desc = "Recent Files",
               action = ":lua Snacks.dashboard.pick('oldfiles')",
             },
-            { icon = "󰰍", key = "c", desc = "LeetCode", action = ":Leet" },
+            { icon = "󰰍", key = "l", desc = "LeetCode", action = ":Leet" },
+            { icon = "", key = "c", desc = "Nvim Config", action = function() vim.cmd("cd ~/.config/nvim | e .") end },
+            { icon = "󰠔", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
             {
-              icon = "󰸕",
-              key = "<C-s>",
-              desc = "Recent Sessions",
+              icon = "󰁯",
+              key = "s",
+              desc = "Restore Session",
               action = function()
-                require("persistence").select()
-              end,
+                vim.schedule(function()
+                  require(
+                    "persistence").load()
+                end)
+              end
             },
-            {
-              icon = "󰰶",
-              key = "z",
-              desc = "Recent Directories",
-              action = function()
-                Snacks.picker.zoxide()
-              end,
-            },
-            { icon = "", key = "s", desc = "Restore Session", action = function() require("persistence").load() end },
+            { icon = "󰈆", key = "q", desc = "Quit", action = ":qa!" },
           },
         },
       },

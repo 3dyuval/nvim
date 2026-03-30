@@ -86,7 +86,14 @@ return {
   { "EdenEast/nightfox.nvim",             enabled = false },
 
   -- Opt out of LazyVim keymaps - bind explicitly in keymaps.lua
-  { "MagicDuck/grug-far.nvim",            keys = {} },
+  {
+    "MagicDuck/grug-far.nvim",
+    keys = {},
+    config = function(_, opts)
+      require("grug-far").setup(opts)
+      pcall(vim.keymap.del, { "n", "x" }, "<leader>sr")
+    end,
+  },
   { "folke/trouble.nvim",                 keys = {} },
   {
     "lewis6991/gitsigns.nvim",
