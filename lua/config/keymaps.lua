@@ -404,15 +404,13 @@ map({
 
 -- Claude Code keymaps
 map({
-  ["<C-S-a>"] = { [mode] = { "t", "n", "v", "i" }, cmd = "ClaudeCode", desc = "Toggle Claude Code" },
   ["<leader>a"] = {
     group = "AI/Claude",
     p = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
-    c = { cmd = "ClaudeCode", desc = "Toggle Claude" },
-    f = { cmd = "ClaudeCodeFocus", desc = "Focus Claude" },
-    C = { cmd = "ClaudeCode --continue", desc = "Continue Claude" },
+    c = { function() require("summon").open("claude") end, desc = "Toggle Claude" },
+    f = { function() require("summon").open("claude") end, desc = "Focus Claude" },
     m = { cmd = "ClaudeCodeSelectModel", desc = "Select model" },
-    s = { [mode] = { "v" }, cmd = "ClaudeCodeSend", desc = "Send selection to Claude" },
+    s = { [mode] = { "n", "v" }, cmd = "ClaudeCodeSend", desc = "Send selection to Claude" },
     r = { cmd = "ClaudeCodeDiffAccept", desc = "Accept diff" },
     l = { cmd = "ClaudeCodeDiffDeny", desc = "Deny diff" },
   },
@@ -632,62 +630,63 @@ map({
   },
 })
 
-map({
-  ["<leader>t"] = {
-    r = { cmd = "Checkmate create", desc = "Todo: Create new" },
-    n = { cmd = "Checkmate toggle", desc = "Todo: Toggle state" },
-    c = { cmd = "Checkmate archive", desc = "Todo: Archive completed" },
-    ["="] = { cmd = "Checkmate cycle_next", desc = "Todo: Next state" },
-    ["-"] = { cmd = "Checkmate cycle_previous", desc = "Todo: Previous state" },
-    d = {
-      function()
-        Snacks.picker.todo_comments()
-      end,
-      desc = "Todo: Search (Picker)",
-    },
-    D = {
-      function()
-        Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
-      end,
-      desc = "Todo: Search TODO/FIX/FIXME",
-    },
-    l = { cmd = "Checkmate lint", desc = "Todo: Lint buffer" },
-    ["]"] = { cmd = "Checkmate metadata jump_next", desc = "Todo: Jump to next metadata" },
-    ["["] = { cmd = "Checkmate metadata jump_previous", desc = "Todo: Jump to previous metadata" },
-    v = { cmd = "Checkmate metadata select_value", desc = "Todo: Select metadata value" },
-    s = {
-      function()
-        vim.ui.select(vim.fn.spellsuggest(vim.fn.expand("<cword>")), { prompt = "Spell suggest" }, function(choice)
-          if choice then
-            vim.cmd("normal! ciw" .. choice)
-          end
-        end)
-      end,
-      desc = "Spell suggest",
-    },
-    t = {
-      r = {
-        s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
-        d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
-        p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
-      },
-      n = {
-        s = { cmd = "Checkmate metadata toggle started", desc = "Todo Metadata: Toggle @started" },
-        d = { cmd = "Checkmate metadata toggle done", desc = "Todo Metadata: Toggle @done" },
-        p = { cmd = "Checkmate metadata toggle priority", desc = "Todo Metadata: Toggle @priority" },
-      },
-      x = {
-        a = { cmd = "Checkmate remove_all_metadata", desc = "Todo Metadata: Remove all" },
-        s = { cmd = "Checkmate metadata remove started", desc = "Todo Metadata: Remove @started" },
-        d = { cmd = "Checkmate metadata remove done", desc = "Todo Metadata: Remove @done" },
-        p = { cmd = "Checkmate metadata remove priority", desc = "Todo Metadata: Remove @priority" },
-      },
-      s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
-      d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
-      p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
-    },
-  },
-})
+-- map({
+--   ["<leader>t"] = {
+--     r = { cmd = "Checkmate create", desc = "Todo: Create new" },
+--     n = { cmd = "Checkmate toggle", desc = "Todo: Toggle state" },
+--     c = { cmd = "Checkmate archive", desc = "Todo: Archive completed" },
+--     ["="] = { cmd = "Checkmate cycle_next", desc = "Todo: Next state" },
+--     ["-"] = { cmd = "Checkmate cycle_previous", desc = "Todo: Previous state" },
+--     d = {
+--       function()
+--         Snacks.picker.todo_comments()
+--       end,
+--       desc = "Todo: Search (Picker)",
+--     },
+--     D = {
+--       function()
+--         Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
+--       end,
+--       desc = "Todo: Search TODO/FIX/FIXME",
+--     },
+--     l = { cmd = "Checkmate lint", desc = "Todo: Lint buffer" },
+--     ["]"] = { cmd = "Checkmate metadata jump_next", desc = "Todo: Jump to next metadata" },
+--     ["["] = { cmd = "Checkmate metadata jump_previous", desc = "Todo: Jump to previous metadata" },
+--     v = { cmd = "Checkmate metadata select_value", desc = "Todo: Select metadata value" },
+--     s = {
+--       function()
+--         vim.ui.select(vim.fn.spellsuggest(vim.fn.expand("<cword>")), { prompt = "Spell suggest" }, function(choice)
+--           if choice then
+--             vim.cmd("normal! ciw" .. choice)
+--           end
+--         end)
+--       end,
+--       desc = "Spell suggest",
+--     },
+--     t = {
+--       r = {
+--         s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
+--         d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
+--         p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
+--       },
+--       n = {
+--         s = { cmd = "Checkmate metadata toggle started", desc = "Todo Metadata: Toggle @started" },
+--         d = { cmd = "Checkmate metadata toggle done", desc = "Todo Metadata: Toggle @done" },
+--         p = { cmd = "Checkmate metadata toggle priority", desc = "Todo Metadata: Toggle @priority" },
+--       },
+--       x = {
+--         a = { cmd = "Checkmate remove_all_metadata", desc = "Todo Metadata: Remove all" },
+--         s = { cmd = "Checkmate metadata remove started", desc = "Todo Metadata: Remove @started" },
+--         d = { cmd = "Checkmate metadata remove done", desc = "Todo Metadata: Remove @done" },
+--         p = { cmd = "Checkmate metadata remove priority", desc = "Todo Metadata: Remove @priority" },
+--       },
+--       s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
+--       d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
+--       p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
+--     },
+--   },
+-- })
+--
 
 local notes = require("utils.notes")
 

@@ -7,6 +7,7 @@ M.find_files = function()
 end
 
 M.save_and_stage_file = function()
+  if vim.bo.buftype ~= "" then return end
   vim.cmd("write")
   local file = vim.fn.expand("%:p")
   if file ~= "" then

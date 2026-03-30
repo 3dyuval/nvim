@@ -2,6 +2,7 @@ return {
   {
     dir = "/home/yuv/proj/claudecode.nvim",
     opts = {
+      focus_after_send = false,
       terminal = {
         snacks_win_opts = {
           position = "float",
@@ -10,7 +11,7 @@ return {
           border = "rounded",
           backdrop = false,
           keys = {
-            hide = { "<C-r>", function(self) self:hide() end, mode = "t", desc = "Hide Claude" },
+            hide = { "<C-S-a>", function(self) self:hide() end, mode = "t", desc = "Hide Claude" },
           },
         },
       },
@@ -43,7 +44,8 @@ return {
   {
     name = "run-ai.run",
     dir = "/home/yuv/proj/run-ai.run.nvim",
-    enabled = false,
+    enabled = true,
+    cmd = { "Claude", "ClaudeSkillClaude" },
     dependencies = {
       "3dyuval/colortweak.nvim",
       "nvim-lua/plenary.nvim",
@@ -51,7 +53,6 @@ return {
     },
     opts = {
       skills_path = "/home/yuv/.config/nvim/.claude/skills",
-      bin = "/home/yuv/.nvm/versions/node/v20.19.6/bin/claude",
       log_level = "debug",
       notify_level = "warn", -- nil = off, "debug"/"info"/"warn"/"error" = show in noice
       highlights = {
@@ -67,6 +68,7 @@ return {
         ClaudeThinking = { "DiagnosticHint", { h = 15, s = 1.5 } },
       })
 
+      opts.on_sent = function() require("summon").open("claude") end
       require("run-ai-run").setup(opts)
     end,
   },
