@@ -360,7 +360,17 @@ map({
 map({
   ["<leader>aa"] = { function() Snacks.picker.command_history() end, desc = "Command history" },
   [ctrl] = {
-    w = { function() Snacks.bufdelete() end, desc = "Close buffer" },
+    w = {
+      function()
+        local win = vim.api.nvim_get_current_win()
+        if vim.api.nvim_win_get_config(win).relative ~= "" then
+          vim.api.nvim_win_close(win, false)
+        else
+          vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<C-w>", true, false, true), "n")
+        end
+      end,
+      desc = "Close float / window prefix",
+    },
     f = { files.find_files, desc = "Find files (git root)" },
     s = { files.save_file, desc = "Save file" },
     S = { files.save_and_stage_file, desc = "Save and stage file" },

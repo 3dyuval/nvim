@@ -1,44 +1,15 @@
 return {
   {
-    dir = "/home/yuv/proj/claudecode.nvim",
+    "coder/claudecode.nvim",
+    dev = true,
     opts = {
       focus_after_send = false,
       terminal = {
-        snacks_win_opts = {
-          position = "float",
-          width = 0.95,
-          height = 0.88,
-          border = "rounded",
-          backdrop = false,
-          keys = {
-            hide = { "<C-S-a>", function(self) self:hide() end, mode = "t", desc = "Hide Claude" },
-          },
-        },
+        provider = "none",
       },
     },
     config = function(_, opts)
       require("claudecode").setup(opts)
-      local base_win_opts = opts.terminal.snacks_win_opts
-      local is_float = true
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "ClaudeCodeDiffOpened",
-        callback = function()
-          local term = require("claudecode.terminal")
-          if term.get_active_terminal_bufnr() then
-            term.simple_toggle()
-            is_float = true
-          end
-        end,
-      })
-      vim.api.nvim_create_user_command("ClaudeTogglePosition", function()
-        local term = require("claudecode.terminal")
-        if is_float then
-          term.reposition({ snacks_win_opts = vim.tbl_extend("force", base_win_opts, { position = "right", width = 0.4 }) })
-        else
-          term.reposition({ snacks_win_opts = base_win_opts })
-        end
-        is_float = not is_float
-      end, { desc = "Toggle Claude window between float and side" })
     end,
   },
   {

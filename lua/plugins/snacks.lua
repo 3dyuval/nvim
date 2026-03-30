@@ -16,7 +16,7 @@ end
 return {
   {
     "folke/snacks.nvim",
-    dependencies = { "3dyuval/searxng.nvim", dir = "~/proj/searxng.nvim" },
+    dependencies = { "3dyuval/searxng.nvim" },
     priority = 1000,
     lazy = false,
     ---@type snacks.Config
@@ -183,9 +183,10 @@ return {
       dashboard = {
         enabled = false, -- We'll handle this manually
         sections = {
-          { section = "header", enabled = true },
-          { section = "keys",   gap = 1, padding = 1 },
-          { section = "startup", enabled = false },
+          { section = "header",   enabled = true },
+          { section = "keys",     gap = 1,        padding = 1 },
+          { section = "projects", padding = 1,    limit = 8 },
+          { section = "startup",  enabled = false },
         },
         preset = {
           header = [[
@@ -216,7 +217,7 @@ return {
             { icon = "󰰍", key = "c", desc = "LeetCode", action = ":Leet" },
             {
               icon = "󰸕",
-              key = "S",
+              key = "<C-s>",
               desc = "Recent Sessions",
               action = function()
                 require("persistence").select()
@@ -230,15 +231,7 @@ return {
                 Snacks.picker.zoxide()
               end,
             },
-            { icon = "", key = "s", desc = "Restore Session", section = "session" },
-            {
-              icon = "󰒲 ",
-              key = "l",
-              desc = "Lazy",
-              action = ":Lazy",
-              enabled = package.loaded.lazy ~= nil,
-            },
-            { icon = "", key = "q", desc = "Quit", action = ":qa!" },
+            { icon = "", key = "s", desc = "Restore Session", action = function() require("persistence").load() end },
           },
         },
       },
