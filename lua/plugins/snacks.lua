@@ -206,29 +206,30 @@ return {
               key = "/",
               desc = "Live Grep",
               action = ":lua Snacks.dashboard.pick('live_grep')",
-            
-            { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
-            {
-              icon = "",
-              key = "r",
-              desc = "Recent Files",
-              action = ":lua Snacks.dashboard.pick('oldfiles')",
+
+              { icon = "", key = "n", desc = "Neogit", action = ":Neogit" },
+              {
+                icon = "",
+                key = "r",
+                desc = "Recent Files",
+                action = ":lua Snacks.dashboard.pick('oldfiles')",
+              },
+              { icon = "󰰍", key = "l", desc = "LeetCode", action = ":Leet" },
+              { icon = "", key = "c", desc = "Nvim Config", action = function() vim.cmd("cd ~/.config/nvim | e .") end },
+              { icon = "󰠔", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
+              {
+                icon = "󰁯",
+                key = "s",
+                desc = "Restore Session",
+                action = function()
+                  vim.schedule(function()
+                    require(
+                      "persistence").load()
+                  end)
+                end
+              },
+              { icon = "󰈆", key = "q", desc = "Quit", action = ":qa!" },
             },
-            { icon = "󰰍", key = "l", desc = "LeetCode", action = ":Leet" },
-            { icon = "", key = "c", desc = "Nvim Config", action = function() vim.cmd("cd ~/.config/nvim | e .") end },
-            { icon = "󰠔", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
-            {
-              icon = "󰁯",
-              key = "s",
-              desc = "Restore Session",
-              action = function()
-                vim.schedule(function()
-                  require(
-                    "persistence").load()
-                end)
-              end
-            },
-            { icon = "󰈆", key = "q", desc = "Quit", action = ":qa!" },
           },
         },
       },
