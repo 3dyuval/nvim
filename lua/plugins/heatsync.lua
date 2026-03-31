@@ -5,7 +5,6 @@ return {
     build = "make hooks server",
     dependencies = { "nvzone/volt", "nvzone/menu" },
     opts = {
-      dashboard = true,
       actions = {
         {
           label  = "Copy date",
