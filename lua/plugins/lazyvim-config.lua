@@ -19,6 +19,7 @@ return {
   },
 
   -- Enable colorschemes used by omarchy themes
+  { "st-eez/osaka-jade.nvim",      enabled = true },
   { "serhez/teide.nvim",           enabled = true },
   { "folke/tokyonight.nvim",       enabled = true },
   { "catppuccin/nvim",             name = "catppuccin", enabled = true },
@@ -81,7 +82,7 @@ return {
     end,
   },
   { "briones-gabriel/darcula-solid.nvim", enabled = true },
-  { "zenbones-theme/zenbones.nvim", dependencies = { "rktjmp/lush.nvim" }, enabled = true },
+  { "zenbones-theme/zenbones.nvim",       dependencies = { "rktjmp/lush.nvim" }, enabled = true },
   { "navarasu/onedark.nvim",              enabled = false },
   { "EdenEast/nightfox.nvim",             enabled = false },
 
@@ -94,7 +95,7 @@ return {
       pcall(vim.keymap.del, { "n", "x" }, "<leader>sr")
     end,
   },
-  { "folke/trouble.nvim",                 keys = {} },
+  { "folke/trouble.nvim", keys = {} },
   {
     "lewis6991/gitsigns.nvim",
     opts = {
