@@ -10,7 +10,7 @@ return {
       readme = { type = "project_file", command = "README.md", title = " README ", filetype = "markdown" },
       todo = { type = "project_file", command = "TODO.md", title = " Todo ", filetype = "markdown" },
       ["package.json"] = { type = "project_file", command = "package.json", title = " package.json ", filetype = "json" },
-      claude = { type = "terminal", command = "zsh -i -c kitty_session", title = "Claude Kitty Instance", terminal_passthrough_keys = { "\x1b[44;6u" }, keymap = "<leader>tc" },
+      claude = { type = "terminal", command = "zsh -i -c kitty_session", title = "Claude Kitty Instance", terminal_passthrough_keys = { "\x1b[44;6u", "\x17" }, keymap = "<leader>tc" },
       log = { type = "terminal", command = "tail -f ~/.local/state/nvim/run-ai-run.log", title = " run-ai-run log " }
     },
   },
