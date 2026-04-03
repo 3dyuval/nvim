@@ -16,7 +16,7 @@ return {
     name = "run-ai.run",
     dir = "/home/yuv/proj/run-ai.run.nvim",
     enabled = true,
-    cmd = { "Claude", "ClaudeSkillClaude" },
+    cmd = { "Claude", "ClaudeSkillClaude", "LlmReplace" },
     dependencies = {
       "3dyuval/colortweak.nvim",
       "nvim-lua/plenary.nvim",
@@ -40,6 +40,21 @@ return {
       })
 
       opts.on_sent = function() require("summon").open("claude") end
+
+      opts.providers = {
+        {
+          name = "theyuval",
+          base_url = "https://api.theyuval.com/ai/v1",
+          model_prefixes = { "theyuval/" },
+          auth_header = "Bearer",
+        },
+      }
+
+      opts.liter = {
+        api_key = os.getenv("API_KEY"),
+        model = "theyuval/qwen3-14b",
+      }
+
       require("run-ai-run").setup(opts)
     end,
   },
