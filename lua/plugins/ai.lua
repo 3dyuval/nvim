@@ -21,6 +21,7 @@ return {
       "3dyuval/colortweak.nvim",
       "nvim-lua/plenary.nvim",
       "folke/noice.nvim",
+      "olimorris/codecompanion.nvim"
     },
     opts = {
       skills_path = "/home/yuv/.config/nvim/.claude/skills",
@@ -39,8 +40,6 @@ return {
         ClaudeThinking = { "DiagnosticHint", { h = 15, s = 1.5 } },
       })
 
-      opts.on_sent = function() require("summon").open("claude") end
-
       opts.providers = {
         {
           name = "theyuval",
@@ -52,7 +51,7 @@ return {
 
       opts.liter = {
         api_key = os.getenv("API_KEY"),
-        model = "theyuval/qwen3-14b",
+        model = "theyuval/qwen3.5-9b:instruct",
       }
 
       require("run-ai-run").setup(opts)
