@@ -8,12 +8,11 @@ return {
     config = function()
       require("history-api").setup({
         create_commands = true,
-        enabled_browsers = { "chromium", "brave", "firefox", "zen" },
+        enabled_browsers = { "chromium", "brave" },
         browser_paths = {
+          chromium = "/home/yuv/.config/chromium/Default/History",
+          brave = "/home/yuv/.config/BraveSoftware/Brave-Browser/Default/History",
           firefox = "~/.mozilla/firefox/*.default-release/places.sqlite",
-          zen = "~/.zen/*/places.sqlite",
-          chromium = "~/.config/chromium/Default/History",
-          brave = "~/.config/BraveSoftware/Brave-Browser/Default/History",
         },
       })
     end,
