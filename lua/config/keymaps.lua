@@ -180,46 +180,47 @@ map({
     i = { cmd = "Neogit commit", desc = "Neogit commit" },
     I = { cmd = "AiCommit", desc = "AI commit popup" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
+    D = { cmd = "DiffviewOpen ", exec = false, desc = "Compare with branch" },
+    f = { cmd = "DiffviewFileHistory", desc = "File history" },
     s = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
-    D = { helpers.compare_current_file_with_branch, desc = "Compare current file with branch" },
-    f = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
+    x = { [mode] = { "n", "x" }, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk" },
+    X = { gs.reset_buffer, desc = "Reset Buffer" },
+    F = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
 
     z = { git.lazygit_root, desc = "Lazygit (Root Dir)" },
     Z = { git.lazygit_cwd, desc = "Lazygit (cwd)" },
     b = { git.git_branches_picker, desc = "Git branches (all)" },
     B = { git.git_branches_file_picker, desc = "Checkout file from branch" },
 
-    R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
-    P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },
-    O = { smart_diff.smart_resolve_theirs, desc = "Resolve file: theirs" },
-    U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
-  },
-
-  -- Gitsigns hunk operations
-  ["<leader>gh"] = {
-    group = "Hunks",
-    h = { cmd = ":DiffviewFileHistory %", desc = "Current file history" },
-    s = { [mode] = { "n", "x" }, cmd = "Gitsigns stage_hunk", desc = "Stage Hunk" },
-    r = { [mode] = { "n", "x" }, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk" },
-    S = { gs.stage_buffer, desc = "Stage Buffer" },
-    u = { gs.undo_stage_hunk, desc = "Undo Stage Hunk" },
-    R = { gs.reset_buffer, desc = "Reset Buffer" },
-    p = { gs.preview_hunk_inline, desc = "Preview Hunk Inline" },
-    b = {
-      function()
-        gs.blame_line({ full = true })
-      end,
-      desc = "Blame Line",
-    },
-    B = { gs.blame, desc = "Blame Buffer" },
-    d = { gs.diffthis, desc = "Diff This" },
-    D = {
+    -- R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
+    -- P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },
+    -- O = { smart_diff.smart_resolve_theirs, desc = "Resolve file: theirs" },
+    -- U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
+    ['!'] = {
       function()
         gs.diffthis("~")
       end,
       desc = "Diff This ~",
     },
+    ['?'] = {
+      function()
+        gs.blame_line({ full = true })
+      end,
+      desc = "Blame Line",
+    },
   },
+
+  -- Gitsigns hunk operations
+  -- ["<leader>gh"] = {
+  --   group = "Hunks",
+  -- h = { cmd = ":DiffviewFileHistory %", desc = "Current file history" },
+  -- s = { [mode] = { "n", "x" }, cmd = "Gitsigns stage_hunk", desc = "Stage Hunk" },
+  -- S = { gs.stage_buffer, desc = "Stage Buffer" },
+  -- u = { gs.undo_stage_hunk, desc = "Undo Stage Hunk" },
+  -- p = { gs.preview_hunk_inline, desc = "Preview Hunk Inline" },
+  -- B = { gs.blame, desc = "Blame Buffer" },
+  -- d = { gs.diffthis, desc = "Diff This" },
+  -- },
 
   ["<leader>u"] = {
     g = {
