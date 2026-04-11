@@ -29,7 +29,7 @@ return {
   { "rose-pine/neovim",            name = "rose-pine",  enabled = true },
   { "sainnhe/everforest",          enabled = true },
   { "alexmozaidze/palenight.nvim", enabled = true },
-  { "hylophile/flatwhite.nvim",    enabled = true },
+  { "hylophile/flatwhite.nvim",    enabled = false },
   {
     "loctvl842/monokai-pro.nvim",
     enabled = true,
@@ -43,44 +43,9 @@ return {
   { "bjarneo/aether.nvim",         enabled = true },
   { "bjarneo/hackerman.nvim",      enabled = true },
   { "Verf/deepwhite.nvim",         enabled = true },
+
   {
-    "3dyuval/colortweak.nvim",
-    lazy = false,
-    opts = {
-      ["deepwhite"] = {
-        patterns = {
-          ["@keyword.function"] = { h = 180, s = 0.5 },
-          ["leetcode_dyn_p nui.nvim"] = { l = 0.2 },
-        },
-      },
-    },
-  },
-  {
-    "3dyuval/retro-fallout.nvim",
-    dependencies = {
-      { "3dyuval/colortweak.nvim" },
-    },
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("retro-fallout").setup({
-        transparent = false,
-        dim_inactive = false,
-        dim_snacks_bg = true,
-        colors = {
-          dimmed = {
-            s = -100,
-          },
-        },
-        ft = {
-          yaml = {
-            h = 180,
-            s = 100,
-          },
-        },
-      })
-    end,
-  },
+    "3dyuval/retro-fallout.nvim" },
   { "briones-gabriel/darcula-solid.nvim", enabled = true },
   { "zenbones-theme/zenbones.nvim",       dependencies = { "rktjmp/lush.nvim" }, enabled = true },
   { "navarasu/onedark.nvim",              enabled = false },
