@@ -103,6 +103,16 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   command = "set filetype=ruby",
 })
 
+-- Elixir and Phoenix filetypes
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.ex", "*.exs" },
+  command = "set filetype=elixir",
+})
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.heex" },
+  command = "set filetype=heex",
+})
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "snacks_win", "snacks_picker", "snacks_explorer" },
   callback = function()

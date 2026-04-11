@@ -20,7 +20,7 @@ return {
       vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
     end,
     opts = function(_, opts)
-      vim.filetype.add({ extension = { ab = "amber" } })
+      vim.filetype.add({ extension = { ab = "amber", heex = "heex" } })
 
       opts.ensure_installed = {
         "lua",
@@ -39,6 +39,8 @@ return {
         "json",
         "yaml",
         "toml",
+        "elixir",
+        "heex",
       }
       opts.auto_install = true
       opts.highlight = {
