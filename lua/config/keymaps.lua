@@ -302,6 +302,9 @@ map({
     l = { clipboard.copy_file_path_with_line, desc = "Copy file path to clipboard" },
     L = { cmd = "YankLineUrl +", desc = "Copy file URL with line to clipboard" },
   },
+  [ctrl] = {
+    l = { clipboard.copy_lines, [mode] = { "n", "v" }, desc = "Copy lines (or selection)" },
+  },
 })
 
 -- noice keys override

@@ -76,4 +76,18 @@ M.copy_path_from_src = function()
   vim.notify("Copied: " .. relative)
 end
 
+M.copy_lines = function()
+  local mode = vim.fn.mode()
+  if mode == "v" or mode == "V" or mode == "\22" then
+    vim.fn.setreg("+", vim.fn.getreg("v"))
+    vim.notify("Copied selection to clipboard")
+  else
+    local start_line = vim.fn.line("'<")
+    local end_line = vim.fn.line("'>")
+    local lines = vim.fn.getline(start_line, end_line)
+    vim.fn.setreg("+", table.concat(lines, "\n"))
+    vim.notify("Copied lines " .. start_line .. "-" .. end_line .. " to clipboard")
+  end
+end
+
 return M
