@@ -26,9 +26,12 @@ vim.keymap.set({ "n", "o", "x" }, "p", ",", { desc = "Repeat find backward" })
 vim.keymap.set({ "n", "o", "x" }, ".", ";", { desc = "Repeat find forward" })
 
 -- Insert/append
-vim.keymap.set({ "n" }, "R", "I", { desc = "Insert at start of line" })
+vim.keymap.set({ "n" }, "0", "I", { desc = "Insert at start of line" })
 vim.keymap.set({ "n" }, "T", "A", { desc = "Insert at end of line" })
 vim.keymap.set({ "n" }, "b", "R", { desc = "Replace mode" })
+
+-- Insert mode while deleting to end of line (W = C = change to end)
+vim.keymap.set({ "n" }, "R", "W", { desc = "Change to end of line + insert" })
 vim.keymap.set({ "v" }, "B", "r", { desc = "Replace selected text" })
 
 -- Jumplist navigation
