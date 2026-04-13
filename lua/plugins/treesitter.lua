@@ -41,6 +41,7 @@ return {
         "toml",
         "elixir",
         "heex",
+        "vue",
       }
       opts.auto_install = true
       opts.highlight = {
