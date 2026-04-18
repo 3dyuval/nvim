@@ -50,8 +50,24 @@ end
 
 M.copy_file_path_with_line = function()
   local file_path = vim.fn.expand("%:p")
-  local line_number = vim.fn.line(".")
-  local path_with_line = file_path .. ":" .. line_number
+  local mode = vim.fn.mode()
+  local start_line, end_line
+
+  if mode == "v" or mode == "V" or mode == "\22" then
+    start_line = vim.fn.line("v")
+    end_line = vim.fn.line(".")
+  else
+    start_line = vim.fn.line(".")
+    end_line = start_line
+  end
+
+  local path_with_line
+  if start_line == end_line then
+    path_with_line = file_path .. ":" .. start_line
+  else
+    path_with_line = file_path .. ":" .. start_line .. ":" .. end_line
+  end
+
   vim.fn.setreg("+", path_with_line)
   vim.notify("Copied: " .. path_with_line)
 end

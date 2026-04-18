@@ -279,6 +279,7 @@ map({
 
 map({
   ["<leader>p"] = {
+    [mode] = { "n", "v" },
     c = { clipboard.copy_file_path, desc = "Copy file path (relative to cwd)" },
     p = { clipboard.copy_file_path_from_home, desc = "Copy file path (from home)" },
     n = { clipboard.copy_file_name, desc = "Copy file name" },
