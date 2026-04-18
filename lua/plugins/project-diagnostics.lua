@@ -152,6 +152,7 @@ return {
         -- Populate diagnostics for all clients
         local file_count = 0
         for _, client in pairs(clients) do
+          if not client.config.filetypes then goto continue end
           vim.schedule(function()
             vim.notify("Scanning workspace for " .. client.name .. " diagnostics...", vim.log.levels.INFO)
           end)
@@ -167,6 +168,7 @@ return {
             end
           end
           file_count = file_count + client_files
+          ::continue::
         end
 
         if file_count > 0 then
@@ -193,7 +195,7 @@ return {
       group = vim.api.nvim_create_augroup("ProjectDiagnostics", { clear = true }),
       callback = function(args)
         local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if client and args.buf and vim.api.nvim_buf_is_valid(args.buf) then
+        if client and client.config.filetypes and args.buf and vim.api.nvim_buf_is_valid(args.buf) then
           pcall(workspace_diagnostics.populate_workspace_diagnostics, client)
         end
       end,
