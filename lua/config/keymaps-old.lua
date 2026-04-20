@@ -114,8 +114,8 @@ remap("n", "]]", "]x", { desc = "Next git conflict" })
 -- TILL/FIND
 -- ============================================================================
 
-vim.keymap.set({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
-vim.keymap.set({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
+vim.keymap.set({ "n", "o", "x" }, "u", "t", { desc = "Till before" })
+vim.keymap.set({ "n", "o", "x" }, "U", "T", { desc = "Till before backward" })
 
 -- ============================================================================
 -- MACROS

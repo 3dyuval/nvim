@@ -33,7 +33,8 @@ return {
         sh = { "curl", "jq", "lsp", "path", "buffer" },
         bash = { "curl", "jq", "lsp", "path", "buffer" },
         zsh = { "curl", "jq", "lsp", "path", "buffer" },
-        amber = { "curl", "jq", "lsp", "path", "buffer" }
+        amber = { "curl", "jq", "lsp", "path", "buffer" },
+        AvanteInput = { "avante_commands", "avante_mentions", "avante_files", "avante_shortcuts" },
       },
       providers = {
         choice = {
@@ -82,6 +83,30 @@ return {
           name = "Spell",
           module = "blink-cmp-spell",
           opts = {}
+        },
+        avante_commands = {
+          name = "avante_commands",
+          module = "blink.compat.source",
+          score_offset = 90,
+          opts = {}
+        },
+        avante_files = {
+          name = "avante_files",
+          module = "blink.compat.source",
+          score_offset = 100,
+          opts = {}
+        },
+        avante_mentions = {
+          name = "avante_mentions",
+          module = "blink.compat.source",
+          score_offset = 1000,
+          opts = {}
+        },
+        avante_shortcuts = {
+          name = "avante_shortcuts",
+          module = "blink.compat.source",
+          score_offset = 1000,
+          opts = {}
         }
       }
     },
@@ -99,12 +124,14 @@ return {
         ["<Up>"] = { "select_prev", "fallback" },
         ["<Down>"] = { "select_next", "fallback" },
         ["<Tab>"] = { "accept", "fallback" },
-        ["<C-e>"] = { "cancel", "fallback" }
+        ["<C-e>"] = { "cancel", "fallback" },
+        ["<C-p>"] = { "select_prev", "fallback" },
+        ["<C-n>"] = { "select_next", "fallback" },
       },
       completion = {
         list = {
           selection = {
-            preselect = false
+            preselect = true
           }
         },
         menu = {
@@ -141,6 +168,12 @@ return {
           }
         }
       }
+    },
+    compat = {
+      "avante_commands",
+      "avante_mentions",
+      "avante_files",
+      "avante_shortcuts",
     }
   }
 }

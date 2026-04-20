@@ -364,7 +364,6 @@ map({
 
 map({
   ["<leader>sr"] = { function() Snacks.picker.recent() end, desc = "Recent files" },
-  ["<leader>sS"] = { function() require("persistence").select() end, desc = "Recent sessions" },
   [ctrl] = {
     r = {
       function()
@@ -431,18 +430,18 @@ map({
 })
 
 -- Claude Code keymaps
-map({
-  ["<leader>a"] = {
-    group = "AI/Claude",
-    p = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
-    c = { function() require("summon").open("claude") end, desc = "Toggle Claude" },
-    f = { function() require("summon").open("claude") end, desc = "Focus Claude" },
-    m = { cmd = "ClaudeCodeSelectModel", desc = "Select model" },
-    s = { [mode] = { "n", "v" }, cmd = "ClaudeCodeSend", desc = "Send selection to Claude" },
-    r = { cmd = "ClaudeCodeDiffAccept", desc = "Accept diff" },
-    l = { cmd = "ClaudeCodeDiffDeny", desc = "Deny diff" },
-  },
-})
+-- map({
+--   ["<leader>a"] = {
+--     group = "AI/Claude",
+--     p = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
+--     c = { function() require("summon").open("claude") end, desc = "Toggle Claude" },
+--     f = { function() require("summon").open("claude") end, desc = "Focus Claude" },
+--     m = { cmd = "ClaudeCodeSelectModel", desc = "Select model" },
+--     s = { [mode] = { "n", "v" }, cmd = "ClaudeCodeSend", desc = "Send selection to Claude" },
+--     r = { cmd = "ClaudeCodeDiffAccept", desc = "Accept diff" },
+--     l = { cmd = "ClaudeCodeDiffDeny", desc = "Deny diff" },
+--   },
+-- })
 
 map({
   ["]t"] = { require("todo-comments").jump_next, desc = "Next Todo Comment" },
