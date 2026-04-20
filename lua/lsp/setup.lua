@@ -8,7 +8,7 @@ vim.lsp.config('*', {
 
 -- Enable all your servers
 vim.lsp.enable({
-  'lua_ls', 'rust_analyzer', 'vtsls', 'vue_ls', 'elixirls', 'bashls',
+  'lua_ls', 'rust_analyzer', 'vtsls', 'vue_ls', 'elixirls', 'bashls', 'cssls',
 })
 
 -- Server-specific settings
@@ -117,6 +117,15 @@ vim.lsp.config('bashls', {
       shellcheckPath = 'shellcheck',
       globPattern = '**/*@(.sh|.inc|.bash|.command)',
     },
+  },
+})
+
+vim.lsp.config('cssls', {
+  filetypes = { 'css', 'scss', 'less', 'vue' },
+  settings = {
+    css = { validate = true },
+    scss = { validate = true },
+    less = { validate = true },
   },
 })
 

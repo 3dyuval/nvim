@@ -42,7 +42,7 @@ return {
   { "tahayvr/matteblack.nvim",     enabled = true },
   { "bjarneo/aether.nvim",         enabled = true },
   { "bjarneo/hackerman.nvim",      enabled = true },
-  { "Verf/deepwhite.nvim",         enabled = true },
+  { "3dyuval/flatdeep.nvim",      enabled = true},
 
   {
     "3dyuval/retro-fallout.nvim" },

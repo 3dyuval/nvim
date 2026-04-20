@@ -42,6 +42,8 @@ return {
         "elixir",
         "heex",
         "vue",
+        "css",
+        "scss",
       }
       opts.auto_install = true
       opts.highlight = {
