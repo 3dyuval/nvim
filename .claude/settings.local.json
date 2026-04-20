@@ -19,5 +19,7 @@
     "react-native-debugger-mcp",
     "tavily",
     "mcp-deepwiki"
-  ]
+  ],
+  "spinnerTipsEnabled": false,
+  "prefersReducedMotion": true
 }
