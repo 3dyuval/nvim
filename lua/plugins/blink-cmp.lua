@@ -8,7 +8,8 @@ return {
   dependencies = {
     "ribru17/blink-cmp-spell",
     "becknik/blink-cmp-luasnip-choice",
-    "archie-judd/blink-cmp-words"
+    "archie-judd/blink-cmp-words",
+    { "saghen/blink.compat", version = "*", opts = {} },
   },
 
   opts = {
