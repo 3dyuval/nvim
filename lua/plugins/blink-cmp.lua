@@ -5,6 +5,7 @@ return {
     enabled = false
   }, {
   "saghen/blink.cmp",
+  enabled = false,
   dependencies = {
     "ribru17/blink-cmp-spell",
     "becknik/blink-cmp-luasnip-choice",

@@ -1,6 +1,7 @@
 return {
   "3dyuval/acp.nvim",
   dev = true,
+  enabled = false,
   dependencies = { "nvim-lua/plenary.nvim", "paulburgess1357/nvim-mcp" },
   config = function()
     require("acp").config({
