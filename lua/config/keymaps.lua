@@ -33,9 +33,9 @@ map({
   ["e"] = { "k", desc = "Up" },
   ["a"] = { "j", desc = "Down" },
   ["i"] = { "l", desc = "Right" },
-  ["0"] = { "0", desc = "Beginning of line" },
-  ["."] = { ";", desc = "Repeat find forward" },
-  ["p"] = { ",", desc = "Repeat find backward" },
+  -- ["0"] = { "0", desc = "Beginning of line" },
+  -- ["."] = { ";", desc = "Repeat find forward" },
+  -- ["p"] = { ",", desc = "Repeat find backward" },
 })
 
 -- Cmdline: arrow keys navigate wildmenu suggestions
@@ -59,22 +59,22 @@ map({
   ["gz"] = { "U", desc = "Undo line", remap = true },
 })
 
--- Copy/Paste/Yank
-map({
-  [mode] = { "n", "o", "x" },
-  c = { "y", desc = "Yank (copy)" },
-})
-map({
-  C = { "y$", desc = "Yank to end of line" },
-  v = { "p", desc = "Paste" },
-  V = { "P", desc = "Paste before" },
-})
-map({
-  [mode] = { "x" },
-  C = { "y", desc = "Yank selection" },
-  v = { "P", desc = "Paste (keep register)" },
-  V = { "P", desc = "Paste before (keep register)" },
-})
+-- -- Copy/Paste/Yank
+-- map({
+--   [mode] = { "n", "o", "x" },
+--   c = { "y", desc = "Yank (copy)" },
+-- })
+-- map({
+--   C = { "y$", desc = "Yank to end of line" },
+--   v = { "p", desc = "Paste" },
+--   V = { "P", desc = "Paste before" },
+-- })
+-- map({
+--   [mode] = { "x" },
+--   C = { "y", desc = "Yank selection" },
+--   v = { "P", desc = "Paste (keep register)" },
+--   V = { "P", desc = "Paste before (keep register)" },
+-- })
 
 map({
   [mode] = { "o", "x" },
@@ -196,13 +196,13 @@ map({
     -- P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },
     -- O = { smart_diff.smart_resolve_theirs, desc = "Resolve file: theirs" },
     -- U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
-    ['!'] = {
+    ["!"] = {
       function()
         gs.diffthis("~")
       end,
       desc = "Diff This ~",
     },
-    ['?'] = {
+    ["?"] = {
       function()
         gs.blame_line({ full = true })
       end,
@@ -290,7 +290,7 @@ map({
     g = {
       function()
         local path =
-            vim.fn.system("git ls-files --full-name " .. vim.fn.shellescape(vim.fn.expand("%:p"))):gsub("\n", "")
+          vim.fn.system("git ls-files --full-name " .. vim.fn.shellescape(vim.fn.expand("%:p"))):gsub("\n", "")
         vim.fn.setreg("+", path)
         vim.notify("Copied: " .. path, vim.log.levels.INFO)
       end,
@@ -363,7 +363,12 @@ map({
 })
 
 map({
-  ["<leader>sr"] = { function() Snacks.picker.recent() end, desc = "Recent files" },
+  ["<leader>sr"] = {
+    function()
+      Snacks.picker.recent()
+    end,
+    desc = "Recent files",
+  },
   [ctrl] = {
     r = {
       function()
@@ -497,8 +502,18 @@ map({
   },
 
   ["<leader>s"] = {
-    t = { function() require("utils.picker-extensions").open_explorer({ layout = { preset = "sidebar" } }) end, desc = "Explorer (sidebar)" },
-    l = { function() Snacks.picker.lines() end, desc = "Search buffer lines" },
+    t = {
+      function()
+        require("utils.picker-extensions").open_explorer({ layout = { preset = "sidebar" } })
+      end,
+      desc = "Explorer (sidebar)",
+    },
+    l = {
+      function()
+        Snacks.picker.lines()
+      end,
+      desc = "Search buffer lines",
+    },
     K = { cmd = "KMUInspect", exec = true, desc = "KMU only inspect" },
     D = { cmd = "ProjectDiagnostics", desc = "Project Diagnostics" },
     F = { search.grug_far_current_file, desc = "Search/Replace in current file (Grug-far)" },

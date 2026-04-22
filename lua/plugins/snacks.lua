@@ -25,9 +25,9 @@ return {
       gh = {
         keys = {
           comment = false, -- Disable "a" for "Add Comment" - conflicts with Graphite down
-          close = false,   -- Disable "c" for "Close" - conflicts with Graphite copy
-          edit = false,    -- Disable "i" for "Edit" - conflicts with Graphite right
-          reopen = false,  -- Disable "o" for "Reopen" - conflicts with vim open line
+          close = false, -- Disable "c" for "Close" - conflicts with Graphite copy
+          edit = false, -- Disable "i" for "Edit" - conflicts with Graphite right
+          reopen = false, -- Disable "o" for "Reopen" - conflicts with vim open line
         },
       },
       input = {
@@ -183,10 +183,10 @@ return {
       dashboard = {
         enabled = false, -- We'll handle this manually
         sections = {
-          { section = "header",   enabled = true },
-          { section = "projects", padding = 1,    limit = 8 },
-          { section = "keys",     gap = 0,        padding = 1 },
-          { section = "startup",  enabled = false },
+          { section = "header", enabled = true },
+          { section = "projects", padding = 1, limit = 8 },
+          { section = "keys", gap = 0, padding = 1 },
+          { section = "startup", enabled = false },
         },
         preset = {
           header = [[
@@ -215,18 +215,31 @@ return {
                 action = ":lua Snacks.dashboard.pick('oldfiles')",
               },
               { icon = "󰰍", key = "l", desc = "LeetCode", action = ":Leet" },
-              { icon = "", key = "c", desc = "Nvim Config", action = function() vim.cmd("cd ~/.config/nvim | e .") end },
-              { icon = "󰠔", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
+              {
+                icon = "",
+                key = "c",
+                desc = "Nvim Config",
+                action = function()
+                  vim.cmd("cd ~/.config/nvim | e .")
+                end,
+              },
+              {
+                icon = "󰠔",
+                key = "p",
+                desc = "Projects",
+                action = function()
+                  Snacks.picker.projects()
+                end,
+              },
               {
                 icon = "󰁯",
                 key = "s",
                 desc = "Restore Session",
                 action = function()
                   vim.schedule(function()
-                    require(
-                      "persistence").load()
+                    require("persistence").load()
                   end)
-                end
+                end,
               },
               { icon = "󰈆", key = "q", desc = "Quit", action = ":qa!" },
             },
@@ -270,10 +283,10 @@ return {
             keys = {
               ["<Esc>"] = { "close", mode = { "n" } },
               ["<C-p>"] = "toggle_preview", -- Toggle preview globally
-              ["a"] = "list_down",          -- Remap 'a' to down movement (HAEI layout)
-              ["<C-a>"] = false,            -- Disable select all - it's distracting
-              ["y"] = "copy",               -- Universal copy action (context-aware)
-              ["<C-l>"] = "toggle_layout",  -- Toggle layout globally
+              ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
+              ["<C-a>"] = false, -- Disable select all - it's distracting
+              ["y"] = "copy", -- Universal copy action (context-aware)
+              ["<C-l>"] = "toggle_layout", -- Toggle layout globally
             },
           },
         },
@@ -368,29 +381,29 @@ return {
               list = {
                 keys = {
                   ["<CR>"] = "confirm_multi", -- Confirm with multi-select warning
-                  ["<BS>"] = false,           -- Disable backspace navigation
-                  ["a"] = "list_down",        -- Remap 'a' to down movement (HAEI layout)
-                  ["c"] = "explorer_copy",    -- Copy file/folder
-                  ["C"] = "explorer_copy",    -- Copy file/folder
+                  ["<BS>"] = false, -- Disable backspace navigation
+                  ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
+                  ["c"] = "explorer_copy", -- Copy file/folder
+                  ["C"] = "explorer_copy", -- Copy file/folder
                   ["/"] = "toggle_focus",
                   ["<C-c>"] = "focus_input",
-                  ["<C-a>"] = false,                    -- Disable select all - it's distracting
+                  ["<C-a>"] = false, -- Disable select all - it's distracting
                   ["p"] = "copy_file_path",
-                  ["g"] = "search_in_directory",        -- Opens a grep snacks
-                  ["i"] = "explorer_expand",            -- Expand directory (Graphite: i=right)
-                  ["h"] = "explorer_close",             -- Collapse directory (Graphite: h=left)
-                  ["o"] = "explorer_open",              -- Open with system app
+                  ["g"] = "search_in_directory", -- Opens a grep snacks
+                  ["i"] = "explorer_expand", -- Expand directory (Graphite: i=right)
+                  ["h"] = "explorer_close", -- Collapse directory (Graphite: h=left)
+                  ["o"] = "explorer_open", -- Open with system app
                   -- Git status navigation (Graphite layout: A=down/next, E=up/prev)
-                  ["A"] = "explorer_git_next",          -- Next git status file
-                  ["E"] = "explorer_git_prev",          -- Previous git status file
+                  ["A"] = "explorer_git_next", -- Next git status file
+                  ["E"] = "explorer_git_prev", -- Previous git status file
                   -- Conflict navigation (using error navigation as proxy for conflicts)
-                  ["]]"] = "explorer_warn_next",        -- Next conflict/error
-                  ["[["] = "explorer_error_prev",       -- Previous conflict/error
-                  ["d"] = false,                        -- Disable default 'd' delete binding
+                  ["]]"] = "explorer_warn_next", -- Next conflict/error
+                  ["[["] = "explorer_error_prev", -- Previous conflict/error
+                  ["d"] = false, -- Disable default 'd' delete binding
                   ["D"] = "diff",
-                  ["r"] = "explorer_add",               -- Create file/folder
-                  ["x"] = "explorer_del",               -- Delete file/folder (Graphite layout)
-                  ["R"] = "explorer_rename",            -- Rename on 'R',
+                  ["r"] = "explorer_add", -- Create file/folder
+                  ["x"] = "explorer_del", -- Delete file/folder (Graphite layout)
+                  ["R"] = "explorer_rename", -- Rename on 'R',
                   ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
                   ["f"] = "context_menu",
                   ["T"] = "toggle_tree",
@@ -598,9 +611,9 @@ return {
     },
     keys = {
       -- Disable LazyVim defaults that conflict with our explicit keymaps
-      { "<leader>n",  false }, -- We define this explicitly in keymaps.lua for notes
+      { "<leader>n", false }, -- We define this explicitly in keymaps.lua for notes
       { "<leader>ff", false }, -- Disable LazyVim Find Files - we use fff
-      { "<leader>e",  false }, -- Disable LazyVim Explorer - we use <leader><leader>
+      { "<leader>e", false }, -- Disable LazyVim Explorer - we use <leader><leader>
       { "<leader>fe", false }, -- Disable LazyVim Explorer (root dir)
 
       -- {

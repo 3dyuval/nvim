@@ -81,11 +81,11 @@ end
 -- Centralized key bindings table for file-history.nvim integration
 M.file_history_key_bindings = {
   revert_to_selected = "<C-Enter>", -- Revert: Ctrl+Enter for destructive action
-  open_file_diff_tab = "<M-f>",     -- File diff: Alt+f (file focus)
-  open_buffer_diff_tab = "<M-b>",   -- Buffer diff: Alt+b (buffer focus)
-  toggle_incremental = "<M-i>",     -- Incremental: Alt+i (incremental)
-  delete_history = "<M-x>",         -- Delete: Alt+x (delete/remove)
-  purge_history = "<M-p>",          -- Purge: Alt+p (purge/permanent)
+  open_file_diff_tab = "<M-f>", -- File diff: Alt+f (file focus)
+  open_buffer_diff_tab = "<M-b>", -- Buffer diff: Alt+b (buffer focus)
+  toggle_incremental = "<M-i>", -- Incremental: Alt+i (incremental)
+  delete_history = "<M-x>", -- Delete: Alt+x (delete/remove)
+  purge_history = "<M-p>", -- Purge: Alt+p (purge/permanent)
 }
 
 -- Simple history operations

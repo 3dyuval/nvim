@@ -7,8 +7,8 @@ return {
     opts = {
       actions = {
         {
-          label  = "Copy date",
-          key    = "y",
+          label = "Copy date",
+          key = "y",
           action = function(item)
             vim.fn.setreg("+", item.date)
             vim.notify("Copied: " .. item.date)

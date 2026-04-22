@@ -21,14 +21,14 @@ vim.keymap.set({ "n" }, "j", "o", { desc = "Open line below" })
 vim.keymap.set({ "n" }, "J", "O", { desc = "Open line above" })
 
 -- Beginning/end of line
-vim.keymap.set({ "n", "o", "x" }, "0", "0", { desc = "Beginning of line" })
-vim.keymap.set({ "n", "o", "x" }, "p", ",", { desc = "Repeat find backward" })
-vim.keymap.set({ "n", "o", "x" }, ".", ";", { desc = "Repeat find forward" })
+-- vim.keymap.set({ "n", "o", "x" }, "0", "0", { desc = "Beginning of line" })
+-- vim.keymap.set({ "n", "o", "x" }, "p", ",", { desc = "Repeat find backward" })
+-- vim.keymap.set({ "n", "o", "x" }, ".", ";", { desc = "Repeat find forward" })
 
 -- Insert/append
-vim.keymap.set({ "n" }, "0", "I", { desc = "Insert at start of line" })
-vim.keymap.set({ "n" }, "T", "A", { desc = "Insert at end of line" })
-vim.keymap.set({ "n" }, "b", "R", { desc = "Replace mode" })
+-- vim.keymap.set({ "n" }, "0", "I", { desc = "Insert at start of line" })
+-- vim.keymap.set({ "n" }, "T", "A", { desc = "Insert at end of line" })
+-- vim.keymap.set({ "n" }, "b", "R", { desc = "Replace mode" })
 
 -- Insert mode while deleting to end of line (W = C = change to end)
 vim.keymap.set({ "n" }, "R", "W", { desc = "Change to end of line + insert" })
@@ -96,8 +96,8 @@ vim.keymap.set({ "n", "x" }, "W", "C", { desc = "Change to end of line" })
 -- ============================================================================
 
 vim.keymap.set({ "n", "x" }, "n", "v", { desc = "Visual mode" })
-vim.keymap.set({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
-vim.keymap.set({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
+-- vim.keymap.set({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
+-- vim.keymap.set({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
 -- ============================================================================
 -- SEARCH
@@ -178,7 +178,7 @@ vim.keymap.set({ "n" }, "<F2>", "ggVG", { desc = "Select all" })
 -- PASTE INLINE
 -- ============================================================================
 
-vim.keymap.set({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" })
+-- vim.keymap.set({ "n", "x" }, "-", editor.paste_inline, { desc = "Paste inline" })
 
 -- ============================================================================
 -- TEXT OBJECTS

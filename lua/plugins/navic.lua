@@ -1,8 +1,9 @@
 return {
   "SmiteshP/nvim-navic",
   lazy = true,
-  init = function() vim.g.navic_silence = true end
-  ,
+  init = function()
+    vim.g.navic_silence = true
+  end,
   opts = {
     separator = " > ",
     highlight = true,
@@ -11,13 +12,18 @@ return {
     safe_output = true,
     lazy_update_context = false,
     click = false,
-    format_text = function(text) return text end
-    ,
+    format_text = function(text)
+      return text
+    end,
     lsp = {
       auto_attach = true,
       preference = {
-        "vue_ls", "vtsls", "lua-language-server", "rust_analyzer", "elixis-ls"
-      }
+        "vue_ls",
+        "vtsls",
+        "lua-language-server",
+        "rust_analyzer",
+        "elixis-ls",
+      },
     },
     -- Remove icons (text-only)
     icons = {
@@ -46,7 +52,7 @@ return {
       Struct = "",
       Event = "",
       Operator = "",
-      TypeParameter = ""
-    }
-  }
+      TypeParameter = "",
+    },
+  },
 }

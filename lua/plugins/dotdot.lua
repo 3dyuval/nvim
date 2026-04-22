@@ -12,12 +12,16 @@ return {
           {
             id = "explorer",
             title = "Open Explorer",
-            run = function() px.open_explorer() end,
+            run = function()
+              px.open_explorer()
+            end,
           },
           {
             id = "git_conflicts",
             title = "Git Conflicts",
-            run = function() px.git_conflicts() end,
+            run = function()
+              px.git_conflicts()
+            end,
           },
         },
       }
