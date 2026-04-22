@@ -1,9 +1,7 @@
 return {
   "dmtrKovalenko/fff.nvim",
-  enabled = true,
-  build = function()
-    require("fff.download").download_or_build_binary()
-  end,
+  enabled = false,
+  version = "v0.6.0",
   opts = {
     base_path = vim.fn.getcwd(),
     max_results = 100,

@@ -1,5 +1,5 @@
 --QImport utility modules
-local cli = require("utils.cli")
+-- local cli = require("utils.cli")
 local clipboard = require("utils.clipboard")
 local code = require("utils.code")
 local editor = require("utils.editor")
@@ -152,7 +152,7 @@ map({
       if vim.wo.diff then
         vim.cmd.normal({ "]c", bang = true })
       else
-        gs.next_hunk()
+        -- gs.next_hunk()
       end
     end,
     desc = "Next git hunk",
@@ -162,7 +162,7 @@ map({
       if vim.wo.diff then
         vim.cmd.normal({ "[c", bang = true })
       else
-        gs.prev_hunk()
+        -- gs.prev_hunk()
       end
     end,
     desc = "Prev git hunk",
@@ -229,13 +229,6 @@ map({
       n = { cmd = "Gitsigns toggle_numhl", desc = "Toggle number highlights" },
       w = { cmd = "Gitsigns toggle_word_diff", desc = "Toggle word diff" },
       b = { cmd = "Gitsigns toggle_current_line_blame", desc = "Toggle current line blame" },
-    },
-    s = {
-      function()
-        vim.opt_local.spell = not vim.opt_local.spell:get()
-        vim.notify("Spell: " .. (vim.opt_local.spell:get() and "on" or "off"))
-      end,
-      desc = "Toggle spell checking",
     },
     l = { require("lensline").toggle_view, desc = "Toggle lensline" },
   },
@@ -467,7 +460,7 @@ map({
   ["[q"] = {
     function()
       if require("trouble").is_open() then
-        require("trouble").prev({ skip_groups = true, jump = true })
+        -- require("trouble").prev({ skip_groups = true, jump = true })
       else
         local ok, err = pcall(vim.cmd.cprev)
         if not ok then
@@ -480,7 +473,7 @@ map({
   ["]q"] = {
     function()
       if require("trouble").is_open() then
-        require("trouble").next({ skip_groups = true, jump = true })
+        -- require("trouble").next({ skip_groups = true, jump = true })
       else
         local ok, err = pcall(vim.cmd.cnext)
         if not ok then
@@ -738,7 +731,7 @@ map({
     n = { cmd = "ObsidianNew", desc = "New note [title]", icon = "" },
     N = {
       function()
-        vim.api.nvim_feedkeys(os.date(":ObsidianNew %y-%m-%d "), "n", false)
+        -- vim.api.nvim_feedkeys(os.date(":ObsidianNew %y-%m-%d "), "n", false)
       end,
       desc = "New note [YY-MM-DD-title]",
       icon = "",
@@ -764,25 +757,25 @@ map({
   ["<leader>N"] = { notes.create_inbox_note, desc = "New note in inbox" },
 })
 
--- Vue SFC navigation (buffer-local)
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "vue",
-  callback = function(args)
-    local map = kmu.create_smart_map()
-    map({
-      g = {
-        t = { code.goto_template, desc = "Go to template", buffer = args.buf },
-        T = { code.goto_style, desc = "Go to style", buffer = args.buf },
-      },
-    })
-  end,
-})
+-- -- Vue SFC navigation (buffer-local)
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = "vue",
+--   callback = function(args)
+--     local map = kmu.create_smart_map()
+--     map({
+--       g = {
+--         t = { code.goto_template, desc = "Go to template", buffer = args.buf },
+--         T = { code.goto_style, desc = "Go to style", buffer = args.buf },
+--       },
+--     })
+--   end,
+-- })
 
 kmu.register_groups()
 
 kmu.setup_inspect()
 
-require("config.keymaps.modes")
-require("config.keymaps.insert")
-require("config.keymaps.terminal")
+-- require("config.keymaps.modes")
+-- require("config.keymaps.insert")
+-- require("config.keymaps.terminal")
 require("config.keymaps-old")
