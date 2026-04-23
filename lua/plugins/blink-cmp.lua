@@ -2,10 +2,10 @@ return {
   -- Disable friendly-snippets (use only custom snippets)
   {
     "rafamadriz/friendly-snippets",
-    enabled = false
+    enabled = true
   }, {
   "saghen/blink.cmp",
-  enabled = false,
+  enabled = true,
   dependencies = {
     "ribru17/blink-cmp-spell",
     "becknik/blink-cmp-luasnip-choice",
@@ -171,12 +171,7 @@ return {
         }
       }
     },
-    compat = {
-      "avante_commands",
-      "avante_mentions",
-      "avante_files",
-      "avante_shortcuts",
-    }
+  
   }
 }
 }

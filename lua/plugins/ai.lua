@@ -1,7 +1,7 @@
 return {
     {
         "coder/claudecode.nvim",
-        dev = true,
+        dev = false,
         opts = {
 
             terminal = {
@@ -15,7 +15,7 @@ return {
     {
         name = "run-ai.run",
         dir = "/home/yuv/proj/run-ai.run.nvim",
-        enabled = true,
+        enabled = false,
         cmd = { "LlmReplace" },
         dependencies = {
             "3dyuval/colortweak.nvim",
@@ -79,9 +79,9 @@ return {
     {
         "yetone/avante.nvim",
         enabled = false,
+        version = false,
         build = "make",
         event = "VeryLazy",
-        version = false,
         dependencies = {
             "nvim-lua/plenary.nvim",
             "MunifTanjim/nui.nvim",
@@ -130,7 +130,7 @@ return {
                 width = 30,
             },
             input = {
-                provider = "dressing",
+                provider = "snacks",
             },
             selector = {
                 provider = "snacks",

@@ -13,6 +13,8 @@ if not vim.uv.fs_stat(hotpot_path) then
 end
 vim.opt.runtimepath:prepend(hotpot_path)
 package.path = hotpot_path .. "/lua/?.lua;" .. hotpot_path .. "/lua/?/init.lua;" .. package.path
-require("hotpot")
+require("hotpot").setup()
+-- Treesitter stack: managed via vim.pack, must run before lazy
+require("plugins.treesitter")
 -- Plugins
 require("config.lazy")
