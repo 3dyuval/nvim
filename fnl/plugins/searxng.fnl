@@ -1,3 +1,3 @@
-{1 "3dyuval/searxng.nvim",
+{1 "3dyuval/searxng.nvim"
  :dir "~/proj/searxng.nvim"
  :enabled false}

@@ -13,6 +13,14 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   end
 end
 vim.opt.rtp:prepend(lazypath)
+
+-- Hotpot's compiled fennel cache must be on rtp; lazy resets rtp by default
+local hotpot_dest
+do
+  local ok, ctx = pcall(require("hotpot.api").context, vim.fn.stdpath("config"))
+  if ok and ctx then hotpot_dest = ctx.locate("destination") end
+end
+
 require("lazy").setup({
   spec = {
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
@@ -37,6 +45,7 @@ require("lazy").setup({
   }, -- automatically check for plugin updates
   performance = {
     rtp = {
+      paths = hotpot_dest and { hotpot_dest } or {},
       -- disable some rtp plugins
       disabled_plugins = {
         "gzip",

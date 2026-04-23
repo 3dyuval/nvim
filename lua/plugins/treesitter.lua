@@ -12,55 +12,53 @@ return {
   },
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
+    build = ":TSUpdate",
     dependencies = {
-      "RRethy/nvim-treesitter-endwise", -- Auto-insert 'end' in Ruby, Lua, etc.
+      "RRethy/nvim-treesitter-endwise",
     },
     init = function()
-      -- Add parser directory to runtimepath before treesitter loads
       vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
     end,
-    opts = function(_, opts)
+    config = function()
       vim.filetype.add({ extension = { ab = "amber", heex = "heex" } })
 
-      opts.ensure_installed = {
-        "lua",
-        "vim",
-        "vimdoc",
-        "query",
-        "markdown",
-        "markdown_inline",
-        "go",
-        "rust",
-        "ruby",
-        "javascript",
-        "typescript",
-        "python",
-        "bash",
-        "json",
-        "yaml",
-        "toml",
-        "elixir",
-        "heex",
-        "vue",
-        "css",
-        "scss",
+      local ensure_installed = {
+        "lua", "vim", "vimdoc", "query",
+        "markdown", "markdown_inline",
+        "go", "rust", "ruby",
+        "javascript", "typescript", "tsx",
+        "python", "bash",
+        "json", "yaml", "toml",
+        "elixir", "heex",
+        "vue", "css", "scss",
+        "html",
       }
-      opts.auto_install = true
-      opts.highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-      }
-      opts.indent = { enable = true }
-      opts.endwise = { enable = true }
-      opts.incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<C-space>",
-          node_incremental = "<C-space>",
-          scope_incremental = false,
-          node_decremental = "<bs>",
-        },
-      }
+
+      require("nvim-treesitter").setup({
+        install_dir = vim.fn.stdpath("data") .. "/site",
+      })
+
+      local installed = require("nvim-treesitter.config").get_installed("parsers")
+      local lookup = {}
+      for _, p in ipairs(installed) do lookup[p] = true end
+      local to_install = {}
+      for _, p in ipairs(ensure_installed) do
+        if not lookup[p] then table.insert(to_install, p) end
+      end
+      if #to_install > 0 then
+        require("nvim-treesitter").install(to_install)
+      end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(ev)
+          local lang = vim.treesitter.language.get_lang(ev.match) or ev.match
+          if not pcall(vim.treesitter.start, ev.buf, lang) then return end
+          vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+        end,
+      })
     end,
   },
   {
