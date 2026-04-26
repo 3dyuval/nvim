@@ -7,8 +7,12 @@ return {
 
     commands = {
       terminal = {
-   key = "<leader>tr",
-        type = "terminal", command = "zsh", title = " Terminal ", terminal_passthrough_keys = { "\x17" } },
+        key = "<leader>tr",
+        type = "terminal",
+        command = "zsh",
+        title = " Terminal ",
+        terminal_passthrough_keys = { "\x17" },
+      },
       readme = { type = "project_file", command = "README.md", title = " README ", filetype = "markdown" },
       todo = { type = "project_file", command = "TODO.md", title = " Todo ", filetype = "markdown" },
       ["package.json"] = {

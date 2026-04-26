@@ -18,7 +18,9 @@ vim.opt.rtp:prepend(lazypath)
 local hotpot_dest
 do
   local ok, ctx = pcall(require("hotpot.api").context, vim.fn.stdpath("config"))
-  if ok and ctx then hotpot_dest = ctx.locate("destination") end
+  if ok and ctx then
+    hotpot_dest = ctx.locate("destination")
+  end
 end
 
 require("lazy").setup({

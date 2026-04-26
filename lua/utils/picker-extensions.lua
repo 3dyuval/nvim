@@ -136,13 +136,9 @@ M.get_branch_name = function(item)
     local commit_pat = ("[a-z0-9]"):rep(7)
     local patterns = {
       -- e.g. "* (HEAD detached at f65a2c8) f65a2c8 chore(build): auto-generate docs"
-      "^(.)%s(%b())%s+("
-        .. commit_pat
-        .. ")%s*(.*)$",
+      "^(.)%s(%b())%s+(" .. commit_pat .. ")%s*(.*)$",
       -- e.g. "  main                       d2b2b7b [origin/main: behind 276] chore(build): auto-generate docs"
-      "^(.)%s(%S+)%s+("
-        .. commit_pat
-        .. ")%s*(.*)$",
+      "^(.)%s(%S+)%s+(" .. commit_pat .. ")%s*(.*)$",
     }
 
     for p, pattern in ipairs(patterns) do

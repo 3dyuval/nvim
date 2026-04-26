@@ -25,36 +25,93 @@ return {
       vim.filetype.add({ extension = { ab = "amber", heex = "heex" } })
 
       local ensure_installed = {
-        "lua", "vim", "vimdoc", "query",
-        "markdown", "markdown_inline",
-        "go", "rust", "ruby",
-        "javascript", "typescript", "tsx",
-        "python", "bash",
-        "json", "yaml", "toml",
-        "elixir", "heex",
-        "vue", "css", "scss",
+        "lua",
+        "vim",
+        "vimdoc",
+        "query",
+        "markdown",
+        "markdown_inline",
+        "go",
+        "rust",
+        "ruby",
+        "javascript",
+        "typescript",
+        "tsx",
+        "python",
+        "bash",
+        "json",
+        "yaml",
+        "toml",
+        "elixir",
+        "heex",
+        "vue",
+        "css",
+        "scss",
         "html",
       }
 
       require("nvim-treesitter").setup({
         install_dir = vim.fn.stdpath("data") .. "/site",
       })
-
       local installed = require("nvim-treesitter.config").get_installed("parsers")
       local lookup = {}
-      for _, p in ipairs(installed) do lookup[p] = true end
+      for _, p in ipairs(installed) do
+        lookup[p] = true
+      end
       local to_install = {}
       for _, p in ipairs(ensure_installed) do
-        if not lookup[p] then table.insert(to_install, p) end
+        if not lookup[p] then
+          table.insert(to_install, p)
+        end
       end
       if #to_install > 0 then
         require("nvim-treesitter").install(to_install)
       end
 
+      local declined = {}
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(ev)
           local lang = vim.treesitter.language.get_lang(ev.match) or ev.match
-          if not pcall(vim.treesitter.start, ev.buf, lang) then return end
+          if not lang or lang == "" then
+            return
+          end
+
+          if not pcall(vim.treesitter.start, ev.buf, lang) then
+            local cfg = require("nvim-treesitter.config")
+            local installed = {}
+            for _, p in ipairs(cfg.get_installed("parsers")) do
+              installed[p] = true
+            end
+            if installed[lang] or declined[lang] then
+              return
+            end
+
+            local available = {}
+            for _, p in ipairs(cfg.get_available("parsers")) do
+              available[p] = true
+            end
+            if not available[lang] then
+              return
+            end
+
+            vim.schedule(function()
+              vim.ui.select({ "Yes", "No" }, {
+                prompt = "Install Tree-sitter parser '" .. lang .. "'?",
+              }, function(choice)
+                if choice == "Yes" then
+                  require("nvim-treesitter").install({ lang }):await(function()
+                    if vim.api.nvim_buf_is_valid(ev.buf) then
+                      pcall(vim.treesitter.start, ev.buf, lang)
+                    end
+                  end)
+                else
+                  declined[lang] = true
+                end
+              end)
+            end)
+            return
+          end
+
           vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
           vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
         end,
@@ -62,24 +119,8 @@ return {
     end,
   },
   {
-    "amber-lang/tree-sitter-amber",
-    build = function()
-      local parser_dir = vim.fn.stdpath("data") .. "/site/parser"
-      vim.fn.mkdir(parser_dir, "p")
-      local src = vim.fn.stdpath("data") .. "/lazy/tree-sitter-amber/src"
-      vim.fn.system({
-        "cc",
-        "-shared",
-        "-fPIC",
-        "-o",
-        parser_dir .. "/amber.so",
-        "-I" .. src,
-        src .. "/parser.c",
-      })
-    end,
-  },
-  {
     "nvim-treesitter/nvim-treesitter-textobjects",
+    enabled = false,
     branch = "main",
     event = "VeryLazy",
     config = function()
