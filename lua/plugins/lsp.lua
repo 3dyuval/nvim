@@ -1,5 +1,8 @@
 return {
   "neovim/nvim-lspconfig",
+  dependencies = {
+    "b0o/schemastore.nvim", -- JSON schemas for jsonls
+  },
   config = function()
     -- Load the new native LSP setup
     require("lsp.setup")

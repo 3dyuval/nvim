@@ -1,0 +1,5 @@
+# Mark nfnl-compiled Lua as generated for GitHub language stats
+lua/**/*.lua linguist-generated
+
+# Mark vendored/embedded code
+**/vendor/**/*.lua linguist-vendored

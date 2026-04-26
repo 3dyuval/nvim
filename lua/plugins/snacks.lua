@@ -16,7 +16,6 @@ end
 return {
   {
     "folke/snacks.nvim",
-    dependencies = { "3dyuval/searxng.nvim", lazy = false, dev = true },
     priority = 1000,
     lazy = false,
     ---@type snacks.Config
@@ -667,7 +666,10 @@ return {
       },
     },
     config = function(_, opts)
-      require("searxng").setup()
+      -- Only setup searxng if the plugin is available
+      pcall(function()
+        require("searxng").setup()
+      end)
       require("snacks").setup(opts)
 
       -- Manual dashboard control based on conditions

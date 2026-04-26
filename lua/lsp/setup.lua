@@ -15,6 +15,7 @@ vim.lsp.enable({
   "elixirls",
   "bashls",
   "cssls",
+  "jsonls",
 })
 
 -- Server-specific settings
@@ -133,6 +134,15 @@ vim.lsp.config("cssls", {
     css = { validate = true },
     scss = { validate = true },
     less = { validate = true },
+  },
+})
+
+vim.lsp.config("jsonls", {
+  settings = {
+    json = {
+      schemas = require("schemastore").json.schemas(),
+      validate = { enable = true },
+    },
   },
 })
 

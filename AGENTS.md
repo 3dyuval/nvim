@@ -1,5 +1,6 @@
 ## Neovim Graphite Config
 
+IMPORTANT! We started migrating to fennel! see (@fnl/AGENTS.md)
 See `.claude/skills/nvim-config/SKILL.md` for full context.
 
 ### Quick Reference
