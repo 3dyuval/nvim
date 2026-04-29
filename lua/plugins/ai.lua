@@ -162,6 +162,7 @@ return {
   },
   {
     "folke/sidekick.nvim",
+    enabled = false,
     opts = {
       cli = {
         mux = {
@@ -230,6 +231,35 @@ return {
         function() require("sidekick.cli").toggle({ name = "claude", focus = true }) end,
         desc = "Sidekick Toggle Claude",
       },
+    },
+  },
+  {
+    "sudo-tee/opencode.nvim",
+    config = function()
+      require("opencode").setup({
+        default_global_keymaps = true,
+        keymap_prefix = "<leader>o",
+        ui = {
+          position = "right",
+          window_width = 0.4,
+          icons = {
+            preset = "nerdfonts",
+          },
+        },
+      })
+    end,
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      {
+        "MeanderingProgrammer/render-markdown.nvim",
+        opts = {
+          anti_conceal = { enabled = false },
+          file_types = { "markdown", "opencode_output" },
+        },
+        ft = { "markdown", "Avante", "copilot-chat", "opencode_output" },
+      },
+      "saghen/blink.cmp",
+      "folke/snacks.nvim",
     },
   },
 }
