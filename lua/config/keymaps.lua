@@ -152,7 +152,7 @@ map({
       if vim.wo.diff then
         vim.cmd.normal({ "]c", bang = true })
       else
-        -- gs.next_hunk()
+        gs.next_hunk()
       end
     end,
     desc = "Next git hunk",
@@ -162,7 +162,7 @@ map({
       if vim.wo.diff then
         vim.cmd.normal({ "[c", bang = true })
       else
-        -- gs.prev_hunk()
+        gs.prev_hunk()
       end
     end,
     desc = "Prev git hunk",

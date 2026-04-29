@@ -2,4 +2,4 @@
  :lazy false
  :config (fn []
            ((. (require "taka-time") :setup)
-            {:debug false}))}
+            {:debug true}))}
