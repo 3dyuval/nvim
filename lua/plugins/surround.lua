@@ -64,6 +64,82 @@ return {
         end,
       },
 
+      -- HTML TAG SURROUND: t for tags
+      ["t"] = {
+        add = function()
+          local config = require("nvim-surround.config")
+          local user_input = config.get_input("Enter the HTML tag: ")
+          if user_input then
+            local element = user_input:match("^<?([^%s>]*)")
+            local attributes = user_input:match("^<?[^%s>]*%s+(.-)>?$")
+
+            local open = attributes and element .. " " .. attributes or element
+            local close = element
+
+            return { { "<" .. open .. ">" }, { "</" .. close .. ">" } }
+          end
+        end,
+        find = function()
+          local config = require("nvim-surround.config")
+          return config.get_selection({ motion = "at" })
+        end,
+        delete = "^(%b<>)().-(%b<>)()$",
+        change = {
+          target = "^<([^%s<>]*)().-([^/]*)()>$",
+          replacement = function()
+            local config = require("nvim-surround.config")
+            local user_input = config.get_input("Enter the HTML tag: ")
+            if user_input then
+              local element = user_input:match("^<?([^%s>]*)")
+              local attributes = user_input:match("^<?[^%s>]*%s+(.-)>?$")
+
+              local open = attributes and element .. " " .. attributes or element
+              local close = element
+
+              return { { open }, { close } }
+            end
+          end,
+        },
+      },
+
+      -- HTML TAG SURROUND: T for tags (alternative)
+      ["T"] = {
+        add = function()
+          local config = require("nvim-surround.config")
+          local user_input = config.get_input("Enter the HTML tag: ")
+          if user_input then
+            local element = user_input:match("^<?([^%s>]*)")
+            local attributes = user_input:match("^<?[^%s>]*%s+(.-)>?$")
+
+            local open = attributes and element .. " " .. attributes or element
+            local close = element
+
+            return { { "<" .. open .. ">" }, { "</" .. close .. ">" } }
+          end
+        end,
+        find = function()
+          local config = require("nvim-surround.config")
+          return config.get_selection({ motion = "at" })
+        end,
+        delete = "^(%b<>)().-(%b<>)()$",
+        change = {
+          target = "^<([^>]*)().-([^/]*)()>$",
+          replacement = function()
+            local config = require("nvim-surround.config")
+            local user_input = config.get_input("Enter the HTML tag: ")
+            if user_input then
+              local element = user_input:match("^<?([^%s>]*)")
+              local attributes = user_input:match("^<?[^%s>]*%s+(.-)>?$")
+
+              local open = attributes and element .. " " .. attributes or element
+              local close = element
+
+              return { { open }, { close } }
+            end
+          end,
+        },
+      },
+
       -- CUSTOM INPUT SURROUND: Prompt for custom delimiter pair
       ["i"] = {
         add = function()
@@ -104,7 +180,7 @@ return {
         end,
       },
 
-      -- Note: Other surrounds (quotes, HTML tags, function calls) use plugin defaults
+      -- Note: Other surrounds (quotes, function calls) use plugin defaults
     },
 
     aliases = {
