@@ -38,19 +38,11 @@ map({
   -- ["p"] = { ",", desc = "Repeat find backward" },
 })
 
--- Cmdline: arrow keys navigate wildmenu suggestions
-vim.defer_fn(function()
-  vim.keymap.set("c", "<C-S-V>", function()
-    local reg = vim.fn.getcharstr()
-    return "<C-r>=trim(getreg('" .. reg .. "'))<CR>"
-  end, { expr = true, desc = "Paste trimmed from register" })
-  vim.keymap.set("c", "<Up>", function()
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "n", false)
-  end)
-  vim.keymap.set("c", "<Down>", function()
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-n>", true, false, true), "n", false)
-  end)
-end, 1000)
+-- Cmdline: paste trimmed from register (<Up>/<Down> handled by blink-cmp with fallback)
+vim.keymap.set("c", "<C-S-V>", function()
+  local reg = vim.fn.getcharstr()
+  return "<C-r>=trim(getreg('" .. reg .. "'))<CR>"
+end, { expr = true, desc = "Paste trimmed from register" })
 
 -- Undo/redo (z replaces u)
 map({

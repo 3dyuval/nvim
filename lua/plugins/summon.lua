@@ -29,8 +29,8 @@ return {
         keymap = "<leader>tc",
       },
       log = { type = "terminal", command = "tail -f ~/.local/state/nvim/run-ai-run.log", title = " run-ai-run log " },
-      your_program = { type = "terminal", command = "zsh ./your_program.sh", title = "Codecrafters: run" },
-      test = { type = "terminal", command = "zsh codecrafters test", title = "Codecrafters: test" },
+      your_program = { type = "terminal", command = "zsh -i -c './your_program.sh'", title = "Codecrafters: run" },
+      test = { type = "terminal", command = "zsh -i -c 'codecrafters test'", title = "Codecrafters: test" },
     },
   },
 }
