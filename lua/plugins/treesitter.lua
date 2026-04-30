@@ -120,7 +120,7 @@ return {
   },
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
-    enabled = false,
+    enabled = true,
     branch = "main",
     event = "VeryLazy",
     config = function()
