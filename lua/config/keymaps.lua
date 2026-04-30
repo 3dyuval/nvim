@@ -136,15 +136,14 @@ map({
   gs = { code.jump_to_matching_tag, desc = "Jump to matching tag" },
 })
 
-local gs = require("gitsigns")
-
+-- Git hunk navigation (lazy-load gitsigns)
 map({
   A = {
     function()
       if vim.wo.diff then
         vim.cmd.normal({ "]c", bang = true })
       else
-        gs.next_hunk()
+        require("gitsigns").next_hunk()
       end
     end,
     desc = "Next git hunk",
@@ -154,7 +153,7 @@ map({
       if vim.wo.diff then
         vim.cmd.normal({ "[c", bang = true })
       else
-        gs.prev_hunk()
+        require("gitsigns").prev_hunk()
       end
     end,
     desc = "Prev git hunk",
@@ -176,7 +175,12 @@ map({
     f = { cmd = "DiffviewFileHistory", desc = "File history" },
     s = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
     x = { [mode] = { "n", "x" }, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk" },
-    X = { gs.reset_buffer, desc = "Reset Buffer" },
+    X = {
+      function()
+        require("gitsigns").reset_buffer()
+      end,
+      desc = "Reset Buffer",
+    },
     F = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
 
     z = { git.lazygit_root, desc = "Lazygit (Root Dir)" },
@@ -190,13 +194,13 @@ map({
     -- U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
     ["!"] = {
       function()
-        gs.diffthis("~")
+        require("gitsigns").diffthis("~")
       end,
       desc = "Diff This ~",
     },
     ["?"] = {
       function()
-        gs.blame_line({ full = true })
+        require("gitsigns").blame_line({ full = true })
       end,
       desc = "Blame Line",
     },
@@ -231,7 +235,7 @@ map({
       if vim.wo.diff then
         vim.cmd.normal({ "]c", bang = true })
       else
-        gs.nav_hunk("next")
+        require("gitsigns").nav_hunk("next")
       end
     end,
     desc = "Next Hunk",
@@ -241,7 +245,7 @@ map({
       if vim.wo.diff then
         vim.cmd.normal({ "[c", bang = true })
       else
-        gs.nav_hunk("prev")
+        require("gitsigns").nav_hunk("prev")
       end
     end,
     desc = "Prev Hunk",
@@ -250,13 +254,13 @@ map({
   ["[s"] = { "[s", desc = "Prev misspelled word" },
   ["]H"] = {
     function()
-      gs.nav_hunk("last")
+      require("gitsigns").nav_hunk("last")
     end,
     desc = "Last Hunk",
   },
   ["[H"] = {
     function()
-      gs.nav_hunk("first")
+      require("gitsigns").nav_hunk("first")
     end,
     desc = "First Hunk",
   },
