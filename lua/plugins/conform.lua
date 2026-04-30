@@ -105,6 +105,22 @@ return {
         stdin = true,
         args = {},
       },
+      -- Oxfmt - using node directly to bypass extensionless bin file issue
+      oxfmt = {
+        command = "node",
+        args = function()
+          local home = vim.fn.expand("~")
+          local config_path = vim.fn.stdpath("config") .. "/.oxfmtrc.json"
+          return {
+            home .. "/.bun/install/global/node_modules/oxfmt/dist/cli.js",
+            "--config",
+            config_path,
+            "--stdin-filepath",
+            "$FILENAME",
+          }
+        end,
+        stdin = true,
+      },
     },
   },
   -- Export functions for extern access

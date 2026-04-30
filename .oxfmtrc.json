@@ -1,0 +1,28 @@
+{
+  "$schema": "https://oxc.rs/schemas/oxfmt.json",
+  "useTabs": true,
+  "tabWidth": 2,
+  "endOfLine": "lf",
+  "semi": true,
+  "singleQuote": true,
+  "quoteProps": "as-needed",
+  "jsxSingleQuote": false,
+  "trailingComma": "none",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "arrowParens": "avoid",
+  "importSort": {
+    "enable": true,
+    "groups": [
+      ["^react$", "^react-"],
+      ["^vue$", "^vue-"],
+      ["^@?\\w"],
+      ["^@/"],
+      ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
+      ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"]
+    ]
+  },
+  "tailwindSort": {
+    "enable": true
+  }
+}
