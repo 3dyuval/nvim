@@ -21,40 +21,19 @@ end
 local M = {}
 
 M.organize_imports = function()
-  -- Organize + Remove unused imports (Biome + TypeScript hybrid)
-  local bufnr = vim.api.nvim_get_current_buf()
-  local filepath = vim.api.nvim_buf_get_name(bufnr)
+  -- Organize + Remove unused imports (TypeScript LSP)
+  local filepath = vim.api.nvim_buf_get_name(0)
 
   if filepath == "" or vim.fn.filereadable(filepath) == 0 then
     vim.notify("No valid file to organize and clean imports", vim.log.levels.WARN)
     return
   end
 
-  local biome_available = vim.fn.executable("biome") == 1
-
-  if biome_available then
-    -- Use biome for both organize imports and remove unused imports
-    local cmd = {
-      "biome",
-      "check",
-      "--write",
-      "--unsafe", -- Enable unsafe fixes to remove unused imports
-      "--formatter-enabled=false", -- Only assist/linter actions
-      filepath,
-    }
-    vim.fn.system(cmd)
-    vim.cmd("silent! checktime")
-    -- Format to fix indentation (biome organize uses 4-space, we want 2)
-    require("conform").format({
-      bufnr = bufnr,
-    })
-  else
-    -- Fallback: Use vtsls commands
-    vtsls_cmd("typescript.organizeImports", filepath)
-    vim.schedule(function()
-      vtsls_cmd("typescript.removeUnusedImports", filepath)
-    end)
-  end
+  -- Use vtsls for organize/remove imports (oxfmt handles formatting only)
+  vtsls_cmd("typescript.organizeImports", filepath)
+  vim.schedule(function()
+    vtsls_cmd("typescript.removeUnusedImports", filepath)
+  end)
 end
 
 M.organize_imports_and_fix = function()
@@ -84,15 +63,15 @@ return {
       rust = { "rustfmt" },
       ruby = { "rubocop" },
       elixir = { "mix" },
-      typescript = { "biome" },
-      javascript = { "biome" },
-      typescriptreact = { "biome" },
-      javascriptreact = { "biome" },
-      json = { "biome" },
-      html = { "biome" },
-      vue = { "biome" },
-      css = { "biome" },
-      scss = { "biome" },
+      typescript = { "oxfmt" },
+      javascript = { "oxfmt" },
+      typescriptreact = { "oxfmt" },
+      javascriptreact = { "oxfmt" },
+      json = { "oxfmt" },
+      html = { "oxfmt" },
+      vue = { "oxfmt" }, -- oxfmt handles SCSS in <style> blocks
+      css = { "oxfmt" },
+      scss = { "oxfmt" }, -- oxfmt supports SCSS (biome doesn't)
     },
     formatters = {
       -- RuboCop with global config
