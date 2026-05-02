@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | grep -E '^.*/fnl/.*\\.fnl$' | { read -r fnl; lua=$(echo \"$fnl\" | sed 's|/fnl/|/lua/|; s|\\.fnl$|.lua|'); rm -f \"$lua\"; nvim --headless -c \"lua require('nfnl.api')['compile-file']({path='$fnl'})\" -c 'qa' 2>/dev/null; } || true",
+            "statusMessage": "Compiling fnl via nfnl..."
+          }
+        ]
+      }
+    ]
+  }
+}

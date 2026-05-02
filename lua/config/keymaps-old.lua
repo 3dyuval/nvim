@@ -31,7 +31,7 @@ vim.keymap.set({ "n" }, "J", "O", { desc = "Open line above" })
 -- vim.keymap.set({ "n" }, "b", "R", { desc = "Replace mode" })
 
 -- Insert mode while deleting to end of line (W = C = change to end)
-vim.keymap.set({ "n" }, "R", "W", { desc = "Change to end of line + insert" })
+-- vim.keymap.set({ "n" }, "R", "W", { desc = "Change to end of line + insert" })
 vim.keymap.set({ "v" }, "B", "r", { desc = "Replace selected text" })
 
 -- Jumplist navigation
