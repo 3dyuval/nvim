@@ -1,6 +1,6 @@
 # Neovim Configuration Makefile
 
-.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps export-keymaps export-keymaps-json export-keymaps-md export-keymaps-by-group
+.PHONY: lint no-utils test format install-deps help compile compile-force
 
 # Default target
 help:
@@ -8,13 +8,9 @@ help:
 	@echo "  lint                  - Run luacheck linter on Lua files"
 	@echo "  no-utils              - Check for errant util calls"
 	@echo "  test                  - Run all tests"
-	@echo "  test-keymaps          - Test keymap conflicts and analysis"
-	@echo "  test-conflicts        - Check for keymap conflicts only"
-	@echo "  export-keymaps        - Export keymaps to README.md (by mode)"
-	@echo "  export-keymaps-by-group - Export keymaps to README.md (by leader group)"
-	@echo "  export-keymaps-json   - Export keymaps to JSON"
-	@echo "  export-keymaps-md     - Export keymaps to Markdown"
-	@echo "  format                - Format code using stylua"
+	@echo "  compile               - Compile all Fennel files using nfnl"
+	@echo "  compile-force         - Force recompile all Fennel files (removes old .lua files)"
+	@echo "  format                - Format code using luafmt"
 	@echo "  install-deps          - Install development dependencies"
 	@echo "  help                  - Show this help message"
 
@@ -44,16 +40,16 @@ test: lint no-utils
 	@echo "Running all tests..."
 	@echo "=== Plenary Tests ==="
 	@nvim --headless -c "PlenaryBustedFile lua/config/tests/keymaps.test.lua" -c "qa"
-	@echo "✅ All tests completed"
+	@echo "All tests completed"
 
-# Format code using stylua
+# Format code using luafmt
 format:
 	@echo "Formatting Lua code..."
-	@if command -v stylua >/dev/null 2>&1; then \
-		stylua lua/; \
-		echo "✅ Code formatted"; \
+	@if command -v luafmt >/dev/null 2>&1; then \
+		find lua -name "*.lua" -exec luafmt -w replace {} \;; \
+		echo "Code formatted"; \
 	else \
-		echo "❌ stylua not found. Install with: cargo install stylua"; \
+		echo "ERROR: luafmt not found. Install with: bun install -g luafmt"; \
 	fi
 
 # Install development dependencies
@@ -61,48 +57,22 @@ install-deps:
 	@echo "Installing development dependencies..."
 	@echo "Installing luacheck..."
 	@sudo apt-get update && sudo apt-get install -y lua-check
-	@echo "Installing stylua..."
-	@if ! command -v stylua >/dev/null 2>&1; then \
-		if command -v cargo >/dev/null 2>&1; then \
-			cargo install stylua; \
+	@echo "Installing luafmt..."
+	@if ! command -v luafmt >/dev/null 2>&1; then \
+		if command -v bun >/dev/null 2>&1; then \
+			bun install -g luafmt; \
 		else \
-			echo "Please install Rust/Cargo first, then run: cargo install stylua"; \
+			echo "Please install bun first, then run: bun install -g luafmt"; \
 		fi \
 	fi
-	@echo "✅ Dependencies installed"
+	@echo "Dependencies installed"
 
-# Local development test (same as scripts/test-ci.sh)
-test-local:
-	@echo "🧪 Running local tests..."
-	@./scripts/test-ci.sh
+# Compile Fennel files using nfnl
+compile:
+	@echo "Compiling Fennel files..."
+	@./fnl/compile
 
-# Keymap conflict testing
-test-conflicts:
-	@echo "=== Testing Keymap Conflicts ==="
-	@nvim --headless -c "lua require('utils.test_keymaps').analyze_keymap_conflicts()" -c "qa"
-
-# Full keymap testing suite
-test-keymaps:
-	@echo "=== Keymap Testing Suite ==="
-	@echo "Counting keymaps..."
-	@nvim --headless -c "lua local k = require('utils.test_keymaps').get_all_keymaps(); print('Total keymaps:', #k)" -c "qa"
-	@echo "Checking for conflicts..."
-	@nvim --headless -c "lua require('utils.test_keymaps').analyze_keymap_conflicts()" -c "qa"
-	@echo "✅ Keymap tests completed"
-
-# Export keymaps to README.md using keymap-utils inspection
-export-keymaps:
-	@echo "=== Exporting Keymaps to README.md ==="
-	@nvim --headless -c "lua require('config.keymaps'); arg = {'md', 'README.md'}; dofile('scripts/export-keymaps.lua')" -c "qa"
-
-export-keymaps-json:
-	@echo "=== Exporting Keymaps to JSON ==="
-	@nvim --headless -c "lua require('config.keymaps'); arg = {'json', 'keymaps.json'}; dofile('scripts/export-keymaps.lua')" -c "qa"
-
-export-keymaps-md:
-	@echo "=== Exporting Keymaps to Markdown ==="
-	@nvim --headless -c "lua require('config.keymaps'); arg = {'md', 'keymaps.md'}; dofile('scripts/export-keymaps.lua')" -c "qa"
-
-export-keymaps-by-group:
-	@echo "=== Exporting Keymaps to README.md (by group) ==="
-	@nvim --headless -c "lua require('config.keymaps'); arg = {'--by-group', 'md', 'README.md'}; dofile('scripts/export-keymaps.lua')" -c "qa"
+# Force recompile all Fennel files (removes old .lua files first)
+compile-force:
+	@echo "Force recompiling Fennel files..."
+	@./fnl/compile --force

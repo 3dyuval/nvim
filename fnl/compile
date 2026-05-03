@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Manually compile all Fennel files to Lua using nfnl
+# Usage: ./scripts/compile-fennel.sh [--force]
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+FORCE=false
+if [[ "$1" == "--force" ]]; then
+  FORCE=true
+fi
+
+echo "🔄 Compiling all Fennel files using nfnl..."
+
+# Enable globstar for ** pattern matching
+shopt -s globstar
+
+# If force mode, remove all compiled .lua files without nfnl headers
+if [[ "$FORCE" == true ]]; then
+  echo "🗑️  Force mode: Removing .lua files without nfnl headers..."
+
+  for fnl_file in fnl/**/*.fnl; do
+    [ -f "$fnl_file" ] || continue
+
+    # Convert fnl/path/to/file.fnl → lua/path/to/file.lua
+    lua_file="${fnl_file#fnl/}"
+    lua_file="lua/${lua_file%.fnl}.lua"
+
+    # Check if lua file exists and doesn't have nfnl header
+    if [[ -f "$lua_file" ]] && ! grep -q "Compiled by nfnl" "$lua_file" 2>/dev/null; then
+      echo "  Removing: $lua_file (no nfnl header)"
+      rm "$lua_file"
+    fi
+  done
+fi
+
+shopt -u globstar
+
+echo ""
+echo "📝 To compile Fennel files:"
+echo "   1. Open Neovim in this directory"
+echo "   2. Open any .fnl file (e.g., nvim fnl/config/keymaps/modes.fnl)"
+echo "   3. Save it (:w) - this triggers nfnl to compile all files"
+echo ""
+echo "ℹ️  nfnl runs automatically when you save .fnl files in Neovim"
