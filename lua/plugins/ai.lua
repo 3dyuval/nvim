@@ -1,15 +1,22 @@
 return {
   {
     "coder/claudecode.nvim",
-    dev = false,
-    opts = {
-
-      terminal = {
-        provider = "none",
+    enabled = false,
+    config = function()
+      require("claudecode").setup({ 
+      teminal = {
+        snacks_win_opts = {
+          position = "float",
+          width = 0.95,
+          height = 0.88,
+          border = "rounded",
+          backdrop = false,
+          keys = {
+            hide = { "<C-r>", function(self) self:hide() end, mode = "t", desc = "Hide Claude" },
+          },
+        },
       },
-    },
-    config = function(_, opts)
-      require("claudecode").setup(opts)
+    })
     end,
   },
   {
