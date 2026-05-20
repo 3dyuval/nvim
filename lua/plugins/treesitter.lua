@@ -22,7 +22,7 @@ return {
       vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
     end,
     config = function()
-      vim.filetype.add({ extension = { ab = "amber", heex = "heex" } })
+      vim.filetype.add({ extension = { ab = "amber", heex = "heex", kcl = "kcl" } })
 
       local ensure_installed = {
         "lua",
