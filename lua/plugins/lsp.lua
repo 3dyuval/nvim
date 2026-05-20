@@ -28,7 +28,7 @@ return {
     keys[#keys + 1] = { "<leader>cr", require("utils.files").smart_rename, desc = "Smart Rename" }
     keys[#keys + 1] = { "<leader>ca", vim.lsp.buf.code_action, desc = "Code Action" }
 
-    -- Reference keymaps
+    -- Reference keymaps (use native gr, keep custom as backup)
     keys[#keys + 1] = { "<leader>cR", vim.lsp.buf.references, desc = "References (quickfix)", mode = { "n" } }
     keys[#keys + 1] = {
       "<leader>cx",
@@ -39,31 +39,70 @@ return {
 
     local ts_ft = { "typescript", "typescriptreact", "javascript", "javascriptreact", "vue" }
 
+    -- Helper to execute vtsls-specific commands
+    local function vtsls_execute(command, args)
+      local clients = vim.lsp.get_clients({ bufnr = 0, name = "vtsls" })
+      if #clients == 0 then
+        vim.notify("vtsls client not attached", vim.log.levels.WARN)
+        return
+      end
+
+      clients[1].request("workspace/executeCommand", {
+        command = command,
+        arguments = args,
+      }, function(err, result)
+        if err then
+          vim.notify("vtsls command error: " .. vim.inspect(err), vim.log.levels.ERROR)
+          return
+        end
+        if result then
+          -- Handle single location or list of locations
+          local locations = vim.islist(result) and result or { result }
+          if #locations > 0 then
+            vim.lsp.util.jump_to_location(locations[1], "utf-8", true)
+          end
+        end
+      end, 0)
+    end
+
+    -- TypeScript/Vue specific navigation using vtsls commands
+    -- Override gd for Vue to use vtsls command (better template support)
+    keys[#keys + 1] = {
+      "gd",
+      function()
+        vtsls_execute("typescript.goToSourceDefinition", {
+          vim.uri_from_bufnr(0),
+          vim.lsp.util.make_position_params().position,
+        })
+      end,
+      desc = "Go to Definition (TS/Vue)",
+      ft = { "vue" },
+    }
     keys[#keys + 1] = {
       "gD",
       function()
-        local params = vim.lsp.util.make_position_params(0, "utf-16")
-        LazyVim.lsp.execute({
-          command = "typescript.goToSourceDefinition",
-          arguments = { params.textDocument.uri, params.position },
-          open = true,
+        vtsls_execute("typescript.goToSourceDefinition", {
+          vim.uri_from_bufnr(0),
+          vim.lsp.util.make_position_params().position,
         })
       end,
-      desc = "Goto Source Definition",
+      desc = "Goto Source Definition (TS/Vue)",
       ft = ts_ft,
     }
     keys[#keys + 1] = {
       "gR",
       function()
-        LazyVim.lsp.execute({
-          command = "typescript.findAllFileReferences",
-          arguments = { vim.uri_from_bufnr(0) },
-          open = true,
-        })
+        vtsls_execute("typescript.findAllFileReferences", { vim.uri_from_bufnr(0) })
       end,
-      desc = "File References",
+      desc = "File References (TS/Vue)",
       ft = ts_ft,
     }
+
+    -- Native Neovim 0.10+ keybindings (already work by default):
+    -- gd  - go to definition
+    -- gr  - show references (replaces gR for most cases)
+    -- gI  - go to implementation (useful for Vue components)
+    -- gy  - go to type definition
 
     return opts
   end,

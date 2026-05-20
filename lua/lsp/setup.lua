@@ -11,7 +11,7 @@ vim.lsp.enable({
   "lua_ls",
   "rust_analyzer",
   "vtsls",
-  "vue_ls",
+  -- "vue_ls",  -- Disabled for takeover mode - vtsls handles Vue
   "elixirls",
   "bashls",
   "cssls",
@@ -93,17 +93,7 @@ vim.lsp.config("vtsls", {
   },
 })
 
-vim.lsp.config("vue_ls", {
-  filetypes = { "vue" },
-  init_options = { vue = { hybridMode = true } },
-  settings = {
-    vue = {
-      complete = {
-        casing = { tags = "kebab", props = "kebab" },
-      },
-    },
-  },
-})
+-- vue_ls configuration removed - using vtsls takeover mode for Vue
 
 vim.lsp.config("elixirls", {
   settings = {
@@ -146,12 +136,4 @@ vim.lsp.config("jsonls", {
   },
 })
 
--- Disable vue_ls rename in hybrid mode
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(ev)
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if client and client.name == "vue_ls" then
-      client.server_capabilities.renameProvider = false
-    end
-  end,
-})
+-- LspAttach autocmd removed - no longer needed with vtsls takeover mode
