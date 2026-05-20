@@ -1,0 +1,17 @@
+# Converted from .lua-format
+lineWidth: 120
+indentCount: 2
+useTabs: false
+
+# Note: luafmt has limited config options compared to lua-format.
+# The following settings from .lua-format have no direct equivalent:
+# - keep_simple_control_block_one_line
+# - keep_simple_function_one_line
+# - align_args, align_parameter, align_table_field
+# - break_after_functioncall_lp, break_before_functioncall_rp
+# - chop_down_parameter, chop_down_table, chop_down_kv_table
+# - spaces_inside_table_braces, spaces_around_equals_in_field
+# - line_breaks_after_function_body
+# - single_quote_to_double_quote
+#
+# luafmt uses opinionated defaults for these formatting decisions.

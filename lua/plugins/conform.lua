@@ -78,23 +78,29 @@ return {
       lsp_format = "fallback", -- Use LSP when no formatter configured (e.g., Vue)
     },
     formatters_by_ft = {
-      lua = { "lua-formatter" },
+      lua = { "luafmt" },
       dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
       go = { "goimports", "gofumpt" }, -- Go: organize imports + format
       rust = { "rustfmt" },
       ruby = { "rubocop" },
       elixir = { "mix" },
-      typescript = { "biome" },
-      javascript = { "biome" },
-      typescriptreact = { "biome" },
-      javascriptreact = { "biome" },
-      json = { "biome" },
-      html = { "biome" },
-      vue = { "biome" },
-      css = { "biome" },
-      scss = { "biome" },
+      typescript = { "prettier" },
+      javascript = { "prettier" },
+      typescriptreact = { "prettier" },
+      javascriptreact = { "prettier" },
+      json = { "prettier" },
+      html = { "prettier" },
+      vue = { "prettier" },
+      css = { "prettier" },
+      scss = { "prettier" },
     },
     formatters = {
+      -- luafmt (lua-fmt from npm)
+      luafmt = {
+        command = "luafmt",
+        args = { "--indent-count", "2", "--stdin" },
+        stdin = true,
+      },
       -- RuboCop with global config
       rubocop = {
         command = "rubocop",
