@@ -13,27 +13,30 @@ function M.compare_current_file_with_branch()
   if target ~= "" then
     vim.cmd("DiffviewOpen " .. target .. " -- %")
   end
+
 end
 
 -- Compare current file with another file
 function M.compare_current_file_with_file()
-  local currentFile = vim.fn.expand("%:.")
-  local targetFile = vim.fn.input("Compare with file: ", currentFile, "file")
-  if targetFile == "" then
-    return
-  end
-
-  local targetBranch = vim.fn.input("Compare with branch (empty for working tree): ", "")
-
+  local targetBranch = vim.fn.input("Compare with branch (empty for file history): ", "")
   if targetBranch ~= "" then
     -- Use DiffviewOpen for branch comparison
     vim.cmd("DiffviewOpen " .. targetBranch .. " -- " .. targetFile)
   else
+      local currentFile = vim.fn.expand("%:.")
+  local targetFile = vim.fn.input("Compare with file: ", currentFile, "file")
+  if targetFile == currentFile then
+    vim.cmd("DiffviewFileHistory" .. "%")
+    return
+  end
+
     -- Compare with file in working tree using vim diff
     if targetFile ~= currentFile then
       vim.cmd("vert diffsplit " .. vim.fn.fnameescape(targetFile))
     end
   end
+
+
 end
 
 return M

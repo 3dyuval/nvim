@@ -182,10 +182,11 @@ map({
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
     D = { cmd = "DiffviewOpen ", exec = false, desc = "Compare with branch" },
     f = { cmd = "DiffviewFileHistory", desc = "File history" },
+    F = { cmd = "DiffviewFileHistory %", exec = false, desc = "File history" },
     s = { cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash" },
     x = { [mode] = { "n", "x" }, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk" },
-    X = { gs.reset_buffer, desc = "Reset Buffer" },
-    F = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
+    -- X = { gs.reset_buffer, desc = "Reset Buffer" },
+    -- H = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
 
     z = { git.lazygit_root, desc = "Lazygit (Root Dir)" },
     Z = { git.lazygit_cwd, desc = "Lazygit (cwd)" },
@@ -363,18 +364,18 @@ map({
     desc = "Recent files",
   },
   [ctrl] = {
-    r = {
-      function()
-        local is_visual = vim.fn.mode():match("[vV\22]")
-        if is_visual then
-          require("grug-far").with_visual_selection()
-        else
-          require("grug-far").open({ prefills = { paths = vim.fn.expand("%") } })
-        end
-      end,
-      desc = "Search and replace",
-      [mode] = { "n", "v" },
-    },
+  --   r = {
+  --     function()
+  --       local is_visual = vim.fn.mode():match("[vV\22]")
+  --       if is_visual then
+  --         require("grug-far").with_visual_selection()
+  --       else
+  --         require("grug-far").open({ prefills = { paths = vim.fn.expand("%") } })
+  --       end
+  --     end,
+  --     desc = "Search and replace",
+  --     [mode] = { "n", "v" },
+    -- },
     w = {
       function()
         local win = vim.api.nvim_get_current_win()
