@@ -16,6 +16,7 @@ vim.lsp.enable({
   "bashls",
   "cssls",
   "jsonls",
+  "kcl_lsp",
 })
 
 -- Server-specific settings
@@ -134,6 +135,14 @@ vim.lsp.config("jsonls", {
       validate = { enable = true },
     },
   },
+})
+
+-- Install: download from https://github.com/KittyCAD/modeling-app/releases (kcl-language-server-x86_64-unknown-linux-gnu.gz)
+vim.lsp.config("kcl_lsp", {
+  cmd = { vim.fn.expand("~/.local/bin/kcl-language-server"), "server", "-s" },
+  filetypes = { "kcl" },
+  root_markers = { ".git" },
+  single_file_support = true,
 })
 
 -- LspAttach autocmd removed - no longer needed with vtsls takeover mode

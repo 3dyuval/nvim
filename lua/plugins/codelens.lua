@@ -1,6 +1,9 @@
 return {
   "oribarilan/lensline.nvim",
   event = "LspAttach",
+  dependencies = {
+    "3dyuval/colortweak.nvim"
+  },
   config = function()
     require("colortweak.tweak").hl({ --  uses "3dyuval/colortweak"
       LensLine = { "Comment", { l = 1.2, s = 1.5 } },

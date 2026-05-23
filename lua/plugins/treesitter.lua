@@ -48,10 +48,21 @@ return {
         "css",
         "scss",
         "html",
+        "kcl",
       }
 
       require("nvim-treesitter").setup({
         install_dir = vim.fn.stdpath("data") .. "/site",
+        -- Custom KCL grammar (not in nvim-treesitter upstream)
+        parsers = {
+          kcl = {
+            install_info = {
+              url = "https://github.com/KittyCAD/tree-sitter-kcl",
+              files = { "src/parser.c" },
+              branch = "main",
+            },
+          },
+        },
       })
       local installed = require("nvim-treesitter.config").get_installed("parsers")
       local lookup = {}
