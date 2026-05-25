@@ -2,13 +2,14 @@ return {
   {
     "hernandez/dotdot.nvim",
     url = "https://codeberg.org/hernandez/dotdot.nvim",
+    enabled = false,
     dependencies = {"folke/snacks.nvim"},
     event = "InsertEnter",
     keys = {
       {
         "<C-.>",
         function()
-          require("dotdot").show()
+          require("dotdot").open()
         end,
         mode = "i",
         desc = "dotdot commands"
