@@ -1,0 +1,10 @@
+{
+  "disabledMcpjsonServers": [
+    "tavily",
+    "context7",
+    "grafana",
+    "gitingest",
+    "penpot",
+    "nvim-mcp"
+  ]
+}

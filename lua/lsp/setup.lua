@@ -7,11 +7,12 @@ vim.lsp.config("*", {
 })
 
 -- Enable all your servers
+-- Note: Enable vtsls here when USE_TYPESCRIPT_TOOLS = false in lua/plugins/typescript.lua
 vim.lsp.enable({
   "lua_ls",
   "rust_analyzer",
-  "vtsls",
-  -- "vue_ls",  -- Disabled for takeover mode - vtsls handles Vue
+  -- "vtsls",  -- Enable when using vtsls instead of typescript-tools
+  -- "vue_ls",  -- Disabled - vtsls/typescript-tools handles Vue
   "elixirls",
   "bashls",
   "cssls",
@@ -45,56 +46,6 @@ vim.lsp.config("rust_analyzer", {
   },
 })
 
-vim.lsp.config("vtsls", {
-  filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact", "vue" },
-  settings = {
-    vtsls = {
-      autoUseWorkspaceTsdk = false,
-      tsserver = {
-        globalPlugins = {
-          {
-            name = "@vue/typescript-plugin",
-            location = vim.fn.stdpath("data")
-              .. "/mason/packages/vue-language-server/node_modules/@vue/language-server",
-            languages = { "vue" },
-            configNamespace = "typescript",
-          },
-        },
-      },
-    },
-    typescript = {
-      preferences = { importModuleSpecifier = "relative" },
-      inlayHints = {
-        parameterNames = { enabled = "literals" },
-        variableTypes = { enabled = true },
-        propertyDeclarationTypes = { enabled = true },
-        enumMemberValues = { enabled = true },
-      },
-    },
-    javascript = {
-      implicitProjectConfig = {
-        checkJs = true,
-        strictNullChecks = false,
-        strictFunctionTypes = false,
-      },
-      lib = { "ES2020", "DOM" },
-    },
-  },
-  -- Filter diagnostics (replaces your init handler)
-  handlers = {
-    ["textDocument/publishDiagnostics"] = function(err, result, ctx)
-      if result and result.diagnostics then
-        local ignored = { [7047] = true, [7044] = true, [6133] = true }
-        result.diagnostics = vim.tbl_filter(function(d)
-          return not ignored[d.code]
-        end, result.diagnostics)
-      end
-      return vim.lsp.handlers["textDocument/publishDiagnostics"](err, result, ctx)
-    end,
-  },
-})
-
--- vue_ls configuration removed - using vtsls takeover mode for Vue
 
 vim.lsp.config("elixirls", {
   settings = {
@@ -134,6 +85,55 @@ vim.lsp.config("jsonls", {
       schemas = require("schemastore").json.schemas(),
       validate = { enable = true },
     },
+  },
+})
+
+-- vtsls configuration (only active when enabled in vim.lsp.enable above)
+vim.lsp.config("vtsls", {
+  filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact", "vue" },
+  settings = {
+    vtsls = {
+      autoUseWorkspaceTsdk = false,
+      tsserver = {
+        globalPlugins = {
+          {
+            name = "@vue/typescript-plugin",
+            location = vim.fn.stdpath("data")
+              .. "/mason/packages/vue-language-server/node_modules/@vue/language-server",
+            languages = { "vue" },
+            configNamespace = "typescript",
+          },
+        },
+      },
+    },
+    typescript = {
+      preferences = { importModuleSpecifier = "relative" },
+      inlayHints = {
+        parameterNames = { enabled = "literals" },
+        variableTypes = { enabled = true },
+        propertyDeclarationTypes = { enabled = true },
+        enumMemberValues = { enabled = true },
+      },
+    },
+    javascript = {
+      implicitProjectConfig = {
+        checkJs = true,
+        strictNullChecks = false,
+        strictFunctionTypes = false,
+      },
+      lib = { "ES2020", "DOM" },
+    },
+  },
+  handlers = {
+    ["textDocument/publishDiagnostics"] = function(err, result, ctx)
+      if result and result.diagnostics then
+        local ignored = { [7047] = true, [7044] = true, [6133] = true }
+        result.diagnostics = vim.tbl_filter(function(d)
+          return not ignored[d.code]
+        end, result.diagnostics)
+      end
+      return vim.lsp.handlers["textDocument/publishDiagnostics"](err, result, ctx)
+    end,
   },
 })
 
