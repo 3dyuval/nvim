@@ -6,7 +6,7 @@ return {
     event = "InsertEnter",
     keys = {
       {
-        "<C-,>",
+        "<C-.>",
         function()
           require("dotdot").show()
         end,
