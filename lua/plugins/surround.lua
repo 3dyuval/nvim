@@ -22,33 +22,17 @@ return {
     },
 
     surrounds = {
-      -- CUSTOM SPACING BEHAVIOR (reversed from defaults):
-      -- Opening brackets = non-spaced, Closing brackets = spaced
-      -- This allows: ysw( → (text), ysw) → ( text )
-
-      ["("] = { add = { "(", ")" } }, -- Custom: non-spaced (default was spaced)
-      [")"] = { add = { "( ", " )" } }, -- Custom: spaced (default was non-spaced)
-      ["{"] = { add = { "{", "}" } }, -- Custom: non-spaced (default was spaced)
-      ["}"] = { add = { "{ ", " }" } }, -- Custom: spaced (default was non-spaced)
-      ["<"] = { add = { "< ", " >" } },
-      [">"] = { add = { "<", ">" } },
-      ["["] = { add = { "[", "]" } }, -- Custom: always non-spaced (default was spaced)
-      ["]"] = { add = { "[ ", " ]" } }, -- Custom: spaced (default was non-spaced)
-
-      -- MARKDOWN ADDITIONS (not in defaults):
-      ["*"] = { add = { "**", "**" } }, -- Bold: **text**
-      ["_"] = { add = { "_", "_" } }, -- Italic: _text_
-      ["~"] = { add = { "~", "~" } }, -- Strikethrough: ~text~
+      ["*"] = { add = { "**", "**" } },
+      ["_"] = { add = { "_", "_" } },
+      ["~"] = { add = { "~", "~" } },
       ["`"] = {
         add = function()
           local lang = require("nvim-surround.config").get_input("Language: ")
-          -- Schedule cursor move to inside the fence and enter insert mode
           vim.schedule(function()
             local row = vim.api.nvim_win_get_cursor(0)[1]
             vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
             vim.cmd("startinsert")
           end)
-          -- Each array element is a line; empty string = blank line
           return { { "```" .. (lang or ""), "" }, { "", "```" } }
         end,
         find = function()
