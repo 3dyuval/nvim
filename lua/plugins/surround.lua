@@ -1,8 +1,39 @@
--- Surround configuration for Graphite keyboard layout
+local M = {}
+
+M.get_input = function(prompt)
+  local config = require("nvim-surround.config")
+  return config.get_input(prompt)
+end
+
+M.get_selection = function(args)
+  if args.motion then
+    return require("nvim-surround.config").get_selection({ motion = args.motion })
+  elseif args.query then
+    local ok, ts_queries = pcall(require, "nvim-treesitter-textobjects.queries")
+    if not ok then
+      vim.notify("nvim-treesitter-textobjects not available", vim.log.levels.WARN)
+      return nil
+    end
+    local bufnr = vim.api.nvim_get_current_buf()
+    local node = ts_queries.get_node_at_cursor(bufnr, args.query.capture)
+    if not node then
+      return nil
+    end
+    local start_row, start_col, end_row, end_col = node:range()
+    return {
+      left = { first_pos = { start_row + 1, start_col + 1 } },
+      right = { last_pos = { end_row + 1, end_col } },
+    }
+  end
+end
+
 return {
   "kylechui/nvim-surround",
   version = "^3.0.0",
   event = "VeryLazy",
+  dependencies = {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+  },
   opts = {
     keymaps = {
       -- Keep nvim-surround DEFAULTS (ds, cs, ys, yss, S)
@@ -27,7 +58,7 @@ return {
       ["~"] = { add = { "~", "~" } },
       ["`"] = {
         add = function()
-          local lang = require("nvim-surround.config").get_input("Language: ")
+          local lang = M.get_input("Language: ")
           vim.schedule(function()
             local row = vim.api.nvim_win_get_cursor(0)[1]
             vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
@@ -36,8 +67,7 @@ return {
           return { { "```" .. (lang or ""), "" }, { "", "```" } }
         end,
         find = function()
-          local config = require("nvim-surround.config")
-          return config.get_selection({ motion = "a`" })
+          return M.get_selection({ motion = "a`" })
         end,
         delete = function()
           local config = require("nvim-surround.config")
@@ -48,11 +78,70 @@ return {
         end,
       },
 
-      -- CUSTOM INPUT SURROUND: Prompt for custom delimiter pair
+      ["tf"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@function.outer" } })
+        end,
+      },
+      ["rf"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@function.inner" } })
+        end,
+      },
+      ["tc"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@class.outer" } })
+        end,
+      },
+      ["rc"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@class.inner" } })
+        end,
+      },
+      ["tp"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@parameter.outer" } })
+        end,
+      },
+      ["rp"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@parameter.inner" } })
+        end,
+      },
+      ["tl"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@loop.outer" } })
+        end,
+      },
+      ["rl"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@loop.inner" } })
+        end,
+      },
+      ["ts"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@scope" } })
+        end,
+      },
+      ["rs"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@scope" } })
+        end,
+      },
+      ["tt"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@tag.outer" } })
+        end,
+      },
+      ["rt"] = {
+        find = function()
+          return M.get_selection({ query = { capture = "@tag.inner" } })
+        end,
+      },
+
       ["i"] = {
         add = function()
-          local config = require("nvim-surround.config")
-          local input = config.get_input("Enter delimiter pair (left/right or tag): ")
+          local input = M.get_input("Enter delimiter pair (left/right or tag): ")
           if not input then
             return
           end
