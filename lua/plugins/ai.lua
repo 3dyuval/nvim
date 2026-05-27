@@ -37,10 +37,10 @@ config = function()
     },
   {
     "coder/claudecode.nvim",
-    enabled = false,
+    enabled = true,
     config = function()
-      require("claudecode").setup({ 
-      teminal = {
+      require("claudecode").setup({
+      terminal = {
         snacks_win_opts = {
           position = "float",
           width = 0.95,
