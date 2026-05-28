@@ -73,10 +73,30 @@ return {
           { "n", "Dl", "<Cmd>%diffput<CR>", { desc = "Put all to left" } },
 
           -- Navigation (HAEI compatible)
-          { "n", "]]", actions.next_conflict, { desc = "Next conflict" } },
-          { "n", "[[", actions.prev_conflict, { desc = "Previous conflict" } },
-          { "n", "A", "]c", { desc = "Next diff hunk" } },
-          { "n", "E", "[c", { desc = "Previous diff hunk" } },
+          {
+            "n",
+            "A",
+            function()
+              if vim.fn.search("^<<<<<<< ", "nw") ~= 0 then
+                actions.next_conflict()
+              else
+                vim.cmd("normal! ]c")
+              end
+            end,
+            { desc = "Next conflict or hunk" },
+          },
+          {
+            "n",
+            "E",
+            function()
+              if vim.fn.search("^<<<<<<< ", "nw") ~= 0 then
+                actions.prev_conflict()
+              else
+                vim.cmd("normal! [c")
+              end
+            end,
+            { desc = "Prev conflict or hunk" },
+          },
 
           -- Common actions
           { "n", "<leader>.", actions.cycle_layout, { desc = "Cycle layout" } },
