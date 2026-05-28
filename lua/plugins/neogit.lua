@@ -49,12 +49,12 @@ return {
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "NeogitStatus",
       callback = function(args)
-        vim.keymap.set("n", "E", function()
+        vim.keymap.set("n", "D", function()
           require("utils.neogit-commands").create_conflict_popup()
         end, {
           buffer = args.buf,
           desc = "File resolution popup",
-          nowait = true, -- Override global mapping immediately
+          nowait = true,
         })
         -- Force disable 'm' key in Neogit
         pcall(vim.keymap.del, "n", "m", { buffer = args.buf })
@@ -137,7 +137,7 @@ return {
         ["I"] = function()
           require("utils.ai_popup").repeat_last()
         end,
-        ["E"] = function()
+        ["D"] = function()
           require("utils.neogit-commands").create_conflict_popup()
         end,
       },

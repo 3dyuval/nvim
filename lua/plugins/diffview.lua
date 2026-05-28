@@ -61,16 +61,16 @@ return {
             "dl",
             function()
               if vim.opt_local.diff:get() then
-                vim.cmd("diffput")
+                vim.cmd("diffget //2")
               else
                 actions.conflict_choose("ours")
               end
             end,
-            { desc = "Put to left" },
+            { desc = "Get from left (ours)" },
           },
-          -- Diff get/put (all hunks)
-          { "n", "Dr", "<Cmd>%diffget<CR>", { desc = "Get all from right" } },
-          { "n", "Dl", "<Cmd>%diffput<CR>", { desc = "Put all to left" } },
+          -- Diff get (all hunks)
+          { "n", "Dr", "<Cmd>%diffget //3<CR>", { desc = "Get all from right (theirs)" } },
+          { "n", "Dl", "<Cmd>%diffget //2<CR>", { desc = "Get all from left (ours)" } },
 
           -- Navigation (HAEI compatible)
           {
@@ -87,7 +87,7 @@ return {
           },
           {
             "n",
-            "E",
+            "D",
             function()
               if vim.fn.search("^<<<<<<< ", "nw") ~= 0 then
                 actions.prev_conflict()
