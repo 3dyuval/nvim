@@ -28,7 +28,8 @@ vim.keymap.set({ "n" }, "J", "O", { desc = "Open line above" })
 -- Insert/append
 -- vim.keymap.set({ "n" }, "0", "I", { desc = "Insert at start of line" })
 -- vim.keymap.set({ "n" }, "T", "A", { desc = "Insert at end of line" })
-vim.keymap.set({ "n" }, "b", "R", { desc = "Replace mode" })
+vim.keymap.set({ "n" }, "b", "r", { desc = "Replace single char" })
+vim.keymap.set({ "n" }, "B", "R", { desc = "Replace mode" })
 
 -- Insert mode while deleting to end of line (W = C = change to end)
 -- vim.keymap.set({ "n" }, "R", "W", { desc = "Change to end of line + insert" })
