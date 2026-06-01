@@ -9,7 +9,7 @@ return {
   --   ]],
   dependencies = {
     "nvim-lua/plenary.nvim",
-    "sindrets/diffview.nvim",
+    "dlyongemallo/diffview-plus.nvim",
     "folke/snacks.nvim",
     "3dyuval/git-resolve-conflict.nvim",
   },
