@@ -3,20 +3,15 @@
   "contributes": {
     "snippets": [
       {
+        "path": "./global.json"
+      },
+      {
         "language": "markdown",
         "path": "./markdown.json"
       },
       {
         "language": "vue",
         "path": "./vue.json"
-      },
-      {
-        "language": "vue",
-        "path": "../../../.local/share/nvim/lazy/friendly-snippets/snippets/frameworks/vue/html.json"
-      },
-      {
-        "language": "vue",
-        "path": "../../../.local/share/nvim/lazy/friendly-snippets/snippets/frameworks/vue/style.json"
       }
     ]
   }

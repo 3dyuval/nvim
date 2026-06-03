@@ -1,6 +1,6 @@
 {
   "Vue 3 Setup": {
-    "prefix": "vuesetup",
+    "prefix": "v3setup",
     "body": [
       "<script setup lang=\"ts\">",
       "$1",
@@ -16,17 +16,17 @@
     "description": "Vue 3 component with script setup, template, and scss"
   },
   "Define Props": {
-    "prefix": "vp",
+    "prefix": "v3props",
     "body": ["defineProps<Props>()", "", "type Props = {", "  $0", "}"],
     "description": "defineProps with Props type"
   },
   "Define Emits": {
-    "prefix": "ve",
+    "prefix": "v3emits",
     "body": ["defineEmits<Emits>()", "", "type Emits = {", "  $0", "}"],
     "description": "defineEmits with Emits type"
   },
   "Define Props with const": {
-    "prefix": "vpr",
+    "prefix": "v3propsr",
     "body": [
       "const props = defineProps<Props>()",
       "",
@@ -37,7 +37,7 @@
     "description": "const props = defineProps with Props type"
   },
   "Define Emits with const": {
-    "prefix": "ver",
+    "prefix": "v3emitsr",
     "body": [
       "const emit = defineEmits<Emits>()",
       "",
@@ -48,7 +48,7 @@
     "description": "const emit = defineEmits with Emits type"
   },
   "Define Slots": {
-    "prefix": "vs",
+    "prefix": "v3slots",
     "body": [
       "defineSlots<Slots>()",
       "",
@@ -59,7 +59,7 @@
     "description": "defineSlots with Slots type"
   },
   "Define Slots with const": {
-    "prefix": "vsr",
+    "prefix": "v3slotsr",
     "body": [
       "const slots = defineSlots<Slots>()",
       "",
@@ -70,23 +70,23 @@
     "description": "const slots = defineSlots with Slots type"
   },
   "Define Options": {
-    "prefix": "vo",
+    "prefix": "v3opts",
     "body": ["defineOptions({", "  $0", "})"],
     "description": "defineOptions"
   },
   "Define Model": {
-    "prefix": "vm",
+    "prefix": "v3model",
     "body": ["defineModel<${1:string}>()", "$0"],
     "description": "defineModel with type"
   },
   "Define Model with const": {
-    "prefix": "vmr",
+    "prefix": "v3modelr",
     "body": ["const ${1:model} = defineModel<${2:string}>()", "$0"],
     "description": "const model = defineModel with type"
   },
   "InstanceType": {
-    "description": "Type tool for inheriting types from component",
-    "prefix": "inst",
-    "body": ["InstanceType<typeof ${1:Component}>"]
+    "prefix": "v3inst",
+    "body": ["InstanceType<typeof ${1:Component}>"],
+    "description": "Type tool for inheriting types from component"
   }
 }
