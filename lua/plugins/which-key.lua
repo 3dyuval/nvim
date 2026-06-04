@@ -2,6 +2,9 @@ return {
   "folke/which-key.nvim",
   event = "VeryLazy",
   opts = {
+    triggers = {
+      { "<auto>", mode = "nxs" }, -- exclude operator-pending ("o") so cs([ etc. work
+    },
     plugins = {
       spelling = false,
       presets = {

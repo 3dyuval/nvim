@@ -1,8 +1,7 @@
 return {
-  -- Disable friendly-snippets (use only custom snippets)
   {
     "rafamadriz/friendly-snippets",
-    enabled = true,
+    lazy = true, -- installed but never loaded; paths resolved via search_paths
   },
   {
     "saghen/blink.cmp",
@@ -26,20 +25,49 @@ return {
           -- Disable snippets for JS/TS/Vue (use LSP completions only)
           javascript = { "lsp", "path", "buffer" },
           javascriptreact = { "lsp", "path", "buffer" },
-          typescript = { "lsp", "path", "buffer" },
+          typescript = { "lsp", "path", "snippets", "buffer" },
           typescriptreact = { "lsp", "path", "buffer" },
           vue = { "lsp", "path", "snippets", "buffer" }, -- custom snippets only (friendly-snippets disabled)
           html = { "lsp", "path", "buffer" },
           css = { "lsp", "path", "buffer" },
           scss = { "lsp", "path", "buffer" },
           json = { "lsp", "path", "buffer" },
-          sh = { "curl", "jq", "lsp", "path", "buffer" },
-          bash = { "curl", "jq", "lsp", "path", "buffer" },
-          zsh = { "curl", "jq", "lsp", "path", "buffer" },
+          sh = { "curl", "jq", "lsp", "path", "snippets", "buffer" },
+          bash = { "curl", "jq", "lsp", "path", "snippets", "buffer" },
+          zsh = { "curl", "jq", "lsp", "path", "snippets", "buffer" },
           amber = { "curl", "jq", "lsp", "path", "buffer" },
           AvanteInput = { "avante_commands", "avante_mentions", "avante_files", "avante_shortcuts" },
         },
         providers = {
+          snippets = {
+            opts = {
+              friendly_snippets = false,
+              search_paths = {
+                vim.fn.stdpath("config") .. "/snippets",
+                vim.fn.stdpath("data") .. "/lazy/friendly-snippets/snippets",
+              },
+              filter_snippets = function(filetype, file)
+                if not file:find("friendly-snippets", 1, true) then
+                  return true
+                end
+                local allowed = {
+                  typescript = { "javascript/typescript.json", "javascript/tsdoc.json" },
+                  elixir     = { "elixir.json" },
+                  sh         = { "shell/shell.json" },
+                  bash       = { "shell/shell.json" },
+                  zsh        = { "shell/shell.json" },
+                  fennel     = { "fennel.json" },
+                  lua        = { "lua/lua.json", "lua/luadoc.json" },
+                }
+                local files = allowed[filetype]
+                if not files then return false end
+                for _, f in ipairs(files) do
+                  if file:find(f, 1, true) then return true end
+                end
+                return false
+              end,
+            },
+          },
           choice = {
             name = "LuaSnip Choice Nodes",
             module = "blink-cmp-luasnip-choice",
