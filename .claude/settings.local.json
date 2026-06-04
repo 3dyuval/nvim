@@ -8,7 +8,8 @@
       "mcp__tavily__tavily-search",
       "mcp__tavily__tavily-crawl",
       "mcp__tavily__tavily-extract",
-      "WebFetch(domain:codeberg.org)"
+      "WebFetch(domain:codeberg.org)",
+      "mcp__nvim-mcp__send_command"
     ]
   },
   "enableAllProjectMcpServers": true,

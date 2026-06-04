@@ -1,1 +1,0 @@
-/home/yuv/.config/nvim/fnl/config/keymaps.fnl
