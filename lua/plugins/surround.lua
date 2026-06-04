@@ -192,9 +192,9 @@ return {
       buffer.set_mark(">", visual_marks[2])
     end
 
-    require("nvim-surround").setup(opts)
-
     vim.keymap.set("x", "s", "<Plug>(nvim-surround-visual)", {desc = "Surround visual selection"})
+
+    require("nvim-surround").setup(opts)
 
     -- which-key group descriptions
     require("which-key").add(
