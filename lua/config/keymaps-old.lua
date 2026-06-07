@@ -61,10 +61,6 @@ vim.keymap.set({"n", "o", "x"}, "<M-o>", "E", {desc = "End of WORD forward"})
 -- FOLDS
 -- ============================================================================
 
--- vim.keymap.set({"n", "x"}, "fo", "zo", {desc = "Open fold (unfold)"})
--- vim.keymap.set({"n", "x"}, "fu", "zc", {desc = "Close fold (fold one)"})
--- vim.keymap.set({"n", "x"}, "ff", "zM", {desc = "Close all folds (fold all)"})
--- vim.keymap.set({"n", "x"}, "fF", "zR", {desc = "Open all folds (unfold all)"})
 -- vim.keymap.set({"n", "x"}, "fe", "zk", {desc = "Move up to fold"})
 -- vim.keymap.set({"n", "x"}, "fa", "zj", {desc = "Move down to fold"})
 -- vim.keymap.set({"n", "x"}, "bb", "zb", {desc = "Scroll line and cursor to bottom"})
