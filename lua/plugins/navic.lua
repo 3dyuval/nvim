@@ -18,8 +18,8 @@ return {
     lsp = {
       auto_attach = true,
       preference = {
-        "vue_ls",
         "vtsls",
+        "vue_ls",
         "lua-language-server",
         "rust_analyzer",
         "elixis-ls",

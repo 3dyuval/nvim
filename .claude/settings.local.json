@@ -23,5 +23,5 @@
     "mcp-deepwiki"
   ],
   "spinnerTipsEnabled": false,
-  "prefersReducedMotion": true
+  "prefersReducedMotion": false
 }

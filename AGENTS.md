@@ -1,6 +1,7 @@
 ## Neovim Graphite Config
 
-IMPORTANT! We started migrating to fennel! see (@fnl/AGENTS.md)
+IMPORTANT! DO NOT EDIT lua/ files directly - only fnl/
+(auto compiles with nfnl)
 See `.claude/skills/nvim-config/SKILL.md` for full context.
 
 ### Quick Reference
