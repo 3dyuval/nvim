@@ -1,4 +1,5 @@
-local lset = vim.keymap.set
-lset("n", "n", "i", {desc = "Insert before cursor"})
-lset("n", "N", "I", {desc = "Insert at line start (first non-blank)"})
-return lset("i", "<C-n>", "<Esc>", {desc = "Normal mode"})
+-- [nfnl] fnl/config/keymaps/modes.fnl
+require("config.keymaps.utils")
+require("config.keymaps.insert")
+require("config.keymaps.terminal")
+return require("config.keymaps.utils")

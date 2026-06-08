@@ -79,6 +79,7 @@ return {
     },
     formatters_by_ft = {
       lua = { "luafmt" },
+      fennel = { "fnlfmt" }, -- conform ships the builtin; needs the fnlfmt binary
       dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
       go = { "goimports", "gofumpt" }, -- Go: organize imports + format
       rust = { "rustfmt" },
@@ -95,6 +96,11 @@ return {
       scss = { "prettier" },
     },
     formatters = {
+      -- fnlfmt installed via `luarocks install --local`; ~/.luarocks/bin isn't
+      -- on PATH, so point conform's builtin at the absolute wrapper path.
+      fnlfmt = {
+        command = vim.fn.expand("~/.luarocks/bin/fnlfmt"),
+      },
       -- luafmt (lua-fmt from npm)
       luafmt = {
         command = "luafmt",

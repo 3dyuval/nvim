@@ -5,4 +5,7 @@
 (lset :n :W :A {:desc "Insert at end of line"})
 (lset :n :S :A {:desc "Insert at end of line"})
 (lset :n :t "<Del>" {:desc "Delete char under cursor"})
-(lset :n :X "<Del>" {:desc "Delete char under cursor"})
+(lset :n :X "<Del>" {:desc "Delete car under cursor"})
+(lset :n :n :i {:desc "Insert before cursor"})
+(lset :n :N :I {:desc "Insert at line start (first non-blank)"})
+(lset :i :<C-n> :<Esc> {:desc "Normal mode"})

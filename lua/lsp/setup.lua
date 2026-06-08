@@ -1,6 +1,6 @@
 -- [nfnl] fnl/lsp/setup.fnl
 vim.lsp.config("*", {capabilities = {positionEncoding = "utf-8"}, root_markers = {".git"}})
-vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "elixirls", "bashls", "cssls", "jsonls", "kcl_lsp"})
+vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "elixirls", "bashls", "cssls", "jsonls", "kcl_lsp", "fennel_ls"})
 vim.lsp.config("lua_ls", {settings = {Lua = {runtime = {version = "LuaJIT"}, diagnostics = {globals = {"vim"}}, workspace = {checkThirdParty = false}, telemetry = {enable = false}}}})
 vim.lsp.config("rust_analyzer", {settings = {["rust-analyzer"] = {cargo = {allFeatures = true, loadOutDirsFromCheck = true, buildScripts = {enable = true}}, checkOnSave = {command = "clippy"}, procMacro = {enable = true}}}})
 local vue_plugin_location = (vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/language-server")

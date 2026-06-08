@@ -1,9 +1,12 @@
-
 (local lset vim.keymap.set)
 (local ufo (require :ufo))
+(lset :n :<leader>gs ":DiffviewOpen %"
+      {:desc "File DiffviewOpen history" :noremap true})
 
-(lset :<leader>gs ":DiffviewOpen %" {:desc "File DiffviewOpen history" :noremap true})
-(lset :ff (ufo.action.openFoldsWith 0) {:desc "Close all folds (fold all)" :noremap true})
-(lset :fF "zr" {:desc "Open all folds (unfold all)" :noremap true})
-(lset :fo "zo" {:desc "Open fold (unfold)" :noremap true})
-(lset :fu "zc" {:desc "Close fold (fold one)" :noremap true})
+(lset :n :ff (fn [] (ufo.action.openFoldsWith 0))
+      {:desc "Close all folds (fold all)"})
+(lset :n :fM :zr {:desc "Fold all" :noremap true})
+(lset :n :fF :zr {:desc "Unfold all" :noremap true})
+(lset :n :fo :zo {:desc :Unfold :noremap true})
+(lset :n :fu :zc {:desc "Fold one" :noremap true})
+

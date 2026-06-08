@@ -4,7 +4,7 @@
 
 ;; Enable all servers
 (vim.lsp.enable [:lua_ls :rust_analyzer :vtsls :vue_ls
-                 :elixirls :bashls :cssls :jsonls :kcl_lsp])
+                 :elixirls :bashls :cssls :jsonls :kcl_lsp :fennel_ls])
 
 (vim.lsp.config :lua_ls
   {:settings
