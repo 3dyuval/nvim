@@ -88,8 +88,19 @@
    :init_options {:vue {:hybridMode true}}
    :settings     {:vue {:complete {:casing {:tags :kebab :props :kebab}}}}
    :on_init      (fn [client]
-                   (set client.server_capabilities.renameProvider false)
-                   (set client.server_capabilities.documentSymbolProvider false))})
+                   ;; vtsls is the sole authority for TS-semantic features on .vue.
+                   ;; vue_ls advertises these but stalls direct requests in hybrid
+                   ;; mode, which hangs vim.lsp.buf aggregation — grr/gra/gd appear
+                   ;; broken. Disable them so only vtsls (which answers correctly)
+                   ;; responds. vue_ls keeps template/style completion + diagnostics.
+                   (each [_ cap (ipairs [:renameProvider
+                                         :documentSymbolProvider
+                                         :referencesProvider
+                                         :codeActionProvider
+                                         :definitionProvider
+                                         :implementationProvider
+                                         :typeDefinitionProvider])]
+                     (tset client.server_capabilities cap false)))})
 
 (vim.lsp.config :elixirls
   {:settings
@@ -124,3 +135,24 @@
    :filetypes          [:kcl]
    :root_markers       [:.git]
    :single_file_support true})
+
+;; --- LSP keymap migration → Neovim 0.11 native gr* defaults ---
+;; Old custom keys now noop and notify the native replacement, to retrain
+;; muscle memory. (Definition has no gr* default, so gd stays functional below.)
+(local lsp-nudges
+  {"<leader>cr" "grn  (rename)"
+   "<leader>cR" "grr  (references)"
+   "<leader>ca" "gra  (code action)"
+   "gD"         "gd  (go to definition)"
+   "gR"         "grr  (references)"})
+
+(each [lhs target (pairs lsp-nudges)]
+  (vim.keymap.set :n lhs
+    (fn []
+      (vim.notify (.. "Deprecated keymap — use " target)
+                  vim.log.levels.WARN
+                  {:title "LSP keymap moved"}))
+    {:desc (.. "moved -> " target) :silent true}))
+
+;; Definition has no native gr* default; keep gd working (TS + Vue via vtsls).
+(vim.keymap.set :n :gd vim.lsp.buf.definition {:desc "Go to definition"})
