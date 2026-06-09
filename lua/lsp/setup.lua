@@ -61,4 +61,12 @@ local function goto_definition_first()
   return vim.lsp.buf.definition({on_list = _9_})
 end
 vim.keymap.set("n", "grt", goto_definition_first, {desc = "Go to definition (first)"})
-return vim.keymap.set("n", "grT", vim.lsp.buf.definition, {desc = "Go to definition (list)"})
+vim.keymap.set("n", "grT", vim.lsp.buf.definition, {desc = "Go to definition (list)"})
+local function _11_()
+  if (vim.bo.filetype == "vue") then
+    return require("lsp.vue-symbols").pick("bottom")
+  else
+    return require("snacks").picker.lsp_symbols({layout = "bottom"})
+  end
+end
+return vim.keymap.set("n", "grs", _11_, {desc = "Symbols"})

@@ -1,133 +1,67 @@
-return {
-  "oribarilan/lensline.nvim",
-  event = "LspAttach",
-  dependencies = {
-    "3dyuval/colortweak.nvim"
-  },
-  config = function()
-    require("colortweak.tweak").hl({ --  uses "3dyuval/colortweak"
-      LensLine = { "Comment", { l = 1.2, s = 1.5 } },
-      LensLineZero = { "DiagnosticWarn", { l = 0.9, s = 1.5 } },
-      LensLineLow = { "DiagnosticHint", { l = 1.0, s = 2 } },
-      LensLineHigh = { "DiagnosticInfo", { l = 1.3, s = 2, h = -30 } },
-      LensLineComplexity = { "DiagnosticWarn", { l = 1.1, s = 2, h = 90 } },
-    })
-
-    local refs_provider = {
-      name = "references_with_warning",
-      enabled = true,
-      event = { "LspAttach", "BufWritePost" },
-      handler = function(bufnr, func_info, provider_config, callback)
-        local utils = require("lensline.utils")
-
-        utils.get_lsp_references(bufnr, func_info, function(references)
-          if references then
-            local count = #references
-            local text
-
-            if count == 0 then
-              text = utils.if_nerdfont_else("󰌸 ", "") .. " No references"
-            elseif count == 1 then
-              text = utils.if_nerdfont_else("󰌷 ", "") .. count .. " references"
-            else
-              text = utils.if_nerdfont_else("", "") .. count .. " references"
-            end
-
-            callback({ line = func_info.line, text = text })
+-- [nfnl] fnl/plugins/codelens.fnl
+local function _1_()
+  require("colortweak.tweak").hl({LensLine = {"Comment", {l = 0.9}}, LensLineZero = {"DiagnosticWarn", {l = 9}}, LensLineLow = {"DiagnosticHint", {l = 0.9}}, LensLineHigh = {"DiagnosticInfo", {l = 0.9}}, LensLineComplexity = {"DiagnosticWarn", {l = 0.9}}})
+  local refs_provider
+  local function _2_(bufnr, func_info, _provider_config, callback)
+    local utils = require("lensline.utils")
+    local function _3_(references)
+      if references then
+        local count = #references
+        local function _4_()
+          if (count == 0) then
+            return {(utils.if_nerdfont_else("\243\176\140\184 ", "") .. " No references"), "LensLineZero"}
+          elseif (count == 1) then
+            return {(utils.if_nerdfont_else("\243\176\140\183 ", "") .. count .. " references"), "LensLineLow"}
           else
-            callback(nil)
-          end
-        end)
-      end,
-    }
-
-    local complexity_provider = {
-      name = "complexity_score",
-      enabled = true,
-      event = { "BufWritePost", "TextChanged" },
-      handler = function(bufnr, func_info, provider_config, callback)
-        local utils = require("lensline.utils")
-        local lines = utils.get_function_lines(bufnr, func_info)
-        if not lines or #lines == 0 then
-          callback(nil)
-          return
-        end
-
-        local code = table.concat(lines, "\n")
-        local score = 1 -- base complexity
-
-        -- Count decision points
-        local patterns = {
-          "if%s",
-          "elseif%s",
-          "else%s",
-          "for%s",
-          "while%s",
-          "repeat%s",
-          "and%s",
-          "or%s",
-          "switch",
-          "case%s",
-          "try",
-          "catch",
-          "finally",
-          "%?", -- ternary
-          "&&",
-          "||",
-        }
-
-        for _, pattern in ipairs(patterns) do
-          for _ in code:gmatch(pattern) do
-            score = score + 1
+            return {(utils.if_nerdfont_else("", "") .. count .. " references"), "LensLineHigh"}
           end
         end
-
-        local icon, label
-        if score <= 3 then
-          icon = utils.if_nerdfont_else("󰔶 ", "")
-          label = "simple"
-        elseif score <= 8 then
-          icon = utils.if_nerdfont_else("󰔷 ", "")
-          label = "moderate"
-        elseif score <= 15 then
-          icon = utils.if_nerdfont_else("󰔸 ", "")
-          label = "complex"
+        local _let_5_ = _4_()
+        local text = _let_5_[1]
+        local hl = _let_5_[2]
+        return callback({line = func_info.line, text = text, highlight = hl})
+      else
+        return callback(nil)
+      end
+    end
+    return utils.get_lsp_references(bufnr, func_info, _3_)
+  end
+  refs_provider = {name = "references_with_warning", enabled = true, event = {"LspAttach", "BufWritePost"}, handler = _2_}
+  local complexity_provider
+  local function _7_(bufnr, func_info, _provider_config, callback)
+    local utils = require("lensline.utils")
+    local lines = utils.get_function_lines(bufnr, func_info)
+    if (not lines or (#lines == 0)) then
+      return callback(nil)
+    else
+      local code = table.concat(lines, "\n")
+      local patterns = {"if%s", "elseif%s", "else%s", "for%s", "while%s", "repeat%s", "and%s", "or%s", "switch", "case%s", "try", "catch", "finally", "%?", "&&", "||"}
+      local score = 1
+      for _, pattern in ipairs(patterns) do
+        for _0 in code:gmatch(pattern) do
+          score = (score + 1)
+        end
+      end
+      local function _8_()
+        if (score <= 3) then
+          return {utils.if_nerdfont_else("\243\176\148\182 ", ""), "simple", "LensLineLow"}
+        elseif (score <= 8) then
+          return {utils.if_nerdfont_else("\243\176\148\183 ", ""), "moderate", "LensLine"}
+        elseif (score <= 15) then
+          return {utils.if_nerdfont_else("\243\176\148\184 ", ""), "complex", "LensLineHigh"}
         else
-          icon = utils.if_nerdfont_else("󰀦 ", "!")
-          label = "very complex"
+          return {utils.if_nerdfont_else("\243\176\128\166 ", "!"), "very complex", "LensLineComplexity"}
         end
-
-        callback({
-          line = func_info.line,
-          text = icon .. score .. " " .. label,
-        })
-      end,
-    }
-
-    local style = {
-      highlight = "LensLine",
-      placement = "inline",
-      prefix = "",
-    }
-
-    require("lensline").setup({
-      profiles = {
-        {
-          name = "default",
-          style = style,
-          providers = { refs_provider, complexity_provider },
-        },
-        {
-          name = "complexity",
-          style = style,
-          providers = { complexity_provider },
-        },
-        {
-          name = "references",
-          style = style,
-          providers = { refs_provider },
-        },
-      },
-    })
-  end,
-}
+      end
+      local _let_9_ = _8_()
+      local icon = _let_9_[1]
+      local label = _let_9_[2]
+      local hl = _let_9_[3]
+      return callback({line = func_info.line, text = (icon .. score .. " " .. label), highlight = hl})
+    end
+  end
+  complexity_provider = {name = "complexity_score", enabled = true, event = {"BufWritePost", "TextChanged"}, handler = _7_}
+  local style = {highlight = "LensLine", placement = "inline", prefix = ""}
+  return require("lensline").setup({profiles = {{name = "default", style = style, providers = {refs_provider, complexity_provider}}, {name = "complexity", style = style, providers = {complexity_provider}}, {name = "references", style = style, providers = {refs_provider}}}})
+end
+return {"oribarilan/lensline.nvim", event = "LspAttach", dependencies = {"3dyuval/colortweak.nvim"}, config = _1_}

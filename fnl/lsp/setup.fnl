@@ -189,6 +189,16 @@
 
 (vim.keymap.set :n :grt goto-definition-first
                 {:desc "Go to definition (first)"})
+
 (vim.keymap.set :n :grT vim.lsp.buf.definition
                 {:desc "Go to definition (list)"})
+
+;; grs: all document symbols in a bottom layout. .vue has no usable LSP symbols
+;; (Volar 3.x hybrid), so it falls back to the injected-TS treesitter extractor.
+(vim.keymap.set :n :grs
+                (fn []
+                  (if (= vim.bo.filetype :vue)
+                      ((. (require :lsp.vue-symbols) :pick) :bottom)
+                      ((. (require :snacks) :picker :lsp_symbols) {:layout :bottom})))
+                {:desc :Symbols})
 

@@ -122,8 +122,13 @@ return {
       },
       -- fnlfmt installed via `luarocks install --local`; ~/.luarocks/bin isn't
       -- on PATH, so point conform's builtin at the absolute wrapper path.
+      -- Disabled inside this nvim config (its reflow is too aggressive here);
+      -- still runs for other Fennel projects (e.g. ~/proj/*.nvim).
       fnlfmt = {
         command = vim.fn.expand("~/.luarocks/bin/fnlfmt"),
+        condition = function(_, ctx)
+          return not vim.startswith(ctx.filename, vim.fn.stdpath("config"))
+        end,
       },
       -- luafmt (lua-fmt from npm)
       luafmt = {

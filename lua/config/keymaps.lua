@@ -413,7 +413,7 @@ map({
 
 map({
   ["<leader>r"] = {
-    C = { editor.reload_keymaps, desc = "Reload keymaps" },
+    -- Reload keymaps moved to <leader>rk in fnl/config/keymaps/config.fnl
     l = { cmd = "Leet run", desc = "Leet run (test)" },
     -- Sniprun keymaps (r/t disabled - conflicts with summon)
     -- r = { [mode] = { "n", "v" }, cmd = "SnipRun", desc = "Run snippet" },
