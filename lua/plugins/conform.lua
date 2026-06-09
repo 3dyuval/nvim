@@ -96,6 +96,30 @@ return {
       scss = { "prettier" },
     },
     formatters = {
+      -- For ~/gc/*web* projects the prettier config (.prettierrc) lives one
+      -- level ABOVE the tsconfig.json (tsconfig is in client/, config at root).
+      -- Anchor prettier's cwd there so it resolves the right config.
+      prettier = {
+        cwd = function(self, ctx)
+          -- match the gc/ project dir whose name contains "web" (web, webnew,
+          -- web-app, …) without false-matching "web" deeper in unrelated paths
+          if ctx.filename:find("/gc/[^/]*web[^/]*/") then
+            local tsdir = vim.fs.root(ctx.filename, "tsconfig.json")
+            if tsdir then
+              return vim.fs.dirname(tsdir) -- one level up from tsconfig's dir
+            end
+          end
+          return require("conform.util").root_file({
+            ".prettierrc",
+            ".prettierrc.json",
+            ".prettierrc.cjs",
+            "prettier.config.js",
+            "package.json",
+            ".git",
+          })(self, ctx)
+        end,
+        require_cwd = false,
+      },
       -- fnlfmt installed via `luarocks install --local`; ~/.luarocks/bin isn't
       -- on PATH, so point conform's builtin at the absolute wrapper path.
       fnlfmt = {
