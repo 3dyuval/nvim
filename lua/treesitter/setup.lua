@@ -5,7 +5,6 @@ local function setup()
     local lang = (vim.treesitter.language.get_lang(ev.match) or ev.match)
     if (lang and (lang ~= "")) then
       pcall(vim.treesitter.start, ev.buf, lang)
-      vim.bo[ev.buf]["indentexpr"] = "v:lua.vim.treesitter.foldexpr()"
       vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
       return nil
     else

@@ -15,7 +15,10 @@
                                    :bash :json :yaml :toml
                                    :elixir :heex :vue
                                    :css :scss :html :kcl]
-              :overrides {:kcl {:url "https://github.com/KittyCAD/tree-sitter-kcl"}}}))}
+              :overrides {:kcl {:url "https://github.com/KittyCAD/tree-sitter-kcl"}}
+              ;; arborist's treesitter indent returns col 0 inside .vue's injected
+              ;; <script> — disable it for vue so filetype/autoindent handles it.
+              :disable {:indent [:vue]}}))}
  {1 "nvim-treesitter/nvim-treesitter"
   :branch :main
   :lazy false
