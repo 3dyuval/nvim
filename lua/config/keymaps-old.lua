@@ -107,8 +107,8 @@ vim.keymap.set({"n", "o", "x"}, "M", "N", {desc = "Previous search match"})
 -- TILL/FIND
 -- ============================================================================
 
-vim.keymap.set({"n", "o", "x"}, "k", "t", {desc = "Till before"})
-vim.keymap.set({"n", "o", "x"}, "K", "T", {desc = "Till before backward"})
+-- vim.keymap.set({"n", "o", "x"}, "k", "t", {desc = "Till before"})
+-- vim.keymap.set({"n", "o", "x"}, "K", "T", {desc = "Till before backward"})
 
 -- ============================================================================
 -- MACROS

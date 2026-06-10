@@ -20,3 +20,5 @@
 (lset :n :FF ufo.closeAllFolds {:desc "Close all folds"})
 (lset :n :UU ufo.openAllFolds {:desc "Open all folds"})
 
+(lset [ :n :o :x ] ">" :t {:desc "Till before"} )
+(lset [ :n :o :x ] "<" :T {:desc "Till before backward"} )

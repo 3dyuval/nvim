@@ -8,4 +8,6 @@ lset("n", "I", "<cmd>Treewalker Down<cr>", {desc = "Treewalk next (same level)",
 lset("n", "OF", "zc", {desc = "Close fold (one)", noremap = true})
 lset("n", "OU", "zo", {desc = "Open fold (one)", noremap = true})
 lset("n", "FF", ufo.closeAllFolds, {desc = "Close all folds"})
-return lset("n", "UU", ufo.openAllFolds, {desc = "Open all folds"})
+lset("n", "UU", ufo.openAllFolds, {desc = "Open all folds"})
+lset({"n", "o", "x"}, ">", "t", {desc = "Till before"})
+return lset({"n", "o", "x"}, "<", "T", {desc = "Till before backward"})
