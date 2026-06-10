@@ -1,6 +1,9 @@
 -- [nfnl] fnl/plugins/hover.fnl
 local function _1_()
-  require("hover").config({providers = {"hover.providers.diagnostic", "hover.providers.lsp", "hover.providers.fold_preview", "hover.providers.man", "hover.providers.highlight"}, preview_opts = {border = "single"}, title = true, preview_window = false})
+  local tweak = require("colortweak.tweak")
+  require("hover").config({providers = {"hover.providers.diagnostic", "hover.providers.lsp", "hover.providers.fold_preview", "hover.providers.man", "hover.providers.highlight"}, preview_opts = {border = "rounded"}, title = true, preview_window = false})
+  tweak.hl({HoverWindow = {"Normal", {l = 0.9}}})
+  vim.api.nvim_set_hl(0, "HoverBorder", {fg = tweak.get("NormalFloat", {l = 0.5, s = 1.25}).fg, bg = vim.api.nvim_get_hl(0, {name = "Normal"}).bg})
   local function _2_()
     return require("hover").open()
   end
@@ -10,4 +13,4 @@ local function _1_()
   end
   return vim.keymap.set("n", "gH", _3_, {desc = "Hover (pick provider)"})
 end
-return {"lewis6991/hover.nvim", event = "VeryLazy", config = _1_}
+return {"lewis6991/hover.nvim", event = "VeryLazy", dependencies = {"3dyuval/colortweak.nvim"}, config = _1_}

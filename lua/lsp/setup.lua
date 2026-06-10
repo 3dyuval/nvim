@@ -30,7 +30,7 @@ local function _4_(err, result, ctx, config)
 end
 vim.lsp.config("vtsls", {filetypes = {"typescript", "typescriptreact", "javascript", "javascriptreact", "vue"}, settings = {vtsls = {tsserver = {globalPlugins = {{name = "@vue/typescript-plugin", location = vue_plugin_location, languages = {"vue"}, configNamespace = "typescript"}}}, autoUseWorkspaceTsdk = false}, typescript = {preferences = {importModuleSpecifier = "relative"}, inlayHints = {parameterNames = {enabled = "literals"}, variableTypes = {enabled = true}, propertyDeclarationTypes = {enabled = true}, enumMemberValues = {enabled = true}}}, javascript = {implicitProjectConfig = {checkJs = true, strictFunctionTypes = false, strictNullChecks = false}, lib = {"ES2020", "DOM"}}}, handlers = {["textDocument/publishDiagnostics"] = _1_, ["textDocument/documentSymbol"] = _4_}})
 local function _7_(client)
-  for _, cap in ipairs({"renameProvider", "documentSymbolProvider", "referencesProvider", "codeActionProvider", "definitionProvider", "implementationProvider", "typeDefinitionProvider"}) do
+  for _, cap in ipairs({"renameProvider", "documentSymbolProvider", "referencesProvider", "codeActionProvider", "definitionProvider", "implementationProvider", "typeDefinitionProvider", "hoverProvider"}) do
     client.server_capabilities[cap] = false
   end
   return nil

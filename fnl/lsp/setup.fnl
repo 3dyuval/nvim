@@ -122,7 +122,8 @@
                                                           :codeActionProvider
                                                           :definitionProvider
                                                           :implementationProvider
-                                                          :typeDefinitionProvider])]
+                                                          :typeDefinitionProvider
+                                                          :hoverProvider])]
                                       (tset client.server_capabilities cap
                                             false)))})
 

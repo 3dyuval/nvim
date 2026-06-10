@@ -1,7 +1,7 @@
 -- Lua
 return {
   {
-    "abecodes/tabout.nvim",
+    "3dyuval/tabout.nvim",
     lazy = false,
     config = function()
       require("tabout").setup(
@@ -28,15 +28,12 @@ return {
       )
     end,
     dependencies = {
-      -- These are optional
-      "nvim-treesitter/nvim-treesitter",
       "hrsh7th/nvim-cmp"
     },
     opt = true, -- Set this to true if the plugin is optional
     event = "InsertCharPre", -- Set the event to 'InsertCharPre' for better compatibility
     priority = 1000
   },
-  -- LuaSnip disabled - not needed
   {
     "L3MON4D3/LuaSnip",
     enabled = false

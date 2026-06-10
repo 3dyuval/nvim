@@ -99,7 +99,6 @@
   "sniprun": { "branch": "master", "commit": "6416f98924018385f7f5ebfe8dc773a4482426e4" },
   "sqlite.lua": { "branch": "master", "commit": "50092d60feb242602d7578398c6eb53b4a8ffe7b" },
   "summon.nvim": { "branch": "main", "commit": "4be4b11a0ddd3cdf197148472885ffedece7e419" },
-  "tabout.nvim": { "branch": "master", "commit": "9a3499480a8e53dcaa665e2836f287e3b7764009" },
   "teide.nvim": { "branch": "main", "commit": "95041d1d78e786bd88be64bca3e1771f7b6236df" },
   "textobject-hud.nvim": { "branch": "main", "commit": "51a49bd5c570cb630ea0749638863e6bae9407e0" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
