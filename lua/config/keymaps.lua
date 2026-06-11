@@ -492,7 +492,7 @@ map({
 
   ["<leader><leader>"] = {
     function()
-      require("utils.picker-extensions").open_explorer({ layout = { preset = "default" } })
+      require("utils.picker-extensions").open_explorer({ layout = { preset = "default" }, focus = "input" })
     end,
     desc = "Explorer (float)",
   },
