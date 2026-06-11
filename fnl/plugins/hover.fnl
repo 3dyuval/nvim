@@ -22,9 +22,4 @@
    (vim.api.nvim_set_hl 0 :HoverBorder
                         {:fg (. (tweak.get :NormalFloat {:l .5 :s 1.25}) :fg)
                          :bg (. (vim.api.nvim_get_hl 0 {:name :Normal}) :bg)})
-   ;; K = hover (set here at VeryLazy so it wins over keymaps-old's K mapping,
-   ;; which loads earlier; that motion now lives on >). normal mode only.
-   (vim.keymap.set :n :K (fn [] ((. (require :hover) :open)))
-                   {:desc "Hover"})
-   (vim.keymap.set :n :gH (fn [] ((. (require :hover) :select)))
-                   {:desc "Hover (pick provider)"}))}
+   )}

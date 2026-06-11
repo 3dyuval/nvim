@@ -9,5 +9,22 @@ lset("n", "OF", "zc", {desc = "Close fold (one)", noremap = true})
 lset("n", "OU", "zo", {desc = "Open fold (one)", noremap = true})
 lset("n", "FF", ufo.closeAllFolds, {desc = "Close all folds"})
 lset("n", "UU", ufo.openAllFolds, {desc = "Open all folds"})
-lset({"n", "o", "x"}, ">", "t", {desc = "Till before"})
-return lset({"n", "o", "x"}, "<", "T", {desc = "Till before backward"})
+lset({"n", "o", "x"}, "k", "t", {desc = "Till before"})
+lset({"n", "o", "x"}, "K", "T", {desc = "Till before backward"})
+local gs = require("gitsigns")
+local function _1_()
+  if vim.wo.diff then
+    return vim.cmd.normal({"]c", bang = true})
+  else
+    return gs.next_hunk()
+  end
+end
+lset("n", "<C-PageDown>", _1_, {desc = "Next git hunk"})
+local function _3_()
+  if vim.wo.diff then
+    return vim.cmd.normal({"[c", bang = true})
+  else
+    return gs.prev_hunk()
+  end
+end
+return lset("n", "<C-PageUp>", _3_, {desc = "Prev git hunk"})

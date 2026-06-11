@@ -20,5 +20,20 @@
 (lset :n :FF ufo.closeAllFolds {:desc "Close all folds"})
 (lset :n :UU ufo.openAllFolds {:desc "Open all folds"})
 
-(lset [ :n :o :x ] ">" :t {:desc "Till before"} )
-(lset [ :n :o :x ] "<" :T {:desc "Till before backward"} )
+(lset [ :n :o :x ] "k" :t {:desc "Till before"} )
+(lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
+
+;; Git hunk navigation (gitsigns; falls back to diff ]c/[c in diff mode)
+(local gs (require :gitsigns))
+(lset :n :<C-PageDown>
+      (fn []
+        (if vim.wo.diff
+            (vim.cmd.normal {1 "]c" :bang true})
+            (gs.next_hunk)))
+      {:desc "Next git hunk"})
+(lset :n :<C-PageUp>
+      (fn []
+        (if vim.wo.diff
+            (vim.cmd.normal {1 "[c" :bang true})
+            (gs.prev_hunk)))
+      {:desc "Prev git hunk"})
