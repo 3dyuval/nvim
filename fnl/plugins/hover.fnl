@@ -1,4 +1,5 @@
 {1 "lewis6991/hover.nvim"
+ :dev true
  :event :VeryLazy
  :dependencies ["3dyuval/colortweak.nvim"]
  :config
@@ -7,6 +8,7 @@
    ((. (require :hover) :config)
     {:providers ["hover.providers.diagnostic"
                  "hover.providers.lsp"
+                 "hover-mdn"
                  "hover.providers.fold_preview"
                  "hover.providers.man"
                  "hover.providers.highlight"]
