@@ -166,7 +166,7 @@ vim.keymap.set(
   {noremap = true, desc = "Toggle bento tabline"}
 )
 
--- Window nav + resize keymaps are owned by omarkitty (plugins/omarkitty.nvim)
+-- Window nav (Ctrl) + resize (Ctrl+Alt) keymaps are owned by smart-splits.nvim
 
 -- ============================================================================
 -- FUNCTION KEYS
