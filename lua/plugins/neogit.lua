@@ -60,7 +60,6 @@ return {
   end,
 
   opts = {
-    kind = "tab",
     graph_style = "kitty",
     filewatcher = {
       enabled = true,

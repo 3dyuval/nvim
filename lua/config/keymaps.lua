@@ -153,7 +153,7 @@ map({
     h = { "G", desc = "Go to bottom" },
   },
   ["<leader>g"] = {
-    g = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" },
+    -- g = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" }, -- moved to fnl/config/keymaps/utils.fnl
     i = { cmd = "Neogit commit", desc = "Neogit commit" },
     I = { cmd = "AiCommit", desc = "AI commit popup" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
