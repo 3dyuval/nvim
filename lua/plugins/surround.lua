@@ -1,5 +1,16 @@
 local M = {}
 
+-- Each entry disables surround for a buffer when it returns true.
+-- Uncomment conditions to re-enable them.
+local disable_surround = {
+  function() return not vim.bo.modifiable end,
+  -- function() return vim.bo.buftype ~= "" end,
+  -- function() return vim.api.nvim_buf_get_name(0):match("^diffview://") ~= nil end,
+  -- function() return vim.api.nvim_buf_get_name(0):match("^git://") ~= nil and not vim.api.nvim_buf_get_name(0):match("^neogit://") end,
+  -- function() return vim.api.nvim_buf_get_name(0) == "" end,
+}
+
+
 M.get_input = function(prompt)
   local config = require("nvim-surround.config")
   return config.get_input(prompt)
@@ -215,16 +226,15 @@ return {
       {
         pattern = "*",
         callback = function()
-          local bufname = vim.api.nvim_buf_get_name(0)
-          local should_disable =
-            not vim.bo.modifiable or vim.bo.buftype ~= "" or bufname:match("^diffview://") or
-            (bufname:match("^git://") and not bufname:match("^neogit://")) or
-            bufname == ""
-
+          local should_disable = false
+          for _, cond in ipairs(disable_surround) do
+            if cond() then should_disable = true; break end
+          end
           if should_disable then
-            local keymaps_to_disable = {"s", "S", "ys", "yss", "yS", "ySS", "ds", "cs", "cS"}
-            for _, key in ipairs(keymaps_to_disable) do
+            for _, key in ipairs({"s", "S", "ys", "yss", "yS", "ySS", "ds", "cs", "cS"}) do
               pcall(vim.keymap.del, "v", key, {buffer = 0})
+            end
+            for _, key in ipairs({"ys", "yss", "yS", "ySS", "ds", "cs", "cS"}) do
               pcall(vim.keymap.del, "n", key, {buffer = 0})
             end
           end
