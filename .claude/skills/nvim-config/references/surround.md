@@ -15,9 +15,8 @@ nvim-surround with Graphite layout translations. Config: `/lua/plugins/surround.
 ### Visual Mode
 | Key | Action |
 |-----|--------|
-| `s{char}` | Surround selection (Graphite) |
-| `S{char}` | Surround selection (default) |
-| `gS{char}` | Surround selection (with newlines) |
+| `v{motion}s{char}` | Surround selection — `v` to select, `s` to trigger (e.g. `viws(`) |
+| `V{motion}gS{char}` | Surround line selection with newlines (e.g. `VgS(`) |
 
 ### Delete (Graphite: X=delete)
 | Key | Action |
@@ -97,8 +96,4 @@ Note: Default `r` = `]` removed (conflicts with Graphite `r` = inner)
 
 ## Buffer Exclusions
 
-Surround disabled for:
-- Non-modifiable buffers
-- Special buftypes
-- `diffview://` buffers
-- `git://` buffers (except `neogit://`)
+Surround disabled only for non-modifiable buffers. Condition table in `surround.lua` (`disable_surround`) — uncomment entries to re-enable stricter checks.
