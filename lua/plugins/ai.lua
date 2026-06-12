@@ -56,7 +56,7 @@ return {
               backdrop = false,
               keys = {
                 toggle = {"<C-Space>", function(self)
-                    self:hide()
+                    vim.cmd("ClaudeCode")
                   end, mode = "t", desc = "Toggle Claude"}
               }
             }
