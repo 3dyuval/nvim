@@ -4,6 +4,10 @@
       (fn [] (vim.cmd (.. "Neogit kind=vsplit cwd=" (vim.fn.expand "%:p:h"))))
       {:desc "Neogit (side)" :noremap true})
 
+(lset :n :<leader>gc
+      (fn [] (vim.cmd "Neogit commit"))
+      {:desc "Neogit commit" :noremap true})
+
 
 (lset :n :<leader>gs ":DiffviewOpen %"
       {:desc "File DiffviewOpen history" :noremap true})

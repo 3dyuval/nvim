@@ -55,12 +55,49 @@ return {
               border = "rounded",
               backdrop = false,
               keys = {
-                hide = {"<C-r>", function(self)
+                toggle = {"<C-Space>", function(self)
                     self:hide()
-                  end, mode = "t", desc = "Hide Claude"}
+                  end, mode = "t", desc = "Toggle Claude"}
               }
             }
           }
+        }
+      )
+
+      -- Open Claude Code panel when a diff opens (only if not already open)
+      vim.api.nvim_create_autocmd(
+        "User",
+        {
+          pattern = "ClaudeCodeDiffOpened",
+          callback = function()
+            local terminal = require("claudecode.terminal")
+            local active_bufnr = terminal.get_active_terminal_bufnr and terminal.get_active_terminal_bufnr()
+            if active_bufnr then
+              local bufinfo = vim.fn.getbufinfo(active_bufnr)[1]
+              local is_visible = bufinfo and #bufinfo.windows > 0
+              if is_visible then
+                return  -- Already open
+              end
+            end
+            vim.cmd("ClaudeCode")
+          end
+        }
+      )
+      -- Hide Claude Code panel when a diff is accepted
+      vim.api.nvim_create_autocmd(
+        "User",
+        {
+          pattern = "ClaudeCodeDiffAccepted",
+          callback = function()
+            -- Get the snacks terminal and call hide
+            local snacks = require("snacks")
+            if snacks.terminal then
+              local term = snacks.terminal:get()
+              if term then
+                term:hide()
+              end
+            end
+          end
         }
       )
     end

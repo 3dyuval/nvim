@@ -27,6 +27,14 @@ pcall(vim.keymap.del, "n", "<leader><space>")
 pcall(vim.keymap.del, "n", "<leader>:")
 pcall(vim.keymap.del, "n", "<leader>sb")
 
+-- Claude Code toggle
+vim.keymap.set("n", "<C-Space>", function()
+  -- Try using the direct toggle approach
+  pcall(function()
+    require("claudecode.terminal").simple_toggle()
+  end)
+end, { desc = "Toggle Claude Code" })
+
 map({
   [mode] = { "n", "o", "x" },
   ["h"] = { "h", desc = "Left" },
@@ -154,7 +162,7 @@ map({
   },
   ["<leader>g"] = {
     -- g = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" }, -- moved to fnl/config/keymaps/utils.fnl
-    i = { cmd = "Neogit commit", desc = "Neogit commit" },
+    -- i = { cmd = "Neogit commit", desc = "Neogit commit" }, -- moved to fnl/config/keymaps/utils.fnl as <leader>gc
     I = { cmd = "AiCommit", desc = "AI commit popup" },
     d = { cmd = "DiffviewOpen", desc = "Diff view open" },
     D = { cmd = "DiffviewOpen ", exec = false, desc = "Compare with branch" },
