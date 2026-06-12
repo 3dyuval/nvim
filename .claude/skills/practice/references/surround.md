@@ -183,16 +183,65 @@ some text
 
 ## Treesitter surrounds
 
-These require an open buffer with a live TreeSitter parser. Open a real source file to practice.
+Set filetype first: `vim.bo.filetype = "typescript"` or open a `.ts` file.
 
-| Key | Selects |
-|-----|---------|
-| `ysitf` / `ysirf` | function outer / inner |
-| `ysitt` / `ysirt` | tag outer / inner |
-| `ysitc` / `ysirc` | class outer / inner |
-| `ysitp` / `ysirp` | parameter outer / inner |
-| `ysitl` / `ysirl` | loop outer / inner |
-| `ysits` / `ysirs` | scope |
+### function outer (`tf`) / inner (`rf`)
+Cursor inside the function. `ysitf(` wraps entire function+signature. `ysirf(` wraps body only.
+
+```typescript
+function greet(name: string) {
+  return "hello " + name
+}
+```
+
+### parameter (`tp` / `rp`)
+Cursor on a param. `ysitp(` wraps `name: string` with parens. `ysirp"` wraps just `string`.
+
+```typescript
+function add(a: number, b: number): number {
+  return a + b
+}
+```
+
+### loop (`tl` / `rl`)
+Cursor inside loop. `ysitl(` wraps entire for block.
+
+```typescript
+for (const item of items) {
+  console.log(item)
+}
+```
+
+### scope (`ts` / `rs`)
+Cursor inside block. `ysits{` wraps the nearest scope.
+
+```typescript
+if (condition) {
+  doSomething()
+  doMore()
+}
+```
+
+### tag outer (`tt`) / inner (`rt`) — needs HTML/TSX filetype
+Cursor on tag content. `ysitt(` wraps entire `<div>...</div>`. `ysirt"` wraps inner content.
+
+```tsx
+<div className="container">
+  <span>hello world</span>
+</div>
+```
+
+### class outer (`tc`) / inner (`rc`)
+Cursor inside class. `ysitc(` wraps entire class declaration.
+
+```typescript
+class Animal {
+  name: string
+  speak() {
+    return this.name
+  }
+}
+```
 
 ---
 

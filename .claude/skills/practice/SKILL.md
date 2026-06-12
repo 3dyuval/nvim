@@ -13,7 +13,9 @@ Each section has:
 
 ## Surround Practice
 
-Open [references/surround.md](references/surround.md) for surround + text-object exercises.
+- [references/surround-basic.md](references/surround-basic.md) — `ys`, `ds`, `cs`, visual, aliases, markdown
+- [references/surround-fences.md](references/surround-fences.md) — inline code, code fences, language prompt
+- [references/surround-textobjects.md](references/surround-textobjects.md) — built-in `r`/`t` objects + treesitter (`tf`, `rf`, `tp`, `tl`, `tt`, `tc`…)
 
 **Layout reminders:**
 - `r` = inner (instead of `i`) — `rw` = inner word
