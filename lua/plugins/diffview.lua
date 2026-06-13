@@ -1,12 +1,9 @@
-local dev = os.getenv("HOST") == "dell-lat-x8664"
-local dir = dev and "/home/yuv/diffview-plus.nvim" or nil
 return {
   "dlyongemallo/diffview-plus.nvim",
   dependencies = {
     "nvim-tree/nvim-web-devicons"
   },
-  dir = dir,
-  dev = dev,
+  dev = true,
   cmd = {"DiffviewOpen", "DiffviewFileHistory"},
   opts = function()
     local actions = require("diffview.actions")
