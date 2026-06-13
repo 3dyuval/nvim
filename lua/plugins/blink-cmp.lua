@@ -32,10 +32,10 @@ return {
           css = { "lsp", "path", "buffer" },
           scss = { "lsp", "path", "buffer" },
           json = { "lsp", "path", "buffer" },
-          sh = { "curl", "jq", "lsp", "path", "snippets", "buffer" },
-          bash = { "curl", "jq", "lsp", "path", "snippets", "buffer" },
-          zsh = { "curl", "jq", "lsp", "path", "snippets", "buffer" },
-          amber = { "curl", "jq", "lsp", "path", "buffer" },
+          sh = { "curl", "jq", "yq", "lsp", "path", "snippets", "buffer" },
+          bash = { "curl", "jq", "yq", "lsp", "path", "snippets", "buffer" },
+          zsh = { "curl", "jq", "yq", "lsp", "path", "snippets", "buffer" },
+          amber = { "curl", "jq", "yq", "lsp", "path", "buffer" },
           AvanteInput = { "avante_commands", "avante_mentions", "avante_files", "avante_shortcuts" },
         },
         providers = {
@@ -89,6 +89,12 @@ return {
           },
           jq = {
             name = "jq",
+            module = "blink.sources.jq",
+          },
+          yq = {
+            -- Same module as jq: it self-gates on whether the cursor is in a
+            -- `jq` or `yq` command and serves the matching completion set.
+            name = "yq",
             module = "blink.sources.jq",
           },
           thesaurus = {
