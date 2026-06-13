@@ -80,7 +80,8 @@ return {
     formatters_by_ft = {
       lua = { "luafmt" },
       fennel = { "fnlfmt" }, -- conform ships the builtin; needs the fnlfmt binary
-      dts = { "zmk_keymap_formatter" }, -- Custom ZMK keymap formatter
+      dts = { "zmk_keymap_formatter" },
+      dtsi = { "zmk_keymap_formatter" },
       go = { "goimports", "gofumpt" }, -- Go: organize imports + format
       rust = { "rustfmt" },
       ruby = { "rubocop" },
@@ -153,17 +154,7 @@ return {
       },
       -- Custom ZMK keymap formatter
       zmk_keymap_formatter = {
-        command = function()
-          -- Look for format_keymap.py in the current project root
-          local root = vim.fs.find({ "format_keymap.py" }, {
-            upward = true,
-          })[1]
-          if root then
-            return vim.fs.dirname(root) .. "/format_keymap.py"
-          end
-          -- Fallback to clang-format if custom formatter not found
-          return "clang-format"
-        end,
+        command = vim.fn.stdpath("config") .. "/scripts/format-zmk.py",
         stdin = true,
         args = {},
       },

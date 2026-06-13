@@ -6,7 +6,7 @@
   "aerial.nvim": { "branch": "master", "commit": "28fe6e822ae344544c379d60fcb13c9519a1f08a" },
   "aether.nvim": { "branch": "v3", "commit": "736fdc2a2338634a25312d0e9722a144945d59ae" },
   "alternate-toggler": { "branch": "main", "commit": "1df26ce58ead73a55a1f4f0f8bf4b1850be2d7f2" },
-  "arborist.nvim": { "branch": "main", "commit": "fdeef56c2840c6772b9f68c5774ed87e9340ec7d" },
+  "arborist.nvim": { "branch": "dev", "commit": "1cc5fd239586e0f87870fa78c9981e473554d792" },
   "bamboo.nvim": { "branch": "master", "commit": "1309bc88bffcf1bedc3e84e7fa9004de93da774a" },
   "bento.nvim": { "branch": "main", "commit": "3b529fb1ff417fe0ab5759a712372a6a64152271" },
   "blink-cmp-luasnip-choice": { "branch": "master", "commit": "bf13c6169d541a42ef7d2b98f24f0b1fb9badbdc" },

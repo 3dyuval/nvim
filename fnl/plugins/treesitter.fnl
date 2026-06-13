@@ -4,8 +4,10 @@
          :highlight_group    :CursorLine
          :jumplist           true}}
  {1 "arborist-ts/arborist.nvim"
+  :branch "dev"
   :lazy false
   :config (fn []
+            (vim.filetype.add {:extension {:keymap :devicetree}})
             ((. (require :arborist) :setup)
              {:update_cadence    :weekly
               :ensure_installed  [:lua :vim :vimdoc :query
@@ -14,7 +16,7 @@
                                    :javascript :typescript :tsx :python
                                    :bash :json :yaml :toml
                                    :elixir :heex :vue
-                                   :css :scss :html :kcl]
+                                   :css :scss :html :kcl :devicetree]
               :overrides {:kcl {:url "https://github.com/KittyCAD/tree-sitter-kcl"}}
               ;; arborist's treesitter indent returns col 0 inside .vue's injected
               ;; <script> — disable it for vue so filetype/autoindent handles it.
