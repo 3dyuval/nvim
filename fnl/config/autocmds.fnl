@@ -91,6 +91,56 @@
                       (when (and (> (. mark 1) 0) (<= (. mark 1) lines))
                         (vim.api.nvim_buf_call args.buf #(vim.cmd "normal! g`\"zz"))))})
 
+;; --- Commitlint: populate b:commitlint_types / b:commitlint_scopes ---
+;; Runs scripts/commitlint.sh in the buffer's repo and stores the enum values
+;; as buffer vars for the blink `commitlint` source to consume.
+
+(autocmd :FileType
+         {:pattern :gitcommit
+          :callback (fn [args]
+                      (local bufnr args.buf)
+                      (local script (.. (vim.fn.stdpath :config) "/scripts/commitlint.sh"))
+                      (local name (vim.api.nvim_buf_get_name bufnr))
+                      (local cwd (if (and name (not= name ""))
+                                     (vim.fs.dirname name)
+                                     (vim.fn.getcwd)))
+                      (vim.system [:bash script] {: cwd :text true}
+                        (vim.schedule_wrap
+                          (fn [out]
+                            (when (and (vim.api.nvim_buf_is_valid bufnr)
+                                       (= out.code 0))
+                              (let [(ok parsed) (pcall vim.json.decode (or out.stdout "{}"))]
+                                (when ok
+                                  (tset (. vim.b bufnr) :commitlint_types
+                                        (or parsed.types []))
+                                  (tset (. vim.b bufnr) :commitlint_scopes
+                                        (or parsed.scopes [])))))))))})
+
+;; --- Commitlint: validate the message on save ---
+;; Pipes the buffer through `commitlint` on write; a non-zero exit notifies
+;; with the linter output so rule violations surface without leaving the buffer.
+
+(autocmd :BufWritePost
+         {:pattern :gitcommit
+          :callback (fn [args]
+                      (local bufnr args.buf)
+                      (when (= (vim.fn.executable :commitlint) 1)
+                        (local lines (vim.api.nvim_buf_get_lines bufnr 0 -1 false))
+                        (local msg (table.concat lines "\n"))
+                        (local name (vim.api.nvim_buf_get_name bufnr))
+                        (local cwd (if (and name (not= name ""))
+                                       (vim.fs.dirname name)
+                                       (vim.fn.getcwd)))
+                        (vim.system [:commitlint] {:stdin msg :text true : cwd}
+                          (vim.schedule_wrap
+                            (fn [out]
+                              (when (not= out.code 0)
+                                (let [body (let [s (.. (or out.stdout "") (or out.stderr ""))]
+                                             (vim.trim s))]
+                                  (vim.notify (if (= body "") "commitlint: invalid commit message" body)
+                                              vim.log.levels.ERROR
+                                              {:title :commitlint}))))))))})
+
 ;; --- Snacks windows: no swap ---
 
 (autocmd :FileType

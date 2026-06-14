@@ -36,6 +36,7 @@ return {
           bash = { "curl", "jq", "yq", "lsp", "path", "snippets", "buffer" },
           zsh = { "curl", "jq", "yq", "lsp", "path", "snippets", "buffer" },
           amber = { "curl", "jq", "yq", "lsp", "path", "buffer" },
+          gitcommit = { "commitlint", "buffer", "path" },
           AvanteInput = { "avante_commands", "avante_mentions", "avante_files", "avante_shortcuts" },
         },
         providers = {
@@ -96,6 +97,12 @@ return {
             -- `jq` or `yq` command and serves the matching completion set.
             name = "yq",
             module = "blink.sources.jq",
+          },
+          commitlint = {
+            -- Conventional Commit types/scopes from `commitlint --print-config`,
+            -- populated into buffer vars by the FileType gitcommit autocmd.
+            name = "commitlint",
+            module = "blink.sources.commitlint",
           },
           thesaurus = {
             name = "blink-cmp-words",
