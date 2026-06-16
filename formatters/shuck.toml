@@ -1,0 +1,10 @@
+# Global shuck config, passed to `shuck server`/`shuck check` via --config from
+# the Neovim LSP setup (see fnl/lsp/setup.fnl). Project-local .shuck.toml files
+# still layer on top of this when present.
+
+[lint]
+# Muted as noise for these scripts:
+#   C004 — "cd should check whether the directory change succeeded" (pedantic
+#          for short one-shot scripts).
+# Kept on purpose: C001 (unused var) and C006 (use-before-assignment, a real bug).
+ignore = ["C004"]

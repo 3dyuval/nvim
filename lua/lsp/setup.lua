@@ -1,6 +1,6 @@
 -- [nfnl] fnl/lsp/setup.fnl
 vim.lsp.config("*", {capabilities = {positionEncoding = "utf-8"}, root_markers = {".git"}})
-vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "elixirls", "bashls", "cssls", "jsonls", "kcl_lsp", "fennel_ls"})
+vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "elixirls", "cssls", "jsonls", "kcl_lsp", "shuck", "fennel_ls"})
 vim.lsp.config("lua_ls", {settings = {Lua = {runtime = {version = "LuaJIT"}, diagnostics = {globals = {"vim"}}, workspace = {checkThirdParty = false}, telemetry = {enable = false}}}})
 vim.lsp.config("rust_analyzer", {settings = {["rust-analyzer"] = {cargo = {allFeatures = true, loadOutDirsFromCheck = true, buildScripts = {enable = true}}, checkOnSave = {command = "clippy"}, procMacro = {enable = true}}}})
 local vue_plugin_location = (vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/language-server")
@@ -37,7 +37,7 @@ local function _7_(client)
 end
 vim.lsp.config("vue_ls", {filetypes = {"vue"}, init_options = {vue = {hybridMode = true}}, settings = {vue = {complete = {casing = {tags = "kebab", props = "kebab"}}}}, on_init = _7_})
 vim.lsp.config("elixirls", {settings = {elixirls = {lint_on_save = true, format_on_save = true, use_dialyzer = true}}})
-vim.lsp.config("bashls", {cmd = {"bash-language-server", "start"}, filetypes = {"sh"}, single_file_support = true, settings = {bashIde = {explainshellEndpoint = "https://explainshell.com", shellcheckPath = "shellcheck", globPattern = "**/*@(.sh|.inc|.bash|.command)"}}})
+vim.lsp.config("shuck", {cmd = {"shuck", "server", "--config", (vim.fn.stdpath("config") .. "/formatters/shuck.toml")}})
 vim.lsp.config("cssls", {filetypes = {"css", "scss", "less"}, settings = {css = {validate = true}, scss = {validate = true}, less = {validate = true}}})
 vim.lsp.config("jsonls", {settings = {json = {schemas = require("schemastore").json.schemas(), validate = {enable = true}}}})
 vim.lsp.config("kcl_lsp", {cmd = {vim.fn.expand("~/.local/bin/kcl-language-server"), "server", "-s"}, filetypes = {"kcl"}, root_markers = {".git"}, single_file_support = true})

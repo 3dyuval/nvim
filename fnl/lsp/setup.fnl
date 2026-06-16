@@ -7,12 +7,12 @@
                  :rust_analyzer
                  :vtsls
                  :vue_ls
-                 :elixirls
-                 :bashls
-                 :cssls
-                 :jsonls
-                 :kcl_lsp
-                 :fennel_ls])
+                :elixirls
+                  :cssls
+                  :jsonls
+                  :kcl_lsp
+                  :shuck
+                  :fennel_ls])
 
 (vim.lsp.config :lua_ls
                 {:settings {:Lua {:runtime {:version :LuaJIT}
@@ -132,13 +132,13 @@
                                        :format_on_save true
                                        :use_dialyzer true}}})
 
-(vim.lsp.config :bashls
-                {:cmd [:bash-language-server :start]
-                 :filetypes [:sh]
-                 :single_file_support true
-                 :settings {:bashIde {:explainshellEndpoint "https://explainshell.com"
-                                      :shellcheckPath :shellcheck
-                                      :globPattern "**/*@(.sh|.inc|.bash|.command)"}}})
+;; nvim-lspconfig ships lsp/shuck.lua (filetypes {bash sh zsh}, root_markers
+;; {.shuck.toml .git}) which Neovim 0.11 auto-loads. Override ONLY :cmd to pass a
+;; global --config (rubocop-style, like conform); do NOT set :filetypes here or it
+;; narrows {bash sh zsh} → drops zsh. Project-local .shuck.toml still layers on top.
+(vim.lsp.config :shuck
+                {:cmd ["shuck" "server" "--config"
+                       (.. (vim.fn.stdpath :config) "/formatters/shuck.toml")]})
 
 (vim.lsp.config :cssls
                 ;; Dropped :vue — cssls misparsed <script> blocks into junk document
