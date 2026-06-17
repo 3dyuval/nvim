@@ -2,8 +2,8 @@
  :dev false
  :dependencies ["nvim-tree/nvim-web-devicons"
                 "isakbm/gitgraph.nvim"]
- :config (fn []
-           ((. (require :integration.gitgraph-diffview) :setup)))
+ :init (fn []
+         ((. (require :integration.gitgraph-diffview) :setup)))
  :opts (fn []
          (let [actions (require :diffview.actions)]
            {:enhanced_diff_hl true
