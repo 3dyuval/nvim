@@ -34,9 +34,6 @@ M["close-graph"] = function()
   graph_win = nil
   return nil
 end
-M["on-view-opened"] = function(view)
-  return M["open-graph"]()
-end
 M["on-view-closed"] = function(view)
   return M["close-graph"]()
 end
@@ -48,6 +45,6 @@ M["create-command"] = function()
 end
 M.setup = function()
   M["create-command"]()
-  return {view_opened = M["on-view-opened"], view_closed = M["on-view-closed"]}
+  return {view_closed = M["on-view-closed"]}
 end
 return M
