@@ -37,8 +37,11 @@
 ;; Called when diffview view opens
 ;; @param view DiffView object
 (fn M.on-view-opened [view]
-  (set current-file (get-selected-file view))
-  (M.open-graph))
+  ;; Only sync file selection if it's a diff view, not a graph view
+  ;; (DiffviewGraph opens a LogGraphView which doesn't have file selection)
+  (when (and view view.panel (. view.panel.selected_files))
+    (set current-file (get-selected-file view))
+    (M.open-graph)))
 
 ;; Called when files are staged
 ;; @param view DiffView object
