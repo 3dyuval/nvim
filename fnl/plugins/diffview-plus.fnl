@@ -1,5 +1,5 @@
 {1 "dlyongemallo/diffview-plus.nvim"
- :dev true
+ :dev false
  :dependencies ["nvim-tree/nvim-web-devicons"
                 "isakbm/gitgraph.nvim"]
  :cmd ["DiffviewOpen"
