@@ -56,8 +56,19 @@
   (set current-rev nil)
   (set gitgraph-open false))
 
+;; Create :DiffviewGraph command
+(fn M.create-command []
+  (vim.api.nvim_create_user_command :DiffviewGraph
+    (fn [opts]
+      (let [(ok gitgraph) (pcall require :gitgraph)]
+        (if ok
+          (gitgraph.open opts.fargs)
+          (vim.notify "gitgraph.nvim not installed" vim.log.levels.WARN))))
+    {:nargs "*" :desc "Open gitgraph"}))
+
 ;; Register hooks in diffview config
 (fn M.setup []
+  (M.create-command)
   {:selection_changed M.on-selection-changed
    :files_staged M.on-files-staged
    :view_opened M.on-view-opened
