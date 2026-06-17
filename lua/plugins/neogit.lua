@@ -113,13 +113,14 @@ vim.api.nvim_create_autocmd(
     mappings = {
       popup = {
         ["m"] = false,
-        ["M"] = "MergePopup"
+        ["M"] = "MergePopup",
+        ["!"] = "RemotePopup" -- Remote popup (M is taken by MergePopup)
       },
       status = {
-        ["C"] = "YankSelected",
         ["m"] = false, -- disable merge to use your custom binding
         ["s"] = "Stage", -- override 's' key to stage files
         ["<leader>q"] = "Close", -- Close Neogit
+        ["#"] = "InitRepo", -- git init (I is taken by AI commit repeat)
         ["I"] = function()
           require("utils.ai_popup").repeat_last()
         end,

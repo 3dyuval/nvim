@@ -2,7 +2,7 @@
 ;; Compiles fnl/**/*.fnl to lua/**/*.lua on save
 
 {;; Only compile files under fnl/ directory (not root .fnl files)
- :source-file-patterns ["fnl/**/*.fnl"]
+ :source-file-patterns ["fnl/**/[!_]*.fnl"]
 
  ;; Verbose mode for debugging (set to false once working)
  :verbose false
