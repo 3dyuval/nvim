@@ -1,3 +1,4 @@
+-- [nfnl] fnl/integration/gitgraph-diffview.fnl
 local M = {}
 local graph_win = nil
 local src_win = nil

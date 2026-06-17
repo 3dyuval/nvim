@@ -1,10 +1,11 @@
 # Neovim Configuration Makefile
 
-.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps export-keymaps export-keymaps-json export-keymaps-md export-keymaps-by-group
+.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps export-keymaps export-keymaps-json export-keymaps-md export-keymaps-by-group compile
 
 # Default target
 help:
 	@echo "Available targets:"
+	@echo "  compile               - Compile Fennel to Lua"
 	@echo "  lint                  - Run luacheck linter on Lua files"
 	@echo "  no-utils              - Check for errant util calls"
 	@echo "  test                  - Run all tests"
@@ -17,6 +18,19 @@ help:
 	@echo "  format                - Format code using stylua"
 	@echo "  install-deps          - Install development dependencies"
 	@echo "  help                  - Show this help message"
+
+# Compile Fennel files to Lua
+compile:
+	@echo "Compiling Fennel to Lua..."
+	@find fnl -name "*.fnl" | while read f; do \
+		lua_file="lua/$${f#fnl/}"; \
+		lua_file="$${lua_file%.fnl}.lua"; \
+		mkdir -p "$$(dirname "$$lua_file")"; \
+		echo "  $$f → $$lua_file"; \
+		echo "-- [nfnl] $$f" > "$$lua_file"; \
+		fennel --compile "$$f" >> "$$lua_file" || exit 1; \
+	done
+	@echo "✅ Compilation complete"
 
 # Run luacheck on all Lua files
 lint:

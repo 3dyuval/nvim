@@ -74,7 +74,8 @@ vim.api.nvim_create_autocmd(
       kind = "vsplit"
     },
     log_view = {
-      kind = "tab"
+      kind = "tab",
+      use_diffview = true -- open commit under cursor in Diffview instead of builtin commit view
     },
     autoinstall = true,
     -- Set default popup configurations
@@ -114,13 +115,17 @@ vim.api.nvim_create_autocmd(
       popup = {
         ["m"] = false,
         ["M"] = "MergePopup",
-        ["!"] = "RemotePopup" -- Remote popup (M is taken by MergePopup)
+        ["R"] = "RemotePopup" -- Remote popup (M is taken by MergePopup)
       },
       status = {
         ["m"] = false, -- disable merge to use your custom binding
         ["s"] = "Stage", -- override 's' key to stage files
         ["<leader>q"] = "Close", -- Close Neogit
-        ["#"] = "InitRepo", -- git init (I is taken by AI commit repeat)
+        ["Q"] = false, -- disable default Command action
+        ["G"] = function() -- open cmdline prefilled with :Gitsigns (typed, so blink cmdline completion shows)
+          vim.api.nvim_feedkeys(":Gitsigns", "t", false)
+        end,
+        ["C"] = "InitRepo", -- git init (I is taken by AI commit repeat)
         ["I"] = function()
           require("utils.ai_popup").repeat_last()
         end,

@@ -1,3 +1,4 @@
+-- [nfnl] fnl/plugins/diffview-plus.fnl
 local function _1_()
   return require("integration.gitgraph-diffview").setup()
 end

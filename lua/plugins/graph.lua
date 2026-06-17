@@ -1,3 +1,4 @@
+-- [nfnl] fnl/plugins/graph.fnl
 local function _1_(_, opts)
   require("gitgraph").setup(opts)
   local link

@@ -1,3 +1,4 @@
+-- [nfnl] fnl/config/keymaps/terminal.fnl
 local lset = vim.keymap.set
 local function _1_()
   local win = vim.api.nvim_get_current_win()
