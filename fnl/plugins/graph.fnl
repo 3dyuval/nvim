@@ -1,8 +1,3 @@
-;; gitgraph.nvim — graph rendering engine. Used standalone and as the data
-;; source for the diffview-plus stateful-view recipe (see
-;; integration/gitgraph-diffview.fnl). Symbols are built by codepoint (the
-;; kitty PUA glyphs don't survive as source literals); highlight groups link
-;; to the active colorscheme and re-apply on :colorscheme.
 {1 "isakbm/gitgraph.nvim"
  :opts {:git_cmd "git"
         :format {:timestamp "%H:%M:%S %d-%m-%Y"
