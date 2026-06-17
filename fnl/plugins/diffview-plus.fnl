@@ -2,13 +2,6 @@
  :dev false
  :dependencies ["nvim-tree/nvim-web-devicons"
                 "isakbm/gitgraph.nvim"]
- :cmd ["DiffviewOpen"
-       "DiffviewToggle"
-       "DiffviewFileHistory"
-       "DiffviewGraph"
-       "DiffviewDiffFiles"
-       "DiffviewMergeFiles"
-       "DiffviewDiffDirs"]
  :opts (fn []
          (let [actions (require :diffview.actions)]
            {:enhanced_diff_hl true
