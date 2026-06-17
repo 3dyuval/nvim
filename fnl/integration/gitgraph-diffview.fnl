@@ -22,7 +22,7 @@
     (let [(ok gitgraph) (pcall require :gitgraph)]
       (if ok
         (do
-          (gitgraph.open_with_file current-file)
+          (gitgraph.draw {} {})
           (set gitgraph-open true))
         (vim.notify "gitgraph.nvim not installed" vim.log.levels.WARN)))))
 
@@ -62,7 +62,7 @@
     (fn [opts]
       (let [(ok gitgraph) (pcall require :gitgraph)]
         (if ok
-          (gitgraph.open opts.fargs)
+          (gitgraph.draw {} {:all true})
           (vim.notify "gitgraph.nvim not installed" vim.log.levels.WARN))))
     {:nargs "*" :desc "Open gitgraph"}))
 

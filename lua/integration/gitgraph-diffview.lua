@@ -18,7 +18,7 @@ M["open-graph"] = function()
   if current_file then
     local ok, gitgraph = pcall(require, "gitgraph")
     if ok then
-      gitgraph.open_with_file(current_file)
+      gitgraph.draw({}, {})
       gitgraph_open = true
       return nil
     else
@@ -62,7 +62,7 @@ M["create-command"] = function()
   local function _8_(opts)
     local ok, gitgraph = pcall(require, "gitgraph")
     if ok then
-      return gitgraph.open(opts.fargs)
+      return gitgraph.draw({}, {all = true})
     else
       return vim.notify("gitgraph.nvim not installed", vim.log.levels.WARN)
     end
