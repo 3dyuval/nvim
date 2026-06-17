@@ -60,8 +60,7 @@
        "DiffviewMergeFiles"
        "DiffviewDiffDirs"]
  :opts (fn []
-         (let [actions (require :diffview.actions)
-               gitgraph-integration (require :integration.gitgraph-diffview)]
+         (let [actions (require :diffview.actions)]
            {:enhanced_diff_hl true
             :use_icons true
             :show_help_hints true
@@ -167,17 +166,18 @@
              [["n" "q"   actions.close {:desc "Close help menu"}]
               ["n" "<esc>" actions.close {:desc "Close help menu"}]]}
             :hooks
-            {:diff_buf_read (fn [bufnr]
-                              (set vim.opt_local.foldenable false)
-                              (tset vim.b bufnr :snacks_indent false)
-                              (tset vim.b bufnr :snacks_scope false))
-             :view_opened  (fn [view]
-                              (set vim.g.diffview_active true)
-                              (gitgraph-integration.on-view-opened view))
-             :view_closed  (fn [view]
-                              (set vim.g.diffview_active false)
-                              (gitgraph-integration.on-view-closed view))
-             :selection_changed (fn [view]
-                                  (gitgraph-integration.on-selection-changed view))
-             :files_staged (fn [view]
-                              (gitgraph-integration.on-files-staged view))}})})}
+            (let [gitgraph (require :integration.gitgraph-diffview)]
+              {:diff_buf_read (fn [bufnr]
+                                (set vim.opt_local.foldenable false)
+                                (tset vim.b bufnr :snacks_indent false)
+                                (tset vim.b bufnr :snacks_scope false))
+               :view_opened  (fn [view]
+                                (set vim.g.diffview_active true)
+                                (gitgraph.on-view-opened view))
+               :view_closed  (fn [view]
+                                (set vim.g.diffview_active false)
+                                (gitgraph.on-view-closed view))
+               :selection_changed (fn [view]
+                                    (gitgraph.on-selection-changed view))
+               :files_staged (fn [view]
+                                (gitgraph.on-files-staged view))}})})}}
