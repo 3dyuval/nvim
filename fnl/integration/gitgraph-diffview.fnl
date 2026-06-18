@@ -26,8 +26,15 @@
     (vim.api.nvim_win_close graph-win true))
   (set graph-win nil))
 
+(fn M.on-view-opened [view]
+  (M.open-graph))
+
 (fn M.on-view-closed [view]
   (M.close-graph))
+
+(fn M.on-selection-changed [view])
+
+(fn M.on-files-staged [view])
 
 (fn M.create-command []
   (vim.api.nvim_create_user_command :DiffviewGraph

@@ -34,8 +34,15 @@ M["close-graph"] = function()
   graph_win = nil
   return nil
 end
+M["on-view-opened"] = function(view)
+  return M["open-graph"]()
+end
 M["on-view-closed"] = function(view)
   return M["close-graph"]()
+end
+M["on-selection-changed"] = function(view)
+end
+M["on-files-staged"] = function(view)
 end
 M["create-command"] = function()
   local function _5_(_opts)
