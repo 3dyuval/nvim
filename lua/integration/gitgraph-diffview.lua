@@ -27,7 +27,7 @@ M["open-graph"] = function()
       if ok_render then
         vim.api.nvim_buf_set_lines(graph_buf, 0, -1, false, render_result.lines)
         for _, hl in ipairs(render_result.highlights) do
-          vim.api.nvim_buf_add_highlight(graph_buf, -1, hl.group, hl.line, hl.col_start, hl.col_end)
+          vim.api.nvim_buf_add_highlight(graph_buf, -1, hl.hg, hl.row, hl.start, hl.stop)
         end
       else
         vim.notify(("Failed to render graph: " .. render_result), vim.log.levels.ERROR)
