@@ -1,83 +1,56 @@
-;; CDiffView-based integration: custom diff view with gitgraph data
+;; Gitgraph integration: show gitgraph in a split next to diffview
 (local M {})
 
-(fn M.create-graph-view []
-  (let [(ok CDiffView-module) (pcall #(require :diffview.api.views.diff.diff_view))]
-    (if (not ok)
-      (do
-        (vim.notify (.. "Failed to load CDiffView: " CDiffView-module) vim.log.levels.WARN)
-        nil)
-      (let [CDiffView (. CDiffView-module :CDiffView)
-            Rev (. CDiffView-module :Rev)
-            RevType (. CDiffView-module :RevType)]
-        (if (not CDiffView)
-          (do
-            (vim.notify "CDiffView class not found in module" vim.log.levels.WARN)
-            nil)
-          (let [gitgraph (require :gitgraph)
-                core (require :gitgraph.core)
-                git_root "/home/yuv/proj/gitgraph.nvim-snacks-api"
+(var graph-win nil)
+(var src-win nil)
+(var graph-buf nil)
+(var graph-data nil)
 
-                ;; Get graph data
-                graph-result (core.render_data gitgraph.config {} {:all true :max_count 256})
-                commits (or (. graph-result :graph) [])
-
-                ;; Create file entries from graph commits
-                files (M.create-file-entries graph-result)
-
-                ;; Get first commit hash for initial view
-                first-commit (and (> (length commits) 0)
-                                 (. (. commits 1) :commit)
-                                 (. (. commits 1) :commit :hash))]
-
-            ;; Create custom diff view
-            (CDiffView {
-              :git_root git_root
-              :files files
-              :left (Rev RevType.COMMIT (.. (or first-commit "HEAD") "^"))
-              :right (Rev RevType.COMMIT (or first-commit "HEAD"))
-
-              ;; Refresh file list on demand
-              :update_files (fn [view]
-                              (M.create-file-entries
-                                (core.render_data gitgraph.config {} {:all true :max_count 256})))
-
-              ;; Return diff content for commit
-              :get_file_data (fn [path split]
-                               (M.get-commit-content path split))})))))))
-
-(fn M.create-file-entries [graph-result]
-  (let [files []
-        commits (or (. graph-result :graph) [])
-        ;; Get changed files from first commit
-        first-commit (and (> (length commits) 0)
-                         (. (. commits 1) :commit)
-                         (. (. commits 1) :commit :hash))]
-    (when first-commit
-      (let [changed-files (vim.fn.systemlist (.. "git diff --name-only " first-commit "^.." first-commit))]
-        (each [idx file (ipairs changed-files)]
-          (table.insert files {
-            :path file
-            :oldpath nil
-            :status "M"
-            :selected (= idx 1)
-          }))))
-    files))
-
-(fn M.get-commit-content [path split]
-  ;; Get file content from git
-  ;; We need to use the currently selected commit
-  ;; For now, just get the file from HEAD
-  (let [cmd (if (= split "left")
-              (.. "git show HEAD^:" path)
-              (.. "git show HEAD:" path))]
-    (vim.fn.systemlist cmd)))
+(fn graph-open? []
+  (and graph-win (vim.api.nvim_win_is_valid graph-win)))
 
 (fn M.open []
-  ;; Open flog on the snacks-api worktree - shows gitgraph with interactive diffs
-  (let [cwd (vim.fn.getcwd)]
-    (vim.cmd (.. "cd /home/yuv/proj/gitgraph.nvim-snacks-api"))
-    (vim.cmd "Flog -all")
-    (vim.cmd (.. "cd " cwd))))
+  ;; Change to snacks-api worktree
+  (let [cwd (vim.fn.getcwd)
+        ok (pcall #(vim.cmd (.. "cd /home/yuv/proj/gitgraph.nvim-snacks-api")))]
+
+    (when ok
+      ;; Load gitgraph from snacks-api worktree
+      (let [(ok-gitgraph gitgraph) (pcall #(require :gitgraph))]
+        (if (not ok-gitgraph)
+          (vim.notify "Failed to load gitgraph" vim.log.levels.WARN)
+          (do
+            ;; Get render_data from snacks-api implementation
+            (let [(ok-core core) (pcall #(require :gitgraph.core))
+                  render-result (core.render_data gitgraph.config {} {:all true :max_count 256})]
+
+              ;; Create graph split
+              (set src-win (vim.api.nvim_get_current_win))
+              (when (not (graph-open?))
+                (vim.cmd "topleft vertical split")
+                (set graph-win (vim.api.nvim_get_current_win))
+                (set graph-buf (vim.api.nvim_get_current_buf))
+                (vim.api.nvim_win_set_width graph-win 60))
+
+              ;; Render graph
+              (vim.api.nvim_set_current_win graph-win)
+              (vim.api.nvim_set_option_value "modifiable" true {:buf graph-buf})
+              (vim.api.nvim_buf_set_lines graph-buf 0 -1 false render-result.lines)
+
+              ;; Apply highlights
+              (each [_ hl (ipairs render-result.highlights)]
+                (vim.api.nvim_buf_add_highlight graph-buf -1 hl.hg hl.row hl.start hl.stop))
+
+              (vim.api.nvim_set_option_value "modifiable" false {:buf graph-buf})
+              (set graph-data render-result)
+
+              ;; Open diffview in the other window
+              (when (and src-win (vim.api.nvim_win_is_valid src-win))
+                (vim.api.nvim_set_current_win src-win))
+
+              (vim.cmd "DiffviewOpen main..HEAD"))))))
+
+    ;; Return to original directory
+    (pcall #(vim.cmd (.. "cd " cwd)))))
 
 M
