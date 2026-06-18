@@ -59,7 +59,7 @@ end
 M.open = function()
   local cwd = vim.fn.getcwd()
   vim.cmd("cd /home/yuv/proj/gitgraph.nvim-snacks-api")
-  vim.cmd("DiffviewOpen")
+  vim.cmd("DiffviewOpen main..HEAD")
   return vim.cmd(("cd " .. cwd))
 end
 return M
