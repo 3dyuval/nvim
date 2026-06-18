@@ -2,7 +2,7 @@
 (local M {})
 
 (fn M.create-graph-view []
-  (let [(ok CDiffView-module) (pcall #(require :diffview.api.views.diff))]
+  (let [(ok CDiffView-module) (pcall #(require :diffview.api.views.diff.diff_view))]
     (if (not ok)
       (do
         (vim.notify (.. "Failed to load CDiffView: " CDiffView-module) vim.log.levels.WARN)

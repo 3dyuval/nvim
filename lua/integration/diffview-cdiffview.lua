@@ -3,7 +3,7 @@ local M = {}
 M["create-graph-view"] = function()
   local ok, CDiffView_module
   local function _1_()
-    return require("diffview.api.views.diff")
+    return require("diffview.api.views.diff.diff_view")
   end
   ok, CDiffView_module = pcall(_1_)
   if not ok then
