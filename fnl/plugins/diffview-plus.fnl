@@ -1,12 +1,9 @@
 {1 "dlyongemallo/diffview-plus.nvim"
  :dev false
  :dependencies ["nvim-tree/nvim-web-devicons"
-                "isakbm/gitgraph.nvim"]
+                "isakbm/gitgraph.nvim"]  ;; Optional for CDiffView integration
  :init (fn []
-         ;; Old hooks integration
-         ((. (require :integration.gitgraph-diffview) :setup))
-
-         ;; New CDiffView integration
+         ;; CDiffView-based integration: open gitgraph as custom diff view
          (let [cdiffview (require :integration.diffview-cdiffview)]
            (vim.api.nvim_create_user_command
              :DiffviewGraphCDiffView
@@ -119,18 +116,7 @@
              [["n" "q"   actions.close {:desc "Close help menu"}]
               ["n" "<esc>" actions.close {:desc "Close help menu"}]]}
             :hooks
-            (let [gitgraph (require :integration.gitgraph-diffview)]
-              {:diff_buf_read (fn [bufnr]
-                                (set vim.opt_local.foldenable false)
-                                (tset vim.b bufnr :snacks_indent false)
-                                (tset vim.b bufnr :snacks_scope false))
-               :view_opened  (fn [view]
-                                (set vim.g.diffview_active true)
-                                ((. gitgraph "on-view-opened") view))
-               :view_closed  (fn [view]
-                                (set vim.g.diffview_active false)
-                                ((. gitgraph "on-view-closed") view))
-               :selection_changed (fn [view]
-                                    ((. gitgraph "on-selection-changed") view))
-               :files_staged (fn [view]
-                                ((. gitgraph "on-files-staged") view))})}))}
+            {:diff_buf_read (fn [bufnr]
+                              (set vim.opt_local.foldenable false)
+                              (tset vim.b bufnr :snacks_indent false)
+                              (tset vim.b bufnr :snacks_scope false))}}))}
