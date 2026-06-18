@@ -30,6 +30,7 @@
                 (vim.api.nvim_buf_add_highlight graph-buf -1 hl.hg hl.row hl.start hl.stop)))
             (vim.notify (.. "Failed to render graph: " render-result) vim.log.levels.ERROR)))
         (vim.api.nvim_set_option_value "modifiable" false {:buf graph-buf})
+        (vim.keymap.set :n :q (fn [] (M.close-graph)) {:buffer graph-buf :noremap true :silent true})
         (when (and src-win (vim.api.nvim_win_is_valid src-win))
           (vim.api.nvim_set_current_win src-win))))))
 
