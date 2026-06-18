@@ -23,19 +23,29 @@
                   ;; Create file entries from graph commits
                   files (M.create-file-entries graph-result)]
 
-              ;; Create custom diff view
-              (CDiffView {
-                :git_root git_root
-                :files files
+              ;; Get first commit hash for initial view
+              (let [first-commit (and (> (length commits) 0)
+                                     (. (. commits 1) :commit)
+                                     (. (. commits 1) :commit :hash))
+                    ;; Create git revisions for diff (parent -> commit)
+                    Rev (. (require :diffview.api.views.diff.diff_view) :Rev)
+                    RevType (. (require :diffview.api.views.diff.diff_view) :RevType)]
 
-                ;; Refresh file list on demand
-                :update_files (fn [view]
-                                (M.create-file-entries
-                                  (core.render_data gitgraph.config {} {:all true :max_count 256})))
+                ;; Create custom diff view
+                (CDiffView {
+                  :git_root git_root
+                  :files files
+                  :left (Rev RevType.COMMIT (.. (or first-commit "HEAD") "^"))
+                  :right (Rev RevType.COMMIT (or first-commit "HEAD"))
 
-                ;; Return diff content for commit
-                :get_file_data (fn [path split]
-                                 (M.get-commit-content path split))}))))))))
+                  ;; Refresh file list on demand
+                  :update_files (fn [view]
+                                  (M.create-file-entries
+                                    (core.render_data gitgraph.config {} {:all true :max_count 256})))
+
+                  ;; Return diff content for commit
+                  :get_file_data (fn [path split]
+                                   (M.get-commit-content path split))}))))))))
 
 (fn M.create-file-entries [graph-result]
   (let [files []
