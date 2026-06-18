@@ -2,6 +2,7 @@
 local M = {}
 local graph_win = nil
 local src_win = nil
+local graph_buf = nil
 local function graph_open_3f()
   return (graph_win and vim.api.nvim_win_is_valid(graph_win))
 end
@@ -14,11 +15,22 @@ M["open-graph"] = function()
     if not graph_open_3f() then
       vim.cmd("botright split")
       graph_win = vim.api.nvim_get_current_win()
+      graph_buf = vim.api.nvim_get_current_buf()
       vim.api.nvim_win_set_height(graph_win, 16)
     else
     end
     vim.api.nvim_set_current_win(graph_win)
-    gitgraph.draw({}, {all = true, max_count = 256})
+    do
+      local ok0, render_result = pcall(gitgraph.core.render_data, {all = true, max_count = 256})
+      if ok0 then
+        vim.api.nvim_buf_set_lines(graph_buf, 0, -1, false, render_result.lines)
+        for _, hl in ipairs(render_result.highlights) do
+          vim.api.nvim_buf_add_highlight(graph_buf, -1, hl.group, hl.line, hl.col_start, hl.col_end)
+        end
+      else
+        vim.notify(("Failed to render graph: " .. render_result), vim.log.levels.ERROR)
+      end
+    end
     if (src_win and vim.api.nvim_win_is_valid(src_win)) then
       return vim.api.nvim_set_current_win(src_win)
     else
@@ -45,10 +57,10 @@ end
 M["on-files-staged"] = function(view)
 end
 M["create-command"] = function()
-  local function _5_(_opts)
+  local function _6_(_opts)
     return M["open-graph"]()
   end
-  return vim.api.nvim_create_user_command("DiffviewGraph", _5_, {nargs = "*", desc = "Open gitgraph in a split"})
+  return vim.api.nvim_create_user_command("DiffviewGraph", _6_, {nargs = "*", desc = "Open gitgraph in a split"})
 end
 M.setup = function()
   M["create-command"]()
