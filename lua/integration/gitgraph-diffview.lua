@@ -8,6 +8,7 @@ local function graph_open_3f()
 end
 M["open-graph"] = function()
   local ok, gitgraph = pcall(require, "gitgraph")
+  local ok_core, core = pcall(require, "gitgraph.core")
   if not ok then
     return vim.notify("gitgraph.nvim not installed", vim.log.levels.WARN)
   else
@@ -20,9 +21,10 @@ M["open-graph"] = function()
     else
     end
     vim.api.nvim_set_current_win(graph_win)
+    vim.api.nvim_set_option_value("modifiable", true, {buf = graph_buf})
     do
-      local ok0, render_result = pcall(gitgraph.core.render_data, {all = true, max_count = 256})
-      if ok0 then
+      local ok_render, render_result = pcall(core.render_data, gitgraph.config, {}, {all = true, max_count = 256})
+      if ok_render then
         vim.api.nvim_buf_set_lines(graph_buf, 0, -1, false, render_result.lines)
         for _, hl in ipairs(render_result.highlights) do
           vim.api.nvim_buf_add_highlight(graph_buf, -1, hl.group, hl.line, hl.col_start, hl.col_end)
@@ -31,6 +33,7 @@ M["open-graph"] = function()
         vim.notify(("Failed to render graph: " .. render_result), vim.log.levels.ERROR)
       end
     end
+    vim.api.nvim_set_option_value("modifiable", false, {buf = graph_buf})
     if (src_win and vim.api.nvim_win_is_valid(src_win)) then
       return vim.api.nvim_set_current_win(src_win)
     else
