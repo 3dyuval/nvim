@@ -8,7 +8,8 @@
   (and graph-win (vim.api.nvim_win_is_valid graph-win)))
 
 (fn M.open-graph []
-  (let [(ok gitgraph) (pcall require :gitgraph)]
+  (let [(ok gitgraph) (pcall require :gitgraph)
+        (ok-core core) (pcall require :gitgraph.core)]
     (if (not ok)
       (vim.notify "gitgraph.nvim not installed" vim.log.levels.WARN)
       (do
@@ -19,13 +20,15 @@
           (set graph-buf (vim.api.nvim_get_current_buf))
           (vim.api.nvim_win_set_height graph-win 16))
         (vim.api.nvim_set_current_win graph-win)
-        (let [(ok render-result) (pcall (. gitgraph.core :render_data) {:all true :max_count 256})]
-          (if ok
+        (vim.api.nvim_set_option_value "modifiable" true {:buf graph-buf})
+        (let [(ok-render render-result) (pcall core.render_data gitgraph.config {} {:all true :max_count 256})]
+          (if ok-render
             (do
               (vim.api.nvim_buf_set_lines graph-buf 0 -1 false render-result.lines)
               (each [_ hl (ipairs render-result.highlights)]
                 (vim.api.nvim_buf_add_highlight graph-buf -1 hl.group hl.line hl.col_start hl.col_end)))
             (vim.notify (.. "Failed to render graph: " render-result) vim.log.levels.ERROR)))
+        (vim.api.nvim_set_option_value "modifiable" false {:buf graph-buf})
         (when (and src-win (vim.api.nvim_win_is_valid src-win))
           (vim.api.nvim_set_current_win src-win))))))
 
