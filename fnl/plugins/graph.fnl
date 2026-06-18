@@ -1,4 +1,5 @@
 {1 "isakbm/gitgraph.nvim"
+ :dev true
  :opts {:git_cmd "git"
         :format {:timestamp "%H:%M:%S %d-%m-%Y"
                  :fields ["hash" "timestamp" "author" "branch_name" "tag"]}
