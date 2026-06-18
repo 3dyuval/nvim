@@ -74,10 +74,10 @@
     (vim.fn.systemlist cmd)))
 
 (fn M.open []
-  ;; Open diffview on the snacks-api worktree showing commits ahead of main
+  ;; Open flog on the snacks-api worktree - shows gitgraph with interactive diffs
   (let [cwd (vim.fn.getcwd)]
     (vim.cmd (.. "cd /home/yuv/proj/gitgraph.nvim-snacks-api"))
-    (vim.cmd "DiffviewOpen main..HEAD")
+    (vim.cmd "Flog -all")
     (vim.cmd (.. "cd " cwd))))
 
 M
