@@ -35,10 +35,7 @@ M["open-graph"] = function()
       end
     end
     vim.api.nvim_set_option_value("modifiable", false, {buf = graph_buf})
-    local function _3_()
-      return M["close-graph"]()
-    end
-    vim.keymap.set("n", "q", _3_, {buffer = graph_buf, noremap = true, silent = true})
+    M["setup-graph-keymaps"]()
     if (src_win and vim.api.nvim_win_is_valid(src_win)) then
       return vim.api.nvim_set_current_win(src_win)
     else
@@ -54,6 +51,16 @@ M["close-graph"] = function()
   graph_win = nil
   return nil
 end
+M["setup-graph-keymaps"] = function()
+  if (graph_buf and vim.api.nvim_buf_is_valid(graph_buf)) then
+    local function _6_()
+      return M["close-graph"]()
+    end
+    return vim.keymap.set("n", "q", _6_, {buffer = graph_buf, noremap = true, silent = true})
+  else
+    return nil
+  end
+end
 M["on-view-opened"] = function(view)
   return M["open-graph"]()
 end
@@ -65,10 +72,10 @@ end
 M["on-files-staged"] = function(view)
 end
 M["create-command"] = function()
-  local function _7_(_opts)
+  local function _8_(_opts)
     return M["open-graph"]()
   end
-  return vim.api.nvim_create_user_command("DiffviewGraph", _7_, {nargs = "*", desc = "Open gitgraph in a split"})
+  return vim.api.nvim_create_user_command("DiffviewGraph", _8_, {nargs = "*", desc = "Open gitgraph in a split"})
 end
 M.setup = function()
   M["create-command"]()
