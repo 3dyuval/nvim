@@ -2,6 +2,7 @@
  :dev false
  :dependencies ["nvim-tree/nvim-web-devicons"
                 "isakbm/gitgraph.nvim"]  ;; Optional for CDiffView integration
+ :keys [["<leader>gf" ":DiffviewGraphCDiffView<CR>" :desc "Open gitgraph as diff view"]]
  :init (fn []
          ;; CDiffView-based integration: open gitgraph as custom diff view
          (let [cdiffview (require :integration.diffview-cdiffview)]
