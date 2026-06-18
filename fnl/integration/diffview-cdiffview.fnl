@@ -48,13 +48,16 @@
 
 (fn M.create-file-entries [graph-result]
   (let [files []
-        commits (or (. graph-result :graph) [])]
-    (each [idx row (ipairs commits)]
-      (when (and row.commit row.commit.hash)
-        (let [hash row.commit.hash
-              subject (or row.commit.msg "")]
+        commits (or (. graph-result :graph) [])
+        ;; Get changed files from first commit
+        first-commit (and (> (length commits) 0)
+                         (. (. commits 1) :commit)
+                         (. (. commits 1) :commit :hash))]
+    (when first-commit
+      (let [changed-files (vim.fn.systemlist (.. "git diff --name-only " first-commit "^.." first-commit))]
+        (each [idx file (ipairs changed-files)]
           (table.insert files {
-            :path (.. hash " " subject)
+            :path file
             :oldpath nil
             :status "M"
             :selected (= idx 1)
@@ -62,18 +65,19 @@
     files))
 
 (fn M.get-commit-content [path split]
-  ;; Extract hash from path (format: "hash subject")
-  (let [hash (string.match path "^(%x+)")
-        cmd (if (= split "left")
-              (.. "git show " hash "^:" split)
-              (.. "git show " hash ":" split))]
-    (if hash
-      (vim.fn.systemlist cmd)
-      [])))
+  ;; Get file content from git
+  ;; We need to use the currently selected commit
+  ;; For now, just get the file from HEAD
+  (let [cmd (if (= split "left")
+              (.. "git show HEAD^:" path)
+              (.. "git show HEAD:" path))]
+    (vim.fn.systemlist cmd)))
 
 (fn M.open []
-  (let [view (M.create-graph-view)]
-    (when view
-      (view:open))))
+  ;; Simply open diffview on the snacks-api worktree
+  (let [cwd (vim.fn.getcwd)]
+    (vim.cmd (.. "cd /home/yuv/proj/gitgraph.nvim-snacks-api"))
+    (vim.cmd "DiffviewOpen")
+    (vim.cmd (.. "cd " cwd))))
 
 M

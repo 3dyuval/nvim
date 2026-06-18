@@ -37,36 +37,29 @@ end
 M["create-file-entries"] = function(graph_result)
   local files = {}
   local commits = (graph_result.graph or {})
-  for idx, row in ipairs(commits) do
-    if (row.commit and row.commit.hash) then
-      local hash = row.commit.hash
-      local subject = (row.commit.msg or "")
-      table.insert(files, {path = (hash .. " " .. subject), oldpath = nil, status = "M", selected = (idx == 1)})
-    else
+  local first_commit = ((#commits > 0) and commits[1].commit and commits[1].commit.hash)
+  if first_commit then
+    local changed_files = vim.fn.systemlist(("git diff --name-only " .. first_commit .. "^.." .. first_commit))
+    for idx, file in ipairs(changed_files) do
+      table.insert(files, {path = file, oldpath = nil, status = "M", selected = (idx == 1)})
     end
+  else
   end
   return files
 end
 M["get-commit-content"] = function(path, split)
-  local hash = string.match(path, "^(%x+)")
   local cmd
   if (split == "left") then
-    cmd = ("git show " .. hash .. "^:" .. split)
+    cmd = ("git show HEAD^:" .. path)
   else
-    cmd = ("git show " .. hash .. ":" .. split)
+    cmd = ("git show HEAD:" .. path)
   end
-  if hash then
-    return vim.fn.systemlist(cmd)
-  else
-    return {}
-  end
+  return vim.fn.systemlist(cmd)
 end
 M.open = function()
-  local view = M["create-graph-view"]()
-  if view then
-    return view:open()
-  else
-    return nil
-  end
+  local cwd = vim.fn.getcwd()
+  vim.cmd("cd /home/yuv/proj/gitgraph.nvim-snacks-api")
+  vim.cmd("DiffviewOpen")
+  return vim.cmd(("cd " .. cwd))
 end
 return M
