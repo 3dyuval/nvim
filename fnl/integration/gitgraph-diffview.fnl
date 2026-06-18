@@ -44,8 +44,11 @@
         hash (string.match line "(%x%x%x%x%x%x%x)")]
     (if hash
       (do
+        (when (and src-win (vim.api.nvim_win_is_valid src-win))
+          (vim.api.nvim_set_current_win src-win))
         (vim.cmd (.. "DiffviewOpen " hash "^!"))
-        (vim.notify (.. "Opened " hash " in diffview")))
+        (when (graph-open?)
+          (vim.api.nvim_set_current_win graph-win)))
       (vim.notify "No commit hash found on this line" vim.log.levels.WARN))))
 
 (fn M.setup-graph-keymaps []

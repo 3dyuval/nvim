@@ -55,22 +55,30 @@ M["open-commit-in-diffview"] = function()
   local line = vim.api.nvim_get_current_line()
   local hash = string.match(line, "(%x%x%x%x%x%x%x)")
   if hash then
+    if (src_win and vim.api.nvim_win_is_valid(src_win)) then
+      vim.api.nvim_set_current_win(src_win)
+    else
+    end
     vim.cmd(("DiffviewOpen " .. hash .. "^!"))
-    return vim.notify(("Opened " .. hash .. " in diffview"))
+    if graph_open_3f() then
+      return vim.api.nvim_set_current_win(graph_win)
+    else
+      return nil
+    end
   else
     return vim.notify("No commit hash found on this line", vim.log.levels.WARN)
   end
 end
 M["setup-graph-keymaps"] = function()
   if (graph_buf and vim.api.nvim_buf_is_valid(graph_buf)) then
-    local function _7_()
+    local function _9_()
       return M["close-graph"]()
     end
-    vim.keymap.set("n", "q", _7_, {buffer = graph_buf, noremap = true, silent = true})
-    local function _8_()
+    vim.keymap.set("n", "q", _9_, {buffer = graph_buf, noremap = true, silent = true})
+    local function _10_()
       return M["open-commit-in-diffview"]()
     end
-    return vim.keymap.set("n", "<CR>", _8_, {buffer = graph_buf, noremap = true, silent = true})
+    return vim.keymap.set("n", "<CR>", _10_, {buffer = graph_buf, noremap = true, silent = true})
   else
     return nil
   end
@@ -86,10 +94,10 @@ end
 M["on-files-staged"] = function(view)
 end
 M["create-command"] = function()
-  local function _10_(_opts)
+  local function _12_(_opts)
     return M["open-graph"]()
   end
-  return vim.api.nvim_create_user_command("DiffviewGraph", _10_, {nargs = "*", desc = "Open gitgraph in a split"})
+  return vim.api.nvim_create_user_command("DiffviewGraph", _12_, {nargs = "*", desc = "Open gitgraph in a split"})
 end
 M.setup = function()
   M["create-command"]()
