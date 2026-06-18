@@ -118,11 +118,11 @@
                                 (tset vim.b bufnr :snacks_scope false))
                :view_opened  (fn [view]
                                 (set vim.g.diffview_active true)
-                                (gitgraph.on-view-opened view))
+                                ((. gitgraph "on-view-opened") view))
                :view_closed  (fn [view]
                                 (set vim.g.diffview_active false)
-                                (gitgraph.on-view-closed view))
+                                ((. gitgraph "on-view-closed") view))
                :selection_changed (fn [view]
-                                    (gitgraph.on-selection-changed view))
+                                    ((. gitgraph "on-selection-changed") view))
                :files_staged (fn [view]
-                                (gitgraph.on-files-staged view))})}))}
+                                ((. gitgraph "on-files-staged") view))})}))}
