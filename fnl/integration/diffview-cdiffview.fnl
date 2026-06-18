@@ -42,19 +42,25 @@
         commits (or (. graph-result :graph) [])]
     (each [idx row (ipairs commits)]
       (when (and row.commit row.commit.hash)
-        (table.insert files {
-          :path row.commit.hash
-          :oldpath nil
-          :status "M"
-          :selected (= idx 1)
-        })))
+        (let [hash row.commit.hash
+              subject (or row.commit.msg "")]
+          (table.insert files {
+            :path (.. hash " " subject)
+            :oldpath nil
+            :status "M"
+            :selected (= idx 1)
+          }))))
     files))
 
-(fn M.get-commit-content [hash split]
-  (let [cmd (if (= split "left")
-              (.. "git show " hash "^")
-              (.. "git show " hash))]
-    (vim.fn.systemlist cmd)))
+(fn M.get-commit-content [path split]
+  ;; Extract hash from path (format: "hash subject")
+  (let [hash (string.match path "^(%x+)")
+        cmd (if (= split "left")
+              (.. "git show " hash "^:" split)
+              (.. "git show " hash ":" split))]
+    (if hash
+      (vim.fn.systemlist cmd)
+      [])))
 
 (fn M.open []
   (let [view (M.create-graph-view)]

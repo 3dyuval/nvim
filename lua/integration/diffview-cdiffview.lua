@@ -35,20 +35,27 @@ M["create-file-entries"] = function(graph_result)
   local commits = (graph_result.graph or {})
   for idx, row in ipairs(commits) do
     if (row.commit and row.commit.hash) then
-      table.insert(files, {path = row.commit.hash, oldpath = nil, status = "M", selected = (idx == 1)})
+      local hash = row.commit.hash
+      local subject = (row.commit.msg or "")
+      table.insert(files, {path = (hash .. " " .. subject), oldpath = nil, status = "M", selected = (idx == 1)})
     else
     end
   end
   return files
 end
-M["get-commit-content"] = function(hash, split)
+M["get-commit-content"] = function(path, split)
+  local hash = string.match(path, "^(%x+)")
   local cmd
   if (split == "left") then
-    cmd = ("git show " .. hash .. "^")
+    cmd = ("git show " .. hash .. "^:" .. split)
   else
-    cmd = ("git show " .. hash)
+    cmd = ("git show " .. hash .. ":" .. split)
   end
-  return vim.fn.systemlist(cmd)
+  if hash then
+    return vim.fn.systemlist(cmd)
+  else
+    return {}
+  end
 end
 M.open = function()
   local view = M["create-graph-view"]()
