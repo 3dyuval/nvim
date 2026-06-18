@@ -3,6 +3,7 @@ local M = {}
 local graph_win = nil
 local src_win = nil
 local graph_buf = nil
+local graph_data = nil
 local function graph_open_3f()
   return (graph_win and vim.api.nvim_win_is_valid(graph_win))
 end
@@ -26,6 +27,7 @@ M["open-graph"] = function()
     do
       local ok_render, render_result = pcall(core.render_data, gitgraph.config, {}, {all = true, max_count = 256})
       if ok_render then
+        graph_data = render_result
         vim.api.nvim_buf_set_lines(graph_buf, 0, -1, false, render_result.lines)
         for _, hl in ipairs(render_result.highlights) do
           vim.api.nvim_buf_add_highlight(graph_buf, -1, hl.hg, hl.row, hl.start, hl.stop)

@@ -3,6 +3,7 @@
 (var graph-win nil)
 (var src-win nil)
 (var graph-buf nil)
+(var graph-data nil)
 
 (fn graph-open? []
   (and graph-win (vim.api.nvim_win_is_valid graph-win)))
@@ -25,6 +26,7 @@
         (let [(ok-render render-result) (pcall core.render_data gitgraph.config {} {:all true :max_count 256})]
           (if ok-render
             (do
+              (set graph-data render-result)
               (vim.api.nvim_buf_set_lines graph-buf 0 -1 false render-result.lines)
               (each [_ hl (ipairs render-result.highlights)]
                 (vim.api.nvim_buf_add_highlight graph-buf -1 hl.hg hl.row hl.start hl.stop)))
