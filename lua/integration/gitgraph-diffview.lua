@@ -51,12 +51,26 @@ M["close-graph"] = function()
   graph_win = nil
   return nil
 end
+M["open-commit-in-diffview"] = function()
+  local line = vim.api.nvim_get_current_line()
+  local hash = string.match(line, "(%x%x%x%x%x%x%x)")
+  if hash then
+    vim.cmd(("DiffviewOpen " .. hash .. "^!"))
+    return vim.notify(("Opened " .. hash .. " in diffview"))
+  else
+    return vim.notify("No commit hash found on this line", vim.log.levels.WARN)
+  end
+end
 M["setup-graph-keymaps"] = function()
   if (graph_buf and vim.api.nvim_buf_is_valid(graph_buf)) then
-    local function _6_()
+    local function _7_()
       return M["close-graph"]()
     end
-    return vim.keymap.set("n", "q", _6_, {buffer = graph_buf, noremap = true, silent = true})
+    vim.keymap.set("n", "q", _7_, {buffer = graph_buf, noremap = true, silent = true})
+    local function _8_()
+      return M["open-commit-in-diffview"]()
+    end
+    return vim.keymap.set("n", "<CR>", _8_, {buffer = graph_buf, noremap = true, silent = true})
   else
     return nil
   end
@@ -72,10 +86,10 @@ end
 M["on-files-staged"] = function(view)
 end
 M["create-command"] = function()
-  local function _8_(_opts)
+  local function _10_(_opts)
     return M["open-graph"]()
   end
-  return vim.api.nvim_create_user_command("DiffviewGraph", _8_, {nargs = "*", desc = "Open gitgraph in a split"})
+  return vim.api.nvim_create_user_command("DiffviewGraph", _10_, {nargs = "*", desc = "Open gitgraph in a split"})
 end
 M.setup = function()
   M["create-command"]()
