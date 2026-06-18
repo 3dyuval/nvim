@@ -5,7 +5,7 @@
   (let [(ok CDiffView) (pcall #(. (require :diffview.api.views.diff) :CDiffView))]
     (if (not ok)
       (do
-        (vim.notify "CDiffView API not available" vim.log.levels.WARN)
+        (vim.notify (.. "CDiffView API not available: " CDiffView) vim.log.levels.WARN)
         nil)
       (do
         (let [gitgraph (require :gitgraph)

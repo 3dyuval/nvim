@@ -7,7 +7,7 @@ M["create-graph-view"] = function()
   end
   ok, CDiffView = pcall(_1_)
   if not ok then
-    vim.notify("CDiffView API not available", vim.log.levels.WARN)
+    vim.notify(("CDiffView API not available: " .. CDiffView), vim.log.levels.WARN)
     return nil
   else
     local gitgraph = require("gitgraph")
