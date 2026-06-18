@@ -15,7 +15,7 @@
           (do
             (let [gitgraph (require :gitgraph)
                   core (require :gitgraph.core)
-                  git_root (vim.fn.getcwd)
+                  git_root "/home/yuv/proj/gitgraph.nvim/.git/worktrees/gitgraph.nvim-snacks-api"
 
                   ;; Get graph data
                   graph-result (core.render_data gitgraph.config {} {:all true :max_count 256})

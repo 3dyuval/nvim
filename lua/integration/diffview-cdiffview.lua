@@ -17,7 +17,7 @@ M["create-graph-view"] = function()
     else
       local gitgraph = require("gitgraph")
       local core = require("gitgraph.core")
-      local git_root = vim.fn.getcwd()
+      local git_root = "/home/yuv/proj/gitgraph.nvim/.git/worktrees/gitgraph.nvim-snacks-api"
       local graph_result = core.render_data(gitgraph.config, {}, {all = true, max_count = 256})
       local files = M["create-file-entries"](graph_result)
       local function _2_(view)
