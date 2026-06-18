@@ -1,5 +1,6 @@
-{1 "isakbm/gitgraph.nvim"
+{1 "3dyuval/gitgraph.nvim"
  :dev true
+ :branch "feat/snacks-api"
  :opts {:git_cmd "git"
         :format {:timestamp "%H:%M:%S %d-%m-%Y"
                  :fields ["hash" "timestamp" "author" "branch_name" "tag"]}

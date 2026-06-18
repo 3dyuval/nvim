@@ -3,8 +3,8 @@
 (lset :n :<leader>gG ":Gitsigns"
       {:desc "Gitsigns prefill"})
 
-(lset :n :<leader>gg ":DiffviewGraphCDiffView<CR>"
-      {:desc "Open gitgraph as diff view"})
+(lset :n :<leader>gg ":DiffviewGraph<CR>"
+      {:desc "Open gitgraph"})
 
 (lset :n :<leader>gn
       (fn [] (vim.cmd (.. "Neogit kind=vsplit cwd=" (vim.fn.expand "%:p:h"))))

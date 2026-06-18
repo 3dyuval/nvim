@@ -1,7 +1,7 @@
 -- [nfnl] fnl/config/keymaps/utils.fnl
 local lset = vim.keymap.set
 lset("n", "<leader>gG", ":Gitsigns", {desc = "Gitsigns prefill"})
-lset("n", "<leader>gg", ":DiffviewGraphCDiffView<CR>", {desc = "Open gitgraph as diff view"})
+lset("n", "<leader>gg", ":DiffviewGraph<CR>", {desc = "Open gitgraph"})
 local function _1_()
   return vim.cmd(("Neogit kind=vsplit cwd=" .. vim.fn.expand("%:p:h")))
 end

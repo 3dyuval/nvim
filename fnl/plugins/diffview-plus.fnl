@@ -1,14 +1,14 @@
 {1 "dlyongemallo/diffview-plus.nvim"
- :dev false
+ :dev true
  :dependencies ["nvim-tree/nvim-web-devicons"
                 "isakbm/gitgraph.nvim"]  ;; Optional for CDiffView integration
  :init (fn []
-         ;; CDiffView-based integration: open gitgraph as custom diff view
-         (let [cdiffview (require :integration.diffview-cdiffview)]
+         ;; Command to open diffview with gitgraph panel
+         (let [graph-view-kind (require :integration.graph-view-kind)]
            (vim.api.nvim_create_user_command
-             :DiffviewGraphCDiffView
-             (fn [_opts] (cdiffview.open))
-             {:desc "Open gitgraph as CDiffView"})))
+             :DiffviewGraph
+             (fn [_opts] (graph-view-kind.open-graph))
+             {:desc "Open gitgraph in diffview"})))
  :opts (fn []
          (let [actions (require :diffview.actions)]
            {:enhanced_diff_hl true
@@ -32,7 +32,9 @@
                                        :height 16}}
             :file_panel {:listing_style :tree
                          :tree_options {:flatten_dirs false
-                                        :folder_statuses :only_folded}}
+                                        :folder_statuses :only_folded}
+                         :win_config {:position :bottom
+                                      :height 16}}
             :keymaps
             {:disable_defaults true
              :view
