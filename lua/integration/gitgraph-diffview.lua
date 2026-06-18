@@ -16,7 +16,8 @@ M["open-graph"] = function()
     if not graph_open_3f() then
       vim.cmd("botright split")
       graph_win = vim.api.nvim_get_current_win()
-      graph_buf = vim.api.nvim_get_current_buf()
+      graph_buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_win_set_buf(graph_win, graph_buf)
       vim.api.nvim_win_set_height(graph_win, 16)
     else
     end
