@@ -3,7 +3,15 @@
  :dependencies ["nvim-tree/nvim-web-devicons"
                 "isakbm/gitgraph.nvim"]
  :init (fn []
-         ((. (require :integration.gitgraph-diffview) :setup)))
+         ;; Old hooks integration
+         ((. (require :integration.gitgraph-diffview) :setup))
+
+         ;; New CDiffView integration
+         (let [cdiffview (require :integration.diffview-cdiffview)]
+           (vim.api.nvim_create_user_command
+             :DiffviewGraphCDiffView
+             (fn [_opts] (cdiffview.open))
+             {:desc "Open gitgraph as CDiffView"})))
  :opts (fn []
          (let [actions (require :diffview.actions)]
            {:enhanced_diff_hl true
