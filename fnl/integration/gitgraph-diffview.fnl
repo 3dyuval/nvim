@@ -26,7 +26,7 @@
             (do
               (vim.api.nvim_buf_set_lines graph-buf 0 -1 false render-result.lines)
               (each [_ hl (ipairs render-result.highlights)]
-                (vim.api.nvim_buf_add_highlight graph-buf -1 hl.group hl.line hl.col_start hl.col_end)))
+                (vim.api.nvim_buf_add_highlight graph-buf -1 hl.hg hl.row hl.start hl.stop)))
             (vim.notify (.. "Failed to render graph: " render-result) vim.log.levels.ERROR)))
         (vim.api.nvim_set_option_value "modifiable" false {:buf graph-buf})
         (when (and src-win (vim.api.nvim_win_is_valid src-win))
