@@ -39,9 +39,19 @@
     (vim.api.nvim_win_close graph-win true))
   (set graph-win nil))
 
+(fn M.open-commit-in-diffview []
+  (let [line (vim.api.nvim_get_current_line)
+        hash (string.match line "(%x%x%x%x%x%x%x)")]
+    (if hash
+      (do
+        (vim.cmd (.. "DiffviewOpen " hash "^!"))
+        (vim.notify (.. "Opened " hash " in diffview")))
+      (vim.notify "No commit hash found on this line" vim.log.levels.WARN))))
+
 (fn M.setup-graph-keymaps []
   (when (and graph-buf (vim.api.nvim_buf_is_valid graph-buf))
-    (vim.keymap.set :n :q (fn [] (M.close-graph)) {:buffer graph-buf :noremap true :silent true})))
+    (vim.keymap.set :n :q (fn [] (M.close-graph)) {:buffer graph-buf :noremap true :silent true})
+    (vim.keymap.set :n :<CR> (fn [] (M.open-commit-in-diffview)) {:buffer graph-buf :noremap true :silent true})))
 
 (fn M.on-view-opened [view]
   (M.open-graph))
