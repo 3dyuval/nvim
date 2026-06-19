@@ -119,6 +119,26 @@
                                   (tset (. vim.b bufnr) :commitlint_scopes
                                         (or parsed.scopes [])))))))))})
 
+;; --- Commitlint: auto-open the completion menu on entering the commit buffer ---
+;; Neogit runs `:startinsert` as it opens the commit buffer, firing InsertEnter
+;; before blink has attached its per-buffer listener — so blink's show_on_insert
+;; is missed and the menu only appears once you type a char. Re-trigger the menu
+;; ourselves on a deferred tick, when still in insert mode on the first line.
+(autocmd :FileType
+         {:pattern :gitcommit
+          :callback (fn [args]
+                      (local bufnr args.buf)
+                      (vim.defer_fn
+                        (fn []
+                          (let [(ok blink) (pcall require :blink.cmp)]
+                            (when (and ok
+                                       (vim.api.nvim_buf_is_valid bufnr)
+                                       (= (vim.api.nvim_get_current_buf) bufnr)
+                                       (vim.startswith (. (vim.api.nvim_get_mode) :mode) :i)
+                                       (not (blink.is_visible)))
+                              (blink.show))))
+                        100))})
+
 ;; --- Commitlint: validate the message on save ---
 ;; Pipes the buffer through `commitlint` on write; a non-zero exit notifies
 ;; with the linter output so rule violations surface without leaving the buffer.
