@@ -1,11 +1,13 @@
 -- [nfnl] fnl/blink/sources/commitlint.fnl
-local function build_items(labels, kind, detail)
+local function build_items(labels, spec)
   local out = {}
   for _, v in ipairs((labels or {})) do
-    table.insert(out, {label = v, kind = kind, detail = detail})
+    table.insert(out, {label = v, detail = spec.detail, kind_name = spec.kind_name, kind_icon = spec.icon, kind_hl = spec.hl})
   end
   return out
 end
+local type_spec = {kind_name = "Type", icon = "", hl = "Function", detail = "commit type"}
+local scope_spec = {kind_name = "Scope", icon = "", hl = "String", detail = "commit scope"}
 local M = {}
 M.new = function()
   return setmetatable({}, {__index = M})
@@ -34,9 +36,9 @@ M.get_completions = function(self, ctx, callback)
   end
   finish = _4_
   if before:match("^%s*[%w_/-]*%([^)]*$") then
-    return finish(build_items(vim.b[bufnr].commitlint_scopes, 13, "commit scope"))
+    return finish(build_items(vim.b[bufnr].commitlint_scopes, scope_spec))
   elseif before:match("^%s*[%w_/-]*$") then
-    return finish(build_items(vim.b[bufnr].commitlint_types, 13, "commit type"))
+    return finish(build_items(vim.b[bufnr].commitlint_types, type_spec))
   else
     return finish({})
   end

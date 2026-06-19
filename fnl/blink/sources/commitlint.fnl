@@ -10,12 +10,23 @@
 ;;   - anywhere else ........................ nothing
 
 ;; Build blink items from a list of plain string values.
-;; `kind` is the LSP CompletionItemKind: 13 = Enum.
-(fn build-items [labels kind detail]
+;; blink renders a per-item `kind_name`/`kind_icon`/`kind_hl` (see
+;; blink.cmp render/context.lua), so we give types and scopes their own custom
+;; kind label, nerd-font glyph, and highlight instead of the generic Enum icon.
+(fn build-items [labels spec]
   (let [out []]
     (each [_ v (ipairs (or labels []))]
-      (table.insert out {:label v : kind : detail}))
+      (table.insert out {:label v
+                         :detail spec.detail
+                         :kind_name spec.kind_name
+                         :kind_icon spec.icon
+                         :kind_hl spec.hl}))
     out))
+
+(local type-spec {:kind_name "Type" :icon "" :hl "Function"
+                  :detail "commit type"})
+(local scope-spec {:kind_name "Scope" :icon "" :hl "String"
+                   :detail "commit scope"})
 
 (local M {})
 
@@ -44,10 +55,10 @@
       ;; Scope context: cursor sits inside the `(...)` after the type, e.g.
       ;; `feat(`, `feat(ls`, `fix(a,b`. No `)` between the paren and cursor.
       (before:match "^%s*[%w_/-]*%([^)]*$")
-      (finish (build-items (. vim.b bufnr :commitlint_scopes) 13 "commit scope"))
+      (finish (build-items (. vim.b bufnr :commitlint_scopes) scope-spec))
       ;; Type context: line start, only a partial word before the cursor.
       (before:match "^%s*[%w_/-]*$")
-      (finish (build-items (. vim.b bufnr :commitlint_types) 13 "commit type"))
+      (finish (build-items (. vim.b bufnr :commitlint_types) type-spec))
       ;; Otherwise: no completions.
       (finish []))))
 
