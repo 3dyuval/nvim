@@ -4,11 +4,11 @@
 ;; populated by the FileType gitcommit autocmd (see fnl/config/autocmds.fnl),
 ;; which shells out to scripts/commitlint.sh.
 ;;
+
 ;; Context gating on the subject line `type(scope): subject`:
 ;;   - inside an unclosed `(` ............... offer scopes
 ;;   - at the start, before any `(` or `:` .. offer types
 ;;   - anywhere else ........................ nothing
-
 ;; Build blink items from a list of plain string values.
 ;; blink renders a per-item `kind_name`/`kind_icon`/`kind_hl` (see
 ;; blink.cmp render/context.lua), so we give types and scopes their own custom
@@ -23,9 +23,12 @@
                          :kind_hl spec.hl}))
     out))
 
-(local type-spec {:kind_name "Type" :icon "" :hl "Function"
+;; Icons are written as codepoints decoded at runtime so the nerd-font glyphs
+;; survive any editing pipeline (typed glyphs get stripped to empty strings).
+;; 0xf02b = nf-fa-tag (type), 0xf487 = nf-oct-package (scope).
+(local type-spec {:kind_name "Type" :icon (vim.fn.nr2char 0xf02b) :hl "Function"
                   :detail "commit type"})
-(local scope-spec {:kind_name "Scope" :icon "" :hl "String"
+(local scope-spec {:kind_name "Scope" :icon (vim.fn.nr2char 0xf487) :hl "String"
                    :detail "commit scope"})
 
 (local M {})

@@ -6,8 +6,8 @@ local function build_items(labels, spec)
   end
   return out
 end
-local type_spec = {kind_name = "Type", icon = "", hl = "Function", detail = "commit type"}
-local scope_spec = {kind_name = "Scope", icon = "", hl = "String", detail = "commit scope"}
+local type_spec = {kind_name = "Type", icon = vim.fn.nr2char(61483), hl = "Function", detail = "commit type"}
+local scope_spec = {kind_name = "Scope", icon = vim.fn.nr2char(62599), hl = "String", detail = "commit scope"}
 local M = {}
 M.new = function()
   return setmetatable({}, {__index = M})
