@@ -1,21 +1,21 @@
 {
   "conventional commit": {
-    "prefix": "cc",
+    "prefix": "cl",
     "body": ["${1:type}: ${2:subject}"],
     "description": "Conventional commit: type: subject"
   },
   "conventional commit with scope": {
-    "prefix": "ccs",
+    "prefix": "cls",
     "body": ["${1:type}(${2:scope}): ${3:subject}"],
     "description": "Conventional commit: type(scope): subject"
   },
   "conventional commit with body": {
-    "prefix": "ccb",
+    "prefix": "clb",
     "body": ["${1:type}: ${2:subject}", "", "${3:body}"],
     "description": "Conventional commit: type: subject + body"
   },
   "conventional commit with scope and body": {
-    "prefix": "ccsb",
+    "prefix": "clsb",
     "body": ["${1:type}(${2:scope}): ${3:subject}", "", "${4:body}"],
     "description": "Conventional commit: type(scope): subject + body"
   }
