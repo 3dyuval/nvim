@@ -20,6 +20,7 @@ local function _4_(opts)
   return require("utils.buffers").create_buffer_bug_snippet((opts.args or "X"))
 end
 vim.api.nvim_create_user_command("BugSnippet", _4_, {nargs = "?"})
+require("picker.schemastore").setup()
 do
   local orig = vim.lsp.util.apply_workspace_edit
   local function _5_(workspace_edit, offset_encoding)
