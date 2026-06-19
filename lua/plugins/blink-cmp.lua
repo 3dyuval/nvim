@@ -36,7 +36,7 @@ return {
           bash = { "curl", "jq", "yq", "lsp", "path", "snippets", "buffer" },
           zsh = { "curl", "jq", "yq", "lsp", "path", "snippets", "buffer" },
           amber = { "curl", "jq", "yq", "lsp", "path", "buffer" },
-          gitcommit = { "commitlint", "buffer", "path" },
+          gitcommit = { "commitlint", "snippets", "buffer", "path" },
           AvanteInput = { "avante_commands", "avante_mentions", "avante_files", "avante_shortcuts" },
         },
         providers = {

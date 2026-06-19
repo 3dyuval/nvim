@@ -12,6 +12,10 @@
       {
         "language": "vue",
         "path": "./vue.json"
+      },
+      {
+        "language": "gitcommit",
+        "path": "./gitcommit.json"
       }
     ]
   }
