@@ -52,6 +52,9 @@ function M.format_file(filepath, options)
     timeout_ms = options.timeout_ms or 5000,
     dry_run = options.dry_run or false,
     quiet = options.quiet or false,
+    -- Explicit opts bypass default_format_opts, so re-state the LSP fallback;
+    -- filetypes without a conform formatter (e.g. json) format via their LSP.
+    lsp_format = "fallback",
   })
 
   if success then

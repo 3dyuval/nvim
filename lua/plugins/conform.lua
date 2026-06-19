@@ -90,7 +90,8 @@ return {
       javascript = { "prettier" },
       typescriptreact = { "prettier" },
       javascriptreact = { "prettier" },
-      json = { "prettier" },
+      -- json intentionally omitted: prettier isn't installed; rely on conform's
+      -- lsp_format = "fallback" to route formatting through jsonls instead.
       html = { "prettier" },
       vue = { "prettier" },
       css = { "prettier" },

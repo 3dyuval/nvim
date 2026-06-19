@@ -15,4 +15,8 @@ lset("n", "<leader>gh", _2_, {desc = "Diffview repo log"})
 local function _3_()
   return require("hover").open()
 end
-return lset("n", "P", _3_, {desc = "Hover"})
+lset("n", "P", _3_, {desc = "Hover"})
+local function _4_()
+  return require("conform").format({lsp_format = "fallback"})
+end
+return lset({"n", "x"}, "<leader>cf", _4_, {desc = "Format"})
