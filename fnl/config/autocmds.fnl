@@ -139,6 +139,24 @@
                               (blink.show))))
                         100))})
 
+;; --- Commitlint: re-open the menu on a snippet tabstop after accepting ---
+;; Accepting a cl* skeleton expands the snippet and jumps to the `type` tabstop,
+;; but blink only re-shows inside a snippet if the menu was already open at jump
+;; time — after accept it's closed, so the type/scope completions don't appear.
+;; On BlinkCmpAccept in a gitcommit buffer with an active snippet, re-show.
+(autocmd :User
+         {:pattern :BlinkCmpAccept
+          :callback (fn []
+                      (when (= vim.bo.filetype :gitcommit)
+                        (vim.defer_fn
+                          (fn []
+                            (let [(ok blink) (pcall require :blink.cmp)]
+                              (when (and ok
+                                         (blink.snippet_active)
+                                         (not (blink.is_visible)))
+                                (blink.show))))
+                          50)))})
+
 ;; --- Commitlint: validate the message on save ---
 ;; Pipes the buffer through `commitlint` on write; a non-zero exit notifies
 ;; with the linter output so rule violations surface without leaving the buffer.

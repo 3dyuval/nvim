@@ -158,7 +158,9 @@ return {
         preset = "default",
         ["<Up>"] = { "select_prev", "fallback" },
         ["<Down>"] = { "select_next", "fallback" },
-        ["<CR>"] = { "accept", "fallback" },
+        -- accept the highlighted item if the menu is open; otherwise advance to
+        -- the next snippet tabstop (cl* commit skeletons); otherwise a newline.
+        ["<CR>"] = { "accept", "snippet_forward", "fallback" },
         ["<C-CR>"] = { "fallback" },
       },
       cmdline = {
