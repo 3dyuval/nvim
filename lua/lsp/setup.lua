@@ -69,4 +69,20 @@ local function _11_()
     return require("snacks").picker.lsp_symbols({layout = "bottom"})
   end
 end
-return vim.keymap.set("n", "grs", _11_, {desc = "Symbols"})
+vim.keymap.set("n", "grs", _11_, {desc = "Symbols"})
+vim.diagnostic.config({underline = true, severity_sort = true, virtual_text = {spacing = 4, source = "if_many", prefix = "\226\151\143"}, signs = {text = {[vim.diagnostic.severity.ERROR] = " ", [vim.diagnostic.severity.WARN] = " ", [vim.diagnostic.severity.HINT] = " ", [vim.diagnostic.severity.INFO] = " "}}, update_in_insert = false})
+local function _13_(ev)
+  local client = vim.lsp.get_client_by_id(ev.data.client_id)
+  local buf = ev.buf
+  if (client and client:supports_method("textDocument/inlayHint") and (vim.bo[buf].buftype == "") and (vim.bo[buf].filetype ~= "vue")) then
+    return vim.lsp.inlay_hint.enable(true, {bufnr = buf})
+  else
+    return nil
+  end
+end
+vim.api.nvim_create_autocmd("LspAttach", {callback = _13_})
+local function _15_()
+  return require("utils.files").smart_references()
+end
+vim.keymap.set("n", "<leader>cx", _15_, {desc = "Smart References"})
+return vim.keymap.set("n", "<leader>cL", "<cmd>LspInfo<cr>", {desc = "LSP Info"})

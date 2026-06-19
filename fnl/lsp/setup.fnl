@@ -203,3 +203,41 @@
                       ((. (require :snacks) :picker :lsp_symbols) {:layout :bottom})))
                 {:desc :Symbols})
 
+;; --- Native replacement for LazyVim's nvim-lspconfig config layer ---
+;; LazyVim's lsp/init.lua config fn is disabled in lua/plugins/lsp.lua. The only
+;; behaviours of it that were actually live here were diagnostic styling and
+;; inlay-hint enabling; its keymaps were all shadowed by our own. Reproduce the
+;; meaningful parts natively so server setup stays 100% in this file.
+
+;; Diagnostic styling (was the sole real contribution of LazyVim's LSP opts).
+(vim.diagnostic.config {:underline true
+                        :update_in_insert false
+                        :severity_sort true
+                        :virtual_text {:spacing 4
+                                       :source :if_many
+                                       :prefix "●"}
+                        :signs {:text {vim.diagnostic.severity.ERROR " "
+                                       vim.diagnostic.severity.WARN " "
+                                       vim.diagnostic.severity.HINT " "
+                                       vim.diagnostic.severity.INFO " "}}})
+
+;; Enable inlay hints on attach (vtsls requests them); skip vue per prior config.
+(vim.api.nvim_create_autocmd :LspAttach
+                             {:callback (fn [ev]
+                                          (let [client (vim.lsp.get_client_by_id ev.data.client_id)
+                                                buf ev.buf]
+                                            (when (and client
+                                                       (client:supports_method :textDocument/inlayHint)
+                                                       (= (. vim.bo buf :buftype) "")
+                                                       (not= (. vim.bo buf :filetype) :vue))
+                                              (vim.lsp.inlay_hint.enable true {:bufnr buf}))))})
+
+;; Keymaps that were declared in lua/plugins/lsp.lua via LazyVim's keys spec but
+;; never actually mapped (the spec path was broken). Define them natively.
+(vim.keymap.set :n :<leader>cx
+                (fn [] ((. (require :utils.files) :smart_references)))
+                {:desc "Smart References"})
+
+(vim.keymap.set :n :<leader>cL "<cmd>LspInfo<cr>"
+                {:desc "LSP Info"})
+
