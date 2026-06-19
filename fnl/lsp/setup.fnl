@@ -1,6 +1,19 @@
-;; Global capabilities for all servers
-(vim.lsp.config "*" {:capabilities {:positionEncoding :utf-8}
-                     :root_markers [:.git]})
+;; Global capabilities for all servers.
+;; Must merge blink.cmp's completion capabilities (snippetSupport, resolve,
+;; etc.) -- a bare {positionEncoding} table REPLACES nvim's defaults and strips
+;; textDocument.completion, which silently breaks schema-driven completion
+;; (e.g. jsonls property suggestions from a $schema). get_lsp_capabilities with
+;; include_nvim_defaults=true folds nvim defaults + blink caps + our override.
+;; pcall-guarded so a missing/not-yet-loaded blink still yields nvim defaults.
+(local capabilities
+       (let [(ok blink) (pcall require :blink.cmp)]
+         (if ok
+             (blink.get_lsp_capabilities {:positionEncoding :utf-8} true)
+             (vim.tbl_deep_extend :force
+                                  (vim.lsp.protocol.make_client_capabilities)
+                                  {:positionEncoding :utf-8}))))
+
+(vim.lsp.config "*" {:capabilities capabilities :root_markers [:.git]})
 
 ;; Enable all servers
 (vim.lsp.enable [:lua_ls
