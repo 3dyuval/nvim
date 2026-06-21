@@ -29,3 +29,6 @@
 (lset [:n :x] :<leader>cf
       (fn [] ((. (require :conform) :format) {:lsp_format :fallback}))
       {:desc "Format"})
+
+(lset :n :<leader>rs ":AutoSession search<CR>"
+      {:desc "Session search"})

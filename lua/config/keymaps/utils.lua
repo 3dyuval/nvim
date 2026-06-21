@@ -19,4 +19,5 @@ lset("n", "P", _3_, {desc = "Hover"})
 local function _4_()
   return require("conform").format({lsp_format = "fallback"})
 end
-return lset({"n", "x"}, "<leader>cf", _4_, {desc = "Format"})
+lset({"n", "x"}, "<leader>cf", _4_, {desc = "Format"})
+return lset("n", "<leader>rs", ":AutoSession search<CR>", {desc = "Session search"})
