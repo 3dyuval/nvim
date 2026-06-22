@@ -93,4 +93,4 @@
                           "Branch: " item.branch "\n"
                           "Session: " item.session_name))}))))
 
-{: open}
+{: open : Session}

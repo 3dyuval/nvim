@@ -82,4 +82,4 @@ local function open()
     return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _6_, preview = _8_})
   end
 end
-return {open = open}
+return {open = open, Session = Session}
