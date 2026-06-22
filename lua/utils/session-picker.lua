@@ -1,3 +1,4 @@
+-- [nfnl] fnl/utils/session-picker.fnl
 local Session = {}
 Session.new = function(filename, session_name)
   local pipe_idx = string.find(session_name, "|")

@@ -4,15 +4,16 @@ return {
     "kevinhwang91/promise-async",
   },
   event = "BufReadPost",
-  cond = function()
-    -- Don't load UFO for gitcommit buffers (they use manual diff folding)
-    return vim.bo.filetype ~= "gitcommit"
-  end,
   opts = {
     -- Use LSP + indent for folding (LSP handles imports auto-fold)
     provider_selector = function(bufnr, filetype, buftype)
       if filetype == "typescript" or filetype == "typescriptreact" then
         return { "lsp", "indent" }
+      end
+      if filetype == "gitcommit" then
+        -- For git commit (both fugitive and neogit), use indent folding for diff hunks
+        -- Tree-sitter parser for gitcommit may not be available, so use indent as fallback
+        return { "indent" }
       end
       return { "treesitter", "indent" }
     end,

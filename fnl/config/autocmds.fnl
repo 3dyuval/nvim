@@ -190,18 +190,31 @@
                       (set vim.opt_local.wrap true)
                       (set vim.opt_local.spell true))})
 
-;; --- Gitcommit: enable diff syntax and folding ---
+;; --- COMMIT_EDITMSG: create manual folds for @@ diff hunk markers ---
 
 (autocmd :BufReadPost
-         {:pattern :gitcommit
+         {:pattern "*COMMIT_EDITMSG*"
           :callback (fn []
-                      ;; Enable diff syntax highlighting on the diff section
-                      (vim.cmd "syntax include @diff syntax/diff.vim")
-                      (vim.cmd "syntax region diffContent start=/^diff --git/ end=/^$/ contains=@diff")
-                      ;; Use diff folding - fugitive sets foldtext already
-                      (set vim.opt_local.foldmethod :diff)
-                      ;; Set foldlevel to close diffs by default
-                      (set vim.opt_local.foldlevel 0))})
+                      (vim.defer_fn
+                        (fn []
+                          (let [bufnr (vim.api.nvim_get_current_buf)
+                                lines (vim.api.nvim_buf_get_lines bufnr 0 -1 false)]
+                            (when (> (length lines) 0)
+                              (set vim.bo.foldmethod :manual)
+                              (vim.cmd "normal! zE")
+                              ;; Find @@ markers and fold content between them
+                              (var prev-hunk nil)
+                              (each [i line (ipairs lines)]
+                                (when (string.match line "^@@")
+                                  (when (and prev-hunk (> (- i prev-hunk) 1))
+                                    (vim.cmd (string.format "%d,%dfold" (+ prev-hunk 1) (- i 1))))
+                                  (set prev-hunk i)))
+                              ;; Fold final section
+                              (when prev-hunk
+                                (vim.cmd (string.format "%d,%dfold" (+ prev-hunk 1) (length lines))))
+                              ;; Close all folds
+                              (vim.cmd "normal! zM"))))
+                        50))})
 ;; --- Snacks windows: no swap ---
 
 (autocmd :FileType

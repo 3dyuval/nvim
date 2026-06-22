@@ -5,17 +5,6 @@ return {
   },
   {
     "LazyVim/LazyVim",
-    init = function()
-      -- Override the default wrap_spell autocmd to disable spell checking
-      vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("override_wrap_spell", { clear = true }),
-        pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
-        callback = function()
-          vim.opt_local.wrap = true
-          vim.opt_local.spell = true
-        end,
-      })
-    end,
   },
 
   -- Enable colorschemes used by omarchy themes
