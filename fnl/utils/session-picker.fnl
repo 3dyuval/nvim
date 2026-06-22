@@ -1,3 +1,11 @@
+(fn decode-session-name [encoded-name]
+  "Decode URL-encoded session name"
+  (-> encoded-name
+      (string.gsub "%%2F" "/")
+      (string.gsub "%%2f" "/")
+      (string.gsub "%%7C" "|")
+      (string.gsub "%%7c" "|")))
+
 (fn build-session-items []
   "Build session items from auto-session library"
   (let [(ok auto-session) (pcall require :auto-session)]
@@ -8,27 +16,25 @@
               items []]
           (each [_ f (ipairs (Lib.get_session_list root-dir))]
             (when (and f f.session_name)
-              (local decoded-name f.session_name)
-              (when (string.find decoded-name "/")
-                (local pipe-idx (string.find decoded-name "|"))
-                (local session-path-part
-                  (if pipe-idx
-                      (string.sub decoded-name 1 (- pipe-idx 1))
-                      decoded-name))
-                (when (string.find session-path-part "^/")
-                  (local branch-name
-                    (if pipe-idx
-                        (string.sub decoded-name (+ pipe-idx 1))
-                        "main"))
-                  (local display-name
-                    (or (string.match session-path-part "[^/]+$") session-path-part))
-                  (table.insert items
-                    {:text (.. "  󰁯 " display-name " (" branch-name ") [" session-path-part "]")
-                     :path session-path-part
-                     :branch branch-name
-                     :session_name f.session_name
-                     :display_name display-name
-                     :file session-path-part})))))  ;; Add file property so Snacks won't error on copy action
+              (local decoded-name (decode-session-name f.session_name))
+              (local pipe-idx (string.find decoded-name "|"))
+              (local session-path-part
+                (if pipe-idx
+                    (string.sub decoded-name 1 (- pipe-idx 1))
+                    decoded-name))
+              (local branch-name
+                (if pipe-idx
+                    (string.sub decoded-name (+ pipe-idx 1))
+                    "main"))
+              (local display-name
+                (or (string.match session-path-part "[^/]+$") session-path-part))
+              (table.insert items
+                {:text (.. "  󰁯 " display-name " (" branch-name ") [" session-path-part "]")
+                 :path session-path-part
+                 :branch branch-name
+                 :session_name f.session_name
+                 :display_name display-name
+                 :file session-path-part})))
           items))))
 
 (fn open []
