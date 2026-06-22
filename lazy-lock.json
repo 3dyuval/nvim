@@ -24,7 +24,6 @@
   "conform.nvim": { "branch": "master", "commit": "619363c30309d29ffa631e67c8183f2a72caa373" },
   "coop.nvim": { "branch": "main", "commit": "b156e541316aee14be4ae64c93ed8bddb6d03bc1" },
   "darcula-solid.nvim": { "branch": "main", "commit": "d950b9ca20096313c435a93e57af7815766f3d3d" },
-  "diffview-plus.nvim": { "branch": "main", "commit": "f30b9be897dae930f60ff64eff495797f196ebcb" },
   "everforest": { "branch": "master", "commit": "85a86eb62409e3ec88713bff3d1b9d7374e112e4" },
   "file-history.nvim": { "branch": "master", "commit": "6ca4cb39b6247af0a83a9f32ef7a480465b5e55f" },
   "flatdeep.nvim": { "branch": "main", "commit": "fa98e8944ecd72a81d01257216398b3523680b65" },
@@ -106,6 +105,7 @@
   "vim-dadbod-completion": { "branch": "master", "commit": "a8dac0b3cf6132c80dc9b18bef36d4cf7a9e1fe6" },
   "vim-dadbod-ui": { "branch": "master", "commit": "afd07819d8efcefc3317205b855ad4e3513b0011" },
   "vim-flog": { "branch": "master", "commit": "665b16ac8915f746bc43c9572b4581a5e9047216" },
+  "vim-fugitive": { "branch": "master", "commit": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0" },
   "webify.nvim": { "branch": "master", "commit": "69bc088e21834898477df69694ce86ee5561e20b" },
   "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" },
   "zenbones.nvim": { "branch": "main", "commit": "239bdb9a09c8d38c752c43590d02f654ed0da2b0" }
