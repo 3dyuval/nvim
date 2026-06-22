@@ -24,7 +24,8 @@ Session["display-name"] = function(path)
 end
 Session["picker-item"] = function(session)
   local display = Session["display-name"](session.path)
-  return {text = ("  \243\176\129\175 " .. display .. " (" .. session.branch .. ") [" .. session.path .. "]"), path = session.path, branch = session.branch, session_name = session.encoded_name, display_name = display, file = session.path}
+  local decoded_session_name = (session.path .. "|" .. session.branch)
+  return {text = ("  \243\176\129\175 " .. display .. " (" .. session.branch .. ") [" .. session.path .. "]"), path = session.path, branch = session.branch, session_name = decoded_session_name, encoded_name = session.encoded_name, display_name = display, file = session.path}
 end
 local function build_session_items()
   local ok, auto_session = pcall(require, "auto-session")

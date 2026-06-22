@@ -26,11 +26,13 @@
 
 (fn Session.picker-item [session]
   "Convert session to picker item format"
-  (let [display (Session.display-name session.path)]
+  (let [display (Session.display-name session.path)
+        decoded-session-name (.. session.path "|" session.branch)]
     {:text (.. "  󰁯 " display " (" session.branch ") [" session.path "]")
      :path session.path
      :branch session.branch
-     :session_name session.encoded_name
+     :session_name decoded-session-name
+     :encoded_name session.encoded_name
      :display_name display
      :file session.path}))
 
