@@ -101,17 +101,15 @@
                            (Session.restore item._session)
                            (picker:close)))
            :preview (fn [item]
-                      (when (and item item._session item.path item.branch)
+                      (when (and item item._session)
                         (let [session item._session
                               files (Session.get-files session)
-                              files-text (if (> (length files) 0)
-                                            (.. "\nFiles:\n"
-                                                (table.concat (icollect [_ f (ipairs files)]
-                                                                (.. "  " f.file " +" f.line))
-                                                              "\n"))
-                                            "")]
-                          (.. "Path: " item.path "\n"
-                              "Branch: " item.branch
-                              files-text))))}))))
+                              lines [(.. "Path: " item.path)
+                                     (.. "Branch: " item.branch)
+                                     ""
+                                     "Files:"]]
+                          (each [_ f (ipairs files)]
+                            (table.insert lines (.. "  " f.file " +" f.line)))
+                          (table.concat lines "\n"))))}))))
 
 {: open : Session}

@@ -93,30 +93,14 @@ local function open()
       end
     end
     local function _10_(item)
-      if (item and item._session and item.path and item.branch) then
+      if (item and item._session) then
         local session = item._session
         local files = Session["get-files"](session)
-        local files_text
-        if (#files > 0) then
-          local _11_
-          do
-            local tbl_26_ = {}
-            local i_27_ = 0
-            for _, f in ipairs(files) do
-              local val_28_ = ("  " .. f.file .. " +" .. f.line)
-              if (nil ~= val_28_) then
-                i_27_ = (i_27_ + 1)
-                tbl_26_[i_27_] = val_28_
-              else
-              end
-            end
-            _11_ = tbl_26_
-          end
-          files_text = ("\nFiles:\n" .. table.concat(_11_, "\n"))
-        else
-          files_text = ""
+        local lines = {("Path: " .. item.path), ("Branch: " .. item.branch), "", "Files:"}
+        for _, f in ipairs(files) do
+          table.insert(lines, ("  " .. f.file .. " +" .. f.line))
         end
-        return ("Path: " .. item.path .. "\n" .. "Branch: " .. item.branch .. files_text)
+        return table.concat(lines, "\n")
       else
         return nil
       end
