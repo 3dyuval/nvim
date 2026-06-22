@@ -1,5 +1,30 @@
-local function decode_session_name(encoded_name)
+local Session = {}
+Session.decode = function(encoded_name)
   return string.gsub(string.gsub(string.gsub(string.gsub(encoded_name, "%%2F", "/"), "%%2f", "/"), "%%7C", "|"), "%%7c", "|")
+end
+Session.parse = function(session_name)
+  local decoded = Session.decode(session_name)
+  local pipe_idx = string.find(decoded, "|")
+  local path
+  if pipe_idx then
+    path = string.sub(decoded, 1, (pipe_idx - 1))
+  else
+    path = decoded
+  end
+  local branch
+  if pipe_idx then
+    branch = string.sub(decoded, (pipe_idx + 1))
+  else
+    branch = "main"
+  end
+  return {path = path, branch = branch, encoded_name = session_name}
+end
+Session["display-name"] = function(path)
+  return (string.match(path, "[^/]+$") or path)
+end
+Session["picker-item"] = function(session)
+  local display = Session["display-name"](session.path)
+  return {text = ("  \243\176\129\175 " .. display .. " (" .. session.branch .. ") [" .. session.path .. "]"), path = session.path, branch = session.branch, session_name = session.encoded_name, display_name = display, file = session.path}
 end
 local function build_session_items()
   local ok, auto_session = pcall(require, "auto-session")
@@ -11,22 +36,8 @@ local function build_session_items()
     local items = {}
     for _, f in ipairs(Lib.get_session_list(root_dir)) do
       if (f and f.session_name) then
-        local decoded_name = decode_session_name(f.session_name)
-        local pipe_idx = string.find(decoded_name, "|")
-        local session_path_part
-        if pipe_idx then
-          session_path_part = string.sub(decoded_name, 1, (pipe_idx - 1))
-        else
-          session_path_part = decoded_name
-        end
-        local branch_name
-        if pipe_idx then
-          branch_name = string.sub(decoded_name, (pipe_idx + 1))
-        else
-          branch_name = "main"
-        end
-        local display_name = (string.match(session_path_part, "[^/]+$") or session_path_part)
-        table.insert(items, {text = ("  \243\176\129\175 " .. display_name .. " (" .. branch_name .. ") [" .. session_path_part .. "]"), path = session_path_part, branch = branch_name, session_name = f.session_name, display_name = display_name, file = session_path_part})
+        local session = Session.parse(f.session_name)
+        table.insert(items, Session["picker-item"](session))
       else
       end
     end

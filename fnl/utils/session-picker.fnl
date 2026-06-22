@@ -1,10 +1,38 @@
-(fn decode-session-name [encoded-name]
-  "Decode URL-encoded session name"
+(local Session {})
+
+(fn Session.decode [encoded-name]
+  "Decode URL-encoded session name to path|branch format"
   (-> encoded-name
       (string.gsub "%%2F" "/")
       (string.gsub "%%2f" "/")
       (string.gsub "%%7C" "|")
       (string.gsub "%%7c" "|")))
+
+(fn Session.parse [session-name]
+  "Parse session_name into {path branch encoded_name}"
+  (let [decoded (Session.decode session-name)
+        pipe-idx (string.find decoded "|")
+        path (if pipe-idx
+                 (string.sub decoded 1 (- pipe-idx 1))
+                 decoded)
+        branch (if pipe-idx
+                   (string.sub decoded (+ pipe-idx 1))
+                   "main")]
+    {:path path :branch branch :encoded_name session-name}))
+
+(fn Session.display-name [path]
+  "Extract display name from full path"
+  (or (string.match path "[^/]+$") path))
+
+(fn Session.picker-item [session]
+  "Convert session to picker item format"
+  (let [display (Session.display-name session.path)]
+    {:text (.. "  󰁯 " display " (" session.branch ") [" session.path "]")
+     :path session.path
+     :branch session.branch
+     :session_name session.encoded_name
+     :display_name display
+     :file session.path}))
 
 (fn build-session-items []
   "Build session items from auto-session library"
@@ -16,25 +44,8 @@
               items []]
           (each [_ f (ipairs (Lib.get_session_list root-dir))]
             (when (and f f.session_name)
-              (local decoded-name (decode-session-name f.session_name))
-              (local pipe-idx (string.find decoded-name "|"))
-              (local session-path-part
-                (if pipe-idx
-                    (string.sub decoded-name 1 (- pipe-idx 1))
-                    decoded-name))
-              (local branch-name
-                (if pipe-idx
-                    (string.sub decoded-name (+ pipe-idx 1))
-                    "main"))
-              (local display-name
-                (or (string.match session-path-part "[^/]+$") session-path-part))
-              (table.insert items
-                {:text (.. "  󰁯 " display-name " (" branch-name ") [" session-path-part "]")
-                 :path session-path-part
-                 :branch branch-name
-                 :session_name f.session_name
-                 :display_name display-name
-                 :file session-path-part})))
+              (local session (Session.parse f.session_name))
+              (table.insert items (Session.picker-item session))))
           items))))
 
 (fn open []
