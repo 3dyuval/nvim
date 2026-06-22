@@ -159,6 +159,7 @@ return {
       },
       keymap = {
         preset = "default",
+        ["<Tab>"] = {},
         ["<Up>"] = {"select_prev", "fallback"},
         ["<Down>"] = {"select_next", "fallback"},
         -- accept the highlighted item if the menu is open; otherwise advance to

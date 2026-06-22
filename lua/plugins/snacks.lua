@@ -198,54 +198,8 @@ return {
         enabled = false, -- We'll handle this manually
         sections = {
           {section = "header", enabled = true},
-          {section = "projects", padding = 1, limit = 8},
-          function()
-            local ok, auto_session = pcall(require, "auto-session")
-            if not ok then return end
-            local Lib = require("auto-session.lib")
-
-            local root_dir = auto_session.get_root_dir()
-            local cwd = vim.fn.getcwd()
-            local sessions = {}
-
-            for _, f in ipairs(Lib.get_session_list(root_dir)) do
-              if not f or not f.session_name then
-                goto continue
-              end
-
-              -- Session name format: full_path|branch (when git_use_branch_name=true)
-              -- Match if the session's path component matches current cwd
-              local decoded_name = f.session_name
-              local pipe_idx = string.find(decoded_name, "|")
-              local session_path_part
-              if pipe_idx then
-                session_path_part = string.sub(decoded_name, 1, pipe_idx - 1)
-              else
-                session_path_part = decoded_name
-              end
-
-              -- Match session against cwd (handle both symlink resolution and exact matches)
-              local norm_cwd = vim.fn.fnamemodify(cwd, ":p")
-              local norm_session = vim.fn.fnamemodify(session_path_part, ":p")
-              if norm_cwd == norm_session then
-                local display_name = pipe_idx and string.sub(decoded_name, pipe_idx + 1) or decoded_name
-                -- Use session_name (decoded, without .vim) for restore command
-                local restore_name = decoded_name:gsub("%.vim$", "")
-                table.insert(sessions, {
-                  icon = "󰠯",
-                  desc = ("Restore: %s"):format(display_name),
-                  action = function()
-                    vim.cmd(":AutoSession restore " .. restore_name)
-                  end,
-                })
-              end
-              ::continue::
-            end
-
-            if #sessions > 0 then
-              return {icon = "󰁯", title = "Sessions", gap = 1, padding = 1, unpack(sessions)}
-            end
-          end,
+          {section = "projects", padding = 1, limit = 8, enabled = false},
+          {section = "sessions", enabled = false},
           {section = "keys", gap = 0, padding = 1},
           {section = "startup", enabled = false}
         },
@@ -292,6 +246,9 @@ return {
                   Snacks.picker.projects()
                 end
               },
+              {icon = "󰁯", key = "s", desc = "Session Picker", action = function()
+                require("utils.session-picker").open()
+              end},
               {icon = "󰈆", key = "q", desc = "Quit", action = ":qa!"}
             }
           }
@@ -655,7 +612,7 @@ return {
           },
           searxng_categories = {
             layout = {preset = "select"}
-          }
+          },
         }
       }
     },
