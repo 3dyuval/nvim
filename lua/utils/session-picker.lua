@@ -34,7 +34,8 @@ Session["display-name"] = function(self)
 end
 Session["picker-item"] = function(self)
   local display = Session["display-name"](self)
-  return {text = ("  \243\176\129\175 " .. display .. " (" .. self._branch .. ") [" .. self._path .. "]"), path = self._path, branch = self._branch, session_name = Session.decoded(self), encoded_name = self._encoded, display_name = display, file = self._path, _session = self}
+  local preview_text = Session.preview(self)
+  return {text = ("  \243\176\129\175 " .. display .. " (" .. self._branch .. ") [" .. self._path .. "]"), path = self._path, branch = self._branch, session_name = Session.decoded(self), encoded_name = self._encoded, display_name = display, file = self._path, _session = self, preview = {text = preview_text, ft = "text"}}
 end
 Session["get-files"] = function(self)
   local session_dir = (vim.fn.stdpath("data") .. "/sessions/")
@@ -51,6 +52,20 @@ Session["get-files"] = function(self)
   else
   end
   return files
+end
+Session.preview = function(self)
+  local files = Session["get-files"](self)
+  local lines = {("Path: " .. Session.path(self)), ("Branch: " .. Session.branch(self))}
+  if (#files > 0) then
+    table.insert(lines, "")
+    table.insert(lines, "Files:")
+    for _, f in ipairs(files) do
+      table.insert(lines, ("  " .. f.file .. " +" .. f.line))
+    end
+  else
+    table.insert(lines, "(no files in session)")
+  end
+  return table.concat(lines, "\n")
 end
 Session.restore = function(self)
   local ok, auto_session = pcall(require, "auto-session")
@@ -84,7 +99,7 @@ local function open()
   if (#items == 0) then
     return vim.notify("No sessions found", vim.log.levels.WARN)
   else
-    local function _8_(picker, item)
+    local function _9_(picker, item)
       if (item and item._session) then
         Session.restore(item._session)
         return picker:close()
@@ -92,20 +107,7 @@ local function open()
         return nil
       end
     end
-    local function _10_(item)
-      if (item and item._session) then
-        local session = item._session
-        local files = Session["get-files"](session)
-        local lines = {("Path: " .. item.path), ("Branch: " .. item.branch), "", "Files:"}
-        for _, f in ipairs(files) do
-          table.insert(lines, ("  " .. f.file .. " +" .. f.line))
-        end
-        return table.concat(lines, "\n")
-      else
-        return nil
-      end
-    end
-    return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _8_, preview = _10_})
+    return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _9_})
   end
 end
 return {open = open, Session = Session}

@@ -44,7 +44,8 @@
 
 (fn Session.picker-item [self]
   "Convert to Snacks picker item format"
-  (let [display (Session.display-name self)]
+  (let [display (Session.display-name self)
+        preview-text (Session.preview self)]
     {:text (.. "  󰁯 " display " (" self._branch ") [" self._path "]")
      :path self._path
      :branch self._branch
@@ -52,7 +53,8 @@
      :encoded_name self._encoded
      :display_name display
      :file self._path
-     :_session self}))
+     :_session self
+     :preview {:text preview-text :ft "text"}}))
 
 (fn Session.get-files [self]
   "Extract opened files from session file"
@@ -65,6 +67,20 @@
           (when line-num
             (table.insert files {:file match-file :line (tonumber line-num)})))))
     files))
+
+(fn Session.preview [self]
+  "Generate preview text with path, branch, and opened files"
+  (let [files (Session.get-files self)
+        lines [(.. "Path: " (Session.path self))
+               (.. "Branch: " (Session.branch self))]]
+    (if (> (length files) 0)
+        (do
+          (table.insert lines "")
+          (table.insert lines "Files:")
+          (each [_ f (ipairs files)]
+            (table.insert lines (.. "  " f.file " +" f.line))))
+        (table.insert lines "(no files in session)"))
+    (table.concat lines "\n")))
 
 (fn Session.restore [self]
   "Restore session using AutoSession API"
@@ -99,17 +115,6 @@
            :on_confirm (fn [picker item]
                          (when (and item item._session)
                            (Session.restore item._session)
-                           (picker:close)))
-           :preview (fn [item]
-                      (when (and item item._session)
-                        (let [session item._session
-                              files (Session.get-files session)
-                              lines [(.. "Path: " item.path)
-                                     (.. "Branch: " item.branch)
-                                     ""
-                                     "Files:"]]
-                          (each [_ f (ipairs files)]
-                            (table.insert lines (.. "  " f.file " +" f.line)))
-                          (table.concat lines "\n"))))}))))
+                           (picker:close)))}))))
 
 {: open : Session}
