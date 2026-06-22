@@ -34,7 +34,15 @@
      :session_name decoded-session-name
      :encoded_name session.encoded_name
      :display_name display
-     :file session.path}))
+     :file session.path
+     :_session session}))
+
+(fn Session.restore [session]
+  "Restore session using AutoSession API"
+  (let [(ok auto-session) (pcall require :auto-session)]
+    (when ok
+      (let [decoded-name (.. session.path "|" session.branch)]
+        (auto-session.autosave_and_restore decoded-name)))))
 
 (fn build-session-items []
   "Build session items from auto-session library"
@@ -61,8 +69,8 @@
            :items items
            :format "text"
            :on_confirm (fn [picker item]
-                         (when (and item item.session_name)
-                           (vim.cmd (.. ":AutoSession restore " item.session_name))
+                         (when (and item item._session)
+                           (Session.restore item._session)
                            (picker:close)))
            :preview (fn [item]
                       (.. "Path: " item.path "\n"

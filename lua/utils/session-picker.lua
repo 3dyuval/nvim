@@ -25,7 +25,16 @@ end
 Session["picker-item"] = function(session)
   local display = Session["display-name"](session.path)
   local decoded_session_name = (session.path .. "|" .. session.branch)
-  return {text = ("  \243\176\129\175 " .. display .. " (" .. session.branch .. ") [" .. session.path .. "]"), path = session.path, branch = session.branch, session_name = decoded_session_name, encoded_name = session.encoded_name, display_name = display, file = session.path}
+  return {text = ("  \243\176\129\175 " .. display .. " (" .. session.branch .. ") [" .. session.path .. "]"), path = session.path, branch = session.branch, session_name = decoded_session_name, encoded_name = session.encoded_name, display_name = display, file = session.path, _session = session}
+end
+Session.restore = function(session)
+  local ok, auto_session = pcall(require, "auto-session")
+  if ok then
+    local decoded_name = (session.path .. "|" .. session.branch)
+    return auto_session.autosave_and_restore(decoded_name)
+  else
+    return nil
+  end
 end
 local function build_session_items()
   local ok, auto_session = pcall(require, "auto-session")
@@ -51,18 +60,18 @@ local function open()
   if (#items == 0) then
     return vim.notify("No sessions found", vim.log.levels.WARN)
   else
-    local function _5_(picker, item)
-      if (item and item.session_name) then
-        vim.cmd((":AutoSession restore " .. item.session_name))
+    local function _6_(picker, item)
+      if (item and item._session) then
+        Session.restore(item._session)
         return picker:close()
       else
         return nil
       end
     end
-    local function _7_(item)
+    local function _8_(item)
       return ("Path: " .. item.path .. "\n" .. "Branch: " .. item.branch .. "\n" .. "Session: " .. item.session_name)
     end
-    return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _5_, preview = _7_})
+    return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _6_, preview = _8_})
   end
 end
 return {open = open}
