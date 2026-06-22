@@ -182,14 +182,26 @@
                                               vim.log.levels.ERROR
                                               {:title :commitlint}))))))))})
 
-;; --- Gitcommit: enable folding for diff changes ---
+;; --- Text formatting: wrap and spell for text-like filetypes ---
 
 (autocmd :FileType
+         {:pattern [:text :plaintex :typst :gitcommit :markdown]
+          :callback (fn []
+                      (set vim.opt_local.wrap true)
+                      (set vim.opt_local.spell true))})
+
+;; --- Gitcommit: enable diff syntax and folding ---
+
+(autocmd :BufReadPost
          {:pattern :gitcommit
           :callback (fn []
+                      ;; Enable diff syntax highlighting on the diff section
+                      (vim.cmd "syntax include @diff syntax/diff.vim")
+                      (vim.cmd "syntax region diffContent start=/^diff --git/ end=/^$/ contains=@diff")
+                      ;; Use diff folding - fugitive sets foldtext already
                       (set vim.opt_local.foldmethod :diff)
+                      ;; Set foldlevel to close diffs by default
                       (set vim.opt_local.foldlevel 0))})
-
 ;; --- Snacks windows: no swap ---
 
 (autocmd :FileType
@@ -207,12 +219,13 @@
                       (set vim.opt_local.backup false)
                       (set vim.opt_local.writebackup false))})
 
-;; --- Foldlevel: keep at 99 (UFO manages actual folding) ---
+;; --- Foldlevel: keep at 99 (UFO manages actual folding), except gitcommit ---
 
 (autocmd [:BufWinEnter :WinEnter :TabEnter]
          {:callback (fn []
                       (vim.defer_fn (fn []
-                                      (when (< vim.wo.foldlevel 99)
+                                      (when (and (< vim.wo.foldlevel 99)
+                                                 (not= vim.bo.filetype :gitcommit))
                                         (set vim.wo.foldlevel 99)))
                                     100))})
 

@@ -4,6 +4,10 @@ return {
     "kevinhwang91/promise-async",
   },
   event = "BufReadPost",
+  cond = function()
+    -- Don't load UFO for gitcommit buffers (they use manual diff folding)
+    return vim.bo.filetype ~= "gitcommit"
+  end,
   opts = {
     -- Use LSP + indent for folding (LSP handles imports auto-fold)
     provider_selector = function(bufnr, filetype, buftype)
@@ -62,10 +66,6 @@ return {
   },
   config = function(_, opts)
     require("ufo").setup(opts)
-
-    -- Ensure foldlevel is respected
-    vim.o.foldlevel = 99
-    vim.o.foldlevelstart = 99
 
     -- Remap fold commands to use UFO's implementation
     -- This prevents fold level from being changed by zR/zM
