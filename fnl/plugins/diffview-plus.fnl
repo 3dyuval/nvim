@@ -1,9 +1,7 @@
 {1 "dlyongemallo/diffview-plus.nvim"
- :dev false
- :dependencies ["nvim-tree/nvim-web-devicons"
-                "isakbm/gitgraph.nvim"]
- :init (fn []
-         ((. (require :integration.gitgraph-diffview) :setup)))
+ :dev true
+ :dependencies ["nvim-tree/nvim-web-devicons"]
+ :cmd ["DiffviewOpen" "DiffviewFileHistory"]
  :opts (fn []
          (let [actions (require :diffview.actions)]
            {:enhanced_diff_hl true
@@ -16,15 +14,13 @@
             :view {:default {:layout :diff2_horizontal
                              :winbar_info true
                              :win_config {:position :bottom}}
-                   :merge_tool {:layout :diff3_horizontal
+                   :merge_tool {:layout :diff1_plain
                                 :disable_diagnostics false
                                 :winbar_info true}
                    :file_history {:layout :diff2_horizontal
                                   :winbar_info true
                                   :pin_local true
                                   :win_config {:position :bottom}}}
-            :graph_panel {:win_config {:position :bottom
-                                       :height 16}}
             :file_panel {:listing_style :tree
                          :tree_options {:flatten_dirs false
                                         :folder_statuses :only_folded}}
@@ -60,19 +56,6 @@
                    (actions.prev_conflict)
                    (vim.cmd "normal! [c")))
                {:desc "Prev conflict or hunk"}]
-              ;; navigation (SHAD)
-              ["n" "<C-PageDown>"
-               (fn []
-                 (if (~= (vim.fn.search "^<<<<<<< " :nw) 0)
-                   (actions.next_conflict)
-                   (vim.cmd "normal! ]c")))
-               {:desc "Next conflict or hunk"}]
-              ["n" "<C-PageUp>"
-               (fn []
-                 (if (~= (vim.fn.search "^<<<<<<< " :nw) 0)
-                   (actions.prev_conflict)
-                   (vim.cmd "normal! [c")))
-               {:desc "Prev conflict or hunk"}]
               ;; common actions
               ["n" "<leader>." actions.cycle_layout {:desc "Cycle layout"}]
               ["n" "q"        actions.close         {:desc "Close diffview"}]
@@ -92,15 +75,13 @@
               ["n" "E"     actions.select_prev_entry                {:desc "Prev file"}]
               ["n" "<C-S-A>" actions.select_next_entry              {:desc "Next file"}]
               ["n" "<C-S-E>" actions.select_prev_entry              {:desc "Prev file"}]
-              ["n" "<C-PageDown>" actions.select_next_entry         {:desc "Next file"}]
-              ["n" "<C-PageUp>"   actions.select_prev_entry         {:desc "Prev file"}]
               ["n" "<cr>"  actions.select_entry                     {:desc "Open diff"}]
               ["n" "o"     actions.select_entry                     {:desc "Open diff"}]
               ["n" "q"     "<Cmd>DiffviewClose<CR>"                 {:desc "Close diffview"}]
               ["n" "?"     (actions.help :file_panel)               {:desc "Help"}]]
              :file_history_panel
-             [["n" "A"      actions.select_next_commit {:desc "Next commit"}]
-              ["n" "E"      actions.select_prev_commit {:desc "Prev commit"}]
+             [["n" "A"      actions.select_next_entry {:desc "Next file"}]
+              ["n" "E"      actions.select_prev_entry {:desc "Prev file"}]
               ["n" "<C-M-A>" actions.select_next_entry {:desc "Next file"}]
               ["n" "<C-M-E>" actions.select_prev_entry {:desc "Prev file"}]
               ["n" "<cr>"   actions.select_entry      {:desc "Open diff"}]
@@ -111,18 +92,9 @@
              [["n" "q"   actions.close {:desc "Close help menu"}]
               ["n" "<esc>" actions.close {:desc "Close help menu"}]]}
             :hooks
-            (let [gitgraph (require :integration.gitgraph-diffview)]
-              {:diff_buf_read (fn [bufnr]
-                                (set vim.opt_local.foldenable false)
-                                (tset vim.b bufnr :snacks_indent false)
-                                (tset vim.b bufnr :snacks_scope false))
-               :view_opened  (fn [view]
-                                (set vim.g.diffview_active true)
-                                ((. gitgraph "on-view-opened") view))
-               :view_closed  (fn [view]
-                                (set vim.g.diffview_active false)
-                                ((. gitgraph "on-view-closed") view))
-               :selection_changed (fn [view]
-                                    ((. gitgraph "on-selection-changed") view))
-               :files_staged (fn [view]
-                                ((. gitgraph "on-files-staged") view))})}))}
+            {:diff_buf_read (fn [bufnr]
+                              (set vim.opt_local.foldenable false)
+                              (tset vim.b bufnr :snacks_indent false)
+                              (tset vim.b bufnr :snacks_scope false))
+             :view_opened  (fn [] (set vim.g.diffview_active true))
+             :view_closed  (fn [] (set vim.g.diffview_active false))}}))}
