@@ -182,6 +182,14 @@
                                               vim.log.levels.ERROR
                                               {:title :commitlint}))))))))})
 
+;; --- Gitcommit: enable folding for diff changes ---
+
+(autocmd :FileType
+         {:pattern :gitcommit
+          :callback (fn []
+                      (set vim.opt_local.foldmethod :diff)
+                      (set vim.opt_local.foldlevel 0))})
+
 ;; --- Snacks windows: no swap ---
 
 (autocmd :FileType
