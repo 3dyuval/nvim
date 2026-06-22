@@ -1,21 +1,19 @@
 local Session = {}
-Session.new = function(encoded_filename)
-  local decoded = string.gsub(string.gsub(string.gsub(string.gsub(encoded_filename, "%%2F", "/"), "%%2f", "/"), "%%7C", "|"), "%%7c", "|")
-  local pipe_idx = string.find(decoded, "|")
-  local path_with_ext
+Session.new = function(filename, session_name)
+  local pipe_idx = string.find(session_name, "|")
+  local path
   if pipe_idx then
-    path_with_ext = string.sub(decoded, 1, (pipe_idx - 1))
+    path = string.sub(session_name, 1, (pipe_idx - 1))
   else
-    path_with_ext = decoded
+    path = session_name
   end
-  local path = string.gsub(path_with_ext, "%.vim$", "")
   local branch
   if pipe_idx then
-    branch = string.sub(decoded, (pipe_idx + 1))
+    branch = string.sub(session_name, (pipe_idx + 1))
   else
     branch = "main"
   end
-  return {_path = path, _branch = branch, _encoded = encoded_filename}
+  return {_filename = filename, _path = path, _branch = branch}
 end
 Session.path = function(self)
   return self._path
@@ -23,8 +21,8 @@ end
 Session.branch = function(self)
   return self._branch
 end
-Session.encoded = function(self)
-  return self._encoded
+Session.filename = function(self)
+  return self._filename
 end
 Session.decoded = function(self)
   return (self._path .. "|" .. self._branch)
@@ -35,11 +33,11 @@ end
 Session["picker-item"] = function(self)
   local display = Session["display-name"](self)
   local preview_text = Session.preview(self)
-  return {text = ("  \243\176\129\175 " .. display .. " (" .. self._branch .. ") [" .. self._path .. "]"), path = self._path, branch = self._branch, session_name = Session.decoded(self), encoded_name = self._encoded, display_name = display, file = self._path, _session = self, preview = {text = preview_text, ft = "text"}}
+  return {text = ("  \243\176\129\175 " .. display .. " (" .. self._branch .. ") [" .. self._path .. "]"), path = self._path, branch = self._branch, session_name = Session.decoded(self), filename = self._filename, display_name = display, file = self._path, _session = self, preview = {text = preview_text, ft = "text"}}
 end
 Session["get-files"] = function(self)
   local session_dir = (vim.fn.stdpath("data") .. "/sessions/")
-  local session_file = (session_dir .. Session.encoded(self))
+  local session_file = (session_dir .. self._filename)
   local files = {}
   if vim.fn.filereadable(session_file) then
     for line in io.lines(session_file) do
@@ -84,8 +82,8 @@ local function build_session_items()
     local root_dir = auto_session.get_root_dir()
     local items = {}
     for _, f in ipairs(Lib.get_session_list(root_dir)) do
-      if (f and f.session_name) then
-        local session = Session.new(f.session_name)
+      if (f and f.file_name) then
+        local session = Session.new(f.file_name, f.session_name)
         table.insert(items, Session["picker-item"](session))
       else
       end
