@@ -36,6 +36,22 @@ Session["picker-item"] = function(self)
   local display = Session["display-name"](self)
   return {text = ("  \243\176\129\175 " .. display .. " (" .. self._branch .. ") [" .. self._path .. "]"), path = self._path, branch = self._branch, session_name = Session.decoded(self), encoded_name = self._encoded, display_name = display, file = self._path, _session = self}
 end
+Session["get-files"] = function(self)
+  local session_dir = (vim.fn.stdpath("data") .. "/sessions/")
+  local session_file = (session_dir .. Session.encoded(self))
+  local files = {}
+  if vim.fn.filereadable(session_file) then
+    for line in io.lines(session_file) do
+      local line_num, match_file = string.match(line, "^badd%s+%+(%d+)%s+(.+)$")
+      if line_num then
+        table.insert(files, {file = match_file, line = tonumber(line_num)})
+      else
+      end
+    end
+  else
+  end
+  return files
+end
 Session.restore = function(self)
   local ok, auto_session = pcall(require, "auto-session")
   if ok then
@@ -68,7 +84,7 @@ local function open()
   if (#items == 0) then
     return vim.notify("No sessions found", vim.log.levels.WARN)
   else
-    local function _6_(picker, item)
+    local function _8_(picker, item)
       if (item and item._session) then
         Session.restore(item._session)
         return picker:close()
@@ -76,10 +92,36 @@ local function open()
         return nil
       end
     end
-    local function _8_(item)
-      return ("Path: " .. item.path .. "\n" .. "Branch: " .. item.branch .. "\n" .. "Session: " .. item.session_name)
+    local function _10_(item)
+      if (item and item._session and item.path and item.branch) then
+        local session = item._session
+        local files = Session["get-files"](session)
+        local files_text
+        if (#files > 0) then
+          local _11_
+          do
+            local tbl_26_ = {}
+            local i_27_ = 0
+            for _, f in ipairs(files) do
+              local val_28_ = ("  " .. f.file .. " +" .. f.line)
+              if (nil ~= val_28_) then
+                i_27_ = (i_27_ + 1)
+                tbl_26_[i_27_] = val_28_
+              else
+              end
+            end
+            _11_ = tbl_26_
+          end
+          files_text = ("\nFiles:\n" .. table.concat(_11_, "\n"))
+        else
+          files_text = ""
+        end
+        return ("Path: " .. item.path .. "\n" .. "Branch: " .. item.branch .. files_text)
+      else
+        return nil
+      end
     end
-    return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _6_, preview = _8_})
+    return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _8_, preview = _10_})
   end
 end
 return {open = open, Session = Session}

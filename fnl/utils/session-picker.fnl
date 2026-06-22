@@ -54,6 +54,18 @@
      :file self._path
      :_session self}))
 
+(fn Session.get-files [self]
+  "Extract opened files from session file"
+  (let [session-dir (.. (vim.fn.stdpath :data) "/sessions/")
+        session-file (.. session-dir (Session.encoded self))
+        files []]
+    (when (vim.fn.filereadable session-file)
+      (each [line (io.lines session-file)]
+        (let [(line-num match-file) (string.match line "^badd%s+%+(%d+)%s+(.+)$")]
+          (when line-num
+            (table.insert files {:file match-file :line (tonumber line-num)})))))
+    files))
+
 (fn Session.restore [self]
   "Restore session using AutoSession API"
   (let [(ok auto-session) (pcall require :auto-session)]
@@ -89,8 +101,17 @@
                            (Session.restore item._session)
                            (picker:close)))
            :preview (fn [item]
-                      (.. "Path: " item.path "\n"
-                          "Branch: " item.branch "\n"
-                          "Session: " item.session_name))}))))
+                      (when (and item item._session item.path item.branch)
+                        (let [session item._session
+                              files (Session.get-files session)
+                              files-text (if (> (length files) 0)
+                                            (.. "\nFiles:\n"
+                                                (table.concat (icollect [_ f (ipairs files)]
+                                                                (.. "  " f.file " +" f.line))
+                                                              "\n"))
+                                            "")]
+                          (.. "Path: " item.path "\n"
+                              "Branch: " item.branch
+                              files-text))))}))))
 
 {: open : Session}
