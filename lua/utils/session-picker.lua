@@ -1,37 +1,45 @@
 local Session = {}
-Session.decode = function(encoded_name)
-  return string.gsub(string.gsub(string.gsub(string.gsub(encoded_name, "%%2F", "/"), "%%2f", "/"), "%%7C", "|"), "%%7c", "|")
-end
-Session.parse = function(session_name)
-  local decoded = Session.decode(session_name)
+Session.new = function(encoded_filename)
+  local decoded = string.gsub(string.gsub(string.gsub(string.gsub(encoded_filename, "%%2F", "/"), "%%2f", "/"), "%%7C", "|"), "%%7c", "|")
   local pipe_idx = string.find(decoded, "|")
-  local path
+  local path_with_ext
   if pipe_idx then
-    path = string.sub(decoded, 1, (pipe_idx - 1))
+    path_with_ext = string.sub(decoded, 1, (pipe_idx - 1))
   else
-    path = decoded
+    path_with_ext = decoded
   end
+  local path = string.gsub(path_with_ext, "%.vim$", "")
   local branch
   if pipe_idx then
     branch = string.sub(decoded, (pipe_idx + 1))
   else
     branch = "main"
   end
-  return {path = path, branch = branch, encoded_name = session_name}
+  return {_path = path, _branch = branch, _encoded = encoded_filename}
 end
-Session["display-name"] = function(path)
-  return (string.match(path, "[^/]+$") or path)
+Session.path = function(self)
+  return self._path
 end
-Session["picker-item"] = function(session)
-  local display = Session["display-name"](session.path)
-  local decoded_session_name = (session.path .. "|" .. session.branch)
-  return {text = ("  \243\176\129\175 " .. display .. " (" .. session.branch .. ") [" .. session.path .. "]"), path = session.path, branch = session.branch, session_name = decoded_session_name, encoded_name = session.encoded_name, display_name = display, file = session.path, _session = session}
+Session.branch = function(self)
+  return self._branch
 end
-Session.restore = function(session)
+Session.encoded = function(self)
+  return self._encoded
+end
+Session.decoded = function(self)
+  return (self._path .. "|" .. self._branch)
+end
+Session["display-name"] = function(self)
+  return (string.match(self._path, "[^/]+$") or self._path)
+end
+Session["picker-item"] = function(self)
+  local display = Session["display-name"](self)
+  return {text = ("  \243\176\129\175 " .. display .. " (" .. self._branch .. ") [" .. self._path .. "]"), path = self._path, branch = self._branch, session_name = Session.decoded(self), encoded_name = self._encoded, display_name = display, file = self._path, _session = self}
+end
+Session.restore = function(self)
   local ok, auto_session = pcall(require, "auto-session")
   if ok then
-    local decoded_name = (session.path .. "|" .. session.branch)
-    return auto_session.autosave_and_restore(decoded_name)
+    return auto_session.autosave_and_restore(Session.decoded(self))
   else
     return nil
   end
@@ -46,7 +54,7 @@ local function build_session_items()
     local items = {}
     for _, f in ipairs(Lib.get_session_list(root_dir)) do
       if (f and f.session_name) then
-        local session = Session.parse(f.session_name)
+        local session = Session.new(f.session_name)
         table.insert(items, Session["picker-item"](session))
       else
       end

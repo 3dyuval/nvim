@@ -1,48 +1,64 @@
 (local Session {})
 
-(fn Session.decode [encoded-name]
-  "Decode URL-encoded session name to path|branch format"
-  (-> encoded-name
-      (string.gsub "%%2F" "/")
-      (string.gsub "%%2f" "/")
-      (string.gsub "%%7C" "|")
-      (string.gsub "%%7c" "|")))
+(fn Session.new [encoded-filename]
+  "Create session object from percent-encoded filename
 
-(fn Session.parse [session-name]
-  "Parse session_name into {path branch encoded_name}"
-  (let [decoded (Session.decode session-name)
+  Accepts: %2Fhome%2Fyuv%2Fgc%2Fweb%7Cmain.vim or webnew%2Ftableheaders.vim
+  Stores: path, branch, and encoded representation for bidirectional access"
+  (let [decoded (-> encoded-filename
+                    (string.gsub "%%2F" "/")
+                    (string.gsub "%%2f" "/")
+                    (string.gsub "%%7C" "|")
+                    (string.gsub "%%7c" "|"))
         pipe-idx (string.find decoded "|")
-        path (if pipe-idx
-                 (string.sub decoded 1 (- pipe-idx 1))
-                 decoded)
+        path-with-ext (if pipe-idx
+                          (string.sub decoded 1 (- pipe-idx 1))
+                          decoded)
+        path (string.gsub path-with-ext "%.vim$" "")
         branch (if pipe-idx
                    (string.sub decoded (+ pipe-idx 1))
                    "main")]
-    {:path path :branch branch :encoded_name session-name}))
+    {:_path path
+     :_branch branch
+     :_encoded encoded-filename}))
 
-(fn Session.display-name [path]
-  "Extract display name from full path"
-  (or (string.match path "[^/]+$") path))
+(fn Session.path [self]
+  "Get decoded path (without extension, without branch)"
+  self._path)
 
-(fn Session.picker-item [session]
-  "Convert session to picker item format"
-  (let [display (Session.display-name session.path)
-        decoded-session-name (.. session.path "|" session.branch)]
-    {:text (.. "  󰁯 " display " (" session.branch ") [" session.path "]")
-     :path session.path
-     :branch session.branch
-     :session_name decoded-session-name
-     :encoded_name session.encoded_name
+(fn Session.branch [self]
+  "Get branch name (defaults to 'main' if not in filename)"
+  self._branch)
+
+(fn Session.encoded [self]
+  "Get original percent-encoded filename"
+  self._encoded)
+
+(fn Session.decoded [self]
+  "Get decoded format for AutoSession restore: path|branch"
+  (.. self._path "|" self._branch))
+
+(fn Session.display-name [self]
+  "Get folder name for UI display"
+  (or (string.match self._path "[^/]+$") self._path))
+
+(fn Session.picker-item [self]
+  "Convert to Snacks picker item format"
+  (let [display (Session.display-name self)]
+    {:text (.. "  󰁯 " display " (" self._branch ") [" self._path "]")
+     :path self._path
+     :branch self._branch
+     :session_name (Session.decoded self)
+     :encoded_name self._encoded
      :display_name display
-     :file session.path
-     :_session session}))
+     :file self._path
+     :_session self}))
 
-(fn Session.restore [session]
+(fn Session.restore [self]
   "Restore session using AutoSession API"
   (let [(ok auto-session) (pcall require :auto-session)]
     (when ok
-      (let [decoded-name (.. session.path "|" session.branch)]
-        (auto-session.autosave_and_restore decoded-name)))))
+      (auto-session.autosave_and_restore (Session.decoded self)))))
 
 (fn build-session-items []
   "Build session items from auto-session library"
@@ -54,7 +70,7 @@
               items []]
           (each [_ f (ipairs (Lib.get_session_list root-dir))]
             (when (and f f.session_name)
-              (local session (Session.parse f.session_name))
+              (local session (Session.new f.session_name))
               (table.insert items (Session.picker-item session))))
           items))))
 
