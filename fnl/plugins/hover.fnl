@@ -1,5 +1,5 @@
 {1 "lewis6991/hover.nvim"
- :dev true
+ :dev false
  :event :VeryLazy
  :dependencies ["3dyuval/colortweak.nvim"]
  :config

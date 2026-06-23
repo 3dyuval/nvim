@@ -1,6 +1,6 @@
 return {
   "NeogitOrg/neogit",
-  dev = true,
+  dev = false,
   cmd = {"Neogit", "NeogitResetState", "NeogitConflictResolve"},
   -- build = [[
   --     git remote add upstream https://github.com/3dyuval/neogit.git 2>/dev/null

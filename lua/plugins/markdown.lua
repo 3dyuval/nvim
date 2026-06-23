@@ -55,6 +55,7 @@ return {
     "MeanderingProgrammer/render-markdown.nvim",
     ft = text_filetypes,
     opts = {
+      enabled = false,
       -- file_types = text_filetypes,
       code = {
         sign = false,
@@ -65,6 +66,9 @@ return {
         sign = false,
         icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
       },
+    },
+    keys = {
+      { "<leader>um", ":RenderMarkdown toggle<cr>", ft = text_filetypes, desc = "Toggle render markdown" },
     },
   },
 }
