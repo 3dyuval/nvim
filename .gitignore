@@ -6,3 +6,21 @@ colorscheme.lua
 
 usage_data.json
 nvim.log
+
+# Local shell / env dotfiles (not part of the nvim config)
+.bash_profile
+.bashrc
+.profile
+.zprofile
+.zshrc
+.gitconfig
+.gitmodules
+.ripgreprc
+
+# Editor / IDE local dirs
+.idea
+.vscode
+
+# Local machine-specific tooling
+.mcp.json
+secrets
