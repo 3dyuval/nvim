@@ -258,6 +258,7 @@ return {
         enabled = true,
         hidden = true,
         ignored = false,
+        exclude = {"node_modules", "elixir_ls"},
         layouts = require("utils.snacks-layouts"),
         -- Toggle indicators shown in title bar
         toggles = {
@@ -303,7 +304,8 @@ return {
             exclude = {"node_modules"}
           },
           explorer = {
-            auto_close = false,
+            exclude = {"node_modules", "elixir_ls"},
+            auto_close = true,
             hidden = true,
             ignored = false,
             git = {
