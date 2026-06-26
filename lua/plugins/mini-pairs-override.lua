@@ -1,6 +1,7 @@
 return {
   {
     "nvim-mini/mini.pairs",
+    enabled = false,
     opts = {
       -- Skip autopair when next character is one of these
       skip_next = [=[[%w%%%'%[%"%.%`%$]]=], -- word chars, %, ', [, ", ., `, $
