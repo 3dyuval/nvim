@@ -413,21 +413,6 @@ map({
   },
 })
 
-map({
-  ["<C-r>"] = { [mode] = { "n", "v", "i" }, cmd = "ClaudeCode", desc = "Toggle Claude Code" },
-  ["<leader>a"] = {
-    group = "AI/Claude",
-    c = { cmd = "ClaudeCode", desc = "Toggle Claude" },
-    f = { cmd = "ClaudeCodeFocus", desc = "Focus Claude" },
-    r = { cmd = "ClaudeCode --resume", desc = "Resume Claude" },
-    C = { cmd = "ClaudeCode --continue", desc = "Continue Claude" },
-    m = { cmd = "ClaudeCodeSelectModel", desc = "Select model" },
-    p = { [mode] = { "n", "v" }, cmd = "ClaudeCodeAdd %", desc = "Add buffer to Claude" },
-    s = { [mode] = { "v" }, cmd = "ClaudeCodeSend", desc = "Send selection to Claude" },
-    a = { cmd = "ClaudeCodeDiffAccept", desc = "Accept diff" },
-    d = { cmd = "ClaudeCodeDiffDeny", desc = "Deny diff" },
-  },
-})
 
 map({
   ["]t"] = { require("todo-comments").jump_next, desc = "Next Todo Comment" },
@@ -697,4 +682,5 @@ kmu.setup_inspect()
 require("config.keymaps.modes")
 require("config.keymaps.insert")
 require("config.keymaps.terminal")
+require("config.keymaps.claude")
 require("config.keymaps-old")

@@ -4,13 +4,13 @@
 
 (local base "Checkmate ")
 
-(fn register [bufnr prefix node]
+(fn register-checkmate [bufnr prefix node]
   (each [key tail (pairs node)]
     (let [lhs (.. prefix key)]
       (if (= (type tail) :string)
           (vim.keymap.set :n lhs (.. "<Cmd>" base tail "<CR>")
                           {:buffer bufnr :silent true :desc (.. base tail)})
-          (register bufnr lhs tail)))))
+          (register-checkmate bufnr lhs tail)))))
 
 (local tree
   {:<leader>t {:r "create"
@@ -29,4 +29,4 @@
 (vim.api.nvim_create_autocmd :FileType
   {:pattern :markdown
    :group (vim.api.nvim_create_augroup :checkmate_keymaps {:clear true})
-   :callback (fn [ev] (register ev.buf "" tree))})
+   :callback (fn [ev] (register-checkmate ev.buf "" tree))})
