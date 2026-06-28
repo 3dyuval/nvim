@@ -115,6 +115,7 @@
            :on_confirm (fn [picker item]
                          (when (and item item._session)
                            (Session.restore item._session)
-                           (picker:close)))}))))
+                           ;; Close picker after restore completes
+                           (vim.defer_fn (fn [] (picker:close)) 100)))}))))
 
 {: open : Session}

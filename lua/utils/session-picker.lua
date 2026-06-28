@@ -101,7 +101,10 @@ local function open()
     local function _9_(picker, item)
       if (item and item._session) then
         Session.restore(item._session)
-        return picker:close()
+        local function _10_()
+          return picker:close()
+        end
+        return vim.defer_fn(_10_, 100)
       else
         return nil
       end
