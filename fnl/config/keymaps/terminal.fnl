@@ -24,11 +24,34 @@
           (vim.schedule (fn [] ((. (require :smart-splits) dir)))))
         {:desc (.. "Window " (string.gsub dir "move_cursor_" ""))}))
 
-(lset :n "<leader>tr" (fn [] ((. (require :summon) :open) :terminal))
-      {:desc "Terminal (summon)"})
+(fn goto-nearest-terminal [insert?]
+  ;; Focus a window already showing a term:// buffer; else open the
+  ;; most-recently-used term:// buffer in the current window; else create
+  ;; one in a split below. With insert? true, enter terminal insert mode.
+  (var focused false)
+  (each [_ win (ipairs (vim.api.nvim_tabpage_list_wins 0)) :until focused]
+    (let [buf (vim.api.nvim_win_get_buf win)
+          name (vim.api.nvim_buf_get_name buf)]
+      (when (name:match "^term://")
+        (vim.api.nvim_set_current_win win)
+        (set focused true))))
+  (when (not focused)
+    (var best nil)
+    (var best-used -1)
+    (each [_ b (ipairs (vim.fn.getbufinfo))]
+      (when (and (= b.loaded 1) (b.name:match "^term://") (> b.lastused best-used))
+        (set best b.bufnr)
+        (set best-used b.lastused)))
+    (if best
+        (vim.api.nvim_set_current_buf best)
+        (do
+          (vim.cmd "belowright split")
+          (vim.cmd "terminal"))))
+  (when insert?
+    (vim.cmd "startinsert")))
 
-(lset :n "<leader>tt" (fn [] ((. (require :summon) :pick)))
-      {:desc "Pick (summon)"})
+(lset :n "<leader>tt" (fn [] (goto-nearest-terminal false))
+      {:desc "Go to nearest terminal"})
 
-(lset :n "\x1b[44;6u" (fn [] ((. (require :summon) :open) :claude))
-      {:desc "Claude-Code (bound to kitty-{PID})"})
+(lset :n "<leader>tr" (fn [] (goto-nearest-terminal true))
+      {:desc "Go to nearest terminal (insert)"})
