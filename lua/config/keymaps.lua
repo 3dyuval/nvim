@@ -475,20 +475,7 @@ map({
 
 map({
 
-  ["<leader><leader>"] = {
-    function()
-      require("utils.picker-extensions").open_explorer({ layout = { preset = "default" }, focus = "input" })
-    end,
-    desc = "Explorer (float)",
-  },
-
   ["<leader>s"] = {
-    t = {
-      function()
-        require("utils.picker-extensions").open_explorer({ layout = { preset = "sidebar" } })
-      end,
-      desc = "Explorer (sidebar)",
-    },
     l = {
       function()
         Snacks.picker.lines()

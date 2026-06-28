@@ -355,7 +355,7 @@ return {
               },
               search_in_directory = {
                 action = function(picker, item)
-                  require("utils.picker-extensions").actions.search_in_directory(picker, item)
+                  require("picker.grep")["search-in-directory"](picker, item)
                 end
               },
               diff = {
@@ -401,7 +401,7 @@ return {
                   ["<C-c>"] = "focus_input",
                   ["<C-a>"] = false, -- Disable select all - it's distracting
                   ["p"] = "copy_file_path",
-                  ["g"] = "search_in_directory", -- Opens a grep snacks
+                  ["<C-/>"] = "search_in_directory", -- Opens a grep snacks
                   ["i"] = "explorer_expand", -- Expand directory (Graphite: i=right)
                   ["h"] = "explorer_close", -- Collapse directory (Graphite: h=left)
                   ["o"] = "explorer_open", -- Open with system app
@@ -478,7 +478,7 @@ return {
               },
               search_in_directory = {
                 action = function(picker, item)
-                  require("utils.picker-extensions").actions.search_in_directory(picker, item)
+                  require("picker.grep")["search-in-directory"](picker, item)
                 end
               }
             },
@@ -488,7 +488,7 @@ return {
                   ["f"] = "git_context_menu",
                   ["s"] = {"git_stage", mode = {"n", "i"}},
                   ["<M-c>"] = "toggle_conflict_filter",
-                  ["g"] = "search_in_directory"
+                  ["<C-/>"] = "search_in_directory"
                 }
               }
             }

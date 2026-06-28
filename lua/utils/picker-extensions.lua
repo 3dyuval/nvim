@@ -2,6 +2,10 @@ local M = {}
 
 -- Simple state for layout persistence (survives across picker instances within session)
 local explorer_layout = vim.g.explorer_layout or "sidebar"
+
+local function preview_for_layout(preset)
+  return preset == "default"
+end
 local _s_explorer_path = nil -- lazy-loaded signal for last focused path
 local function get_path_signal()
   if not _s_explorer_path then
@@ -27,7 +31,7 @@ M.open_explorer = function(opts)
 
   local config = vim.tbl_deep_extend("force", {
     root = false,
-    layout = { preset = explorer_layout },
+    layout = { preset = explorer_layout, preview = preview_for_layout(explorer_layout) },
     auto_close = explorer_layout == "default",
     on_close = function(picker)
       vim.g.explorer_was_open = false
@@ -2585,8 +2589,9 @@ M.toggle_layout = function(picker)
   explorer_layout = new_layout
   vim.g.explorer_layout = new_layout
 
-  local layout = Snacks.picker.config.layout({ layout = { preset = new_layout } })
+  local layout = Snacks.picker.config.layout({ layout = { preset = new_layout, preview = preview_for_layout(new_layout) } })
   picker:set_layout(layout)
+  picker.opts.preview = preview_for_layout(new_layout)
   picker.opts.auto_close = new_layout == "default"
 end
 

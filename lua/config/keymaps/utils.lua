@@ -31,4 +31,24 @@ lset("n", "<leader>rs", _6_, {desc = "Session picker"})
 local function _7_()
   return vim.api.nvim_feedkeys(":terminal ", "t", false)
 end
-return lset("n", "<leader>tt", _7_, {desc = "Terminal prefill"})
+lset("n", "<leader>tt", _7_, {desc = "Terminal prefill"})
+local function _8_()
+  return require("utils.picker-extensions").open_explorer({layout = {preset = "default"}, focus = "list"})
+end
+lset("n", "<leader>fo", _8_, {desc = "Explorer (float)"})
+local function _9_()
+  return require("utils.picker-extensions").open_explorer({layout = {preset = "default"}, focus = "input"})
+end
+lset("n", "<leader>fO", _9_, {desc = "Explorer (float, focus input)"})
+local function _10_()
+  return require("utils.picker-extensions").open_explorer({layout = {preset = "sidebar"}, focus = "list"})
+end
+lset("n", "<leader>of", _10_, {desc = "Explorer (sidebar)"})
+local function _11_()
+  return require("utils.picker-extensions").open_explorer({layout = {preset = "sidebar"}, focus = "input"})
+end
+lset("n", "<leader>oF", _11_, {desc = "Explorer (sidebar, focus input)"})
+local function _12_()
+  return require("picker.grep")["grep-current-buffer-dir"]()
+end
+return lset("n", "<C-/>", _12_, {desc = "Grep in current file's directory"})
