@@ -640,63 +640,7 @@ map({
   },
 })
 
--- map({
---   ["<leader>t"] = {
---     r = { cmd = "Checkmate create", desc = "Todo: Create new" },
---     n = { cmd = "Checkmate toggle", desc = "Todo: Toggle state" },
---     c = { cmd = "Checkmate archive", desc = "Todo: Archive completed" },
---     ["="] = { cmd = "Checkmate cycle_next", desc = "Todo: Next state" },
---     ["-"] = { cmd = "Checkmate cycle_previous", desc = "Todo: Previous state" },
---     d = {
---       function()
---         Snacks.picker.todo_comments()
---       end,
---       desc = "Todo: Search (Picker)",
---     },
---     D = {
---       function()
---         Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
---       end,
---       desc = "Todo: Search TODO/FIX/FIXME",
---     },
---     l = { cmd = "Checkmate lint", desc = "Todo: Lint buffer" },
---     ["]"] = { cmd = "Checkmate metadata jump_next", desc = "Todo: Jump to next metadata" },
---     ["["] = { cmd = "Checkmate metadata jump_previous", desc = "Todo: Jump to previous metadata" },
---     v = { cmd = "Checkmate metadata select_value", desc = "Todo: Select metadata value" },
---     s = {
---       function()
---         vim.ui.select(vim.fn.spellsuggest(vim.fn.expand("<cword>")), { prompt = "Spell suggest" }, function(choice)
---           if choice then
---             vim.cmd("normal! ciw" .. choice)
---           end
---         end)
---       end,
---       desc = "Spell suggest",
---     },
---     t = {
---       r = {
---         s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
---         d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
---         p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
---       },
---       n = {
---         s = { cmd = "Checkmate metadata toggle started", desc = "Todo Metadata: Toggle @started" },
---         d = { cmd = "Checkmate metadata toggle done", desc = "Todo Metadata: Toggle @done" },
---         p = { cmd = "Checkmate metadata toggle priority", desc = "Todo Metadata: Toggle @priority" },
---       },
---       x = {
---         a = { cmd = "Checkmate remove_all_metadata", desc = "Todo Metadata: Remove all" },
---         s = { cmd = "Checkmate metadata remove started", desc = "Todo Metadata: Remove @started" },
---         d = { cmd = "Checkmate metadata remove done", desc = "Todo Metadata: Remove @done" },
---         p = { cmd = "Checkmate metadata remove priority", desc = "Todo Metadata: Remove @priority" },
---       },
---       s = { cmd = "Checkmate metadata add started", desc = "Todo Metadata: Add @started" },
---       d = { cmd = "Checkmate metadata add done", desc = "Todo Metadata: Add @done" },
---       p = { cmd = "Checkmate metadata add priority", desc = "Todo Metadata: Add @priority" },
---     },
---   },
--- })
---
+-- Checkmate keymaps moved to fnl/config/keymaps/edit.fnl (buffer-local, markdown)
 
 local notes = require("utils.notes")
 

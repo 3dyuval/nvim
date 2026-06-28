@@ -44,14 +44,6 @@ return {
     },
   },
   {
-    "bngarren/checkmate.nvim",
-    ft = text_filetypes,
-    opts = {
-      files = { "*.md", "*.markdown", "*.txt" },
-      keys = false,
-    },
-  },
-  {
     "MeanderingProgrammer/render-markdown.nvim",
     ft = text_filetypes,
     opts = {
