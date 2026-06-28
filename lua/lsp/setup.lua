@@ -9,7 +9,7 @@ do
   end
 end
 vim.lsp.config("*", {capabilities = capabilities, root_markers = {".git"}})
-vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "elixirls", "cssls", "jsonls", "kcl_lsp", "shuck", "fennel_ls"})
+vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "expert", "cssls", "jsonls", "kcl_lsp", "shuck", "fennel_ls"})
 vim.lsp.config("lua_ls", {settings = {Lua = {runtime = {version = "LuaJIT"}, diagnostics = {globals = {"vim"}}, workspace = {checkThirdParty = false}, telemetry = {enable = false}}}})
 vim.lsp.config("rust_analyzer", {settings = {["rust-analyzer"] = {cargo = {allFeatures = true, loadOutDirsFromCheck = true, buildScripts = {enable = true}}, checkOnSave = {command = "clippy"}, procMacro = {enable = true}}}})
 local vue_plugin_location = (vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/language-server")
@@ -45,7 +45,6 @@ local function _8_(client)
   return nil
 end
 vim.lsp.config("vue_ls", {filetypes = {"vue"}, init_options = {vue = {hybridMode = true}}, settings = {vue = {complete = {casing = {tags = "kebab", props = "kebab"}}}}, on_init = _8_})
-vim.lsp.config("elixirls", {settings = {elixirls = {lint_on_save = true, format_on_save = true, use_dialyzer = true}}})
 vim.lsp.config("shuck", {cmd = {"shuck", "server", "--config", (vim.fn.stdpath("config") .. "/formatters/shuck.toml")}})
 vim.lsp.config("cssls", {filetypes = {"css", "scss", "less"}, settings = {css = {validate = true}, scss = {validate = true}, less = {validate = true}}})
 vim.lsp.config("jsonls", {settings = {json = {schemas = require("schemastore").json.schemas(), validate = {enable = true}}}})

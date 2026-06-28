@@ -20,7 +20,7 @@
                  :rust_analyzer
                  :vtsls
                  :vue_ls
-                :elixirls
+                :expert
                   :cssls
                   :jsonls
                   :kcl_lsp
@@ -140,10 +140,11 @@
                                       (tset client.server_capabilities cap
                                             false)))})
 
-(vim.lsp.config :elixirls
-                {:settings {:elixirls {:lint_on_save true
-                                       :format_on_save true
-                                       :use_dialyzer true}}})
+;; expert (official Elixir LSP, successor to elixir_ls/Lexical/Next-LS) is
+;; configured entirely by nvim-lspconfig's lsp/expert.lua: cmd {expert --stdio},
+;; filetypes {elixir eelixir heex surface}, umbrella-aware root_dir. No override
+;; needed — it takes no elixir_ls-style :settings (lint_on_save/use_dialyzer).
+;; Install the binary with :MasonInstall expert. Note: no Dialyzer/DAP yet.
 
 ;; nvim-lspconfig ships lsp/shuck.lua (filetypes {bash sh zsh}, root_markers
 ;; {.shuck.toml .git}) which Neovim 0.11 auto-loads. Override ONLY :cmd to pass a
