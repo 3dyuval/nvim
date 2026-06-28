@@ -1,6 +1,6 @@
 -- [nfnl] fnl/plugins/auto-session.fnl
 local function _1_()
-  require("auto-session").setup({auto_session_enabled = true, auto_save = true, root_dir = (vim.fn.stdpath("data") .. "/sessions/"), bypass_save_filetypes = {"alpha", "dashboard", "slime", "git", "terminal"}, close_unsupported_windows = true, suppressed_dirs = {"/tmp", "~/Downloads", "/", "~/.config/nvim"}, git_use_branch_name = true, git_auto_restore_on_branch_change = true, session_lens = {picker = "snacks"}, auto_restore = false})
+  require("auto-session").setup({auto_session_enabled = true, auto_save = true, root_dir = (vim.fn.stdpath("data") .. "/sessions/"), bypass_save_filetypes = {"alpha", "dashboard", "slime", "git", "snacks_win", "snacks_picker", "snacks_explorer"}, close_unsupported_windows = true, suppressed_dirs = {"/tmp", "~/Downloads", "/", "~/.config/nvim"}, git_use_branch_name = true, git_auto_restore_on_branch_change = true, session_lens = {picker = "snacks"}, auto_restore = false})
   local function _2_()
     return vim.cmd(":AutoSession save")
   end

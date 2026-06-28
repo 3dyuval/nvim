@@ -34,7 +34,7 @@
       (fn [] ((. (require :conform) :format) {:lsp_format :fallback}))
       {:desc "Format"})
 
-(lset :n :<leader>rs
+(lset :n :<leader>qs
       (fn [] ((. (require :utils.session-picker) :open)))
       {:desc "Session picker"})
 

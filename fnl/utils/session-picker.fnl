@@ -81,12 +81,12 @@
     (table.concat lines "\n")))
 
 (fn Session.restore [self]
-  "Restore session using AutoSession API"
+  "Restore session using AutoSession API with graceful error handling"
+  (vim.notify (.. "restore " self._session_name) vim.log.levels.INFO)
   (let [(ok auto-session) (pcall require :auto-session)]
     (when ok
-      ;; autosave_and_restore expects the decoded session name (path|branch or just path)
-      ;; which is what f.session_name gives us from get_session_list
-      (auto-session.autosave_and_restore self._session_name))))
+      ;; Wrap in pcall to handle fold restoration errors from stale session files
+      (pcall auto-session.autosave_and_restore self._session_name))))
 
 (fn build-session-items []
   "Build session items from auto-session library"
@@ -104,18 +104,23 @@
 
 (fn open []
   "Open the session picker"
-  (let [snacks (require :snacks)
-        items (build-session-items)]
-    (if (= (length items) 0)
-        (vim.notify "No sessions found" vim.log.levels.WARN)
-        (snacks.picker
-          {:title "Sessions"
-           :items items
-           :format "text"
-           :on_confirm (fn [picker item]
-                         (when (and item item._session)
-                           (Session.restore item._session)
-                           ;; Close picker after restore completes
-                           (vim.defer_fn (fn [] (picker:close)) 100)))}))))
+  (let [snacks (require :snacks)]
+    (snacks.picker.pick
+      {:title "Sessions"
+       :finder build-session-items
+       :format "text"
+       :transform (fn [item]
+                    (set item.file item.path))
+       :preview (fn [ctx]
+                  (when (and ctx.item ctx.item._session)
+                    (ctx.preview:reset)
+                    (let [preview-text (Session.preview ctx.item._session)]
+                      (ctx.preview:set_lines (vim.split preview-text "\n")))))
+       :layout {:preset :default}
+       :actions {:confirm (fn [picker item]
+                            (when (and item item._session)
+                              (Session.restore item._session)
+                              ;; Defer close to allow async restoration to start
+                              (vim.defer_fn (fn [] (picker:close)) 100)))}})))
 
 {: open : Session}

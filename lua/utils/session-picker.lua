@@ -67,9 +67,10 @@ Session.preview = function(self)
   return table.concat(lines, "\n")
 end
 Session.restore = function(self)
+  vim.notify(("restore " .. self._session_name), vim.log.levels.INFO)
   local ok, auto_session = pcall(require, "auto-session")
   if ok then
-    return auto_session.autosave_and_restore(self._session_name)
+    return pcall(auto_session.autosave_and_restore, self._session_name)
   else
     return nil
   end
@@ -94,22 +95,30 @@ local function build_session_items()
 end
 local function open()
   local snacks = require("snacks")
-  local items = build_session_items()
-  if (#items == 0) then
-    return vim.notify("No sessions found", vim.log.levels.WARN)
-  else
-    local function _9_(picker, item)
-      if (item and item._session) then
-        Session.restore(item._session)
-        local function _10_()
-          return picker:close()
-        end
-        return vim.defer_fn(_10_, 100)
-      else
-        return nil
-      end
-    end
-    return snacks.picker({title = "Sessions", items = items, format = "text", on_confirm = _9_})
+  local function _9_(item)
+    item.file = item.path
+    return nil
   end
+  local function _10_(ctx)
+    if (ctx.item and ctx.item._session) then
+      ctx.preview:reset()
+      local preview_text = Session.preview(ctx.item._session)
+      return ctx.preview:set_lines(vim.split(preview_text, "\n"))
+    else
+      return nil
+    end
+  end
+  local function _12_(picker, item)
+    if (item and item._session) then
+      Session.restore(item._session)
+      local function _13_()
+        return picker:close()
+      end
+      return vim.defer_fn(_13_, 100)
+    else
+      return nil
+    end
+  end
+  return snacks.picker.pick({title = "Sessions", finder = build_session_items, format = "text", transform = _9_, preview = _10_, layout = {preset = "default"}, actions = {confirm = _12_}})
 end
 return {open = open, Session = Session}

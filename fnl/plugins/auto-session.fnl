@@ -10,7 +10,7 @@
        :auto_save true
        :auto_restore false
        :root_dir (.. (vim.fn.stdpath "data") "/sessions/")
-       :bypass_save_filetypes ["alpha" "dashboard" "slime" "git" "terminal"]
+       :bypass_save_filetypes ["alpha" "dashboard" "slime" "git" "snacks_win" "snacks_picker" "snacks_explorer"]
        :close_unsupported_windows true
        :suppressed_dirs ["/tmp" "~/Downloads" "/" "~/.config/nvim"]
        :git_use_branch_name true

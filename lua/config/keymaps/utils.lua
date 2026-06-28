@@ -27,7 +27,7 @@ lset({"n", "x"}, "<leader>cf", _5_, {desc = "Format"})
 local function _6_()
   return require("utils.session-picker").open()
 end
-lset("n", "<leader>rs", _6_, {desc = "Session picker"})
+lset("n", "<leader>qs", _6_, {desc = "Session picker"})
 local function _7_()
   return vim.api.nvim_feedkeys(":terminal ", "t", false)
 end
