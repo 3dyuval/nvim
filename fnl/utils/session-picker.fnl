@@ -16,6 +16,7 @@
                    (string.sub session-name (+ pipe-idx 1))
                    "main")]
     {:_filename filename
+     :_session_name session-name
      :_path path
      :_branch branch}))
 
@@ -83,7 +84,9 @@
   "Restore session using AutoSession API"
   (let [(ok auto-session) (pcall require :auto-session)]
     (when ok
-      (auto-session.autosave_and_restore (Session.decoded self)))))
+      ;; autosave_and_restore expects the decoded session name (path|branch or just path)
+      ;; which is what f.session_name gives us from get_session_list
+      (auto-session.autosave_and_restore self._session_name))))
 
 (fn build-session-items []
   "Build session items from auto-session library"

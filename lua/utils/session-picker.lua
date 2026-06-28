@@ -14,7 +14,7 @@ Session.new = function(filename, session_name)
   else
     branch = "main"
   end
-  return {_filename = filename, _path = path, _branch = branch}
+  return {_filename = filename, _session_name = session_name, _path = path, _branch = branch}
 end
 Session.path = function(self)
   return self._path
@@ -69,7 +69,7 @@ end
 Session.restore = function(self)
   local ok, auto_session = pcall(require, "auto-session")
   if ok then
-    return auto_session.autosave_and_restore(Session.decoded(self))
+    return auto_session.autosave_and_restore(self._session_name)
   else
     return nil
   end
