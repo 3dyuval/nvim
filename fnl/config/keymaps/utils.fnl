@@ -19,8 +19,8 @@
       {:desc "Neogit log"})
 
 
-(lset :n :<leader>gs ":DiffviewOpen %"
-      {:desc "File DiffviewOpen history"})
+(lset :n :<leader>gs ":Gitsigns stage_hunk<CR>"
+      {:desc "Stage hunk (Gitsigns)"})
 
 (lset :n :<leader>gh (fn [] (vim.cmd "DiffviewFileHistory ."))
       {:desc "Diffview repo log"})
@@ -69,3 +69,17 @@
 (lset :n :<C-/>
       (fn [] ((. (require :picker.grep) :grep-current-buffer-dir)))
       {:desc "Grep in current file's directory"})
+
+(lset :n :<leader>rg
+      ":GrugFar<CR>"
+      {:desc "Find and replace (GrugFar)"}
+      )
+
+(lset :n :<leader>rG (fn [] ( (. (require :grug-far) :open)
+        {:pollyfills {:paths (vim.fn.expand :%) }}
+                 ))
+      )
+(lset :v :<leader>rG (fn [] ( (. (require :grug-far) :with_visual_selection)
+        {:pollyfills {:paths (vim.fn.expand :%) }}
+                 ))
+      )

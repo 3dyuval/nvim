@@ -11,7 +11,7 @@ local function _2_()
   return vim.cmd("Neogit log a")
 end
 lset("n", "<leader>gl", _2_, {desc = "Neogit log"})
-lset("n", "<leader>gs", ":DiffviewOpen %", {desc = "File DiffviewOpen history"})
+lset("n", "<leader>gs", ":Gitsigns stage_hunk<CR>", {desc = "Stage hunk (Gitsigns)"})
 local function _3_()
   return vim.cmd("DiffviewFileHistory .")
 end
@@ -51,4 +51,13 @@ lset("n", "<leader>oF", _11_, {desc = "Explorer (sidebar, focus input)"})
 local function _12_()
   return require("picker.grep")["grep-current-buffer-dir"]()
 end
-return lset("n", "<C-/>", _12_, {desc = "Grep in current file's directory"})
+lset("n", "<C-/>", _12_, {desc = "Grep in current file's directory"})
+lset("n", "<leader>rg", ":GrugFar<CR>", {desc = "Find and replace (GrugFar)"})
+local function _13_()
+  return require("grug-far").open({pollyfills = {paths = vim.fn.expand("%")}})
+end
+lset("n", "<leader>rG", _13_)
+local function _14_()
+  return require("grug-far").with_visual_selection({pollyfills = {paths = vim.fn.expand("%")}})
+end
+return lset("v", "<leader>rG", _14_)
