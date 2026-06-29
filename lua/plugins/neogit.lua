@@ -16,7 +16,7 @@ return {
   config = function(_, opts)
     require("utils.neogit-commands").setup()
 
-vim.api.nvim_create_autocmd(
+    vim.api.nvim_create_autocmd(
       "FileType",
       {
         pattern = "NeogitStatus",
@@ -122,8 +122,10 @@ vim.api.nvim_create_autocmd(
         ["s"] = "Stage", -- override 's' key to stage files
         ["<leader>q"] = "Close", -- Close Neogit
         ["Q"] = false, -- disable default Command action
-        ["G"] = function() -- open cmdline prefilled with :Gitsigns (typed, so blink cmdline completion shows)
-          vim.api.nvim_feedkeys(":Gitsigns", "t", false)
+        ["!"] = "Command",
+        ["G"] = function()
+          -- open cmdline prefilled with :Gitsigns (typed, so blink cmdline completion shows)
+          vim.api.nvim_feedkeys(":Git", "t", false)
         end,
         ["C"] = "InitRepo", -- git init (I is taken by AI commit repeat)
         ["I"] = function()

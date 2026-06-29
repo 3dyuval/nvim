@@ -1,8 +1,5 @@
 (local lset vim.keymap.set)
 
-(lset :n :<leader>gg ":Git"
-      {:desc "Git prefill"})
-
 (lset :n :<leader>gG ":DiffviewGraph<CR>"
       {:desc "Diffview graph"})
 
@@ -79,7 +76,7 @@
         {:pollyfills {:paths (vim.fn.expand :%) }}
                  ))
       )
-(lset :v :<leader>rG (fn [] ( (. (require :grug-far) :with_visual_selection)
+(lset :v :<leader>rG (fn [] ( (. (require :grug-far) :open)
         {:pollyfills {:paths (vim.fn.expand :%) }}
                  ))
       )

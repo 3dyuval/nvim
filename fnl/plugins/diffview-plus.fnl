@@ -30,19 +30,21 @@
              [;; diff get/put (current hunk)
               ["n" "dr"
                (fn []
-                 (if (: vim.opt_local.diff :get)
-                   (vim.cmd :diffget)
-                   (actions.conflict_choose :theirs)))
-               {:desc "Get from right"}]
+                 (if (~= (vim.fn.search "^<<<<<<< " :nw) 0)
+                   (actions.conflict_choose :theirs)
+                   (vim.cmd "diffget")))
+               {:desc "Get from right (THEIRS)"}]
               ["n" "dl"
                (fn []
-                 (if (: vim.opt_local.diff :get)
-                   (vim.cmd "diffget //2")
-                   (actions.conflict_choose :ours)))
-               {:desc "Get from left (ours)"}]
+                 (if (~= (vim.fn.search "^<<<<<<< " :nw) 0)
+                   (actions.conflict_choose :ours)
+                   (vim.cmd "diffget")))
+               {:desc "Get from left (OURS)"}]
               ;; diff get (all hunks)
-              ["n" "Dr" "<Cmd>%diffget //3<CR>" {:desc "Get all from right (theirs)"}]
-              ["n" "Dl" "<Cmd>%diffget //2<CR>" {:desc "Get all from left (ours)"}]
+              ["n" "Dr" "<Cmd>%diffget<CR>" {:desc "Get all from right (THEIRS)"}]
+              ["n" "Dl" "<Cmd>diffget<CR>" {:desc "Get all from left (OURS)"}]
+              ;; hunk level operations
+              ["n" "dp" "<Cmd>diffput<CR>" {:desc "Put hunk to other (OURS)"}]
               ;; navigation (HAEI)
               ["n" "A"
                (fn []

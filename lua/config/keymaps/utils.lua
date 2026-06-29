@@ -1,6 +1,5 @@
 -- [nfnl] fnl/config/keymaps/utils.fnl
 local lset = vim.keymap.set
-lset("n", "<leader>gg", ":Git", {desc = "Git prefill"})
 lset("n", "<leader>gG", ":DiffviewGraph<CR>", {desc = "Diffview graph"})
 local function _1_()
   return vim.cmd(("Neogit kind=vsplit cwd=" .. vim.fn.expand("%:p:h")))
@@ -58,6 +57,6 @@ local function _13_()
 end
 lset("n", "<leader>rG", _13_)
 local function _14_()
-  return require("grug-far").with_visual_selection({pollyfills = {paths = vim.fn.expand("%")}})
+  return require("grug-far").open({pollyfills = {paths = vim.fn.expand("%")}})
 end
 return lset("v", "<leader>rG", _14_)
