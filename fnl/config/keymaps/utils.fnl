@@ -72,11 +72,31 @@
       {:desc "Find and replace (GrugFar)"}
       )
 
-(lset :n :<leader>rG (fn [] ( (. (require :grug-far) :open)
-        {:pollyfills {:paths (vim.fn.expand :%) }}
-                 ))
-      )
-(lset :v :<leader>rG (fn [] ( (. (require :grug-far) :open)
-        {:pollyfills {:paths (vim.fn.expand :%) }}
-                 ))
-      )
+(lset :n :<leader>rG
+      (fn []
+        ((. (require :grug-far) :open)
+         {:prefills {:paths (vim.fn.expand :%)}}))
+      {:desc "Find and replace - current file (GrugFar)"})
+
+;; rr: reopen grug-far prefilled with the last history entry.
+;; TODO: implement when approved — grug-far.nvim#590
+;; [Request]: top level grug-far.history_entries to open with last search
+(lset :n :<leader>rr
+      (fn []
+        (vim.notify "grug-far: last-search reopen pending API (see grug-far.nvim#590)"
+                    vim.log.levels.INFO))
+      {:desc "Find and replace - last search (GrugFar) [TODO #590]"})
+
+;; visual rg: use selection as the search string
+(lset :v :<leader>rg
+      (fn []
+        ((. (require :grug-far) :with_visual_selection)
+         {:visualSelectionUsage :prefill-search}))
+      {:desc "Find and replace - selection as search (GrugFar)"})
+
+;; visual rG: operate only within the selected range
+(lset :v :<leader>rG
+      (fn []
+        ((. (require :grug-far) :with_visual_selection)
+         {:visualSelectionUsage :operate-within-range}))
+      {:desc "Find and replace - within selection (GrugFar)"})

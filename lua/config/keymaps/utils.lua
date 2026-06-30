@@ -53,10 +53,18 @@ end
 lset("n", "<C-/>", _12_, {desc = "Grep in current file's directory"})
 lset("n", "<leader>rg", ":GrugFar<CR>", {desc = "Find and replace (GrugFar)"})
 local function _13_()
-  return require("grug-far").open({pollyfills = {paths = vim.fn.expand("%")}})
+  return require("grug-far").open({prefills = {paths = vim.fn.expand("%")}})
 end
-lset("n", "<leader>rG", _13_)
+lset("n", "<leader>rG", _13_, {desc = "Find and replace - current file (GrugFar)"})
 local function _14_()
-  return require("grug-far").open({pollyfills = {paths = vim.fn.expand("%")}})
+  return vim.notify("grug-far: last-search reopen pending API (see grug-far.nvim#590)", vim.log.levels.INFO)
 end
-return lset("v", "<leader>rG", _14_)
+lset("n", "<leader>rr", _14_, {desc = "Find and replace - last search (GrugFar) [TODO #590]"})
+local function _15_()
+  return require("grug-far").with_visual_selection({visualSelectionUsage = "prefill-search"})
+end
+lset("v", "<leader>rg", _15_, {desc = "Find and replace - selection as search (GrugFar)"})
+local function _16_()
+  return require("grug-far").with_visual_selection({visualSelectionUsage = "operate-within-range"})
+end
+return lset("v", "<leader>rG", _16_, {desc = "Find and replace - within selection (GrugFar)"})
