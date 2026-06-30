@@ -13,10 +13,11 @@ make check     # Code quality check
 
 | File | Purpose |
 |------|---------|
-| `keymaps.test.lua` | Entry point, Graphite layout tests (insert, paste, navigation) |
-| `test_keymaps_conflicts.lua` | Standalone conflict checker against built-in Vim commands |
+| `surround/test.lua` | Surround keymaps (HAEI/Graphite layout) |
 | `fences/test.lua` | Fenced code block text objects (`r\``, `t\``) |
 | `tags/test.lua` | HTML tag selection (`it`, `at`, self-closing) |
+
+`make test` runs these suites directly via `PlenaryBustedFile`.
 
 ## Test Patterns
 
@@ -37,15 +38,11 @@ end
 
 ## Keymap Conflict Testing
 
-Standalone script (no nvim required for initial parse):
-```bash
-lua lua/config/tests/test_keymaps_conflicts.lua
-```
+Run via `make test-conflicts` (or `make test-keymaps`), which calls
+`require('utils.test_keymaps').analyze_keymap_conflicts()` in
+`lua/utils/test_keymaps.lua`.
 
-Checks against built-in commands with severity levels:
-- `ERROR` - Explicit keymap conflicts
-- `WARNING` - Important built-in overrides
-- `INFO` - Less critical overrides
+Reports duplicates and built-in overrides with source locations.
 
 ## Kitty Debug Script
 

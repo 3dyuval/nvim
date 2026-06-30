@@ -57,7 +57,11 @@ no-utils:
 test: lint no-utils
 	@echo "Running all tests..."
 	@echo "=== Plenary Tests ==="
-	@nvim --headless -c "PlenaryBustedFile lua/config/tests/keymaps.test.lua" -c "qa"
+	@nvim --headless \
+		-c "PlenaryBustedFile lua/config/tests/surround/test.lua" \
+		-c "PlenaryBustedFile lua/config/tests/tags/test.lua" \
+		-c "PlenaryBustedFile lua/config/tests/fences/test.lua" \
+		-c "qa"
 	@echo "✅ All tests completed"
 
 # Format code using stylua

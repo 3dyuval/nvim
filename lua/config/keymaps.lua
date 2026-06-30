@@ -154,27 +154,15 @@ map(
   }
 )
 
-map(
-  {
-    x = {
-      ["x"] = {"dd", desc = "Delete line"} -- xx → dd
-    },
-    [x] = {
-      x = {"d", desc = "Delete"} -- Visual mode x → d
-    }
-  }
-)
+-- 'x' is being retired in favor of 'd' for all deletes.
+-- TODO(port-to-fennel): move this x->notify handling into a .fnl source.
+local function notify_use_d()
+  vim.notify("Use 'd' to delete (x is retired)", vim.log.levels.WARN)
+end
 
--- Handle count-aware 'x' separately (needs different logic than nested xx)
-remap(
-  {"n"},
-  "x",
-  function()
-    local count = vim.v.count1
-    return count == 1 and "d" or (count .. "d")
-  end,
-  {desc = "Delete", expr = true}
-)
+-- Replace x / X deletes (normal + visual) with a reminder to use d.
+remap({"n", "x"}, "x", notify_use_d, {desc = "Use d to delete"})
+remap({"n", "x"}, "X", notify_use_d, {desc = "Use d to delete"})
 
 -- Smooth scrolling (Graphite layout) - works with snacks.scroll
 map(

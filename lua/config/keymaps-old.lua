@@ -45,7 +45,7 @@ vim.keymap.set({"n"}, "O", "<C-i>", {desc = "Jumplist forward"})
 
 -- Word left/right
 vim.keymap.set({"n", "o", "x"}, "l", "b", {desc = "Word back"})
-vim.keymap.set({"n", "o", "x"}, "d", "w", {desc = "Word forward"})
+-- d is the delete operator now (was word-forward; use w for that).
 vim.keymap.set({"n", "o", "x"}, "L", "B", {desc = "WORD back"})
 vim.keymap.set({"n", "o", "x"}, "D", "W", {desc = "WORD forward"})
 
