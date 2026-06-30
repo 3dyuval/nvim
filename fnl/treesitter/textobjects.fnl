@@ -22,6 +22,8 @@
    "@fold"            {:move-next ["]u"] :move-prev ["[u"]}
    "@tag.inner"       {:select :rt}
    "@tag.outer"       {:select :tt}
+   "@block.inner"     {:select :rb}
+   "@block.outer"     {:select :tb}
    "@jsx_self_closing_element" {:select :te}})
 
 (fn build-map [field]
