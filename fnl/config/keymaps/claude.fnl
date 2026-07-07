@@ -1,17 +1,16 @@
 (local {: register} (require :config.keymaps.register))
 
 (local tree
-  {:<C-r> ":ClaudeCode<CR>"
-   :<leader>a
+  { :<leader>a
    {:group "AI/Claude"
-    :c ":ClaudeCode<CR>"
-    :f ":ClaudeCodeFocus<CR>"
-    :r ":ClaudeCode --resume<CR>"
-    :C ":ClaudeCode --continue<CR>"
-    :m ":ClaudeCodeSelectModel<CR>"
-    :p ":ClaudeCodeAdd %<CR>"
-    :s ":ClaudeCodeSend<CR>"
-    :a ":ClaudeCodeDiffAccept<CR>"
-    :d ":ClaudeCodeDiffDeny<CR>"}})
+    :c {:cmd ":ClaudeCode<CR>"            :desc "Toggle Claude Code"}
+    :f {:cmd ":ClaudeCodeFocus<CR>"       :desc "Focus Claude Code"}
+    :r {:cmd ":ClaudeCode --resume<CR>"   :desc "Resume session"}
+    :C {:cmd ":ClaudeCode --continue<CR>" :desc "Continue last session"}
+    :m {:cmd ":ClaudeCodeSelectModel<CR>" :desc "Select model"}
+    :p {:cmd ":ClaudeCodeAdd %<CR>"       :desc "Add current file to context"}
+    :s {:cmd ":ClaudeCodeSend<CR>"        :desc "Send selection"}
+    :a {:cmd ":ClaudeCodeDiffAccept<CR>"  :desc "Accept diff"}
+    :d {:cmd ":ClaudeCodeDiffDeny<CR>"    :desc "Deny diff"}}})
 
 (register "" tree)

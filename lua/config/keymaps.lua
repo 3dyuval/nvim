@@ -89,8 +89,8 @@ vim.defer_fn(
 map(
   {
     ["z"] = {"u", desc = "Undo", remap = true},
-    ["Z"] = {"<C-r>", desc = "Redo"},
-    ["gz"] = {"U", desc = "Undo line", remap = true}
+    ["Z"] = {"<C-r>", desc = "Redo"}
+    -- ["gz"] = {"U", desc = "Undo line", remap = true}
   }
 )
 
