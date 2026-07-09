@@ -51,6 +51,11 @@
          {:layout {:preset :fullscreen} :focus :input}))
       {:desc "Explorer (fullscreen, focus input)"})
 
+(lset :n :<leader>fF
+      (fn []
+        (Snacks.picker.buffers {:layout {:preset :fullscreen}}))
+      {:desc "Buffers (fullscreen)"})
+
 (lset :n :<C-/>
       (fn [] ((. (require :picker.grep) :grep-current-buffer-dir)))
       {:desc "Grep in current file's directory"})
