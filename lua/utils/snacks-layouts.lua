@@ -15,4 +15,21 @@ M.large_preview = {
   },
 }
 
+-- Full-screen explorer: like `default` but filling the whole editor.
+M.fullscreen = {
+  layout = {
+    box = "horizontal",
+    width = 0.99,
+    height = 0.99,
+    {
+      box = "vertical",
+      border = true,
+      title = "{title} {live} {flags}",
+      { win = "input", height = 1, border = "bottom" },
+      { win = "list", border = "none" },
+    },
+    { win = "preview", title = "{preview}", border = true, width = 0.5 },
+  },
+}
+
 return M

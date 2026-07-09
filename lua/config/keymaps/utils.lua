@@ -32,39 +32,31 @@ local function _7_()
 end
 lset("n", "<leader>tt", _7_, {desc = "Terminal prefill"})
 local function _8_()
-  return require("utils.picker-extensions").open_explorer({layout = {preset = "default"}, focus = "list"})
+  return require("utils.picker-extensions").open_explorer({layout = {preset = "fullscreen"}, focus = "list"})
 end
-lset("n", "<leader>fo", _8_, {desc = "Explorer (float)"})
+lset("n", "<leader>of", _8_, {desc = "Explorer (fullscreen)"})
 local function _9_()
-  return require("utils.picker-extensions").open_explorer({layout = {preset = "default"}, focus = "input"})
+  return require("utils.picker-extensions").open_explorer({layout = {preset = "fullscreen"}, focus = "input"})
 end
-lset("n", "<leader>fO", _9_, {desc = "Explorer (float, focus input)"})
+lset("n", "<leader>ff", _9_, {desc = "Explorer (fullscreen, focus input)"})
 local function _10_()
-  return require("utils.picker-extensions").open_explorer({layout = {preset = "sidebar"}, focus = "list"})
-end
-lset("n", "<leader>of", _10_, {desc = "Explorer (sidebar)"})
-local function _11_()
-  return require("utils.picker-extensions").open_explorer({layout = {preset = "sidebar"}, focus = "input"})
-end
-lset("n", "<leader>oF", _11_, {desc = "Explorer (sidebar, focus input)"})
-local function _12_()
   return require("picker.grep")["grep-current-buffer-dir"]()
 end
-lset("n", "<C-/>", _12_, {desc = "Grep in current file's directory"})
+lset("n", "<C-/>", _10_, {desc = "Grep in current file's directory"})
 lset("n", "<leader>rg", ":GrugFar<CR>", {desc = "Find and replace (GrugFar)"})
-local function _13_()
+local function _11_()
   return require("grug-far").open({prefills = {paths = vim.fn.expand("%")}})
 end
-lset("n", "<leader>rG", _13_, {desc = "Find and replace - current file (GrugFar)"})
-local function _14_()
+lset("n", "<leader>rG", _11_, {desc = "Find and replace - current file (GrugFar)"})
+local function _12_()
   return vim.notify("grug-far: last-search reopen pending API (see grug-far.nvim#590)", vim.log.levels.INFO)
 end
-lset("n", "<leader>rr", _14_, {desc = "Find and replace - last search (GrugFar) [TODO #590]"})
-local function _15_()
+lset("n", "<leader>rr", _12_, {desc = "Find and replace - last search (GrugFar) [TODO #590]"})
+local function _13_()
   return require("grug-far").with_visual_selection({visualSelectionUsage = "prefill-search"})
 end
-lset("v", "<leader>rg", _15_, {desc = "Find and replace - selection as search (GrugFar)"})
-local function _16_()
+lset("v", "<leader>rg", _13_, {desc = "Find and replace - selection as search (GrugFar)"})
+local function _14_()
   return require("grug-far").with_visual_selection({visualSelectionUsage = "operate-within-range"})
 end
-return lset("v", "<leader>rG", _16_, {desc = "Find and replace - within selection (GrugFar)"})
+return lset("v", "<leader>rG", _14_, {desc = "Find and replace - within selection (GrugFar)"})

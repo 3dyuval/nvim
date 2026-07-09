@@ -39,29 +39,17 @@
       (fn [] (vim.api.nvim_feedkeys ":terminal " :t false))
       {:desc "Terminal prefill"})
 
-(lset :n :<leader>fo
-      (fn []
-        ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :default} :focus :list}))
-      {:desc "Explorer (float)"})
-
-(lset :n :<leader>fO
-      (fn []
-        ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :default} :focus :input}))
-      {:desc "Explorer (float, focus input)"})
-
 (lset :n :<leader>of
       (fn []
         ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :sidebar} :focus :list}))
-      {:desc "Explorer (sidebar)"})
+         {:layout {:preset :fullscreen} :focus :list}))
+      {:desc "Explorer (fullscreen)"})
 
-(lset :n :<leader>oF
+(lset :n :<leader>ff
       (fn []
         ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :sidebar} :focus :input}))
-      {:desc "Explorer (sidebar, focus input)"})
+         {:layout {:preset :fullscreen} :focus :input}))
+      {:desc "Explorer (fullscreen, focus input)"})
 
 (lset :n :<C-/>
       (fn [] ((. (require :picker.grep) :grep-current-buffer-dir)))

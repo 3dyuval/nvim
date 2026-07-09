@@ -3,8 +3,13 @@ local M = {}
 -- Simple state for layout persistence (survives across picker instances within session)
 local explorer_layout = vim.g.explorer_layout or "sidebar"
 
+-- Floating layouts (as opposed to the persistent sidebar) show a preview and
+-- auto-close on selection.
+local function is_floating_layout(preset)
+  return preset == "default" or preset == "fullscreen"
+end
 local function preview_for_layout(preset)
-  return preset == "default"
+  return is_floating_layout(preset)
 end
 local _s_explorer_path = nil -- lazy-loaded signal for last focused path
 local function get_path_signal()
@@ -32,7 +37,7 @@ M.open_explorer = function(opts)
   local config = vim.tbl_deep_extend("force", {
     root = false,
     layout = { preset = explorer_layout, preview = preview_for_layout(explorer_layout) },
-    auto_close = explorer_layout == "default",
+    auto_close = is_floating_layout(explorer_layout),
     on_close = function(picker)
       vim.g.explorer_was_open = false
       local item = picker:current()
@@ -45,6 +50,9 @@ M.open_explorer = function(opts)
     end,
     on_show = function(picker)
       vim.g.explorer_was_open = true
+      if is_floating_layout(explorer_layout) then
+        return
+      end
       local s = get_path_signal()
       local path = s and s:get()
       if not path then
