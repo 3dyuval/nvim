@@ -1,7 +1,7 @@
 {1 "dlyongemallo/diffview-plus.nvim"
  :dev true
  :dependencies ["nvim-tree/nvim-web-devicons"]
- :cmd ["DiffviewOpen" "DiffviewFileHistory"]
+ :cmd ["DiffviewOpen" "DiffviewFileHistory" "DiffviewDiffFiles" "DiffviewDiffDirs"]
  :opts (fn []
          (let [actions (require :diffview.actions)]
            {:enhanced_diff_hl true

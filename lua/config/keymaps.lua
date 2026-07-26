@@ -169,7 +169,9 @@ map(
   {
     [mode] = {"n", "v", "x"},
     ga = {"<C-d>zz", desc = "Scroll down (Graphite)"},
-    ge = {"<C-u>zz", desc = "Scroll up (Graphite)"}
+    ge = {"<C-u>zz", desc = "Scroll up (Graphite)"},
+    ["<PageDown>"] = {"<C-d>zz", desc = "Scroll down"},
+    ["<PageUp>"] = {"<C-u>zz", desc = "Scroll up"}
   }
 )
 
