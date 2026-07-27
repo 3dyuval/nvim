@@ -188,11 +188,8 @@ return {
         end
       },
       scroll = {
-        enabled = true,
-        animate = {
-          duration = {step = 15, total = 150}, -- 150ms total duration
-          easing = "linear"
-        }
+        enabled = false,
+        animate = {}
       },
       dashboard = {
         enabled = false, -- We'll handle this manually
@@ -246,9 +243,14 @@ return {
                   Snacks.picker.projects()
                 end
               },
-              {icon = "󰁯", key = "s", desc = "Session Picker", action = function()
-                require("utils.session-picker").open()
-              end},
+              {
+                icon = "󰁯",
+                key = "s",
+                desc = "Session Picker",
+                action = function()
+                  require("utils.session-picker").open()
+                end
+              },
               {icon = "󰈆", key = "q", desc = "Quit", action = ":qa!"}
             }
           }
@@ -614,7 +616,7 @@ return {
           },
           searxng_categories = {
             layout = {preset = "select"}
-          },
+          }
         }
       }
     },

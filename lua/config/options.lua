@@ -68,9 +68,12 @@ vim.g.VM_custom_motions = {
 -- Custom remaps for Graphite layout (backup method)
 -- This was attempt #3 to handle Graphite layout - may not be working
 vim.g.VM_custom_remaps = {
-  ["r"] = "i", -- Your 'r' triggers VM's 'i' (insert)
+  ["r"] = "i", -- Your 'r' triggers VM's 'i' (append)
   ["t"] = "a", -- Your 't' triggers VM's 'a' (append)
 }
+
+-- Disable cursor blink animation
+vim.opt.guicursor = "a:blinkon0"
 
 -- Keep cursor in same column when using jump commands
 vim.opt.startofline = false
