@@ -1,5 +1,6 @@
 {1 
  "ryanmab/onoma.nvim" 
+ :enabled true
  :version "*"
  :event :VeryLazy
  :config (fn [] ((. (require :onoma) :setup)   {:picker [:snacks]})

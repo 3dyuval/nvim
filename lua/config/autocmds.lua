@@ -212,50 +212,20 @@ local function _39_()
 end
 vim.api.nvim_create_autocmd("FileType", {pattern = {"text", "plaintex", "typst", "gitcommit", "markdown"}, callback = _39_})
 local function _40_()
-  local function _41_()
-    local bufnr = vim.api.nvim_get_current_buf()
-    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    if (#lines > 0) then
-      vim.bo.foldmethod = "manual"
-      vim.cmd("normal! zE")
-      local prev_hunk = nil
-      for i, line in ipairs(lines) do
-        if string.match(line, "^@@") then
-          if (prev_hunk and ((i - prev_hunk) > 1)) then
-            vim.cmd(string.format("%d,%dfold", (prev_hunk + 1), (i - 1)))
-          else
-          end
-          prev_hunk = i
-        else
-        end
-      end
-      if prev_hunk then
-        vim.cmd(string.format("%d,%dfold", (prev_hunk + 1), #lines))
-      else
-      end
-      return vim.cmd("normal! zM")
-    else
-      return nil
-    end
-  end
-  return vim.defer_fn(_41_, 50)
-end
-vim.api.nvim_create_autocmd("BufReadPost", {pattern = "*COMMIT_EDITMSG*", callback = _40_})
-local function _46_()
   vim.opt_local.swapfile = false
   return nil
 end
-vim.api.nvim_create_autocmd("FileType", {pattern = {"snacks_win", "snacks_picker", "snacks_explorer"}, callback = _46_})
-local function _47_()
+vim.api.nvim_create_autocmd("FileType", {pattern = {"snacks_win", "snacks_picker", "snacks_explorer"}, callback = _40_})
+local function _41_()
   vim.opt_local.swapfile = false
   vim.opt_local.undofile = false
   vim.opt_local.backup = false
   vim.opt_local.writebackup = false
   return nil
 end
-vim.api.nvim_create_autocmd("BufReadPre", {pattern = {(vim.fn.expand("~") .. "/mnt/*"), (vim.fn.expand("~") .. "/.sshfs/*")}, callback = _47_})
-local function _48_()
-  local function _49_()
+vim.api.nvim_create_autocmd("BufReadPre", {pattern = {(vim.fn.expand("~") .. "/mnt/*"), (vim.fn.expand("~") .. "/.sshfs/*")}, callback = _41_})
+local function _42_()
+  local function _43_()
     if ((vim.wo.foldlevel < 99) and (vim.bo.filetype ~= "gitcommit")) then
       vim.wo.foldlevel = 99
       return nil
@@ -263,20 +233,20 @@ local function _48_()
       return nil
     end
   end
-  return vim.defer_fn(_49_, 100)
+  return vim.defer_fn(_43_, 100)
 end
-vim.api.nvim_create_autocmd({"BufWinEnter", "WinEnter", "TabEnter"}, {callback = _48_})
-local function _51_()
+vim.api.nvim_create_autocmd({"BufWinEnter", "WinEnter", "TabEnter"}, {callback = _42_})
+local function _45_()
   if not vim.b.tailwind_checked then
     vim.b.tailwind_checked = true
     local found = false
     for _, cfg in ipairs({"tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs"}) do
       if found then break end
       if (vim.fn.filereadable(cfg) == 1) then
-        local function _52_()
+        local function _46_()
           return vim.cmd("LspStart tailwindcss")
         end
-        vim.defer_fn(_52_, 200)
+        vim.defer_fn(_46_, 200)
         found = true
       else
       end
@@ -286,24 +256,24 @@ local function _51_()
     return nil
   end
 end
-vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {pattern = {"*.ts", "*.tsx", "*.js", "*.jsx"}, callback = _51_})
-local function _55_()
+vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {pattern = {"*.ts", "*.tsx", "*.js", "*.jsx"}, callback = _45_})
+local function _49_()
   if (vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON) then
     return vim.fn.system(string.format("kitten @ --to %s set-spacing --match id:%s padding=0", vim.env.KITTY_LISTEN_ON, vim.env.KITTY_WINDOW_ID))
   else
     return nil
   end
 end
-vim.defer_fn(_55_, 100)
-local function _57_()
+vim.defer_fn(_49_, 100)
+local function _51_()
   if (vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON) then
     return vim.fn.system(string.format("kitten @ --to %s set-spacing --match id:%s padding=12", vim.env.KITTY_LISTEN_ON, vim.env.KITTY_WINDOW_ID))
   else
     return nil
   end
 end
-vim.api.nvim_create_autocmd("VimLeavePre", {callback = _57_})
-local function _59_()
+vim.api.nvim_create_autocmd("VimLeavePre", {callback = _51_})
+local function _53_()
   local buf = vim.api.nvim_get_current_buf()
   if vim.b[buf].claudecode_diff_tab_name then
     for _, win in ipairs(vim.api.nvim_list_wins()) do
@@ -319,8 +289,8 @@ local function _59_()
     return nil
   end
 end
-vim.api.nvim_create_autocmd("BufWinEnter", {callback = _59_})
-local function _62_()
+vim.api.nvim_create_autocmd("BufWinEnter", {callback = _53_})
+local function _56_()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
     local name = vim.api.nvim_buf_get_name(buf)
@@ -333,6 +303,6 @@ local function _62_()
   end
   return nil
 end
-vim.api.nvim_create_autocmd("FocusGained", {callback = _62_})
+vim.api.nvim_create_autocmd("FocusGained", {callback = _56_})
 vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 return vim.opt.shortmess:append("F")

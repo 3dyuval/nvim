@@ -191,30 +191,28 @@
                       (set vim.opt_local.spell true))})
 
 ;; --- COMMIT_EDITMSG: create manual folds for @@ diff hunk markers ---
-
-(autocmd :BufReadPost
-         {:pattern "*COMMIT_EDITMSG*"
-          :callback (fn []
-                      (vim.defer_fn
-                        (fn []
-                          (let [bufnr (vim.api.nvim_get_current_buf)
-                                lines (vim.api.nvim_buf_get_lines bufnr 0 -1 false)]
-                            (when (> (length lines) 0)
-                              (set vim.bo.foldmethod :manual)
-                              (vim.cmd "normal! zE")
-                              ;; Find @@ markers and fold content between them
-                              (var prev-hunk nil)
-                              (each [i line (ipairs lines)]
-                                (when (string.match line "^@@")
-                                  (when (and prev-hunk (> (- i prev-hunk) 1))
-                                    (vim.cmd (string.format "%d,%dfold" (+ prev-hunk 1) (- i 1))))
-                                  (set prev-hunk i)))
-                              ;; Fold final section
-                              (when prev-hunk
-                                (vim.cmd (string.format "%d,%dfold" (+ prev-hunk 1) (length lines))))
-                              ;; Close all folds
-                              (vim.cmd "normal! zM"))))
-                        50))})
+;; DISABLED: bufnr/lines scope bug in defer_fn callback, vim.bo.foldmethod fails when window changes
+; (autocmd :BufReadPost
+;          {:pattern "*COMMIT_EDITMSG*"
+;           :callback (fn []
+;                        (vim.defer_fn
+;                          (fn []
+;                            (when (vim.api.nvim_buf_is_valid bufnr)
+;                              (set vim.bo.foldmethod :manual)
+;                              (vim.cmd "normal! zE")
+;                              ;; Find @@ markers and fold content between them
+;                              (var prev-hunk nil)
+;                              (each [i line (ipairs lines)]
+;                                (when (string.match line "^@@")
+;                                  (when (and prev-hunk (> (- i prev-hunk) 1))
+;                                    (vim.cmd (string.format "%d,%dfold" (+ prev-hunk 1) (- i 1))))
+;                                  (set prev-hunk i)))
+;                              ;; Fold final section
+;                              (when prev-hunk
+;                                (vim.cmd (string.format "%d,%dfold" (+ prev-hunk 1) (length lines))))
+;                              ;; Close all folds
+;                              (vim.cmd "normal! zM"))))
+;                          50))})
 ;; --- Snacks windows: no swap ---
 
 (autocmd :FileType
