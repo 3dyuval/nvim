@@ -6,6 +6,7 @@
 {;; Resolve `require` of project modules to the fnl/ source tree.
  :fennel-path "fnl/?.fnl;fnl/?/init.fnl"
 
- ;; Neovim exposes `vim` as a global; without this fennel-ls reports it
- ;; as an unknown global in every config file.
- :extra-globals "vim"}
+ ;; Globals injected at runtime that fennel-ls can't see: `vim` (Neovim),
+ ;; `Snacks` (snacks.nvim sets _G.Snacks), `LazyVim` (LazyVim). Without this
+ ;; fennel-ls reports them as unknown identifiers.
+ :extra-globals "vim Snacks LazyVim"}
