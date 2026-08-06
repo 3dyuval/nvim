@@ -11,7 +11,8 @@
       "WebFetch(domain:codeberg.org)",
       "mcp__nvim-mcp__send_command",
       "mcp__nvim-mcp__connect",
-      "mcp__nvim-mcp__get_buf_diagnostics"
+      "mcp__nvim-mcp__get_buf_diagnostics",
+      "mcp__deepwiki__ask_question"
     ]
   },
   "enableAllProjectMcpServers": true,

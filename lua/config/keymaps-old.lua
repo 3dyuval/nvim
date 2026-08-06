@@ -88,7 +88,8 @@ remap("n", "gz", "U", {desc = "Undo line"})
 -- VISUAL MODE
 -- ============================================================================
 
-vim.keymap.set({"n", "x"}, "n", "v", {desc = "Visual mode"})
+-- RETIRED: n/N restored to native search navigation
+-- vim.keymap.set({"n", "x"}, "n", "v", {desc = "Visual mode"})
 -- vim.keymap.set({ "n", "x" }, "N", "V", { desc = "Visual line mode" })
 -- vim.keymap.set({ "n" }, "<C-n>", "<C-v>", { desc = "Visual block mode" })
 
@@ -96,8 +97,9 @@ vim.keymap.set({"n", "x"}, "n", "v", {desc = "Visual mode"})
 -- SEARCH
 -- ============================================================================
 
-vim.keymap.set({"n", "o", "x"}, "m", "n", {desc = "Next search match"})
-vim.keymap.set({"n", "o", "x"}, "M", "N", {desc = "Previous search match"})
+-- RETIRED: m/M restored to native mark behavior
+-- vim.keymap.set({"n", "o", "x"}, "m", "n", {desc = "Next search match"})
+-- vim.keymap.set({"n", "o", "x"}, "M", "N", {desc = "Previous search match"})
 
 -- Git conflict navigation
 -- remap("n", "[[", "[x", {desc = "Previous git conflict"})

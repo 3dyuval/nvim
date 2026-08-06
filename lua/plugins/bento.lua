@@ -1,0 +1,2 @@
+-- [nfnl] fnl/plugins/bento.fnl
+return {{"akinsho/bufferline.nvim", enabled = false}, {"serhez/bento.nvim", enabled = true, opts = {main_keymap = ";", ui = {mode = "tabline", tabline = {separator_symbol = " "}}, highlights = {current = "Bold", active = "Normal", inactive = "Comment", modified = "DiagnosticWarn", label_minimal = "Comment", window_bg = "Normal", separator = "Comment"}}, lazy = false}}

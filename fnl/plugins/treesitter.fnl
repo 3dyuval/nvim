@@ -18,6 +18,9 @@
                                    :elixir :heex :vue
                                    :css :scss :html :kcl :devicetree]
               :overrides {:kcl {:url "https://github.com/KittyCAD/tree-sitter-kcl"}}
+              ;; Filetypes with no real parser — skip install so it doesn't hang
+              ;; on "Installing template..." (e.g. chezmoi .tmpl files).
+              :ignore [:template]
               ;; arborist's treesitter indent returns col 0 inside .vue's injected
               ;; <script> — disable it for vue so filetype/autoindent handles it.
               :disable {:indent [:vue]}}))}

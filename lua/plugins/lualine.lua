@@ -1,6 +1,10 @@
 return {
   "nvim-lualine/lualine.nvim",
   opts = function(_, opts)
+    -- dropbar.nvim owns the winbar breadcrumbs; clear LazyVim's lualine winbar
+    -- so they don't both render.
+    opts.winbar = {}
+    opts.inactive_winbar = {}
     local function formatter_status()
       local buf = vim.api.nvim_get_current_buf()
 

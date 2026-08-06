@@ -1,7 +1,7 @@
 -- [nfnl] fnl/plugins/treesitter.fnl
 local function _1_()
   vim.filetype.add({extension = {keymap = "devicetree"}})
-  return require("arborist").setup({update_cadence = "weekly", ensure_installed = {"lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "go", "rust", "ruby", "javascript", "typescript", "tsx", "python", "bash", "json", "yaml", "toml", "elixir", "heex", "vue", "css", "scss", "html", "kcl", "devicetree"}, overrides = {kcl = {url = "https://github.com/KittyCAD/tree-sitter-kcl"}}, disable = {indent = {"vue"}}})
+  return require("arborist").setup({update_cadence = "weekly", ensure_installed = {"lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "go", "rust", "ruby", "javascript", "typescript", "tsx", "python", "bash", "json", "yaml", "toml", "elixir", "heex", "vue", "css", "scss", "html", "kcl", "devicetree"}, overrides = {kcl = {url = "https://github.com/KittyCAD/tree-sitter-kcl"}}, ignore = {"template"}, disable = {indent = {"vue"}}})
 end
 local function _2_()
   return require("treesitter.setup").setup()
