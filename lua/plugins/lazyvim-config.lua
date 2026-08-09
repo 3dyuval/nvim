@@ -4,6 +4,10 @@ return {
     enabled = false, -- Completely disable Flash
   },
   {
+    "folke/persistence.nvim",
+    enabled = false, -- Disable LazyVim session manager; we use possession.nvim
+  },
+  {
     "LazyVim/LazyVim",
   },
 

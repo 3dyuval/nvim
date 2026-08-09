@@ -1,8 +1,5 @@
 -- https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 
--- Disable dashboard for leetcode.nvim (must be at top before any config)
-local is_leetcode = vim.fn.argv(0) == "leetcode.nvim"
-
 -- Use shared explorer from picker-extensions
 local open_explorer = function(opts)
   require("utils.picker-extensions").open_explorer(opts)
@@ -192,67 +189,26 @@ return {
         animate = {}
       },
       dashboard = {
-        enabled = false, -- We'll handle this manually
-        sections = {
-          {section = "header", enabled = true},
-          {section = "projects", padding = 1, limit = 8, enabled = false},
-          {section = "sessions", enabled = false},
-          {section = "keys", gap = 0, padding = 1},
-          {section = "startup", enabled = false}
-        },
+        -- Off at startup; opened on demand via <leader>qS (see keys below).
+        enabled = false,
         preset = {
-          header = [[
-                                              
-       ████ ██████           █████      ██
-      ███████████             █████ 
-      █████████ ███████████████████ ███   ███████████
-     █████████  ███    █████████████ █████ ██████████████
-    █████████ ██████████ █████████ █████ █████ ████ █████
-  ███████████ ███    ███ █████████ █████ █████ ████ █████
- ██████  █████████████████████ ████ █████ █████ ████ ██████
-
-          ]],
           keys = {
+            {icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')"},
+            {icon = " ", key = "n", desc = "New File", action = ":ene | startinsert"},
+            {icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')"},
+            {icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')"},
+            {icon = " ", key = "c", desc = "Config", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})"},
             {
-              icon = "󱎸",
-              key = "/",
-              desc = "Live Grep",
-              action = ":lua Snacks.dashboard.pick('live_grep')",
-              {icon = "", key = "G", desc = "Neogit", action = ":Neogit"},
-              {icon = "", key = "l", desc = "Neogit Log", action = ":Neogit log"},
-              {icon = "", key = "h", desc = "Diffview Graph", action = ":DiffviewGraph ."},
-              {
-                icon = "",
-                key = "r",
-                desc = "Recent Files",
-                action = ":lua Snacks.dashboard.pick('oldfiles')"
-              },
-              {
-                icon = "",
-                key = "c",
-                desc = "Nvim Config",
-                action = function()
-                  vim.cmd("cd ~/.config/nvim | e .")
-                end
-              },
-              {
-                icon = "󰠔",
-                key = "p",
-                desc = "Projects",
-                action = function()
-                  Snacks.picker.projects()
-                end
-              },
-              {
-                icon = "󰁯",
-                key = "s",
-                desc = "Restore Session (cwd)",
-                action = function()
-                  require("persistence").load()
-                end
-              },
-              {icon = "󰈆", key = "q", desc = "Quit", action = ":qa!"}
-            }
+              icon = "󰁯 ",
+              key = "s",
+              desc = "Restore Session (cwd)",
+              action = function()
+                local name = require("possession.paths").cwd_session_name()
+                require("possession.session").load(name, {skip_autosave = true})
+              end
+            },
+            {icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil},
+            {icon = " ", key = "q", desc = "Quit", action = ":qa"}
           }
         }
       },
@@ -680,6 +636,13 @@ return {
           Snacks.picker.zoxide()
         end,
         desc = "Zoxide (smart directories)"
+      },
+      {
+        "<leader>qS",
+        function()
+          Snacks.dashboard.open()
+        end,
+        desc = "Open dashboard"
       }
     },
     config = function(_, opts)
@@ -690,45 +653,6 @@ return {
         end
       )
       require("snacks").setup(opts)
-
-      -- Manual dashboard control based on conditions
-      -- Skip entirely for leetcode.nvim
-      if is_leetcode then
-        return
-      end
-
-      vim.api.nvim_create_autocmd(
-        "UIEnter",
-        {
-          once = true,
-          callback = function()
-            -- Check conditions for showing dashboard
-            local should_show = true
-
-            -- Don't show if there are file arguments
-            if vim.fn.argc() > 0 then
-              should_show = false
-            end
-
-            -- Don't show if NO_DASHBOARD env var is set
-            if vim.env.NO_DASHBOARD == "1" then
-              should_show = false
-            end
-
-            -- Don't show if current buffer already has content
-            if vim.api.nvim_buf_get_name(0) ~= "" then
-              should_show = false
-            end
-
-            if should_show then
-              -- Temporarily enable dashboard for this one setup call
-              require("snacks").config.dashboard.enabled = true
-              require("snacks.dashboard").setup()
-              require("snacks").config.dashboard.enabled = false -- Reset
-            end
-          end
-        }
-      )
     end
   }
 }

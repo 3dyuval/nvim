@@ -1,5 +1,4 @@
 return {
-  lazy = false,
   {
     "Joakker/lua-json5",
     build = function()
@@ -9,27 +8,27 @@ return {
         vim.notify("lua-json5 build failed, falling back to regular JSON", vim.log.levels.WARN)
       end
     end,
-    lazy = true,
+    event = "VeryLazy"
   },
   {
     "mfussenegger/nvim-dap",
-    cmd = { "DapContinue", "DapToggleBreakpoint", "DapStepInto", "DapStepOver", "DapStepOut", "DapTerminate" },
+    cmd = {"DapContinue", "DapToggleBreakpoint", "DapStepInto", "DapStepOver", "DapStepOut", "DapTerminate"},
     keys = {
-      { "<leader>dt", desc = "Toggle Breakpoint" },
-      { "<leader>dc", desc = "Continue" },
-      { "<leader>di", desc = "Step Into" },
-      { "<leader>do", desc = "Step Over" },
-      { "<leader>du", desc = "Step Out" },
-      { "<leader>dr", desc = "Open REPL" },
-      { "<leader>dl", desc = "Run Last" },
-      { "<leader>dq", desc = "Terminate" },
+      {"<leader>dt", desc = "Toggle Breakpoint"},
+      {"<leader>dc", desc = "Continue"},
+      {"<leader>di", desc = "Step Into"},
+      {"<leader>do", desc = "Step Over"},
+      {"<leader>du", desc = "Step Out"},
+      {"<leader>dr", desc = "Open REPL"},
+      {"<leader>dl", desc = "Run Last"},
+      {"<leader>dq", desc = "Terminate"}
     },
     dependencies = {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
       "theHamsta/nvim-dap-virtual-text",
       "Joakker/lua-json5",
-      "jay-babu/mason-nvim-dap.nvim",
+      "jay-babu/mason-nvim-dap.nvim"
     },
     config = function()
       local dap = require("dap")
@@ -37,10 +36,12 @@ return {
       local dap_virtual_text = require("nvim-dap-virtual-text")
 
       -- Setup mason-nvim-dap to ensure js-debug-adapter is installed
-      require("mason-nvim-dap").setup({
-        ensure_installed = { "js-debug-adapter" },
-        automatic_installation = true,
-      })
+      require("mason-nvim-dap").setup(
+        {
+          ensure_installed = {"js-debug-adapter"},
+          automatic_installation = true
+        }
+      )
 
       -- Enable debug logging
       dap.set_log_level("TRACE")
@@ -51,27 +52,29 @@ return {
       end
 
       -- Dap Virtual Text - shows variable values inline in editor
-      dap_virtual_text.setup({
-        enabled = true,
-        enabled_commands = true,
-        highlight_changed_variables = true,
-        highlight_new_as_changed = false,
-        show_stop_reason = true,
-        commented = false,
-        only_first_definition = true,
-        all_references = false,
-        display_callback = function(variable, buf, stackframe, node, options)
-          if options.virt_text_pos == "inline" then
-            return " = " .. variable.value
-          else
-            return variable.name .. " = " .. variable.value
-          end
-        end,
-        virt_text_pos = vim.fn.has("nvim-0.10") == 1 and "inline" or "eol",
-        all_frames = false,
-        virt_lines = false,
-        virt_text_win_col = nil,
-      })
+      dap_virtual_text.setup(
+        {
+          enabled = true,
+          enabled_commands = true,
+          highlight_changed_variables = true,
+          highlight_new_as_changed = false,
+          show_stop_reason = true,
+          commented = false,
+          only_first_definition = true,
+          all_references = false,
+          display_callback = function(variable, buf, stackframe, node, options)
+            if options.virt_text_pos == "inline" then
+              return " = " .. variable.value
+            else
+              return variable.name .. " = " .. variable.value
+            end
+          end,
+          virt_text_pos = vim.fn.has("nvim-0.10") == 1 and "inline" or "eol",
+          all_frames = false,
+          virt_lines = false,
+          virt_text_win_col = nil
+        }
+      )
 
       -- Use js-debug from Mason installation
       local js_debug_path = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js"
@@ -88,8 +91,8 @@ return {
         port = "${port}",
         executable = {
           command = "node",
-          args = { js_debug_path, "${port}" },
-        },
+          args = {js_debug_path, "${port}"}
+        }
       }
 
       -- Configure pwa-chrome adapter (same as pwa-node but for Chrome debugging)
@@ -99,36 +102,42 @@ return {
         port = "${port}",
         executable = {
           command = "node",
-          args = { js_debug_path, "${port}" },
-        },
+          args = {js_debug_path, "${port}"}
+        }
       }
 
       -- Chrome debugging configurations (WORKING - restore these)
-      local _chrome_configs = { -- Prefixed with _ to indicate intentionally unused
+      local _chrome_configs = {
+        -- Prefixed with _ to indicate intentionally unused
         {
           type = "pwa-chrome",
           request = "launch",
           name = "Launch & Debug Chrome",
           url = function()
             local co = coroutine.running()
-            return coroutine.create(function()
-              vim.ui.input({
-                prompt = "Enter URL: ",
-                default = "http://localhost:3000",
-              }, function(url)
-                if url == nil or url == "" then
-                  return
-                else
-                  coroutine.resume(co, url)
-                end
-              end)
-            end)
+            return coroutine.create(
+              function()
+                vim.ui.input(
+                  {
+                    prompt = "Enter URL: ",
+                    default = "http://localhost:3000"
+                  },
+                  function(url)
+                    if url == nil or url == "" then
+                      return
+                    else
+                      coroutine.resume(co, url)
+                    end
+                  end
+                )
+              end
+            )
           end,
           webRoot = vim.fn.getcwd(),
           protocol = "inspector",
           sourceMaps = true,
-          userDataDir = false,
-        },
+          userDataDir = false
+        }
       }
 
       -- TypeScript configurations with ts-node ESM support
@@ -138,23 +147,23 @@ return {
           type = "node",
           request = "launch",
           runtimeExecutable = "npx",
-          runtimeArgs = { "ts-node", "--transpile-only", "--esm" },
+          runtimeArgs = {"ts-node", "--transpile-only", "--esm"},
           program = function()
             return vim.fn.input("TypeScript file path: ", vim.fn.expand("%:p"), "file")
           end,
           env = {
             NODE_OPTIONS = "--experimental-specifier-resolution=node --inspect",
-            NODE_ENV = "development",
+            NODE_ENV = "development"
           },
           console = "integratedTerminal",
           internalConsoleOptions = "neverOpen",
           skipFiles = {
             "<node_internals>/**",
-            "**/node_modules/**",
+            "**/node_modules/**"
           },
           sourceMaps = true,
-          cwd = "${workspaceFolder}",
-        },
+          cwd = "${workspaceFolder}"
+        }
       }
 
       -- JavaScript configurations (same as TypeScript)
@@ -172,20 +181,26 @@ return {
         dap.configurations.javascript = {}
         dap.configurations.typescript = {}
 
-        local ok, err = pcall(function()
-          require("dap.ext.vscode").load_launchjs(launch_json_path, {
-            ["pwa-node"] = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-            ["pwa-chrome"] = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-            ["node"] = { "javascript", "typescript" }, -- Fallback for older configs
-          })
-        end)
+        local ok, err =
+          pcall(
+          function()
+            require("dap.ext.vscode").load_launchjs(
+              launch_json_path,
+              {
+                ["pwa-node"] = {"javascript", "typescript", "javascriptreact", "typescriptreact"},
+                ["pwa-chrome"] = {"javascript", "typescript", "javascriptreact", "typescriptreact"},
+                ["node"] = {"javascript", "typescript"} -- Fallback for older configs
+              }
+            )
+          end
+        )
 
         if not ok then
           local error_msg = tostring(err)
           if error_msg:match("json") or error_msg:match("parse") then
             vim.notify(
-              "DAP: JSON parsing error in launch.json. Try using JSON5 syntax or check for syntax errors.\nError: "
-                .. error_msg,
+              "DAP: JSON parsing error in launch.json. Try using JSON5 syntax or check for syntax errors.\nError: " ..
+                error_msg,
               vim.log.levels.ERROR
             )
           else
@@ -218,14 +233,14 @@ return {
           if config.type == "pwa-chrome" and not config.runtimeExecutable then
             config.runtimeExecutable = chrome_path
             config.runtimeArgs = config.runtimeArgs or {}
-            vim.list_extend(config.runtimeArgs, { "--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors" })
+            vim.list_extend(config.runtimeArgs, {"--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors"})
           end
         end
         for _, config in pairs(dap.configurations.typescript or {}) do
           if config.type == "pwa-chrome" and not config.runtimeExecutable then
             config.runtimeExecutable = chrome_path
             config.runtimeArgs = config.runtimeArgs or {}
-            vim.list_extend(config.runtimeArgs, { "--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors" })
+            vim.list_extend(config.runtimeArgs, {"--user-data-dir=" .. user_data_dir, "--ignore-certificate-errors"})
           end
         end
       end
@@ -234,26 +249,28 @@ return {
       vim.defer_fn(override_chrome_executable, 100)
 
       -- Dap UI (WORKING - keep as-is)
-      ui.setup({
-        mappings = {
-          edit = "m",
-          expand = { "<CR>", "<2-LeftMouse>" },
-          open = "g",
-          remove = "d",
-          repl = "y",
-          toggle = "s",
-        },
-      })
+      ui.setup(
+        {
+          mappings = {
+            edit = "m",
+            expand = {"<CR>", "<2-LeftMouse>"},
+            open = "g",
+            remove = "d",
+            repl = "y",
+            toggle = "s"
+          }
+        }
+      )
 
       -- Define DAP signs
-      vim.fn.sign_define("DapBreakpoint", { text = "🐞", texthl = "DiagnosticError" })
-      vim.fn.sign_define("DapBreakpointCondition", { text = "🔶", texthl = "DiagnosticWarn" })
-      vim.fn.sign_define("DapBreakpointRejected", { text = "🚫", texthl = "DiagnosticError" })
-      vim.fn.sign_define("DapLogPoint", { text = "📝", texthl = "DiagnosticInfo" })
-      vim.fn.sign_define("DapStopped", { text = "▶️", texthl = "DiagnosticOk", linehl = "DapStoppedLine" })
+      vim.fn.sign_define("DapBreakpoint", {text = "🐞", texthl = "DiagnosticError"})
+      vim.fn.sign_define("DapBreakpointCondition", {text = "🔶", texthl = "DiagnosticWarn"})
+      vim.fn.sign_define("DapBreakpointRejected", {text = "🚫", texthl = "DiagnosticError"})
+      vim.fn.sign_define("DapLogPoint", {text = "📝", texthl = "DiagnosticInfo"})
+      vim.fn.sign_define("DapStopped", {text = "▶️", texthl = "DiagnosticOk", linehl = "DapStoppedLine"})
 
       -- Create highlight group for current line
-      vim.api.nvim_set_hl(0, "DapStoppedLine", { bg = "#2d3748" })
+      vim.api.nvim_set_hl(0, "DapStoppedLine", {bg = "#2d3748"})
 
       dap.listeners.before.attach.dapui_config = function()
         ui.open()
@@ -269,31 +286,71 @@ return {
       end
 
       -- Debug keymaps
-      vim.keymap.set("n", "<leader>dt", function()
-        dap.toggle_breakpoint()
-      end, { desc = "Toggle Breakpoint" })
-      vim.keymap.set("n", "<leader>dc", function()
-        dap.continue()
-      end, { desc = "Continue" })
-      vim.keymap.set("n", "<leader>di", function()
-        dap.step_into()
-      end, { desc = "Step Into" })
-      vim.keymap.set("n", "<leader>do", function()
-        dap.step_over()
-      end, { desc = "Step Over" })
-      vim.keymap.set("n", "<leader>du", function()
-        dap.step_out()
-      end, { desc = "Step Out" })
-      vim.keymap.set("n", "<leader>dr", function()
-        dap.repl.open()
-      end, { desc = "Open REPL" })
-      vim.keymap.set("n", "<leader>dl", function()
-        dap.run_last()
-      end, { desc = "Run Last" })
-      vim.keymap.set("n", "<leader>dq", function()
-        dap.terminate()
-        ui.close()
-      end, { desc = "Terminate" })
-    end,
-  },
+      vim.keymap.set(
+        "n",
+        "<leader>dt",
+        function()
+          dap.toggle_breakpoint()
+        end,
+        {desc = "Toggle Breakpoint"}
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>dc",
+        function()
+          dap.continue()
+        end,
+        {desc = "Continue"}
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>di",
+        function()
+          dap.step_into()
+        end,
+        {desc = "Step Into"}
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>do",
+        function()
+          dap.step_over()
+        end,
+        {desc = "Step Over"}
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>du",
+        function()
+          dap.step_out()
+        end,
+        {desc = "Step Out"}
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>dr",
+        function()
+          dap.repl.open()
+        end,
+        {desc = "Open REPL"}
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>dl",
+        function()
+          dap.run_last()
+        end,
+        {desc = "Run Last"}
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>dq",
+        function()
+          dap.terminate()
+          ui.close()
+        end,
+        {desc = "Terminate"}
+      )
+    end
+  }
 }
