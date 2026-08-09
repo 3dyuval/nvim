@@ -32,8 +32,8 @@
       {:desc "Format"})
 
 (lset :n :<leader>qs
-      (fn [] ((. (require :utils.session-picker) :open)))
-      {:desc "Session picker"})
+      (fn [] ((. (require :persistence) :select)))
+      {:desc "Select session"})
 
 (lset :n :<leader>tt
       (fn [] (vim.api.nvim_feedkeys ":terminal " :t false))

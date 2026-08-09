@@ -246,9 +246,9 @@ return {
               {
                 icon = "󰁯",
                 key = "s",
-                desc = "Session Picker",
+                desc = "Restore Session (cwd)",
                 action = function()
-                  require("utils.session-picker").open()
+                  require("persistence").load()
                 end
               },
               {icon = "󰈆", key = "q", desc = "Quit", action = ":qa!"}
@@ -626,7 +626,6 @@ return {
       {"<leader>ff", false}, -- Disable LazyVim Find Files - we use fff
       {"<leader>e", false}, -- Disable LazyVim Explorer - we use <leader><leader>
       {"<leader>fe", false}, -- Disable LazyVim Explorer (root dir)
-      {"<leader>qS", false}, -- Disable LazyVim persistence select - we use auto-session
       -- {
       --   "<leader>gC",
       --   function()
@@ -722,15 +721,6 @@ return {
             end
 
             if should_show then
-              local session_dir = (vim.fn.stdpath "data") .. "/sessions/"
-              local cwd = vim.fn.getcwd()
-              local has_session = false
-              for _, f in ipairs(vim.fn.readdir(session_dir)) do
-                if string.match(f, cwd) or string.match(f, vim.fn.fnamemodify(cwd, ":t")) then
-                  has_session = true
-                  break
-                end
-              end
               -- Temporarily enable dashboard for this one setup call
               require("snacks").config.dashboard.enabled = true
               require("snacks.dashboard").setup()

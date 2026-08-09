@@ -169,6 +169,11 @@ return {
       },
       cmdline = {
         enabled = true,
+        -- Only offer completion sources in ':' cmdline; for '/' and '?' search
+        -- return none so blink's keymaps fall back to native search behavior.
+        sources = function()
+          return vim.fn.getcmdtype() == ":" and { "cmdline" } or {}
+        end,
         keymap = {
           preset = "none",
           ["<Up>"] = {"select_prev", "fallback"},
