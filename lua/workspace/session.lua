@@ -1,4 +1,4 @@
--- [nfnl] fnl/session/picker.fnl
+-- [nfnl] fnl/workspace/session.fnl
 local M = {}
 local function build_items()
   local ok, session = pcall(require, "possession.session")

@@ -20,3 +20,7 @@
 (lset :n :<C-/>
       (fn [] (Snacks.picker.grep))
       {:desc "Grep (top level)"})
+
+(lset :n :<leader>/
+      (fn [] ((. (require :workspace.grep) :grep-current-buffer-dir)))
+      {:desc "Grep (current buffer's dir)"})

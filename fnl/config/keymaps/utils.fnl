@@ -32,12 +32,21 @@
       {:desc "Format"})
 
 (lset :n :<leader>qs
-      (fn [] ((. (require :session.picker) :open)))
+      (fn [] ((. (require :workspace.session) :open)))
       {:desc "Session picker"})
 
 (lset :n :<leader>tt
       (fn [] (vim.api.nvim_feedkeys ":terminal " :t false))
       {:desc "Terminal prefill"})
+
+;; kitty runner: send line/selection to a tagged kitty pane; open the runner
+(lset [:n :x] :<leader>rs
+      (fn [] ((. (require :workspace.kitty-send) :send)))
+      {:desc "Kitty: send line/selection"})
+
+(lset :n :<leader>ro
+      (fn [] ((. (require :workspace.kitty-send) :open)))
+      {:desc "Kitty: open runner"})
 
 ;; NOTE: Moved to config.keymaps.search
 ;; (lset :n :<leader>of
@@ -58,7 +67,7 @@
 ;;       {:desc "Buffers (fullscreen)"})
 ;;
 ;; (lset :n :<C-/>
-;;       (fn [] ((. (require :picker.grep) :grep-current-buffer-dir)))
+;;       (fn [] ((. (require :workspace.grep) :grep-current-buffer-dir)))
 ;;       {:desc "Grep in current file's directory"})
 
 (lset :n :<leader>rg

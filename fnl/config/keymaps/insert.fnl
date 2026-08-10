@@ -6,6 +6,7 @@
 (lset :n :S :A {:desc "Insert at end of line"})
 (lset :n :t "<Del>" {:desc "Delete char under cursor"})
 ;; X retired in favor of d (notify handled in lua/config/keymaps.lua)
-(lset :n :n :i {:desc "Insert before cursor"})
-(lset :n :N :I {:desc "Insert at line start (first non-blank)"})
+;; RETIRED: n/N restored to native search navigation
+;; (lset :n :n :i {:desc "Insert before cursor"})
+;; (lset :n :N :I {:desc "Insert at line start (first non-blank)"})
 (lset :i :<C-n> :<Esc> {:desc "Normal mode"})

@@ -1,4 +1,4 @@
--- [nfnl] fnl/picker/schemastore.fnl
+-- [nfnl] fnl/workspace/schemastore.fnl
 local M = {}
 local cache_dir = (vim.fn.stdpath("cache") .. "/schemastore")
 local mem = {}

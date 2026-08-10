@@ -1,6 +1,6 @@
 ;; possession.nvim — named + cwd sessions. Replaces auto-session/persistence.
 ;; autosave the cwd session on quit; autoload this cwd's session on startup.
-;; Picker lives in session.picker (snacks, over possession.session.list).
+;; Picker lives in workspace.session (snacks, over possession.session.list).
 ;; persistence.nvim is disabled in lua/plugins/lazyvim-config.lua.
 ;; possession does NOT save vim.g globals like persistence did, so the hooks
 ;; below persist the specific uppercase globals we relied on (FFFLayout,

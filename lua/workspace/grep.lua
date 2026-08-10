@@ -1,4 +1,4 @@
--- [nfnl] fnl/picker/grep.fnl
+-- [nfnl] fnl/workspace/grep.fnl
 local M = {}
 local ignore_globs = {"-g", "!.git", "-g", "!node_modules", "-g", "!dist", "-g", "!build", "-g", "!coverage", "-g", "!.DS_Store", "-g", "!.docusaurus", "-g", "!.dart_tool"}
 M["grep-in-dir"] = function(dir)

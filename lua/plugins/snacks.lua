@@ -313,7 +313,7 @@ return {
               },
               search_in_directory = {
                 action = function(picker, item)
-                  require("picker.grep")["search-in-directory"](picker, item)
+                  require("workspace.grep")["search-in-directory"](picker, item)
                 end
               },
               diff = {
@@ -436,7 +436,7 @@ return {
               },
               search_in_directory = {
                 action = function(picker, item)
-                  require("picker.grep")["search-in-directory"](picker, item)
+                  require("workspace.grep")["search-in-directory"](picker, item)
                 end
               }
             },

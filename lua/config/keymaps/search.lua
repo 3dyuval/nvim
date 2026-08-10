@@ -15,4 +15,8 @@ lset("n", "<leader>fF", _3_, {desc = "Buffers (fullscreen)"})
 local function _4_()
   return Snacks.picker.grep()
 end
-return lset("n", "<C-/>", _4_, {desc = "Grep (top level)"})
+lset("n", "<C-/>", _4_, {desc = "Grep (top level)"})
+local function _5_()
+  return require("workspace.grep")["grep-current-buffer-dir"]()
+end
+return lset("n", "<leader>/", _5_, {desc = "Grep (current buffer's dir)"})

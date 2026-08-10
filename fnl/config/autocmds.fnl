@@ -30,7 +30,7 @@
   {:nargs "?"})
 
 ;; :SchemaStore — browse the SchemaStore catalog, fetch+cache schema bodies.
-((. (require :picker.schemastore) :setup))
+((. (require :workspace.schemastore) :setup))
 
 ;; --- Auto-save LSP workspace edits (vtsls import updates on file rename) ---
 ;; https://github.com/yioneko/vtsls/issues/287
