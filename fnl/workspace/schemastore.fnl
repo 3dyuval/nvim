@@ -105,6 +105,101 @@
           (show-meta ctx item "fetching…")
           (fetch-async ctx item)))))
 
+;; --- $schema insertion --------------------------------------------------
+;;
+;; We edit the buffer as text (not via vim.json round-trip) so the user's
+;; formatting, key order, and comments survive untouched.
+
+;; Find a top-level `"$schema": "..."` line. Returns (row0 indent) where row0
+;; is 0-indexed, or nil if none. Only scans the first ~40 lines — $schema is a
+;; leading key by convention.
+(fn find-schema-line [lines]
+  (var found nil)
+  (let [n (math.min (length lines) 40)]
+    (for [i 1 n]
+      (when (not found)
+        (let [l (. lines i)
+              (s _ indent) (l:find "^(%s*)\"%$schema\"%s*:")]
+          (when s
+            (set found [(- i 1) indent]))))))
+  found)
+
+;; Find the buffer's opening `{` line (0-indexed) and its indent, so we can
+;; insert `$schema` as the first property with correct nesting.
+(fn find-open-brace [lines]
+  (var found nil)
+  (let [n (math.min (length lines) 40)]
+    (for [i 1 n]
+      (when (not found)
+        (let [l (. lines i)
+              (s _ indent) (l:find "^(%s*){")]
+          (when s
+            (set found [(- i 1) indent]))))))
+  found)
+
+;; Detect one indent unit from the buffer (first indented line), default 2 sp.
+(fn detect-indent [lines]
+  (var unit "  ")
+  (var done false)
+  (each [_ l (ipairs lines) &until done]
+    (let [(s) (l:find "^%s+%S")]
+      (when s
+        (set unit (l:match "^(%s+)"))
+        (set done true))))
+  unit)
+
+;; Replace an existing $schema line's url in-place, preserving its indentation.
+(fn replace-schema [bufnr row indent url]
+  (let [line (.. indent "\"$schema\": \"" url "\",")]
+    (vim.api.nvim_buf_set_lines bufnr row (+ row 1) false [line])))
+
+;; Insert a new $schema line right after the opening brace, indented one level
+;; deeper than the brace.
+(fn insert-schema [bufnr brace-row brace-indent unit url]
+  (let [line (.. brace-indent unit "\"$schema\": \"" url "\",")]
+    (vim.api.nvim_buf_set_lines bufnr (+ brace-row 1) (+ brace-row 1) false
+                                [line])))
+
+;; Create a fresh JSON file (prompting for a name) seeded with just $schema.
+(fn create-json-file [url]
+  (vim.ui.input
+    {:prompt "New JSON file: " :default "config.json" :completion :file}
+    (fn [name]
+      (when (and name (not= name ""))
+        (vim.cmd (.. "edit " (vim.fn.fnameescape name)))
+        (vim.api.nvim_buf_set_lines 0 0 -1 false
+                                    ["{" (.. "  \"$schema\": \"" url "\"") "}"])
+        (set vim.bo.filetype :json)))))
+
+;; Smart placement: replace (with confirm) → insert into existing object →
+;; create a new file.
+(fn apply-schema [url]
+  (let [bufnr (vim.api.nvim_get_current_buf)
+        ft vim.bo.filetype
+        lines (vim.api.nvim_buf_get_lines bufnr 0 -1 false)
+        empty? (or (= 0 (length lines))
+                   (and (= 1 (length lines)) (= "" (. lines 1))))
+        json? (or (= ft :json) (= ft :jsonc))
+        existing (find-schema-line lines)]
+    (if (and json? existing)
+        ;; already has $schema → confirm replacement
+        (vim.ui.select [:Replace :Cancel]
+          {:prompt (.. "$schema exists. Replace with " url "?")}
+          (fn [choice]
+            (when (= choice :Replace)
+              (replace-schema bufnr (. existing 1) (. existing 2) url))))
+        (and json? (not empty?))
+        ;; JSON buffer, no $schema → insert after opening brace
+        (let [brace (find-open-brace lines)
+              unit (detect-indent lines)]
+          (if brace
+              (insert-schema bufnr (. brace 1) (. brace 2) unit url)
+              ;; no brace found (odd) → just prepend a line
+              (vim.api.nvim_buf_set_lines bufnr 0 0 false
+                                          [(.. "\"$schema\": \"" url "\",")])))
+        ;; not a JSON buffer / empty → make a new file
+        (create-json-file url))))
+
 (fn M.open []
   (let [schemas ((. (require :schemastore) :json :schemas))
         items []]
@@ -128,18 +223,11 @@
       : preview
       :layout {:preset :default}
       :confirm (fn [picker item]
-                 ;; <CR>: open the fetched schema in a real scratch buffer
+                 ;; <CR>: place `$schema` intelligently — replace existing,
+                 ;; insert into the current JSON object, or create a new file.
                  (picker:close)
-                 (let [body (cached-body item._url)]
-                   (when body
-                     (vim.cmd "enew")
-                     (vim.api.nvim_buf_set_lines 0 0 -1 false
-                                                 (vim.split (format-body body) "\n"))
-                     (set vim.bo.filetype :json)
-                     (set vim.bo.buftype :nofile)
-                     (vim.api.nvim_buf_set_name 0
-                                                (.. "schemastore://"
-                                                    (or item._name item.text))))))})))
+                 (when item._url
+                   (apply-schema item._url)))})))
 
 (fn M.setup []
   (vim.api.nvim_create_user_command :SchemaStore

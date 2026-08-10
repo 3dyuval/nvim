@@ -1,5 +1,14 @@
 ;; bento.nvim — buffer manager rendered as a tabline (the open-buffers bar).
 ;; Replaces bufferline.nvim (disabled below). Main key ";" opens the menu.
+;;
+;; UPSTREAM BUG (serhez/bento.nvim):
+;;   Title: main_keymap emits "No buffers to display" INFO toast instead of
+;;          silently no-op'ing when no buffers are open
+;;   Repro: press main_keymap (";") on an empty dashboard / cwd with no listed
+;;          buffers. toggle_menu -> #marks == 0 -> vim.notify(...) in ui.lua.
+;;   Expected: silent no-op when there's nothing to display.
+;;   Workaround: TODO (guard the ";" keymap to only invoke bento when a real
+;;               listed buffer exists).
 [{1 "akinsho/bufferline.nvim" :enabled false}
  {1 "serhez/bento.nvim"
   :enabled true

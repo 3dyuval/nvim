@@ -119,34 +119,128 @@ local function preview(ctx)
     return fetch_async(ctx, item)
   end
 end
+local function find_schema_line(lines)
+  local found = nil
+  do
+    local n = math.min(#lines, 40)
+    for i = 1, n do
+      if not found then
+        local l = lines[i]
+        local s, _, indent = l:find("^(%s*)\"%$schema\"%s*:")
+        if s then
+          found = {(i - 1), indent}
+        else
+        end
+      else
+      end
+    end
+  end
+  return found
+end
+local function find_open_brace(lines)
+  local found = nil
+  do
+    local n = math.min(#lines, 40)
+    for i = 1, n do
+      if not found then
+        local l = lines[i]
+        local s, _, indent = l:find("^(%s*){")
+        if s then
+          found = {(i - 1), indent}
+        else
+        end
+      else
+      end
+    end
+  end
+  return found
+end
+local function detect_indent(lines)
+  local unit = "  "
+  local done = false
+  for _, l in ipairs(lines) do
+    if done then break end
+    local s = l:find("^%s+%S")
+    if s then
+      unit = l:match("^(%s+)")
+      done = true
+    else
+    end
+  end
+  return unit
+end
+local function replace_schema(bufnr, row, indent, url)
+  local line = (indent .. "\"$schema\": \"" .. url .. "\",")
+  return vim.api.nvim_buf_set_lines(bufnr, row, (row + 1), false, {line})
+end
+local function insert_schema(bufnr, brace_row, brace_indent, unit, url)
+  local line = (brace_indent .. unit .. "\"$schema\": \"" .. url .. "\",")
+  return vim.api.nvim_buf_set_lines(bufnr, (brace_row + 1), (brace_row + 1), false, {line})
+end
+local function create_json_file(url)
+  local function _23_(name)
+    if (name and (name ~= "")) then
+      vim.cmd(("edit " .. vim.fn.fnameescape(name)))
+      vim.api.nvim_buf_set_lines(0, 0, -1, false, {"{", ("  \"$schema\": \"" .. url .. "\""), "}"})
+      vim.bo.filetype = "json"
+      return nil
+    else
+      return nil
+    end
+  end
+  return vim.ui.input({prompt = "New JSON file: ", default = "config.json", completion = "file"}, _23_)
+end
+local function apply_schema(url)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local ft = vim.bo.filetype
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local empty_3f = ((0 == #lines) or ((1 == #lines) and ("" == lines[1])))
+  local json_3f = ((ft == "json") or (ft == "jsonc"))
+  local existing = find_schema_line(lines)
+  if (json_3f and existing) then
+    local function _25_(choice)
+      if (choice == "Replace") then
+        return replace_schema(bufnr, existing[1], existing[2], url)
+      else
+        return nil
+      end
+    end
+    return vim.ui.select({"Replace", "Cancel"}, {prompt = ("$schema exists. Replace with " .. url .. "?")}, _25_)
+  elseif (json_3f and not empty_3f) then
+    local brace = find_open_brace(lines)
+    local unit = detect_indent(lines)
+    if brace then
+      return insert_schema(bufnr, brace[1], brace[2], unit, url)
+    else
+      return vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, {("\"$schema\": \"" .. url .. "\",")})
+    end
+  else
+    return create_json_file(url)
+  end
+end
 M.open = function()
   local schemas = require("schemastore").json.schemas()
   local items = {}
   for _, s in ipairs(schemas) do
     table.insert(items, {text = ((s.name or "") .. " " .. (s.url or "") .. " " .. (s.description or "")), _name = s.name, _url = s.url, _desc = s.description, _fileMatch = s.fileMatch})
   end
-  local function _18_(item, _picker)
+  local function _29_(item, _picker)
     return {{(item._name or item.text), "SnacksPickerLabel"}, {("  " .. (item._url or "")), "SnacksPickerComment"}}
   end
-  local function _19_(picker, item)
+  local function _30_(picker, item)
     picker:close()
-    local body = cached_body(item._url)
-    if body then
-      vim.cmd("enew")
-      vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(format_body(body), "\n"))
-      vim.bo.filetype = "json"
-      vim.bo.buftype = "nofile"
-      return vim.api.nvim_buf_set_name(0, ("schemastore://" .. (item._name or item.text)))
+    if item._url then
+      return apply_schema(item._url)
     else
       return nil
     end
   end
-  return require("snacks").picker.pick({items = items, title = "SchemaStore", format = _18_, preview = preview, layout = {preset = "default"}, confirm = _19_})
+  return require("snacks").picker.pick({items = items, title = "SchemaStore", format = _29_, preview = preview, layout = {preset = "default"}, confirm = _30_})
 end
 M.setup = function()
-  local function _21_(_)
+  local function _32_(_)
     return M.open()
   end
-  return vim.api.nvim_create_user_command("SchemaStore", _21_, {desc = "Browse SchemaStore catalog (fetches + caches schema bodies)"})
+  return vim.api.nvim_create_user_command("SchemaStore", _32_, {desc = "Browse SchemaStore catalog (fetches + caches schema bodies)"})
 end
 return M
