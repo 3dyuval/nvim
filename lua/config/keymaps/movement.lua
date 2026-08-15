@@ -16,15 +16,15 @@ local function _1_()
   if vim.wo.diff then
     return vim.cmd.normal({"]c", bang = true})
   else
-    return gs.next_hunk()
+    return gs.nav_hunk("next", {target = "all"})
   end
 end
-lset("n", "<C-PageDown>", _1_, {desc = "Next git hunk"})
+lset("n", "ga", _1_, {desc = "Next git hunk"})
 local function _3_()
   if vim.wo.diff then
     return vim.cmd.normal({"[c", bang = true})
   else
-    return gs.prev_hunk()
+    return gs.nav_hunk("prev", {target = "all"})
   end
 end
-return lset("n", "<C-PageUp>", _3_, {desc = "Prev git hunk"})
+return lset("n", "ge", _3_, {desc = "Prev git hunk"})

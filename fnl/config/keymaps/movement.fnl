@@ -23,17 +23,18 @@
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
 
-;; Git hunk navigation (gitsigns; falls back to diff ]c/[c in diff mode)
 (local gs (require :gitsigns))
-(lset :n :<C-PageDown>
+(lset :n :ga
       (fn []
         (if vim.wo.diff
             (vim.cmd.normal {1 "]c" :bang true})
-            (gs.next_hunk)))
+            (gs.nav_hunk "next" {:target "all"})))
       {:desc "Next git hunk"})
-(lset :n :<C-PageUp>
+(lset :n :ge
       (fn []
         (if vim.wo.diff
             (vim.cmd.normal {1 "[c" :bang true})
-            (gs.prev_hunk)))
+            (gs.nav_hunk "prev" {:target "all"})))
       {:desc "Prev git hunk"})
+
+

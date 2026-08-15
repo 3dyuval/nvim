@@ -8,8 +8,8 @@
 ;; setup({select={keymaps=...}}) form is silently ignored here.)
 
 (local bindings
-  {"@function.outer"  {:move-next      ["]f" "]c"]
-                        :move-prev      ["[f" "[c"]
+  {"@function.outer"  {:move-next      ["]f"]
+                        :move-prev      ["[f"]
                         :move-end-next  ["]M"]
                         :move-end-prev  ["[M"]
                         :select         :tf
