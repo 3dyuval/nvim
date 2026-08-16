@@ -1,5 +1,5 @@
 {1 "dlyongemallo/diffview-plus.nvim"
- :dev true
+ :dev false
  :dependencies ["nvim-tree/nvim-web-devicons"]
  :cmd ["DiffviewOpen" "DiffviewFileHistory" "DiffviewDiffFiles" "DiffviewDiffDirs"]
  :opts (fn []
