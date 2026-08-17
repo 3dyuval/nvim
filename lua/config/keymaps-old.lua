@@ -71,11 +71,8 @@ vim.keymap.set({"n", "o", "x"}, "<M-o>", "E", {desc = "End of WORD forward"})
 -- UNDO/REDO
 -- ============================================================================
 
--- remap("n", "u", "<Nop>", {desc = "Unmapped (now z)"})
--- remap("n", "U", "<Nop>", {desc = "Unmapped (now gz)"})
-remap("n", "z", "u", {desc = "Undo"})
-remap("n", "Z", "<C-r>", {desc = "Redo"})
-remap("n", "gz", "U", {desc = "Undo line"})
+-- Undo/redo reverted to native: u = undo, <C-r> = redo, U = undo line.
+-- z is freed as the native fold prefix (fold layer in movement.fnl: zh/zi/zH/zI).
 
 -- ============================================================================
 -- CHANGE
@@ -175,7 +172,7 @@ vim.keymap.set(
 -- ============================================================================
 
 vim.keymap.set({"n", "i", "v"}, "<F1>", "<nop>", {desc = "Disabled"})
-vim.keymap.set({"n"}, "<C-S-A>", "ggVG", {desc = "Select all"})
+-- vim.keymap.set({"n"}, "<C-S-A>", "ggVG", {desc = "Select all"})
 
 -- ============================================================================
 -- TERMINAL

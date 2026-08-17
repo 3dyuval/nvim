@@ -24,23 +24,25 @@
 (lset :n :A "<cmd>Treewalker Down<cr>"
       {:desc "Treewalk next sibling" :silent true})
 
-;; Folds: capitalized mirror of the treewalk keys (F = fold/close, U = unfold/open)
-(lset :n :OF :zc {:desc "Close fold (one)" :noremap true})
-(lset :n :OU :zo {:desc "Open fold (one)" :noremap true})
-(lset :n :FF ufo.closeAllFolds {:desc "Close all folds"})
-(lset :n :UU ufo.openAllFolds {:desc "Open all folds"})
+;; Folds = z-prefix + horizontal HAEI (depth axis, mirroring structural H/I):
+;;   h = close (collapse, shallower)   i = open (expand, deeper)
+;;   capital = all folds.
+(lset :n :zh :zc {:desc "Close fold (one)" :noremap true})
+(lset :n :zi :zo {:desc "Open fold (one)" :noremap true})
+(lset :n :zH ufo.closeAllFolds {:desc "Close all folds"})
+(lset :n :zI ufo.openAllFolds {:desc "Open all folds"})
 
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
 
 (local gs (require :gitsigns))
-(lset :n :ga
+(lset :n :<C-S-A>
       (fn []
         (if vim.wo.diff
             (vim.cmd.normal {1 "]c" :bang true})
             (gs.nav_hunk "next" {:target "all"})))
       {:desc "Next git hunk"})
-(lset :n :ge
+(lset :n :<C-S-E>
       (fn []
         (if vim.wo.diff
             (vim.cmd.normal {1 "[c" :bang true})

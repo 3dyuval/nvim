@@ -85,14 +85,7 @@ vim.defer_fn(
   1000
 )
 
--- Undo/redo (z replaces u)
-map(
-  {
-    ["z"] = {"u", desc = "Undo", remap = true},
-    ["Z"] = {"<C-r>", desc = "Redo"}
-    -- ["gz"] = {"U", desc = "Undo line", remap = true}
-  }
-)
+-- Undo/redo: native u / <C-r>. z is freed as the fold prefix (see movement.fnl).
 
 -- -- Copy/Paste/Yank
 -- map({

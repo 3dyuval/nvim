@@ -19,10 +19,10 @@ local function _1_()
 end
 lset("n", "E", _1_, {desc = "Treewalk prev sibling (else out)", silent = true})
 lset("n", "A", "<cmd>Treewalker Down<cr>", {desc = "Treewalk next sibling", silent = true})
-lset("n", "OF", "zc", {desc = "Close fold (one)", noremap = true})
-lset("n", "OU", "zo", {desc = "Open fold (one)", noremap = true})
-lset("n", "FF", ufo.closeAllFolds, {desc = "Close all folds"})
-lset("n", "UU", ufo.openAllFolds, {desc = "Open all folds"})
+lset("n", "zh", "zc", {desc = "Close fold (one)", noremap = true})
+lset("n", "zi", "zo", {desc = "Open fold (one)", noremap = true})
+lset("n", "zH", ufo.closeAllFolds, {desc = "Close all folds"})
+lset("n", "zI", ufo.openAllFolds, {desc = "Open all folds"})
 lset({"n", "o", "x"}, "k", "t", {desc = "Till before"})
 lset({"n", "o", "x"}, "K", "T", {desc = "Till before backward"})
 local gs = require("gitsigns")
@@ -33,7 +33,7 @@ local function _4_()
     return gs.nav_hunk("next", {target = "all"})
   end
 end
-lset("n", "ga", _4_, {desc = "Next git hunk"})
+lset("n", "<C-S-A>", _4_, {desc = "Next git hunk"})
 local function _6_()
   if vim.wo.diff then
     return vim.cmd.normal({"[c", bang = true})
@@ -41,4 +41,4 @@ local function _6_()
     return gs.nav_hunk("prev", {target = "all"})
   end
 end
-return lset("n", "ge", _6_, {desc = "Prev git hunk"})
+return lset("n", "<C-S-E>", _6_, {desc = "Prev git hunk"})
