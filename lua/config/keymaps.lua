@@ -241,26 +241,26 @@ map(
       l = {require("lensline").toggle_view, desc = "Toggle lensline"}
     },
     -- Hunk navigation
-    ["]h"] = {
-      function()
-        if vim.wo.diff then
-          vim.cmd.normal({"]c", bang = true})
-        else
-          gs.nav_hunk("next")
-        end
-      end,
-      desc = "Next Hunk"
-    },
-    ["[h"] = {
-      function()
-        if vim.wo.diff then
-          vim.cmd.normal({"[c", bang = true})
-        else
-          gs.nav_hunk("prev")
-        end
-      end,
-      desc = "Prev Hunk"
-    },
+    -- ["]h"] = {
+    --   function()
+    --     if vim.wo.diff then
+    --       vim.cmd.normal({"]c", bang = true})
+    --     else
+    --       gs.nav_hunk("next")
+    --     end
+    --   end,
+    --   desc = "Next Hunk"
+    -- },
+    -- ["[h"] = {
+    --   function()
+    --     if vim.wo.diff then
+    --       vim.cmd.normal({"[c", bang = true})
+    --     else
+    --       gs.nav_hunk("prev")
+    --     end
+    --   end,
+    --   desc = "Prev Hunk"
+    -- },
     ["]s"] = {"]s", desc = "Next misspelled word"},
     ["[s"] = {"[s", desc = "Prev misspelled word"},
     ["]H"] = {
