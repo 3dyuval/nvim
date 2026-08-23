@@ -1,1 +1,3 @@
-{1 "3dyuval/git-resolve-conflict.nvim"}
+{
+1 "niekdomi/conflict.nvim"
+}
