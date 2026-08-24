@@ -28,11 +28,11 @@
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
 
-;; SPEC.md Layer 3 — buffer paging (higher-level than textobject nav)
-(lset :n :<C-y> (fn [] ((. (require :bento.ui) :prev_page)))
-      {:desc "Prev buffer (bento)"})
-(lset :n :<C-k> (fn [] ((. (require :bento.ui) :next_page)))
-      {:desc "Next buffer (bento)"})
+;; SPEC.md Layer 3 — buffer paging; hands off to kitty tab at the edge
+(lset :n :<C-PageUp> (fn [] ((. (require :workspace.buffer-nav) :prev)))
+      {:desc "Prev buffer (kitty tab at edge)"})
+(lset :n :<C-PageDown> (fn [] ((. (require :workspace.buffer-nav) :next)))
+      {:desc "Next buffer (kitty tab at edge)"})
 
 (local gs (require :gitsigns))
 (lset :n :<C-S-A>

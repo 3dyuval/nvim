@@ -26,13 +26,13 @@ lset("n", "zI", ufo.openAllFolds, {desc = "Open all folds"})
 lset({"n", "o", "x"}, "k", "t", {desc = "Till before"})
 lset({"n", "o", "x"}, "K", "T", {desc = "Till before backward"})
 local function _4_()
-  return require("bento.ui").prev_page()
+  return require("workspace.buffer-nav").prev()
 end
-lset("n", "<C-y>", _4_, {desc = "Prev buffer (bento)"})
+lset("n", "<C-PageUp>", _4_, {desc = "Prev buffer (kitty tab at edge)"})
 local function _5_()
-  return require("bento.ui").next_page()
+  return require("workspace.buffer-nav").next()
 end
-lset("n", "<C-k>", _5_, {desc = "Next buffer (bento)"})
+lset("n", "<C-PageDown>", _5_, {desc = "Next buffer (kitty tab at edge)"})
 local gs = require("gitsigns")
 local function _6_()
   if vim.wo.diff then
