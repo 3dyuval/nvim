@@ -28,7 +28,7 @@
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
 
-;; SPEC.md Layer 3 — buffer paging; hands off to kitty tab at the edge
+;; SPEC.md Layer 4 P2 — buffer paging; hands off to kitty tab at the edge
 (lset :n :<C-PageUp> (fn [] ((. (require :workspace.buffer-nav) :prev)))
       {:desc "Prev buffer (kitty tab at edge)"})
 (lset :n :<C-PageDown> (fn [] ((. (require :workspace.buffer-nav) :next)))

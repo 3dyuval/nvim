@@ -88,11 +88,10 @@ G5: key-form conventions — a new motion SHOULD reuse the matching form:
 Where HAEI is *directional* (move by geometry) and structural HAEI walks the
 tree, the `[`/`]` layer is *typed* sequential navigation: **`]` = forward,
 `[` = backward**, and the trailing token picks WHAT you step over. This is the
-nvim-treesitter-textobjects `move` axis plus one buffer override.
+nvim-treesitter-textobjects `move` axis.
 
 ```
 ]<t> / [<t>   next / prev textobject of type <t>       (n x o)
-]] / [[       next / prev BUFFER                        (n)
 
   t   target (from fnl/treesitter/textobjects.fnl)
   ─   ────────────────────────────────────────────
@@ -105,24 +104,47 @@ nvim-treesitter-textobjects `move` axis plus one buffer override.
 ```
 
 ```
-I = ] = forward, [ = backward. Single bracket + letter = next/prev textobject;
-    doubled bracket = next/prev buffer.
+I = ] = forward, [ = backward. Single bracket + letter = next/prev textobject.
 
 K1: single-bracket typed nav is treesitter-textobjects move, bound manually
     per capture (main branch — see textobjects.fnl setup()):
       ]f [f functions, ]M [M function-end, ]C [C class, ]p [p param,
       ]l [l loop, ]s [s scope, ]u [u fold                                 [HOLDS]
-K2: doubled bracket = buffer nav — ]]=bnext [[=bprev. This REPLACES native
-    section motion (]]/[[), an accepted loss.                              [HOLDS]
-    (fnl/config/keymaps/movement.fnl)
-K3: capital swap-letter = swap, not move: ]F/[F swap function, ]P/[A swap
+K2: capital swap-letter = swap, not move: ]F/[F swap function, ]P/[A swap
     param. Swap rides the same ]/[ = forward/back sense.                   [HOLDS]
-K4: %% still jumps to the matching bracket (native, n o x). Distinct from
+K3: %% still jumps to the matching bracket (native, n o x). Distinct from
     the ]/[ layer — % is pair-match, not sequential.                      [HOLDS]
 ```
 
-Note: `]]`/`[[` are re-bound BUFFER-LOCAL inside the snacks explorer
-(conflict/error nav, snacks.lua) — see X6. Everywhere else they are buffer nav.
+## Layer 4 — Buffer / tab paging (gated by the buffer line)
+
+The highest-level nav: page across open buffers, spilling into kitty tabs at the
+edge (smart-splits style, but on the buffer↔tab axis). Gated by whether the
+bento buffer line is visible, so one key means "buffers" when the line is up and
+"tabs" when it isn't.
+
+```
+<C-;>              toggle the bento buffer line (showtabline 0 <-> 2)   (n)
+<C-PageUp>         prev — buffer if line visible, else kitty prev tab   (n)
+<C-PageDown>       next — buffer if line visible, else kitty next tab   (n)
+```
+
+```
+I = the buffer line's visibility decides buffer-vs-tab paging; at a buffer
+    edge, paging spills into the neighboring kitty tab.
+
+P1: <C-;> toggles vim.o.showtabline 0<->2 — the single source of truth for
+    "buffer line visible". (lua/config/keymaps-old.lua)                   [HOLDS]
+P2: <C-PageUp/Down> = workspace.buffer-nav prev/next. When the line is
+    visible (showtabline != 0): bprev/bnext; at the first/last listed
+    buffer, hand off to kitty previous_tab/next_tab. When hidden: kitty
+    tab nav directly. (fnl/config/keymaps/movement.fnl)                   [HOLDS]
+P3: kitty passes <C-PageUp/Down> and <C-;> through to nvim only when the
+    window has var:IS_NVIM (~/.config/kitty/passthrough.conf); otherwise
+    kitty's own ctrl+page_up/down = previous_tab/next_tab apply.          [HOLDS]
+P4: kitty next_tab/previous_tab WRAP at the ends (modulo, no kitty option
+    to disable); the handoff inherits that wrap.                          [HOLDS]
+```
 
 ## Conflict & precedence rules
 
@@ -152,8 +174,8 @@ X4: PageUp/PageDown = scroll globally; <S-PageUp>/<S-PageDown> = prev/next
 X5: A new global directional/motion binding MUST check it is not shadowed
     by a later-loaded module (movement, keymaps-old) or a plugin's
     buffer-local map before being considered active.                       [UNTESTED]
-X6: ]]/[[ are BUFFER-LOCAL re-bound in the snacks explorer to conflict/error
-    nav (snacks.lua) — overriding the global buffer-nav (K2) there only.   [HOLDS]
+X6: ]]/[[ are native (section motion) globally; the snacks explorer
+    re-binds them BUFFER-LOCAL to conflict/error nav (snacks.lua).         [HOLDS]
 X7: undo reverted to native — u=undo, <C-r>=redo, U=undo-line. This frees z
     as the native fold prefix (G3). Old z=undo / gz=undo-line are removed. [HOLDS]
 ```

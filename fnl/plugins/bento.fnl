@@ -1,5 +1,6 @@
-;; bento.nvim — buffer manager rendered as a tabline (the open-buffers bar).
-;; Replaces bufferline.nvim (disabled below). Main key ";" opens the menu.
+;; SPEC.md Layer 4 — the buffer line whose visibility (showtabline, toggled by
+;; <C-;>, P1) gates <C-PageUp/Down> buffer-vs-tab paging (P2). Replaces
+;; bufferline.nvim (disabled below).
 ;;
 ;; UPSTREAM BUG (serhez/bento.nvim):
 ;;   Title: main_keymap emits "No buffers to display" INFO toast instead of
