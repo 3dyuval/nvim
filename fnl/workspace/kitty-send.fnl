@@ -1,20 +1,14 @@
-;; Send the current line / visual selection to the neighboring kitty split and
-;; run it — via the neighboring_window.py kitten (extended with a `send` verb).
-;; Runs inside kitty over boss, so no socket/tab-creation fragility.
-
 (local M {})
-(local kitten (.. (vim.fn.expand "~") "/.config/kitty/neighboring_window.py"))
-(local direction :right)
+(local kitten (.. (vim.fn.expand "~") "/.config/kitty/runner.py"))
 
 (fn run-kitten [args]
-  "kitty @ --to <this-instance> kitten neighboring_window.py <args...>"
   (let [socket (or vim.env.KITTY_LISTEN_ON "unix:@mykitty")
         cmd (vim.list_extend ["kitty" "@" "--to" socket "kitten" kitten] args)]
     (vim.system cmd {:text true}
       (fn [res]
         (when (not= res.code 0)
           (vim.schedule
-            #(vim.notify (.. "kitty send failed: " (or res.stderr ""))
+            #(vim.notify (.. "kitty runner failed: " (or res.stderr ""))
                          vim.log.levels.ERROR)))))))
 
 (fn selection-or-line []
@@ -25,12 +19,12 @@
           (- (. (vim.fn.getpos "'<") 2) 1) (. (vim.fn.getpos "'>") 2) false)
         [(vim.api.nvim_get_current_line)])))
 
-(fn M.send []
-  "Send current line / visual selection to the neighbor split (+ run)."
-  (run-kitten (vim.list_extend ["send" direction "--"] (selection-or-line))))
+(fn M.send [location]
+  "Run current line / visual selection in the tab's RUNNER window (opens it if needed)."
+  (run-kitten (vim.list_extend ["send" (or location :hsplit) "--"] (selection-or-line))))
 
-(fn M.open []
-  "Focus the neighboring split in `direction`."
-  (run-kitten [direction]))
+(fn M.open [location]
+  "Ensure and focus the tab's RUNNER window."
+  (run-kitten ["open" (or location :hsplit)]))
 
 M

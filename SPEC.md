@@ -51,7 +51,7 @@ char          h a e i                    ← ↓ ↑ →                        
 word          l / L / D                  word-back / WORD-back / WORD-fwd n o x
 end-of-word   <M-h> / <M-o>              end WORD back / fwd              n o x
 structural    H A E I                    treewalk ← ↓ ↑ → (out/sib/sib/in) n
-fold          OF OU / FF UU              fold close/open one / all        n
+fold          zh zi / zH zI              fold close/open one / all        n
 change/hunk   ga / ge                    next / prev hunk (or ]c/[c)      n
 bracket       %                          matching bracket                n o x
 ```
@@ -71,17 +71,58 @@ G2a: structural nav CLIMBS rather than dead-ends. E = prev-sibling, or if
      no-ops once. Composes only the public move_up/move_out — no plugin
      internals. A is plain next-sibling (no climb) by choice; the axis is
      intentionally asymmetric.                                            [HOLDS]
-G3: fold layer uses O-prefix for "one" (OF/OU) and doubled-caps for "all"
-    (FF/UU): F=close-family, U=open-family                                 [HOLDS]
+G3: fold layer is z-prefix + horizontal HAEI (depth axis, mirroring
+    structural H/I): zh=close-one zi=open-one; capital = all (zH/zI, ufo).
+    z is the native fold prefix — freed by reverting undo to native u.     [HOLDS]
 G4: change navigation is ga/ge and is context-aware: gitsigns nav_hunk in
     a normal buffer, native ]c/[c when vim.wo.diff is set                  [HOLDS]
 G5: key-form conventions — a new motion SHOULD reuse the matching form:
       capital H/A/E/I  = structural (treewalk) in that direction
       capital L/D      = WORD (larger word)
-      doubled caps     = "all" (FF/UU folds)
-      O-prefix         = fold-one (OF/OU)
+      z-prefix + h/i   = fold (zh/zi one, zH/zI all)
       g-prefix         = change-nav (ga/ge)                               [UNTESTED]
 ```
+
+## Layer 3 — Bracket navigation (typed forward/back)
+
+Where HAEI is *directional* (move by geometry) and structural HAEI walks the
+tree, the `[`/`]` layer is *typed* sequential navigation: **`]` = forward,
+`[` = backward**, and the trailing token picks WHAT you step over. This is the
+nvim-treesitter-textobjects `move` axis plus one buffer override.
+
+```
+]<t> / [<t>   next / prev textobject of type <t>       (n x o)
+]] / [[       next / prev BUFFER                        (n)
+
+  t   target (from fnl/treesitter/textobjects.fnl)
+  ─   ────────────────────────────────────────────
+  f   function.outer      (]M/[M = function END)
+  C   class.outer
+  p   parameter.inner
+  l   loop
+  s   scope
+  u   fold
+```
+
+```
+I = ] = forward, [ = backward. Single bracket + letter = next/prev textobject;
+    doubled bracket = next/prev buffer.
+
+K1: single-bracket typed nav is treesitter-textobjects move, bound manually
+    per capture (main branch — see textobjects.fnl setup()):
+      ]f [f functions, ]M [M function-end, ]C [C class, ]p [p param,
+      ]l [l loop, ]s [s scope, ]u [u fold                                 [HOLDS]
+K2: doubled bracket = buffer nav — ]]=bnext [[=bprev. This REPLACES native
+    section motion (]]/[[), an accepted loss.                              [HOLDS]
+    (fnl/config/keymaps/movement.fnl)
+K3: capital swap-letter = swap, not move: ]F/[F swap function, ]P/[A swap
+    param. Swap rides the same ]/[ = forward/back sense.                   [HOLDS]
+K4: %% still jumps to the matching bracket (native, n o x). Distinct from
+    the ]/[ layer — % is pair-match, not sequential.                      [HOLDS]
+```
+
+Note: `]]`/`[[` are re-bound BUFFER-LOCAL inside the snacks explorer
+(conflict/error nav, snacks.lua) — see X6. Everywhere else they are buffer nav.
 
 ## Conflict & precedence rules
 
@@ -111,6 +152,10 @@ X4: PageUp/PageDown = scroll globally; <S-PageUp>/<S-PageDown> = prev/next
 X5: A new global directional/motion binding MUST check it is not shadowed
     by a later-loaded module (movement, keymaps-old) or a plugin's
     buffer-local map before being considered active.                       [UNTESTED]
+X6: ]]/[[ are BUFFER-LOCAL re-bound in the snacks explorer to conflict/error
+    nav (snacks.lua) — overriding the global buffer-nav (K2) there only.   [HOLDS]
+X7: undo reverted to native — u=undo, <C-r>=redo, U=undo-line. This frees z
+    as the native fold prefix (G3). Old z=undo / gz=undo-line are removed. [HOLDS]
 ```
 
 ## Files

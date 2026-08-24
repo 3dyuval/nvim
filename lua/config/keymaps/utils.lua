@@ -36,23 +36,32 @@ local function _8_()
 end
 lset({"n", "x"}, "<leader>rs", _8_, {desc = "Kitty: send line/selection"})
 local function _9_()
-  return require("workspace.kitty-send").open()
+  return require("workspace.kitty-send").open("hsplit")
 end
-lset("n", "<leader>ro", _9_, {desc = "Kitty: open runner"})
-lset("n", "<leader>rg", ":GrugFar<CR>", {desc = "Find and replace (GrugFar)"})
+lset("n", "<leader>rr", _9_, {desc = "Kitty: open runner (bottom)"})
 local function _10_()
+  return require("workspace.kitty-send").open("vsplit")
+end
+lset("n", "<leader>rR", _10_, {desc = "Kitty: open runner (right)"})
+local function _11_()
+  local grug_far = require("grug-far")
+  local entry = grug_far.get_last_history_entry()
+  return grug_far.open({prefills = entry})
+end
+lset("n", "<leader>rg", _11_, {desc = "Find and replace - last search (GrugFar)"})
+local function _12_()
   return require("grug-far").open({prefills = {paths = vim.fn.expand("%")}})
 end
-lset("n", "<leader>rG", _10_, {desc = "Find and replace - current file (GrugFar)"})
-local function _11_()
-  return vim.notify("grug-far: last-search reopen pending API (see grug-far.nvim#590)", vim.log.levels.INFO)
+lset("n", "<leader>rG", _12_, {desc = "Find and replace - current file (GrugFar)"})
+local function _13_()
+  return require("workspace.grug-history").pick()
 end
-lset("n", "<leader>rr", _11_, {desc = "Find and replace - last search (GrugFar) [TODO #590]"})
-local function _12_()
+lset("n", "<leader>rt", _13_, {desc = "Find and replace - history picker (GrugFar)"})
+local function _14_()
   return require("grug-far").with_visual_selection({visualSelectionUsage = "prefill-search"})
 end
-lset("v", "<leader>rg", _12_, {desc = "Find and replace - selection as search (GrugFar)"})
-local function _13_()
+lset("v", "<leader>rg", _14_, {desc = "Find and replace - selection as search (GrugFar)"})
+local function _15_()
   return require("grug-far").with_visual_selection({visualSelectionUsage = "operate-within-range"})
 end
-return lset("v", "<leader>rG", _13_, {desc = "Find and replace - within selection (GrugFar)"})
+return lset("v", "<leader>rG", _15_, {desc = "Find and replace - within selection (GrugFar)"})

@@ -2,13 +2,13 @@
  :event :LspAttach
  :dependencies ["3dyuval/colortweak.nvim"]
  :config
- (fn []
-   ((. (require :colortweak.tweak) :hl)
-    {:LensLine ["Comment" {:l 0.9}]
-     :LensLineZero ["DiagnosticWarn" {:l 9}]
-     :LensLineLow ["DiagnosticHint" {:l 0.9}]
-     :LensLineHigh ["DiagnosticInfo" {:l 0.9}]
-     :LensLineComplexity ["DiagnosticWarn" {:l 0.9}]})
+(fn []
+    ((. (require :colortweak.tweak) :hl)
+      {:LensLine ["Comment" {:l 0.9}]
+       :LensLineZero ["DiagnosticWarn" {:l 9}]
+       :LensLineLow ["DiagnosticHint" {:l 0.9}]
+       :LensLineHigh ["DiagnosticInfo" {:l 0.9}]
+       :LensLineComplexity ["DiagnosticWarn" {:l 0.9}]})
 
    (local refs-provider
      {:name "references_with_warning"

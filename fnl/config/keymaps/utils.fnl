@@ -39,41 +39,24 @@
       (fn [] (vim.api.nvim_feedkeys ":terminal " :t false))
       {:desc "Terminal prefill"})
 
-;; kitty runner: send line/selection to a tagged kitty pane; open the runner
 (lset [:n :x] :<leader>rs
       (fn [] ((. (require :workspace.kitty-send) :send)))
       {:desc "Kitty: send line/selection"})
 
-(lset :n :<leader>ro
-      (fn [] ((. (require :workspace.kitty-send) :open)))
-      {:desc "Kitty: open runner"})
+(lset :n :<leader>rr
+      (fn [] ((. (require :workspace.kitty-send) :open) :hsplit))
+      {:desc "Kitty: open runner (bottom)"})
 
-;; NOTE: Moved to config.keymaps.search
-;; (lset :n :<leader>of
-;;       (fn []
-;;         ((. (require :utils.picker-extensions) :open_explorer)
-;;          {:layout {:preset :fullscreen} :focus :list}))
-;;       {:desc "Explorer (fullscreen)"})
-;;
-;; (lset :n :<leader>ff
-;;       (fn []
-;;         ((. (require :utils.picker-extensions) :open_explorer)
-;;          {:layout {:preset :fullscreen} :focus :input}))
-;;       {:desc "Explorer (fullscreen, focus input)"})
-;;
-;; (lset :n :<leader>fF
-;;       (fn []
-;;         (Snacks.picker.buffers {:layout {:preset :fullscreen}}))
-;;       {:desc "Buffers (fullscreen)"})
-;;
-;; (lset :n :<C-/>
-;;       (fn [] ((. (require :workspace.grep) :grep-current-buffer-dir)))
-;;       {:desc "Grep in current file's directory"})
+(lset :n :<leader>rR
+      (fn [] ((. (require :workspace.kitty-send) :open) :vsplit))
+      {:desc "Kitty: open runner (right)"})
 
 (lset :n :<leader>rg
-      ":GrugFar<CR>"
-      {:desc "Find and replace (GrugFar)"}
-      )
+      (fn []
+        (let [grug-far (require :grug-far)
+              entry (grug-far.get_last_history_entry)]
+          (grug-far.open {:prefills entry})))
+      {:desc "Find and replace - last search (GrugFar)"})
 
 (lset :n :<leader>rG
       (fn []
@@ -81,23 +64,16 @@
          {:prefills {:paths (vim.fn.expand :%)}}))
       {:desc "Find and replace - current file (GrugFar)"})
 
-;; rr: reopen grug-far prefilled with the last history entry.
-;; TODO: implement when approved — grug-far.nvim#590
-;; [Request]: top level grug-far.history_entries to open with last search
-(lset :n :<leader>rr
-      (fn []
-        (vim.notify "grug-far: last-search reopen pending API (see grug-far.nvim#590)"
-                    vim.log.levels.INFO))
-      {:desc "Find and replace - last search (GrugFar) [TODO #590]"})
+(lset :n :<leader>rt
+      (fn [] ((. (require :workspace.grug-history) :pick)))
+      {:desc "Find and replace - history picker (GrugFar)"})
 
-;; visual rg: use selection as the search string
 (lset :v :<leader>rg
       (fn []
         ((. (require :grug-far) :with_visual_selection)
          {:visualSelectionUsage :prefill-search}))
       {:desc "Find and replace - selection as search (GrugFar)"})
 
-;; visual rG: operate only within the selected range
 (lset :v :<leader>rG
       (fn []
         ((. (require :grug-far) :with_visual_selection)

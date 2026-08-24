@@ -1,4 +1,3 @@
-;; Mode entry / exit keymaps
 
 (require :config.keymaps.utils)
 (require :config.keymaps.insert)

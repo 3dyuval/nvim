@@ -1,14 +1,13 @@
 -- [nfnl] fnl/workspace/kitty-send.fnl
 local M = {}
-local kitten = (vim.fn.expand("~") .. "/.config/kitty/neighboring_window.py")
-local direction = "right"
+local kitten = (vim.fn.expand("~") .. "/.config/kitty/runner.py")
 local function run_kitten(args)
   local socket = (vim.env.KITTY_LISTEN_ON or "unix:@mykitty")
   local cmd = vim.list_extend({"kitty", "@", "--to", socket, "kitten", kitten}, args)
   local function _1_(res)
     if (res.code ~= 0) then
       local function _2_()
-        return vim.notify(("kitty send failed: " .. (res.stderr or "")), vim.log.levels.ERROR)
+        return vim.notify(("kitty runner failed: " .. (res.stderr or "")), vim.log.levels.ERROR)
       end
       return vim.schedule(_2_)
     else
@@ -29,10 +28,10 @@ local function selection_or_line()
     return {vim.api.nvim_get_current_line()}
   end
 end
-M.send = function()
-  return run_kitten(vim.list_extend({"send", direction, "--"}, selection_or_line()))
+M.send = function(location)
+  return run_kitten(vim.list_extend({"send", (location or "hsplit"), "--"}, selection_or_line()))
 end
-M.open = function()
-  return run_kitten({direction})
+M.open = function(location)
+  return run_kitten({"open", (location or "hsplit")})
 end
 return M

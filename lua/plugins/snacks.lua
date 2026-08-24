@@ -189,8 +189,8 @@ return {
         animate = {}
       },
       dashboard = {
-        -- Off at startup; opened on demand via <leader>qS (see keys below).
-        enabled = false,
+        -- Shown on empty startup (possession autoload is off). Also on <leader>qS.
+        enabled = true,
         preset = {
           keys = {
             {icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')"},

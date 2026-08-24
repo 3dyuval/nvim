@@ -24,20 +24,11 @@
                              (not= (vim.api.nvim_buf_get_name b) ""))
                     (set found true)))
                 found))
-            ;; auto_cwd always resolves a session name and calls session.load,
-            ;; which errors loudly ("Cannot load session ... it does not exist")
-            ;; the first time a cwd has no saved session. Return the cwd session
-            ;; name only when its file exists; nil otherwise (silent no-op).
-            (local autoload-cwd
-              (fn []
-                (let [paths (require :possession.paths)
-                      name (paths.cwd_session_name)]
-                  (when (: (paths.session name) :exists)
-                    name))))
             ((. (require :possession) :setup)
-             {:autoload autoload-cwd
-              ;; autoload sets an active session, so autosave goes through the
-              ;; `current` branch — it must be enabled (guarded) or nothing saves.
+             ;; No autoload — the dashboard shows on startup instead. Sessions
+             ;; are still saved on quit; restore manually (<leader>qs picker,
+             ;; :PossessionLoadCwd, or the dashboard's session key).
+             {:autoload false
               :autosave {:current has-real-buffer?
                          :cwd has-real-buffer?
                          :on_load true

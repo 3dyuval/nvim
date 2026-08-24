@@ -25,20 +25,28 @@ lset("n", "zH", ufo.closeAllFolds, {desc = "Close all folds"})
 lset("n", "zI", ufo.openAllFolds, {desc = "Open all folds"})
 lset({"n", "o", "x"}, "k", "t", {desc = "Till before"})
 lset({"n", "o", "x"}, "K", "T", {desc = "Till before backward"})
-local gs = require("gitsigns")
 local function _4_()
+  return require("bento.ui").prev_page()
+end
+lset("n", "<C-y>", _4_, {desc = "Prev buffer (bento)"})
+local function _5_()
+  return require("bento.ui").next_page()
+end
+lset("n", "<C-k>", _5_, {desc = "Next buffer (bento)"})
+local gs = require("gitsigns")
+local function _6_()
   if vim.wo.diff then
     return vim.cmd.normal({"]c", bang = true})
   else
     return gs.nav_hunk("next", {target = "all"})
   end
 end
-lset("n", "<C-S-A>", _4_, {desc = "Next git hunk"})
-local function _6_()
+lset("n", "<C-S-A>", _6_, {desc = "Next git hunk"})
+local function _8_()
   if vim.wo.diff then
     return vim.cmd.normal({"[c", bang = true})
   else
     return gs.nav_hunk("prev", {target = "all"})
   end
 end
-return lset("n", "<C-S-E>", _6_, {desc = "Prev git hunk"})
+return lset("n", "<C-S-E>", _8_, {desc = "Prev git hunk"})

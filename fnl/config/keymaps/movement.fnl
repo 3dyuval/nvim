@@ -1,19 +1,14 @@
 (local lset vim.keymap.set)
 (local ufo (require :ufo))
 
-;; Structural movement (Treewalker) = capital HAEI, same 4 directions as
-;; lowercase h/a/e/i. Left/Right walk out/in a level (parent/child);
-;; Up/Down walk prev/next sibling.
+;; SPEC.md Layer 2 G2 — structural movement = capital HAEI (treewalk)
 (lset :n :H "<cmd>Treewalker Left<cr>"
       {:desc "Treewalk out (parent)" :silent true})
 (lset :n :I "<cmd>Treewalker Right<cr>"
       {:desc "Treewalk in (child)" :silent true})
 (lset :n :E
+      ;; SPEC.md Layer 2 G2a — prev sibling, else climb out (row-unchanged proxy)
       (fn []
-        ;; prev sibling; if move_up doesn't move (no prev sibling), walk out to
-        ;; the parent. Treewalker moves by row (anchor.current uses line('.')),
-        ;; so an unchanged row means move_up found no target. Guard on a parser
-        ;; first so a parserless buffer no-ops once instead of double-notifying.
         (when (pcall vim.treesitter.get_parser 0)
           (let [tw (require :treewalker)
                 row (vim.fn.line ".")]
@@ -24,9 +19,7 @@
 (lset :n :A "<cmd>Treewalker Down<cr>"
       {:desc "Treewalk next sibling" :silent true})
 
-;; Folds = z-prefix + horizontal HAEI (depth axis, mirroring structural H/I):
-;;   h = close (collapse, shallower)   i = open (expand, deeper)
-;;   capital = all folds.
+;; SPEC.md Layer 2 G3 — folds = z-prefix + horizontal HAEI
 (lset :n :zh :zc {:desc "Close fold (one)" :noremap true})
 (lset :n :zi :zo {:desc "Open fold (one)" :noremap true})
 (lset :n :zH ufo.closeAllFolds {:desc "Close all folds"})
@@ -34,6 +27,12 @@
 
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
+
+;; SPEC.md Layer 3 — buffer paging (higher-level than textobject nav)
+(lset :n :<C-y> (fn [] ((. (require :bento.ui) :prev_page)))
+      {:desc "Prev buffer (bento)"})
+(lset :n :<C-k> (fn [] ((. (require :bento.ui) :next_page)))
+      {:desc "Next buffer (bento)"})
 
 (local gs (require :gitsigns))
 (lset :n :<C-S-A>
