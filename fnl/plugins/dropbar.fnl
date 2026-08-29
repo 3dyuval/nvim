@@ -5,9 +5,14 @@
  :event :VeryLazy
  :config (fn []
            (local dropbar (require :dropbar))
+           (local default-enable (. (require :dropbar.configs) :opts :bar :enable))
+           (local excluded-ft {:kulala_ui true :kulala_openapi true})
            (dropbar.setup
              {:sources {}
-              :bar {:sources
+              :bar {:enable (fn [buf win extra]
+                              (and (not (. excluded-ft (. (. vim.bo buf) :filetype)))
+                                   (default-enable buf win extra)))
+                    :sources
                     (fn [_ _]
                       (let [sources (require :dropbar.sources)]
                         [sources.path

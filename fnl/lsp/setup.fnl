@@ -177,9 +177,7 @@
 ;; --- LSP keymap migration → Neovim 0.11 native gr* defaults ---
 ;; Old custom keys now noop and notify the native replacement, to retrain
 ;; muscle memory. (Definition has no gr* default, so gd stays functional below.)
-(local lsp-nudges {:<leader>cr "grn  (rename)"
-                   :<leader>cR "grr  (references)"
-                   :<leader>ca "gra  (code action)"
+(local lsp-nudges {:<leader>ca "gra  (code action)"
                    :gD "grt  (go to definition)"
                    :gR "grr  (references)"})
 

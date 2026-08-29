@@ -2,6 +2,9 @@ return {
   "folke/which-key.nvim",
   event = "VeryLazy",
   opts = {
+    spec = {
+      { "<leader>cr", group = "Kulala" },
+    },
     triggers = {
       { "<auto>", mode = "nxs" }, -- exclude operator-pending ("o") so cs([ etc. work
     },

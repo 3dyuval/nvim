@@ -49,7 +49,7 @@ vim.lsp.config("shuck", {cmd = {"shuck", "server", "--config", (vim.fn.stdpath("
 vim.lsp.config("cssls", {filetypes = {"css", "scss", "less"}, settings = {css = {validate = true}, scss = {validate = true}, less = {validate = true}}})
 vim.lsp.config("jsonls", {settings = {json = {schemas = require("schemastore").json.schemas(), validate = {enable = true}}}})
 vim.lsp.config("kcl_lsp", {cmd = {vim.fn.expand("~/.local/bin/kcl-language-server"), "server", "-s"}, filetypes = {"kcl"}, root_markers = {".git"}, single_file_support = true})
-local lsp_nudges = {["<leader>cr"] = "grn  (rename)", ["<leader>cR"] = "grr  (references)", ["<leader>ca"] = "gra  (code action)", gD = "grt  (go to definition)", gR = "grr  (references)"}
+local lsp_nudges = {["<leader>ca"] = "gra  (code action)", gD = "grt  (go to definition)", gR = "grr  (references)"}
 for lhs, target in pairs(lsp_nudges) do
   local function _9_()
     return vim.notify(("Deprecated keymap \226\128\148 use " .. target), vim.log.levels.WARN, {title = "LSP keymap moved"})

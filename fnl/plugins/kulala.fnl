@@ -4,20 +4,48 @@
  :ft ["http" "rest"]
  :cmd ["Kulala"]
  :keys
- [{1 "<leader>at" 2 (fn [] ((. (require :kulala) :run)))                  :desc "Send request"}
-  {1 "<leader>aT" 2 (fn [] ((. (require :kulala) :run-all)))              :desc "Send all requests"}
-  {1 "<leader>ar" 2 (fn [] ((. (require :kulala) :scratchpad)))           :desc "Open scratchpad"}
-  {1 "<leader>ao" 2 (fn [] ((. (require :kulala) :open_openapi_explorer)))
-   :ft ["http" "rest"] :desc "OpenAPI explorer (spec ref under cursor)"}]
+ [{1 "<leader>crr" 2 (fn [] ((. (require :kulala) :run)))                  :desc "Run request"}
+  {1 "<leader>cro" 2 (fn [] ((. (require :kulala) :open_openapi_explorer)))
+   :ft ["http" "rest"] :desc "OpenAPI explorer"}
+  {1 "<leader>cr." 2 (fn [] ((. (require :kulala) :scratchpad)))           :desc "Scratchpad"}
+  {1 "<leader>cre" 2 (fn [] ((. (require :kulala) :set_selected_env)))     :desc "Select environment"}
+  {1 "<leader>crR" 2 (fn [] ((. (require :kulala) :replay)))               :desc "Replay last request"}
+  {1 "<leader>crc" 2 (fn [] ((. (require :kulala) :copy)))                 :desc "Copy as cURL"}
+  {1 "<leader>crX" 2 (fn [] ((. (require :kulala) :clear_cached_files)))   :desc "Clear cached files"}]
  :opts {:global_keymaps false
-        :keymaps {}
-        :openapi_panel {:win_opts {:wo {:winbar ""}}}
-        :openapi_panel_keymaps {"Edit try it out" false
+        :kulala_keymaps {"Previous tab" false
+                         "Next tab" false}
+        :openapi_panel_keymaps {"Toggle fold" false
+                                "Edit try it out" false
                                 "Load from file" false
-                                "Refresh" false}}
+                                "Refresh" false
+                                "Yank as HTTP"
+                                ["Y"
+                                 (fn []
+                                   ((. (require :kulala.ui.openapi_panel) :yank))
+                                   (let [fixed (string.gsub (vim.fn.getreg "+")
+                                                            "https?://{host}:{port}" "{{baseUrl}}")]
+                                     (vim.fn.setreg "+" fixed)
+                                     (vim.fn.setreg "\"" fixed)))]}}
  :config
  (fn [_ opts]
    ((. (require :kulala) :setup) opts)
+   (vim.api.nvim_create_autocmd :FileType
+     {:pattern ["kulala_openapi" "kulala_ui"]
+      :callback (fn [ev]
+                  (let [ss (require :smart-splits)
+                        dirs {"<C-h>" :move_cursor_left
+                              "<C-a>" :move_cursor_down
+                              "<C-e>" :move_cursor_up
+                              "<C-i>" :move_cursor_right}]
+                    (each [key dir (pairs dirs)]
+                      (vim.keymap.set :n key (fn [] ((. ss dir)))
+                                      {:buffer ev.buf :nowait true :desc "Window nav"}))
+                    (when (= (. (. vim.bo ev.buf) :filetype) :kulala_ui)
+                      (each [_ key (ipairs ["<C-PageUp>" "<C-PageDown>"])]
+                        (vim.keymap.set :n key
+                                        (fn [] ((. (require :kulala.ui) :close_kulala_buffer)))
+                                        {:buffer ev.buf :nowait true :desc "Close kulala results"})))))})
    (vim.api.nvim_create_user_command
     :Kulala
     (fn [args]

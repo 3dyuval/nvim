@@ -1,5 +1,9 @@
 (local lset vim.keymap.set)
 
+(lset :n :<leader>?
+      (fn [] ((. (require :which-key) :show) {:global false}))
+      {:desc "Which-key: this buffer's keymaps"})
+
 (lset :n :<leader>gG ":DiffviewGraph<CR>"
       {:desc "Diffview graph"})
 
