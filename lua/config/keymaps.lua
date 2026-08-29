@@ -1,5 +1,3 @@
---QImport utility modules
--- local cli = require("utils.cli")
 local clipboard = require("utils.clipboard")
 local code = require("utils.code")
 local editor = require("utils.editor")
@@ -11,7 +9,6 @@ local kmu = require("keymap-utils")
 local search = require("utils.search")
 local smart_diff = require("utils.smart-diff")
 
--- Keymap-utils declarative mapping
 local mode = kmu.flags.mode
 local disabled = kmu.flags.disabled
 local x = kmu.mod("x")
@@ -19,20 +16,18 @@ local ctrl = kmu.ctrl
 local _ = kmu._
 local remap = kmu.remap
 local map = kmu.create_smart_map()
+local cmd = kmu.cmd
 
--- Disable LazyVim default keymaps
 pcall(vim.keymap.del, "n", "<leader>gd")
 pcall(vim.keymap.del, "n", "<leader> ")
 pcall(vim.keymap.del, "n", "<leader><space>")
 pcall(vim.keymap.del, "n", "<leader>:")
 pcall(vim.keymap.del, "n", "<leader>sb")
 
--- Claude Code toggle
 vim.keymap.set(
   "n",
   "<C-Space>",
   function()
-    -- Try using the direct toggle approach
     pcall(
       function()
         require("claudecode.terminal").simple_toggle()
@@ -49,13 +44,9 @@ map(
     ["e"] = {"k", desc = "Up"},
     ["a"] = {"j", desc = "Down"},
     ["i"] = {"l", desc = "Right"}
-    -- ["0"] = { "0", desc = "Beginning of line" },
-    -- ["."] = { ";", desc = "Repeat find forward" },
-    -- ["p"] = { ",", desc = "Repeat find backward" },
   }
 )
 
--- Cmdline: arrow keys navigate wildmenu suggestions
 vim.defer_fn(
   function()
     vim.keymap.set(
@@ -84,25 +75,6 @@ vim.defer_fn(
   end,
   1000
 )
-
--- Undo/redo: native u / <C-r>. z is freed as the fold prefix (see movement.fnl).
-
--- -- Copy/Paste/Yank
--- map({
---   [mode] = { "n", "o", "x" },
---   c = { "y", desc = "Yank (copy)" },
--- })
--- map({
---   C = { "y$", desc = "Yank to end of line" },
---   v = { "p", desc = "Paste" },
---   V = { "P", desc = "Paste before" },
--- })
--- map({
---   [mode] = { "x" },
---   C = { "y", desc = "Yank selection" },
---   v = { "P", desc = "Paste (keep register)" },
---   V = { "P", desc = "Paste before (keep register)" },
--- })
 
 map(
   {
@@ -147,17 +119,13 @@ map(
   }
 )
 
--- 'x' is being retired in favor of 'd' for all deletes.
--- TODO(port-to-fennel): move this x->notify handling into a .fnl source.
 local function notify_use_d()
   vim.notify("Use 'd' to delete (x is retired)", vim.log.levels.WARN)
 end
 
--- Replace x / X deletes (normal + visual) with a reminder to use d.
 remap({"n", "x"}, "x", notify_use_d, {desc = "Use d to delete"})
 remap({"n", "x"}, "X", notify_use_d, {desc = "Use d to delete"})
 
--- Smooth scrolling (Graphite layout) - works with snacks.scroll
 map(
   {
     [mode] = {"n", "v", "x"},
@@ -168,7 +136,6 @@ map(
   }
 )
 
--- Jump between matching HTML/JSX tags
 map(
   {
     gs = {code.jump_to_matching_tag, desc = "Jump to matching tag"}
@@ -185,8 +152,6 @@ map(
       h = {"G", desc = "Go to bottom"}
     },
     ["<leader>g"] = {
-      -- g = { cmd = ":Neogit cwd=%:p:h", desc = "Neogit in current dir" }, -- moved to fnl/config/keymaps/utils.fnl
-      -- i = { cmd = "Neogit commit", desc = "Neogit commit" }, -- moved to fnl/config/keymaps/utils.fnl as <leader>gc
       I = {cmd = "AiCommit", desc = "AI commit popup"},
       d = {cmd = "DiffviewOpen", desc = "Diff view open"},
       D = {cmd = "DiffviewOpen ", exec = false, desc = "Compare with branch"},
@@ -194,17 +159,11 @@ map(
       F = {cmd = "DiffviewFileHistory %", exec = false, desc = "File history"},
       s = {cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash"},
       x = {[mode] = {"n", "x"}, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk"},
-      -- X = { gs.reset_buffer, desc = "Reset Buffer" },
-      -- H = { helpers.compare_current_file_with_file, desc = "Compare current file with file" },
 
       z = {git.lazygit_root, desc = "Lazygit (Root Dir)"},
       Z = {git.lazygit_cwd, desc = "Lazygit (cwd)"},
       b = {git.git_branches_picker, desc = "Git branches (all)"},
       B = {git.git_branches_file_picker, desc = "Checkout file from branch"},
-      -- R = { smart_diff.smart_restore_conflicts, desc = "Restore conflict markers" },
-      -- P = { smart_diff.smart_resolve_ours, desc = "Resolve file: ours" },
-      -- O = { smart_diff.smart_resolve_theirs, desc = "Resolve file: theirs" },
-      -- U = { smart_diff.smart_resolve_union, desc = "Resolve file: union (both)" },
       ["!"] = {
         function()
           gs.diffthis("~")
@@ -218,21 +177,10 @@ map(
         desc = "Blame Line"
       }
     },
-    -- Gitsigns hunk operations
-    -- ["<leader>gh"] = {
-    --   group = "Hunks",
-    -- h = { cmd = ":DiffviewFileHistory %", desc = "Current file history" },
-    -- s = { [mode] = { "n", "x" }, cmd = "Gitsigns stage_hunk", desc = "Stage Hunk" },
-    -- S = { gs.stage_buffer, desc = "Stage Buffer" },
-    -- u = { gs.undo_stage_hunk, desc = "Undo Stage Hunk" },
-    -- p = { gs.preview_hunk_inline, desc = "Preview Hunk Inline" },
-    -- B = { gs.blame, desc = "Blame Buffer" },
-    -- d = { gs.diffthis, desc = "Diff This" },
-    -- },
 
     ["<leader>u"] = {
       g = {
-        g = {"<leader>uG", desc = "Toggle Git Signs"}, -- Maps to default LazyVim toggle
+        g = {"<leader>uG", desc = "Toggle Git Signs"},
         l = {cmd = "Gitsigns toggle_linehl", desc = "Toggle line highlights"},
         n = {cmd = "Gitsigns toggle_numhl", desc = "Toggle number highlights"},
         w = {cmd = "Gitsigns toggle_word_diff", desc = "Toggle word diff"},
@@ -240,27 +188,6 @@ map(
       },
       l = {require("lensline").toggle_view, desc = "Toggle lensline"}
     },
-    -- Hunk navigation
-    -- ["]h"] = {
-    --   function()
-    --     if vim.wo.diff then
-    --       vim.cmd.normal({"]c", bang = true})
-    --     else
-    --       gs.nav_hunk("next")
-    --     end
-    --   end,
-    --   desc = "Next Hunk"
-    -- },
-    -- ["[h"] = {
-    --   function()
-    --     if vim.wo.diff then
-    --       vim.cmd.normal({"[c", bang = true})
-    --     else
-    --       gs.nav_hunk("prev")
-    --     end
-    --   end,
-    --   desc = "Prev Hunk"
-    -- },
     ["]s"] = {"]s", desc = "Next misspelled word"},
     ["[s"] = {"[s", desc = "Prev misspelled word"},
     ["]H"] = {
@@ -311,7 +238,6 @@ map(
   }
 )
 
--- noice keys override
 map(
   {
     ["<leader>sn"] = {
@@ -334,13 +260,6 @@ map(
         cmd = "NoiceLast",
         desc = "Show last notification"
       }
-      -- { "l", false }, -- Noice Last Message
-      -- { "h", false }, -- Noice History
-      -- { "d", false }, -- Dismiss All notifications
-      -- { "t", false }, -- Noice Picker (Telescope/FzfLua)
-      -- { "<S-Enter>", false }, -- Redirect cmdline output to split
-      -- { "<c-f>", false }, -- Scroll forward in LSP docs/signature
-      -- { "<c-b>", false }, -- Scroll backward in LSP docs/signature
     }
   }
 )
@@ -357,7 +276,6 @@ map(
 map(
   {
     ["<leader>c"] = {
-      -- TypeScript/Import operations
       o = {code.organize_imports, desc = "Organize + Remove Unused Imports"},
       O = {code.organize_imports_and_fix, desc = "Organize Imports + Fix All Diagnostics"},
       I = {code.add_missing_imports, desc = "Add missing imports"},
@@ -380,18 +298,6 @@ map(
       desc = "Recent files"
     },
     [ctrl] = {
-      --   r = {
-      --     function()
-      --       local is_visual = vim.fn.mode():match("[vV\22]")
-      --       if is_visual then
-      --         require("grug-far").with_visual_selection()
-      --       else
-      --         require("grug-far").open({ prefills = { paths = vim.fn.expand("%") } })
-      --       end
-      --     end,
-      --     desc = "Search and replace",
-      --     [mode] = { "n", "v" },
-      -- },
       w = {
         function()
           local win = vim.api.nvim_get_current_win()
@@ -433,17 +339,7 @@ map(
 map(
   {
     ["<leader>r"] = {
-      -- Reload keymaps moved to <leader>rk in fnl/config/keymaps/config.fnl
       l = {cmd = "Leet run", desc = "Leet run (test)"},
-      -- Sniprun keymaps (r/t disabled - conflicts with summon)
-      -- r = { [mode] = { "n", "v" }, cmd = "SnipRun", desc = "Run snippet" },
-      -- t = {
-      --   function()
-      --     require("sniprun").reset()
-      --     vim.cmd("%SnipRun")
-      --   end,
-      --   desc = "Run buffer (fresh)",
-      -- },
       S = {cmd = "SnipReset", desc = "Reset sniprun"}
     }
   }
@@ -471,7 +367,6 @@ map(
     ["[q"] = {
       function()
         if require("trouble").is_open() then
-          -- require("trouble").prev({ skip_groups = true, jump = true })
         else
           local ok, err = pcall(vim.cmd.cprev)
           if not ok then
@@ -484,7 +379,6 @@ map(
     ["]q"] = {
       function()
         if require("trouble").is_open() then
-          -- require("trouble").next({ skip_groups = true, jump = true })
         else
           local ok, err = pcall(vim.cmd.cnext)
           if not ok then
@@ -508,12 +402,6 @@ map(
       },
       K = {cmd = "KMUInspect", exec = true, desc = "KMU only inspect"},
       D = {cmd = "ProjectDiagnostics", desc = "Project Diagnostics"}
-      -- F = { search.grug_far_current_file, desc = "Search/Replace in current file (Grug-far)" },
-      -- r = { cmd = "GrugFar", desc = "Search and replace (Grug-far)" },
-      -- R = {
-      --   search.grug_far_current_directory,
-      --   desc = "Search/Replace in current directory (Grug-far)",
-      -- },
     }
   }
 )
@@ -533,7 +421,6 @@ map(
   {
     ["<leader>o"] = {
       group = "GitHub",
-      -- Issues submenu
       i = {
         group = "Issues",
         l = {
@@ -573,7 +460,6 @@ map(
           d = {cmd = "Octo assignee remove ", exec = false, desc = "Remove assignee from issue"}
         }
       },
-      -- Pull Requests submenu
       p = {
         group = "Pull Requests",
         l = {
@@ -613,7 +499,6 @@ map(
           d = {cmd = "Octo reviewer remove ", exec = false, desc = "Remove reviewer from PR"}
         }
       },
-      -- Review operations (Octo - advanced workflow)
       v = {
         group = "Review",
         s = {cmd = "Octo review start", desc = "Start review"},
@@ -622,20 +507,17 @@ map(
         d = {cmd = "Octo review discard", desc = "Discard review"},
         c = {cmd = "Octo review comments", desc = "Review comments"}
       },
-      -- Thread operations (Octo only)
       t = {
         group = "Threads",
         r = {cmd = "Octo thread resolve", desc = "Resolve thread"},
         u = {cmd = "Octo thread unresolve", desc = "Unresolve thread"}
       },
-      -- Repo operations (Octo)
       r = {
         group = "Repository",
         w = {cmd = "Octo repo browser", desc = "Browse repo"},
         i = {cmd = "Octo repo list", desc = "My repositories"},
         l = {cmd = "Octo repo url", desc = "Copy url"}
       },
-      -- Comment operations
       a = {
         function()
           local Actions = require("snacks.gh.actions")
@@ -656,13 +538,10 @@ map(
         end,
         desc = "Add comment"
       },
-      -- Notifications (Octo)
       n = {cmd = "Octo notifications", desc = "Notifications"}
     }
   }
 )
-
--- Checkmate keymaps moved to fnl/config/keymaps/edit.fnl (buffer-local, markdown)
 
 local notes = require("utils.notes")
 
@@ -673,7 +552,6 @@ map(
       n = {cmd = "ObsidianNew", desc = "New note [title]", icon = ""},
       N = {
         function()
-          -- vim.api.nvim_feedkeys(os.date(":ObsidianNew %y-%m-%d "), "n", false)
         end,
         desc = "New note [YY-MM-DD-title]",
         icon = ""
@@ -700,20 +578,6 @@ map(
   }
 )
 
--- -- Vue SFC navigation (buffer-local)
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = "vue",
---   callback = function(args)
---     local map = kmu.create_smart_map()
---     map({
---       g = {
---         t = { code.goto_template, desc = "Go to template", buffer = args.buf },
---         T = { code.goto_style, desc = "Go to style", buffer = args.buf },
---       },
---     })
---   end,
--- })
-
 kmu.register_groups()
 
 kmu.setup_inspect()
@@ -722,4 +586,87 @@ require("config.keymaps.modes")
 require("config.keymaps.insert")
 require("config.keymaps.terminal")
 require("config.keymaps.claude")
-require("config.keymaps-old")
+
+kmu.safe_del({"n", "x"}, "s")
+vim.keymap.set({"n"}, "j", "o", {desc = "Open line below"})
+vim.keymap.set({"n"}, "J", "O", {desc = "Open line above"})
+
+vim.keymap.set({"n"}, "b", "r", {desc = "Replace single char"})
+vim.keymap.set({"n"}, "B", "R", {desc = "Replace mode"})
+
+vim.keymap.set({"v"}, "B", "r", {desc = "Replace selected text"})
+
+vim.keymap.set({"n"}, "o", "<C-o>", {desc = "Jumplist backward"})
+vim.keymap.set({"n"}, "O", "<C-i>", {desc = "Jumplist forward"})
+
+vim.keymap.set({"n", "o", "x"}, "l", "b", {desc = "Word back"})
+vim.keymap.set({"n", "o", "x"}, "L", "B", {desc = "WORD back"})
+vim.keymap.set({"n", "o", "x"}, "D", "W", {desc = "WORD forward"})
+
+vim.keymap.set({"n"}, "'", "gv", {desc = "Repeat last visual selection"})
+vim.keymap.set({"n", "o", "x"}, "%", "%", {desc = "Jump to matching bracket"})
+
+vim.keymap.set({"n", "o", "x"}, "<M-h>", "gE", {desc = "End of WORD back"})
+vim.keymap.set({"n", "o", "x"}, "<M-o>", "E", {desc = "End of WORD forward"})
+
+vim.keymap.set("n", "Q", "@q", {desc = "replay the 'q' macro", silent = true, noremap = true})
+
+vim.keymap.set({"n", "x"}, "gX", "X", {desc = "Delete before cursor"})
+vim.keymap.set({"n", "x"}, "gU", "U", {desc = "Uppercase"})
+vim.keymap.set({"n", "x"}, "gQ", "Q", {desc = "Ex mode"})
+vim.keymap.set({"n", "x"}, "gK", "K", {desc = "Lookup keyword"})
+vim.keymap.set({"n", "x"}, "gh", "K", {desc = "Lookup keyword"})
+
+vim.api.nvim_create_autocmd(
+  "User",
+  {
+    pattern = "BufferClose",
+    callback = function()
+      local bufs =
+        vim.tbl_filter(
+        function(b)
+          return vim.api.nvim_buf_is_loaded(b) and vim.bo[b].buflisted
+        end,
+        vim.api.nvim_list_bufs()
+      )
+      if #bufs == 0 then
+        vim.schedule(
+          function()
+            require("snacks").dashboard()
+          end
+        )
+      end
+    end
+  }
+)
+
+vim.keymap.set(
+  {"n"},
+  "<C-;>",
+  function()
+    vim.o.showtabline = vim.o.showtabline == 0 and 2 or 0
+  end,
+  {noremap = true, desc = "Toggle bento tabline"}
+)
+
+vim.keymap.set({"n", "i", "v"}, "<F1>", "<nop>", {desc = "Disabled"})
+
+vim.keymap.set({"n", "o", "v"}, "r", "i", {desc = "O/V mode: inner (i)"})
+vim.keymap.set({"n", "o", "v"}, "t", "a", {desc = "O/V mode: a/an (a)"})
+
+vim.keymap.set({"o", "v"}, "X", "r", {desc = "Replace"})
+vim.keymap.set({"o", "v"}, "rd", "iw", {desc = "Inner word"})
+vim.keymap.set({"o", "v"}, "td", "aw", {desc = "Around word"})
+vim.keymap.set({"o", "v"}, "rD", "iW", {desc = "Inner WORD"})
+vim.keymap.set({"o", "v"}, "tD", "aW", {desc = "Around WORD"})
+vim.keymap.set({"v"}, "rd", "iw", {desc = "Inner word (visual)"})
+vim.keymap.set({"v"}, "td", "aw", {desc = "Around word (visual)"})
+vim.keymap.set({"v"}, "rD", "iW", {desc = "Inner WORD (visual)"})
+vim.keymap.set({"v"}, "tD", "aW", {desc = "Around WORD (visual)"})
+
+vim.keymap.set(
+  "v",
+  "<leader>sF",
+  search.grug_far_selection_current_file,
+  {desc = "Search/Replace selection in current file (Grug-far)"}
+)
