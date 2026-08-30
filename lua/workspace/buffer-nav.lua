@@ -25,22 +25,33 @@ local function kitty_tab(action)
   local socket = (vim.env.KITTY_LISTEN_ON or "unix:@mykitty")
   return vim.system({"kitty", "@", "--to", socket, "action", action}, {text = true})
 end
+local function at_edge_3f(cur, bufs, which)
+  return (not bento_visible_3f() or (#bufs < 2) or (cur == bufs[which]) or not vim.tbl_contains(bufs, cur))
+end
 M.next = function()
   local bufs = listed()
   local cur = vim.api.nvim_get_current_buf()
-  if (not bento_visible_3f() or (cur == bufs[#bufs])) then
+  if at_edge_3f(cur, bufs, #bufs) then
     return kitty_tab("next_tab")
   else
-    return vim.cmd("bnext")
+    if not pcall(vim.cmd, "bnext") then
+      return kitty_tab("next_tab")
+    else
+      return nil
+    end
   end
 end
 M.prev = function()
   local bufs = listed()
   local cur = vim.api.nvim_get_current_buf()
-  if (not bento_visible_3f() or (cur == bufs[1])) then
+  if at_edge_3f(cur, bufs, 1) then
     return kitty_tab("previous_tab")
   else
-    return vim.cmd("bprev")
+    if not pcall(vim.cmd, "bprev") then
+      return kitty_tab("previous_tab")
+    else
+      return nil
+    end
   end
 end
 return M

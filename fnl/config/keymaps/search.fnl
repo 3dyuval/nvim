@@ -12,6 +12,12 @@
          {:layout {:preset :fullscreen} :focus :input}))
       {:desc "Explorer (fullscreen, focus input)"})
 
+(lset :n :<leader>fE
+      (fn []
+        ((. (require :utils.picker-extensions) :open_explorer)
+         {:layout {:preset :sidebar} :focus :list :auto_close false}))
+      {:desc "Explorer (persistent, no auto-close)"})
+
 (lset :n :<leader>fF
       (fn []
         (Snacks.picker.buffers {:layout {:preset :fullscreen}}))
