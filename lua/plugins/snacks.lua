@@ -18,6 +18,7 @@ return {
     ---@type snacks.Config
     opts = {
       image = {enabled = true},
+      notifier = {top_down = false},
       gh = {
         keys = {
           comment = false, -- Disable "a" for "Add Comment" - conflicts with Graphite down

@@ -1,2 +1,5 @@
 -- [nfnl] fnl/plugins/git.fnl
-return {"niekdomi/conflict.nvim"}
+local function _1_()
+  return require("conflict").setup()
+end
+return {"niekdomi/conflict.nvim", config = _1_}

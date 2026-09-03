@@ -609,8 +609,6 @@ vim.keymap.set({"n", "o", "x"}, "%", "%", {desc = "Jump to matching bracket"})
 vim.keymap.set({"n", "o", "x"}, "<M-h>", "gE", {desc = "End of WORD back"})
 vim.keymap.set({"n", "o", "x"}, "<M-o>", "E", {desc = "End of WORD forward"})
 
-vim.keymap.set("n", "Q", "@q", {desc = "replay the 'q' macro", silent = true, noremap = true})
-
 vim.keymap.set({"n", "x"}, "gX", "X", {desc = "Delete before cursor"})
 vim.keymap.set({"n", "x"}, "gU", "U", {desc = "Uppercase"})
 vim.keymap.set({"n", "x"}, "gQ", "Q", {desc = "Ex mode"})

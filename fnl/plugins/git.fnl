@@ -1,1 +1,2 @@
-{1 "niekdomi/conflict.nvim"}
+{1 "niekdomi/conflict.nvim"
+ :config (fn [] ((. (require :conflict) :setup)))}
