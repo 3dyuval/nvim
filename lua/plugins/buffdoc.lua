@@ -1,4 +1,5 @@
 return {
+  enabled = false,
   "https://gitlab.com/yuvddd/buffdoc.nvim",
   ft = "buffdoc",
   config = function()

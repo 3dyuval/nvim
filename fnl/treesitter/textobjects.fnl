@@ -16,19 +16,21 @@
                         :swap-next      "]F"
                         :swap-prev      "[F"}
    "@function.inner"  {:select :rf}
-   "@class.outer"     {:move-next ["]C"]
-                        :move-prev ["[C"]}
+   ;; NOTE: ]C/[C are native for next/prev cursor-jump
+   ;; anyway, im not using this much so commenting out less used combinations
+   ; "@class.outer"     {:move-next ["]C"]
+   ;                      :move-prev ["[C"]}
    "@parameter.inner" {:move-next ["]p"]
                         :move-prev ["[p"]
                         :swap-next "]P"
                         :swap-prev "[A"}
-   "@loop.*"          {:move-next ["]l"] :move-prev ["[l"]}
-   "@scope"           {:move-next ["]s"] :move-prev ["[s"] :select :rs}
    "@fold"            {:move-next ["]u"] :move-prev ["[u"]}
    "@tag.inner"       {:select :rt}
    "@tag.outer"       {:select :tt}
-   "@block.inner"     {:select :rb}
-   "@block.outer"     {:select :tb}
+   ; "@loop.*"          {:move-next ["]l"] :move-prev ["[l"]}
+   ; "@scope"           {:move-next ["]s"] :move-prev ["[s"] :select :rs}
+   ; "@block.inner"     {:select :rb}
+   ; "@block.outer"     {:select :tb}
    "@jsx_self_closing_element" {:select :te}})
 
 ;; Query group per capture. Everything lives in textobjects.scm except

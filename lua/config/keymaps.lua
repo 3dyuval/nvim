@@ -231,9 +231,6 @@ map(
       w = {cmd = "OpenFileInRepo", desc = "Open file in web browser"},
       l = {clipboard.copy_file_path_with_line, desc = "Copy file path to clipboard"},
       L = {cmd = "YankLineUrl +", desc = "Copy file URL with line to clipboard"}
-    },
-    [ctrl] = {
-      l = {clipboard.copy_lines, [mode] = {"n", "v"}, desc = "Copy lines (or selection)"}
     }
   }
 )
@@ -608,12 +605,6 @@ vim.keymap.set({"n", "o", "x"}, "%", "%", {desc = "Jump to matching bracket"})
 
 vim.keymap.set({"n", "o", "x"}, "<M-h>", "gE", {desc = "End of WORD back"})
 vim.keymap.set({"n", "o", "x"}, "<M-o>", "E", {desc = "End of WORD forward"})
-
-vim.keymap.set({"n", "x"}, "gX", "X", {desc = "Delete before cursor"})
-vim.keymap.set({"n", "x"}, "gU", "U", {desc = "Uppercase"})
-vim.keymap.set({"n", "x"}, "gQ", "Q", {desc = "Ex mode"})
-vim.keymap.set({"n", "x"}, "gK", "K", {desc = "Lookup keyword"})
-vim.keymap.set({"n", "x"}, "gh", "K", {desc = "Lookup keyword"})
 
 vim.api.nvim_create_autocmd(
   "User",
