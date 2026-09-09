@@ -1,8 +1,0 @@
-{
-  "plugins": {
-    "buffdoc.nvim": {
-      "rev": "c5ff2685157e71b575f56abb8ef575f9609519e6",
-      "src": "/home/yuv/.config/nvim/pack/buffdoc/start/buffdoc.nvim"
-    }
-  }
-}

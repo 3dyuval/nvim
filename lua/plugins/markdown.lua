@@ -27,7 +27,7 @@ return {
   },
   {
     "tadmccorkle/markdown.nvim",
-    enabled = false, -- Temporarily disabled due to treesitter compatibility issue
+    enabled = true, -- Temporarily disabled due to treesitter compatibility issue
     ft = text_filetypes,
     opts = {},
     keys = {
@@ -47,7 +47,7 @@ return {
     "MeanderingProgrammer/render-markdown.nvim",
     ft = text_filetypes,
     opts = {
-      enabled = false,
+      enabled = true,
       -- file_types = text_filetypes,
       code = {
         sign = false,

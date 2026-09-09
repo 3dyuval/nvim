@@ -207,7 +207,7 @@ end
 vim.api.nvim_create_autocmd("BufWritePost", {pattern = "gitcommit", callback = _32_})
 local function _39_()
   vim.opt_local.wrap = true
-  vim.opt_local.spell = true
+  vim.opt_local.spell = false
   return nil
 end
 vim.api.nvim_create_autocmd("FileType", {pattern = {"text", "plaintex", "typst", "gitcommit", "markdown"}, callback = _39_})

@@ -182,13 +182,14 @@
                                               vim.log.levels.ERROR
                                               {:title :commitlint}))))))))})
 
-;; --- Text formatting: wrap and spell for text-like filetypes ---
+;; --- Text formatting: wrap on, spell off by default for text-like filetypes ---
+;; (toggle spell on demand with <leader>us)
 
 (autocmd :FileType
          {:pattern [:text :plaintex :typst :gitcommit :markdown]
           :callback (fn []
                       (set vim.opt_local.wrap true)
-                      (set vim.opt_local.spell true))})
+                      (set vim.opt_local.spell false))})
 
 ;; --- COMMIT_EDITMSG: create manual folds for @@ diff hunk markers ---
 ;; DISABLED: bufnr/lines scope bug in defer_fn callback, vim.bo.foldmethod fails when window changes
