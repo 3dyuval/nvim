@@ -336,8 +336,7 @@ map(
 map(
   {
     ["<leader>r"] = {
-      l = {cmd = "Leet run", desc = "Leet run (test)"},
-      S = {cmd = "SnipReset", desc = "Reset sniprun"}
+      l = {cmd = "Leet run", desc = "Leet run (test)"}
     }
   }
 )

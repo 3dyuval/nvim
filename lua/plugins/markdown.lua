@@ -1,18 +1,18 @@
-local text_filetypes = { "markdown", "text", "feature", "gitcommit" }
+local text_filetypes = {"markdown", "text", "feature", "gitcommit"}
 
 return {
   -- markdown-preview.nvim (from LazyVim) - add keymaps
   {
     "iamcco/markdown-preview.nvim",
     keys = {
-      { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", ft = "markdown", desc = "Markdown preview" },
-    },
+      {"<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", ft = "markdown", desc = "Markdown preview"}
+    }
   },
   {
     "folke/todo-comments.nvim",
-    cmd = { "TodoTrouble" },
+    cmd = {"TodoTrouble"},
     event = "LazyFile",
-    opts = {},
+    opts = {}
     -- moved to ../config/keymaps.lua
   },
   {
@@ -23,25 +23,26 @@ return {
       opts.linters_by_ft.markdown = {}
       opts.linters_by_ft["markdown.mdx"] = {}
       return opts
-    end,
+    end
   },
   {
     "tadmccorkle/markdown.nvim",
-    enabled = true, -- Temporarily disabled due to treesitter compatibility issue
+    enabled = true,
+
     ft = text_filetypes,
     opts = {},
     keys = {
-      { "<leader>pf", "<cmd>MDTaskToggle<cr>", ft = text_filetypes, desc = "Toggle task checkbox" },
+      {"<leader>pf", "<cmd>MDTaskToggle<cr>", ft = text_filetypes, desc = "Toggle task checkbox"},
       {
         "<leader>pl",
         "<cmd>MDListItemBelow<cr>",
         ft = text_filetypes,
-        desc = "Add list item below",
+        desc = "Add list item below"
       },
-      { "<leader>t", "]]", ft = text_filetypes, desc = "Next heading" },
-      { "<leader>tl", "gliw", mode = "n", ft = text_filetypes, desc = "Add link to word" },
-      { "<leader>tl", "gl", mode = "v", ft = text_filetypes, desc = "Add link (visual)" },
-    },
+      {"<leader>t", "]]", ft = text_filetypes, desc = "Next heading"},
+      {"<leader>tl", "gliw", mode = "n", ft = text_filetypes, desc = "Add link to word"},
+      {"<leader>tl", "gl", mode = "v", ft = text_filetypes, desc = "Add link (visual)"}
+    }
   },
   {
     "MeanderingProgrammer/render-markdown.nvim",
@@ -52,15 +53,15 @@ return {
       code = {
         sign = false,
         width = "block",
-        right_pad = 1,
+        right_pad = 1
       },
       heading = {
         sign = false,
-        icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
-      },
+        icons = {"󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 "}
+      }
     },
     keys = {
-      { "<leader>um", ":RenderMarkdown toggle<cr>", ft = text_filetypes, desc = "Toggle render markdown" },
-    },
-  },
+      {"<leader>um", ":RenderMarkdown toggle<cr>", ft = text_filetypes, desc = "Toggle render markdown"}
+    }
+  }
 }

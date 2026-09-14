@@ -1,12 +1,4 @@
 ;; kulala.nvim — HTTP client for Neovim
-(local yank-baseurl
-       (fn []
-         ((. (require :kulala.ui.openapi_panel) :yank))
-         (let [fixed (string.gsub (vim.fn.getreg "+")
-                                  "https?://{host}:{port}" "{{baseUrl}}")]
-           (vim.fn.setreg "+" fixed)
-           (vim.fn.setreg "\"" fixed))))
-
 {1 "mistweaverco/kulala.nvim"
  :dev true
  :ft ["http" "rest"]
@@ -28,7 +20,29 @@
                                 "Load from file" false
                                 "Refresh" false
                                 "Yank as HTTP"
-                                ["Y" yank-baseurl]}}
+                                ["Y"
+                                 (fn []
+                                   ((. (require :kulala.ui.openapi_panel) :yank))
+                                   (let [fixed (string.gsub (vim.fn.getreg "+")
+                                                            "https?://{host}:{port}" "{{baseUrl}}")]
+                                     (vim.fn.setreg "+" fixed)
+                                     (vim.fn.setreg "\"" fixed)))]}
+        ;; Pickers for Environment/Authentication/Requests managers.
+        ;; kulala reads Config.options.ui.pickers.snacks.layout, so nest under :ui.
+        :ui {:pickers {:snacks {:layout
+                                (fn []
+                                  (let [(has-snacks snacks-picker) (pcall require :snacks.picker)]
+                                    (if (not has-snacks)
+                                        {}
+                                        (vim.tbl_deep_extend :force
+                                          (snacks-picker.config.layout :telescope)
+                                          {:reverse true
+                                           :layout {1 {1 {:win :list}
+                                                       2 {:height 1 :win :input}
+                                                       :box :vertical}
+                                                    2 {:win :preview :width 0.6}
+                                                    :box :horizontal
+                                                    :width 0.8}}))))}}}}
  :config
  (fn [_ opts]
    ((. (require :kulala) :setup) opts)
@@ -47,15 +61,7 @@
                       (each [_ key (ipairs ["<C-PageUp>" "<C-PageDown>"])]
                         (vim.keymap.set :n key
                                         (fn [] ((. (require :kulala.ui) :close_kulala_buffer)))
-                                        {:buffer ev.buf :nowait true :desc "Close kulala results"})))
-                    (when (= (. (. vim.bo ev.buf) :filetype) :kulala_openapi)
-                      (let [panel (require :kulala.ui.openapi_panel)
-                            crmaps {"<leader>crr" [(fn [] (panel.run))            "Run operation"]
-                                    "<leader>cry" [yank-baseurl                   "Yank as HTTP (baseUrl)"]
-                                    "<leader>crq" [(fn [] (panel.close))           "Close explorer"]}]
-                        (each [key spec (pairs crmaps)]
-                          (vim.keymap.set :n key (. spec 1)
-                                          {:buffer ev.buf :nowait true :desc (. spec 2)}))))))})
+                                        {:buffer ev.buf :nowait true :desc "Close kulala results"})))))})
    (vim.api.nvim_create_user_command
     :Kulala
     (fn [args]
