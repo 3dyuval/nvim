@@ -1,6 +1,7 @@
 -- Tests for surround keymaps (HAEI/Graphite layout)
--- Visual surround: v to select, s to trigger (e.g. viws()
--- Graphite: xs = delete surround, ws = change surround
+-- Add ys / delete ds / change cs. Visual: native v/V to select, then s to
+-- trigger. In this layout i->l and r->i (operator-pending), so the inner-word
+-- motion is `rw` (not `iw`): the add-surround form is `ysrw(`.
 -- Run via: make test
 
 local function set_curpos(pos)
@@ -21,42 +22,23 @@ if vim.fn.isdirectory(surround_path) == 1 then
   vim.opt.runtimepath:append(surround_path)
 end
 
--- Initialize nvim-surround with config matching lua/plugins/surround.lua
-require("nvim-surround").setup({
-  keymaps = {
-    insert = "<C-g>s",
-    insert_line = "<C-g>S",
-    normal = "ys",
-    normal_cur = "yss",
-    normal_line = "yS",
-    normal_cur_line = "ySS",
-    visual = "s",      -- v to select, then s to surround
-    visual_line = "gS",
-    delete = "ds",
-    change = "cs",
-    change_line = "cS",
-  },
-  surrounds = {
-    ["("] = { add = { "(", ")" } },
-    [")"] = { add = { "( ", " )" } },
-    ["{"] = { add = { "{", "}" } },
-    ["}"] = { add = { "{ ", " }" } },
-    ["<"] = { add = { "< ", " >" } },
-    [">"] = { add = { "<", ">" } },
-    ["["] = { add = { "[", "]" } },
-    ["]"] = { add = { "[ ", " ]" } },
-    ["*"] = { add = { "**", "**" } },
-    ["_"] = { add = { "_", "_" } },
-    ["~"] = { add = { "~", "~" } },
-  },
-})
+-- nvim-surround v4: keymaps are auto-bound by the plugin's plugin/ dir on
+-- runtimepath (no `keymaps` field in setup). Disable the default visual `S`
+-- and bind `s` ourselves, matching config/keymaps/surround.fnl.
+vim.g.nvim_surround_no_visual_mappings = true
+vim.cmd("runtime! plugin/nvim-surround.lua")
+vim.keymap.set("x", "s", "<Plug>(nvim-surround-visual)", { desc = "Surround visual selection" })
+vim.keymap.set("x", "gS", "<Plug>(nvim-surround-visual-line)", { desc = "Surround visual selection (newlines)" })
 
--- Graphite mappings: xs = delete surround, ws = change surround
-vim.keymap.set("n", "xs", "<Plug>(nvim-surround-delete)", { desc = "Delete surround" })
-vim.keymap.set("n", "ws", "<Plug>(nvim-surround-change)", { desc = "Change surround" })
-vim.keymap.set("n", "xst", function()
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("dst", true, false, true), "m", false)
-end, { desc = "Delete surrounding tag" })
+-- Load the REAL config opts so the test can't drift from lua/plugins/surround.lua.
+local spec = require("plugins.surround")
+require("nvim-surround").setup(spec.opts)
+
+-- Minimal HAEI operator-pending layer that surround motions rely on:
+-- i->l (right), r->i (inner), t->a (around). Mirrors lua/config/keymaps.lua.
+vim.keymap.set({ "n", "o", "x" }, "i", "l")
+vim.keymap.set({ "o", "x" }, "r", "i")
+vim.keymap.set({ "o", "x" }, "t", "a")
 
 describe("surround", function()
   before_each(function()
@@ -69,79 +51,95 @@ describe("surround", function()
     it("surrounds word with parentheses using ys", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw(")
+      vim.cmd("normal ysrw(")
       check_lines({ "(hello) world" })
     end)
 
     it("surrounds word with spaced parentheses using )", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw)")
+      vim.cmd("normal ysrw)")
       check_lines({ "( hello ) world" })
     end)
 
     it("surrounds word with brackets using [", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw[")
+      vim.cmd("normal ysrw[")
       check_lines({ "[hello] world" })
     end)
 
     it("surrounds word with spaced brackets using ]", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw]")
+      vim.cmd("normal ysrw]")
       check_lines({ "[ hello ] world" })
     end)
 
     it("surrounds word with braces using {", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw{")
+      vim.cmd("normal ysrw{")
       check_lines({ "{hello} world" })
     end)
 
     it("surrounds word with spaced braces using }", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw}")
+      vim.cmd("normal ysrw}")
       check_lines({ "{ hello } world" })
     end)
 
     it("surrounds word with double quotes", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd('normal ysiw"')
+      vim.cmd('normal ysrw"')
       check_lines({ '"hello" world' })
     end)
 
     it("surrounds word with single quotes", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw'")
+      vim.cmd("normal ysrw'")
       check_lines({ "'hello' world" })
     end)
   end)
 
-  describe("aliases", function()
-    it("b = ) (parentheses)", function()
+  describe("alias b (any bracket, tight add)", function()
+    it("ysrwb adds tight parentheses", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiwb")
+      vim.cmd("normal ysrwb")
       check_lines({ "(hello) world" })
     end)
 
-    it("B = } (braces)", function()
+    it("dsb deletes any bracket", function()
+      set_lines({ "{hello} world" })
+      set_curpos({ 1, 2 })
+      vim.cmd("normal dsb")
+      check_lines({ "hello world" })
+    end)
+  end)
+
+  describe("bracket spacing (opening tight, closing spaced)", function()
+    it("ysrw( is tight", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiwB")
-      check_lines({ "{hello} world" })
+      vim.cmd("normal ysrw(")
+      check_lines({ "(hello) world" })
     end)
 
-    it("a = > (angle brackets)", function()
+    it("ysrw) is spaced", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiwa")
+      vim.cmd("normal ysrw)")
+      check_lines({ "( hello ) world" })
+    end)
+
+    it("ysrw< is tight", function()
+      set_lines({ "hello world" })
+      set_curpos({ 1, 1 })
+      vim.cmd("normal ysrw<")
       check_lines({ "<hello> world" })
     end)
   end)
@@ -223,17 +221,17 @@ describe("surround", function()
   end)
 
   describe("visual surround (v to select, s to surround)", function()
-    it("viws( surrounds visual selection with parentheses", function()
+    it("vrws( surrounds visual selection with parentheses", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal viws(")
+      vim.cmd("normal vrws(")
       check_lines({ "(hello) world" })
     end)
 
-    it('viws" surrounds visual selection with quotes', function()
+    it('vrws" surrounds visual selection with quotes', function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd('normal viws"')
+      vim.cmd('normal vrws"')
       check_lines({ '"hello" world' })
     end)
 
@@ -249,21 +247,21 @@ describe("surround", function()
     it("surrounds with bold (**)", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw*")
+      vim.cmd("normal ysrw*")
       check_lines({ "**hello** world" })
     end)
 
     it("surrounds with italic (_)", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw_")
+      vim.cmd("normal ysrw_")
       check_lines({ "_hello_ world" })
     end)
 
     it("surrounds with strikethrough (~)", function()
       set_lines({ "hello world" })
       set_curpos({ 1, 1 })
-      vim.cmd("normal ysiw~")
+      vim.cmd("normal ysrw~")
       check_lines({ "~hello~ world" })
     end)
 
@@ -298,22 +296,13 @@ describe("surround", function()
     end)
   end)
 
-  describe("graphite mappings (xs, ws)", function()
-    it("xs deletes surround", function()
-      set_lines({ "(hello) world" })
+  describe("change backtick to single quote (cs`')", function()
+    it("changes backtick to single quote", function()
+      set_lines({ "`hello` world" })
       set_curpos({ 1, 2 })
-      vim.cmd("normal xs(")
-      check_lines({ "hello world" })
+      vim.cmd("normal cs`'")
+      check_lines({ "'hello' world" })
     end)
-
-    it("ws changes surround", function()
-      set_lines({ "(hello) world" })
-      set_curpos({ 1, 2 })
-      vim.cmd("normal ws([")
-      check_lines({ "[hello] world" })
-    end)
-
-    pending("xst deletes surrounding tag")
   end)
 
   describe("treesitter surrounds", function()

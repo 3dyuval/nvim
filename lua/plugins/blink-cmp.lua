@@ -14,7 +14,10 @@ return {
     },
     opts = {
       sources = {
-        default = {"lsp", "path", "snippets", "buffer"},
+        -- `default` is intentionally omitted: LazyVim's blink extra already sets
+        -- it to {"lsp","path","snippets","buffer"} and lazy.nvim CONCATENATES
+        -- list-type opts, so redeclaring the same list here duplicated every
+        -- source (each provider ran twice per keystroke). Inherit LazyVim's.
         per_filetype = {
           sql = {"dadbod", "buffer"},
           markdown = {"lsp", "buffer", "spell", "thesaurus"},

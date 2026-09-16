@@ -1,11 +1,12 @@
 # Neovim Configuration Makefile
 
-.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps export-keymaps export-keymaps-json export-keymaps-md export-keymaps-by-group compile
+.PHONY: lint no-utils test format install-deps help test-conflicts test-keymaps export-keymaps export-keymaps-json export-keymaps-md export-keymaps-by-group compile migrate
 
 # Default target
 help:
 	@echo "Available targets:"
 	@echo "  compile               - Compile Fennel to Lua"
+	@echo "  migrate FNL=path      - Delete a hand-written Lua target then compile its .fnl (lua->fnl migration)"
 	@echo "  lint                  - Run luacheck linter on Lua files"
 	@echo "  no-utils              - Check for errant util calls"
 	@echo "  test                  - Run all tests"
@@ -31,6 +32,20 @@ compile:
 		fennel --compile "$$f" >> "$$lua_file" || exit 1; \
 	done
 	@echo "✅ Compilation complete"
+
+# Migrate a hand-written Lua module to Fennel: remove the stale Lua target
+# (which `make compile` would otherwise overwrite silently) then compile the
+# matching .fnl. Usage: make migrate FNL=fnl/plugins/surround.fnl
+migrate:
+	@if [ -z "$(FNL)" ]; then echo "Usage: make migrate FNL=fnl/path/to/file.fnl"; exit 1; fi
+	@if [ ! -f "$(FNL)" ]; then echo "❌ No such Fennel file: $(FNL)"; exit 1; fi
+	@lua_file="lua/$${FNL#fnl/}"; lua_file="$${lua_file%.fnl}.lua"; \
+		if [ -f "$$lua_file" ]; then echo "Removing $$lua_file"; rm -f "$$lua_file"; fi; \
+		mkdir -p "$$(dirname "$$lua_file")"; \
+		echo "  $(FNL) → $$lua_file"; \
+		echo "-- [nfnl] $(FNL)" > "$$lua_file"; \
+		fennel --compile "$(FNL)" >> "$$lua_file" || exit 1
+	@echo "✅ Migrated $(FNL)"
 
 # Run luacheck on all Lua files
 lint:

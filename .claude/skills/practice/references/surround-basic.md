@@ -4,16 +4,17 @@ Work through each section. Cursor position is noted with `^`.
 
 ---
 
-## Add surround: normal mode (ysiw)
+## Add surround: normal mode (ysrw)
 
-Keys to try: `ysiw(` `ysiw)` `ysiw[` `ysiw]` `ysiw{` `ysiw}` `ysiw"` `ysiw'`
+In this layout i->l and r->i, so inner-word is `rw` (not `iw`).
+Keys to try: `ysrw(` `ysrw)` `ysrw[` `ysrw]` `ysrw{` `ysrw}` `ysrw"` `ysrw'`
 
 ```
 hello world
 ^
 ```
 
-Expected after `ysiw(`: `(hello) world`
+Expected after `ysrw(`: `(hello) world`
 
 ---
 
@@ -32,14 +33,14 @@ Expected after `yss(`: `(hello world)`
 
 ## Add surround: with newlines (yS)
 
-Keys to try: `ySiw(`
+Keys to try: `ySrw(`
 
 ```
 hello world
 ^
 ```
 
-Expected after `ySiw(`:
+Expected after `ySrw(`:
 ```
 (
 hello
@@ -49,9 +50,9 @@ hello
 
 ---
 
-## Delete surround (ds / xs)
+## Delete surround (ds)
 
-Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'` — or Graphite: `xs(` `xs[`
+Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'`
 
 ```
 (hello) world
@@ -66,9 +67,9 @@ Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'` — or Graphite: `xs(` `xs[`
 
 ---
 
-## Change surround (cs / ws)
+## Change surround (cs)
 
-Keys to try: `cs([` `cs("` `cs[{` — or Graphite: `ws([` `ws("`
+Keys to try: `cs([` `cs("` `cs[{` `` cs`' ``
 
 ```
 (hello) world
@@ -83,7 +84,8 @@ Keys to try: `cs([` `cs("` `cs[{` — or Graphite: `ws([` `ws("`
 
 ## Visual surround (v to select, s to surround)
 
-Keys to try: `viws(` `viws"` `viws[` `viws{` `viwb`
+Select inner-word with `vrw` (r=inner), then `s` triggers surround.
+Keys to try: `vrws(` `vrws"` `vrws[` `vrws{` `vrwsb`
 
 ```
 hello world
@@ -110,16 +112,15 @@ hello world
 
 ---
 
-## Aliases (b B a q)
+## Alias: b (any bracket)
+
+Only one alias is configured (b/B/a/q were removed as confusing):
 
 | Alias | Expands to |
 |-------|------------|
-| `b`   | `)` parentheses |
-| `B`   | `}` braces |
-| `a`   | `>` angle brackets |
-| `q`   | any quote `"` `'` `` ` `` |
+| `b`   | any bracket `( [ { <` — adds tight `(hello)` |
 
-Keys to try: `ysiwb` `ysiwB` `ysiwa` — delete with `dsb` `dsB` `dsa`
+Keys to try: `ysrwb` (add tight parens) — `dsb` / `csb{` match any bracket
 
 ```
 hello world
@@ -130,7 +131,7 @@ hello world
 
 ## Markdown: bold (*) italic (_) strikethrough (~)
 
-Keys to try: `ysiw*` `ysiw_` `ysiw~`
+Keys to try: `ysrw*` `ysrw_` `ysrw~`
 
 ```
 hello world
@@ -149,7 +150,7 @@ Delete: `ds*` (twice for bold) `ds_` `ds~`
 
 ## Custom delimiter (i)
 
-Keys to try: `ysiw i` (prompts for input)
+Keys to try: `ysrwi` (prompts for input)
 
 - Enter `<div>` or `div` → wraps with `<div>...</div>`
 - Enter `("` → wraps with `("...")`

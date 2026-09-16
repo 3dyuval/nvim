@@ -87,7 +87,7 @@ Expected: `"inline code"`
 
 ## Visual: wrap selection in fence (vs`)
 
-Keys: `` viws` `` or `` VgS` `` for line
+Keys: `` viwS` `` or `` VgS` `` for line
 
 ```
 hello world

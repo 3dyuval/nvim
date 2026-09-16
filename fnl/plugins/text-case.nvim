@@ -1,0 +1,44 @@
+;; text-case.nvim — text case conversion operations.
+;; Provides operator and current_word methods for case conversion.
+;; Default keymaps disabled; custom keymaps defined below.
+{1 "johmsalas/text-case.nvim"
+ :enabled true
+ :event "VeryLazy"
+ :keys
+ [{1 "gu."  2 (fn [] ((. (require :textcase) :operator)))
+   :mode :n :desc "Text Case Operator"}
+  {1 "gu."  2 (fn [] ((. (require :textcase) :operator)))
+   :mode :x :desc "Text Case Operator"}
+  {1 "gul"  2 (fn [] ((. (require :textcase) :current_word) "to_camel_case"))
+   :mode :n :desc "toCamelCase"}
+  {1 "guu"  2 (fn [] ((. (require :textcase) :current_word) "to_lower_case"))
+   :mode :n :desc "to lower"}
+  {1 "gus"  2 (fn [] ((. (require :textcase) :current_word) "to_snake_case"))
+   :mode :n :desc "to_snake_case"}
+  {1 "guk"  2 (fn [] ((. (require :textcase) :current_word) "to_dash_case"))
+   :mode :n :desc "to-kebab-case"}
+  {1 "guU"  2 (fn [] ((. (require :textcase) :current_word) "to_upper_case"))
+   :mode :n :desc "to UPPER"}
+  {1 "gud"  2 (fn [] ((. (require :textcase) :current_word) "to_title_dash_case"))
+   :mode :n :desc "to Title-Dash-Case"}
+  {1 "gut"  2 (fn [] ((. (require :textcase) :current_word) "to_title_case"))
+   :mode :n :desc "to Title Case"}
+  {1 "guC"  2 (fn [] ((. (require :textcase) :current_word) "to_constant_case"))
+   :mode :n :desc "to CONSTANT_CASE"}
+  {1 "guP"  2 (fn [] ((. (require :textcase) :current_word) "to_pascal_case"))
+   :mode :n :desc "ToPascalCase"}]
+ :config
+ (fn []
+((. (require :textcase) :setup)
+     {:default_keymappings_enabled true
+      :prefix "gu"
+      :enabled_methods ["to_upper_case"
+                        "to_lower_case"
+                        "to_snake_case"
+                        "to_dash_case"
+                        "to_title_dash_case"
+                        "to_constant_case"
+                        "to_camel_case"
+                        "to_pascal_case"
+                        "to_title_case"
+                        "to_path_case"]}))}

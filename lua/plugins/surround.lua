@@ -1,21 +1,13 @@
+-- [nfnl] fnl/plugins/surround.fnl
 local M = {}
-
--- Each entry disables surround for a buffer when it returns true.
--- Uncomment conditions to re-enable them.
-local disable_surround = {
-  function() return not vim.bo.modifiable end,
-  -- function() return vim.bo.buftype ~= "" end,
-  -- function() return vim.api.nvim_buf_get_name(0):match("^diffview://") ~= nil end,
-  -- function() return vim.api.nvim_buf_get_name(0):match("^git://") ~= nil and not vim.api.nvim_buf_get_name(0):match("^neogit://") end,
-  -- function() return vim.api.nvim_buf_get_name(0) == "" end,
-}
-
-
-M.get_input = function(prompt)
-  local config = require("nvim-surround.config")
-  return config.get_input(prompt)
+local disable_surround
+local function _1_()
+  return not vim.bo.modifiable
 end
-
+disable_surround = {_1_}
+M.get_input = function(prompt)
+  return require("nvim-surround.config").get_input(prompt)
+end
 M.get_selection = function(args)
   if args.motion then
     return require("nvim-surround.config").get_selection({motion = args.motion})
@@ -24,222 +16,108 @@ M.get_selection = function(args)
     if not ok then
       vim.notify("nvim-treesitter-textobjects not available", vim.log.levels.WARN)
       return nil
+    else
+      local bufnr = vim.api.nvim_get_current_buf()
+      local node = ts_queries.get_node_at_cursor(bufnr, args.query.capture)
+      if not node then
+        return nil
+      else
+        local start_row, start_col, end_row, end_col = node:range()
+        return {left = {first_pos = {(start_row + 1), (start_col + 1)}}, right = {last_pos = {(end_row + 1), end_col}}}
+      end
     end
-    local bufnr = vim.api.nvim_get_current_buf()
-    local node = ts_queries.get_node_at_cursor(bufnr, args.query.capture)
-    if not node then
-      return nil
-    end
-    local start_row, start_col, end_row, end_col = node:range()
-    return {
-      left = {first_pos = {start_row + 1, start_col + 1}},
-      right = {last_pos = {end_row + 1, end_col}}
-    }
+  else
+    return nil
   end
 end
-
-return {
-  "kylechui/nvim-surround",
-  event = "VeryLazy",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter-textobjects"
-  },
-  opts = {
-    surrounds = {
-      ["*"] = {add = {"**", "**"}},
-      ["_"] = {add = {"_", "_"}},
-      ["~"] = {add = {"~", "~"}},
-      ["`"] = {
-        add = function()
-          local lang = M.get_input("Language: ")
-          vim.schedule(
-            function()
-              local row = vim.api.nvim_win_get_cursor(0)[1]
-              vim.api.nvim_win_set_cursor(0, {row + 1, 0})
-              vim.cmd("startinsert")
-            end
-          )
-          return {{"```" .. (lang or ""), ""}, {"", "```"}}
-        end,
-        find = function()
-          return M.get_selection({motion = "a`"})
-        end,
-        delete = function()
-          local config = require("nvim-surround.config")
-          return config.get_selections(
-            {
-              char = "`",
-              pattern = "^(```.-\n)().*(```\n?)()$"
-            }
-          )
-        end
-      },
-      ["tf"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@function.outer"}})
-        end
-      },
-      ["rf"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@function.inner"}})
-        end
-      },
-      ["tc"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@class.outer"}})
-        end
-      },
-      ["rc"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@class.inner"}})
-        end
-      },
-      ["tp"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@parameter.outer"}})
-        end
-      },
-      ["rp"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@parameter.inner"}})
-        end
-      },
-      ["tl"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@loop.outer"}})
-        end
-      },
-      ["rl"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@loop.inner"}})
-        end
-      },
-      ["ts"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@scope"}})
-        end
-      },
-      ["rs"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@scope"}})
-        end
-      },
-      ["tt"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@tag.outer"}})
-        end
-      },
-      ["rt"] = {
-        find = function()
-          return M.get_selection({query = {capture = "@tag.inner"}})
-        end
-      },
-      ["i"] = {
-        add = function()
-          local input = M.get_input("Enter delimiter pair (left/right or tag): ")
-          if not input then
-            return
-          end
-
-          -- Check if it looks like a tag: <Tag> or just Tag
-          local opening_tag = input:match("^<([^/>]+)>?$")
-          if opening_tag then
-            local tag_name = opening_tag:match("^([^%s>]+)")
-            return {{"<" .. opening_tag .. ">"}, {"</" .. tag_name .. ">"}}
-          end
-
-          -- Mapping of opening to closing delimiters (bidirectional)
-          local pairs = {
-            ["("] = ")",
-            [")"] = "(",
-            ["["] = "]",
-            ["]"] = "[",
-            ["{"] = "}",
-            ["}"] = "{",
-            ["<"] = ">",
-            [">"] = "<"
-          }
-
-          -- Mirror and reverse the input to create closing delimiter
-          -- e.g., "<'{" → "}'>", "{`" → "`}"
-          local right = ""
-          for i = #input, 1, -1 do
-            local char = input:sub(i, i)
-            right = right .. (pairs[char] or char)
-          end
-
-          return {{input}, {right}}
-        end
-      }
-
-      -- Note: Other surrounds (quotes, HTML tags, function calls) use plugin defaults
-    },
-    aliases = {
-      -- Standard aliases (kept for clarity):
-      ["a"] = ">", -- a → angle brackets
-      ["b"] = ")", -- b → parentheses (round brackets)
-      ["B"] = "}", -- B → braces (curly brackets)
-      ["q"] = {'"', "'", "`"}, -- q → any quote
-      ["s"] = {"}", "]", ")", ">", '"', "'", "`"} -- s → any surround
-
-      -- CUSTOM: Removed default "r" = "]" because r=inner in our Graphite layout
-    }
-  },
-  config = function(_, opts)
-    -- Patch set_operator_marks to use bang (normal!) so Graphite key remaps
-    -- don't corrupt the g@ motion used to find surround positions
+local function ts_find(capture)
+  local function _5_()
+    return M.get_selection({query = {capture = capture}})
+  end
+  return {find = _5_}
+end
+local mirror_pairs = {["("] = ")", [")"] = "(", ["["] = "]", ["]"] = "[", ["{"] = "}", ["}"] = "{", ["<"] = ">", [">"] = "<"}
+local function mirror(input)
+  local right = ""
+  for i = #input, 1, -1 do
+    local char = input:sub(i, i)
+    right = (right .. (mirror_pairs[char] or char))
+  end
+  return right
+end
+local function custom_delimiter()
+  local input = M.get_input("Enter delimiter pair (left/right or tag): ")
+  if input then
+    local opening_tag = input:match("^<([^/>]+)>?$")
+    if opening_tag then
+      local tag_name = opening_tag:match("^([^%s>]+)")
+      return {{("<" .. opening_tag .. ">")}, {("</" .. tag_name .. ">")}}
+    else
+      return {{input}, {mirror(input)}}
+    end
+  else
+    return nil
+  end
+end
+local function _8_()
+  vim.g.nvim_surround_no_visual_mappings = true
+  return nil
+end
+local function _9_()
+  local lang = M.get_input("Language: ")
+  local function _10_()
+    local row = vim.api.nvim_win_get_cursor(0)[1]
+    vim.api.nvim_win_set_cursor(0, {(row + 1), 0})
+    return vim.cmd("startinsert")
+  end
+  vim.schedule(_10_)
+  return {{"```", ""}, {"", "```"}}
+end
+local function _11_()
+  return M.get_selection({motion = "a`"})
+end
+local function _12_()
+  return require("nvim-surround.config").get_selections({char = "`", pattern = "^(```.-\n)().*(```\n?)()$"})
+end
+local function _13_(_, opts)
+  do
     local buffer = require("nvim-surround.buffer")
-    local orig = buffer.set_operator_marks
-    buffer.set_operator_marks = function(motion)
+    local function _14_(motion)
       local curpos = buffer.get_curpos()
-      local visual_marks = { buffer.get_mark("<"), buffer.get_mark(">") }
-      buffer.del_marks({ "[", "]" })
+      local visual_marks = {buffer.get_mark("<"), buffer.get_mark(">")}
+      buffer.del_marks({"[", "]"})
       vim.go.operatorfunc = "v:lua.require'nvim-surround.utils'.NOOP"
-      vim.cmd.normal({ args = { "g@" .. motion }, bang = true })
+      vim.cmd.normal({args = {("g@" .. motion)}, bang = true})
       buffer.adjust_mark("[")
       buffer.adjust_mark("]")
       buffer.set_curpos(curpos)
       buffer.set_mark("<", visual_marks[1])
-      buffer.set_mark(">", visual_marks[2])
+      return buffer.set_mark(">", visual_marks[2])
     end
-
-    vim.keymap.set("x", "s", "<Plug>(nvim-surround-visual)", {desc = "Surround visual selection"})
-
-    require("nvim-surround").setup(opts)
-
-    -- which-key group descriptions
-    require("which-key").add(
-      {
-        {"ys", group = "Add surround"},
-        {"yS", group = "Add surround (newlines)"},
-        {"ds", group = "Delete surround"},
-        {"cs", group = "Change surround"},
-        {"cS", group = "Change surround (newlines)"},
-        {"s", mode = "x", group = "Surround"},
-        {"gS", mode = "x", group = "Surround (newlines)"}
-      }
-    )
-
-    -- Disable nvim-surround for non-modifiable and special buffers
-    vim.api.nvim_create_autocmd(
-      {"BufEnter", "BufWinEnter"},
-      {
-        pattern = "*",
-        callback = function()
-          local should_disable = false
-          for _, cond in ipairs(disable_surround) do
-            if cond() then should_disable = true; break end
-          end
-          if should_disable then
-            for _, key in ipairs({"s", "S", "ys", "yss", "yS", "ySS", "ds", "cs", "cS"}) do
-              pcall(vim.keymap.del, "v", key, {buffer = 0})
-            end
-            for _, key in ipairs({"ys", "yss", "yS", "ySS", "ds", "cs", "cS"}) do
-              pcall(vim.keymap.del, "n", key, {buffer = 0})
-            end
-          end
-        end
-      }
-    )
+    buffer.set_operator_marks = _14_
   end
-}
+  require("nvim-surround").setup(opts)
+  local function _15_()
+    local should_disable = false
+    for _0, cond in ipairs(disable_surround) do
+      if should_disable then break end
+      if cond() then
+        should_disable = true
+      else
+      end
+    end
+    if should_disable then
+      for _0, key in ipairs({"s", "gS"}) do
+        pcall(vim.keymap.set, "x", key, "<Nop>", {buffer = 0})
+      end
+      for _0, key in ipairs({"ys", "yss", "yS", "ySS", "ds", "cs", "cS"}) do
+        pcall(vim.keymap.set, "n", key, "<Nop>", {buffer = 0})
+      end
+      return nil
+    else
+      return nil
+    end
+  end
+  return vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {pattern = "*", callback = _15_})
+end
+return {"kylechui/nvim-surround", event = "VeryLazy", dependencies = {"nvim-treesitter/nvim-treesitter-textobjects"}, init = _8_, opts = {surrounds = {["("] = {add = {"(", ")"}}, [")"] = {add = {"( ", " )"}}, ["{"] = {add = {"{", "}"}}, ["}"] = {add = {"{ ", " }"}}, ["["] = {add = {"[", "]"}}, ["]"] = {add = {"[ ", " ]"}}, ["<"] = {add = {"<", ">"}}, [">"] = {add = {"< ", " >"}}, ["*"] = {add = {"**", "**"}}, _ = {add = {"_", "_"}}, ["~"] = {add = {"~", "~"}}, ["`"] = {add = _9_, find = _11_, delete = _12_}, tf = ts_find("@function.outer"), rf = ts_find("@function.inner"), tc = ts_find("@class.outer"), rc = ts_find("@class.inner"), tp = ts_find("@parameter.outer"), rp = ts_find("@parameter.inner"), tl = ts_find("@loop.outer"), rl = ts_find("@loop.inner"), ts = ts_find("@scope"), rs = ts_find("@scope"), tt = ts_find("@tag.outer"), rt = ts_find("@tag.inner"), i = {add = custom_delimiter}}, aliases = {b = {"(", "[", "{", "<"}}}, config = _13_}

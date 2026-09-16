@@ -20,6 +20,5 @@ Each section has:
 **Layout reminders:**
 - `r` = inner (instead of `i`) — `rw` = inner word
 - `t` = around (instead of `a`) — `tw` = around word
-- `xs` = delete surround (Graphite `x`=delete)
-- `ws` = change surround (Graphite `w`=change)
-- Visual: `v` to select, `s` to surround (e.g. `viws(`)
+- `ds` = delete surround, `cs` = change surround, `ys` = add surround (vanilla nvim-surround defaults)
+- Visual: `v` to select, `S` to surround (e.g. `viwS(`); `gS` surrounds on new lines

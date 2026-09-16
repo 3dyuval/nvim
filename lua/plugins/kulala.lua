@@ -1,6 +1,26 @@
 -- [nfnl] fnl/plugins/kulala.fnl
-local yank_baseurl
 local function _1_()
+  return require("kulala").run()
+end
+local function _2_()
+  return require("kulala").open_openapi_explorer()
+end
+local function _3_()
+  return require("kulala").scratchpad()
+end
+local function _4_()
+  return require("kulala").set_selected_env()
+end
+local function _5_()
+  return require("kulala").replay()
+end
+local function _6_()
+  return require("kulala").copy()
+end
+local function _7_()
+  return require("kulala").clear_cached_files()
+end
+local function _8_()
   require("kulala.ui.openapi_panel").yank()
   local fixed = string.gsub(vim.fn.getreg("+"), "https?://{host}:{port}", "{{baseUrl}}")
   vim.fn.setreg("+", fixed)
@@ -14,7 +34,8 @@ local function _9_()
     return vim.tbl_deep_extend("force", snacks_picker.config.layout("telescope"), {reverse = true, layout = {{{win = "list"}, {height = 1, win = "input"}, box = "vertical"}, {win = "preview", width = 0.6}, box = "horizontal", width = 0.8}})
   end
 end
-local function _11_(_, opts)require("kulala").setup(opts)
+local function _11_(_, opts)
+  require("kulala").setup(opts)
   local function _12_(ev)
     local ss = require("smart-splits")
     local dirs = {["<C-h>"] = "move_cursor_left", ["<C-a>"] = "move_cursor_down", ["<C-e>"] = "move_cursor_up", ["<C-i>"] = "move_cursor_right"}
@@ -31,28 +52,14 @@ local function _11_(_, opts)require("kulala").setup(opts)
         end
         vim.keymap.set("n", key, _14_, {buffer = ev.buf, nowait = true, desc = "Close kulala results"})
       end
-    else
-    end
-    if (vim.bo[ev.buf].filetype == "kulala_openapi") then
-      local panel = require("kulala.ui.openapi_panel")
-      local crmaps
-      local function _14_()
-        return panel.run()
-      end
-      local function _15_()
-        return panel.close()
-      end
-      crmaps = {["<leader>crr"] = {_14_, "Run operation"}, ["<leader>cry"] = {yank_baseurl, "Yank as HTTP (baseUrl)"}, ["<leader>crq"] = {_15_, "Close explorer"}}
-      for key, spec in pairs(crmaps) do
-        vim.keymap.set("n", key, spec[1], {buffer = ev.buf, nowait = true, desc = spec[2]})
-      end
       return nil
     else
       return nil
     end
   end
   vim.api.nvim_create_autocmd("FileType", {pattern = {"kulala_openapi", "kulala_ui"}, callback = _12_})
-  local function _16_(args)local kulala = require("kulala")
+  local function _16_(args)
+    local kulala = require("kulala")
     local action
     if (args.args == "") then
       action = "run"

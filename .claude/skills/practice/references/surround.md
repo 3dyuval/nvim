@@ -49,9 +49,9 @@ hello
 
 ---
 
-## Delete surround (ds / xs)
+## Delete surround (ds)
 
-Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'` — or Graphite: `xs(` `xs[`
+Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'`
 
 ```
 (hello) world
@@ -66,9 +66,9 @@ Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'` — or Graphite: `xs(` `xs[`
 
 ---
 
-## Change surround (cs / ws)
+## Change surround (cs)
 
-Keys to try: `cs([` `cs("` `cs[{` — or Graphite: `ws([` `ws("`
+Keys to try: `cs([` `cs("` `cs[{` — and for your task: `` cs`' `` (backtick to single-quote)
 
 ```
 (hello) world
@@ -81,9 +81,9 @@ Keys to try: `cs([` `cs("` `cs[{` — or Graphite: `ws([` `ws("`
 
 ---
 
-## Visual surround (v to select, s to surround)
+## Visual surround (v to select, S to surround)
 
-Keys to try: `viws(` `viws"` `viws[` `viws{` `viwb` (alias)
+Keys to try: `viwS(` `viwS"` `viwS[` `viwS{` `viwSb` (alias)
 
 ```
 hello world

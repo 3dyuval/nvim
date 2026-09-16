@@ -46,11 +46,20 @@
 
 (local ignored-diag-codes {7047 true 7044 true 6133 true})
 
+;; Root on the nearest tsconfig/jsconfig (then package.json) BEFORE .git. The
+;; global "*" config roots on .git, but this monorepo has .git at ~/gc/web while
+;; the actual Vue app + tsconfig.json (path aliases @/*, @RuleBuilder/*) lives in
+;; client/. Rooting at .git made vtsls miss client/tsconfig.json and fall back to
+;; implicitProjectConfig — no aliases, weak inference, scans server/ too: the slow
+;; + incomplete .vue completion. tsconfig/jsconfig first re-roots vtsls at client/.
+(local ts-root-markers [:tsconfig.json :jsconfig.json :package.json :.git])
+
 (vim.lsp.config :vtsls
                 ;; vtsls is the TS companion for vue_ls's hybrid mode (mandatory since
                 ;; Volar 3.0 removed takeover mode). It attaches to .vue and loads
                 ;; @vue/typescript-plugin so vue_ls can forward tsserver requests to it.
-                {:filetypes [:typescript
+                {:root_markers ts-root-markers
+                 :filetypes [:typescript
                              :typescriptreact
                              :javascript
                              :javascriptreact
@@ -120,6 +129,7 @@
 ;; (aerial.nvim), not LSP. rename is owned by vtsls; documentSymbol on vue_ls is
 ;; disabled so the picker doesn't query a server that returns nothing.
 (vim.lsp.config :vue_ls {:filetypes [:vue]
+                         :root_markers ts-root-markers
                          :init_options {:vue {:hybridMode true}}
                          :settings {:vue {:complete {:casing {:tags :kebab
                                                               :props :kebab}}}}

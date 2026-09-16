@@ -7,5 +7,6 @@
 (require :config.keymaps.config)
 (require :config.keymaps.edit)
 (require :config.keymaps.search)
+(require :config.keymaps.surround)
 (require :config.keymaps.utils)
 
