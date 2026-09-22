@@ -1,6 +1,6 @@
 ;; kulala.nvim — HTTP client for Neovim
 {1 "mistweaverco/kulala.nvim"
- :dev true
+ :dev false
  :ft ["http" "rest"]
  :cmd ["Kulala"]
  :keys
