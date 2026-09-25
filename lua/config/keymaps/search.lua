@@ -29,7 +29,7 @@ lset("n", "<leader>of", _6_, {desc = "Explorer (fullscreen)"})
 local function _7_()
   return require("utils.picker-extensions").open_explorer({layout = {preset = "fullscreen"}, focus = "input"})
 end
-lset("n", "<leader>ff", _7_, {desc = "Explorer (fullscreen, focus input)"})
+lset("n", "<leader>fo", _7_, {desc = "Explorer (fullscreen, focus input)"})
 local function _8_()
   return require("utils.picker-extensions").open_explorer({layout = {preset = "sidebar"}, focus = "list", auto_close = false})
 end

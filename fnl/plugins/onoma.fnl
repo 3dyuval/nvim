@@ -5,7 +5,7 @@
  :enabled true
  :version "*"
  :cmd "Onoma"
- :keys [{1 :<leader>fo 2 (fn [] (Snacks.picker.get_symbols)) :mode [:n :v :x]
+ :keys [{1 :<leader>sf 2 (fn [] (Snacks.picker.get_symbols)) :mode [:n :v :x]
          :desc :Symbols :silent true}]
  :config (fn []
            ((. (require :onoma) :setup) {:picker [:snacks]})

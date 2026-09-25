@@ -37,7 +37,7 @@
          {:layout {:preset :fullscreen} :focus :list}))
       {:desc "Explorer (fullscreen)"})
 
-(lset :n :<leader>ff
+(lset :n :<leader>fo
       (fn []
         ((. (require :utils.picker-extensions) :open_explorer)
          {:layout {:preset :fullscreen} :focus :input}))

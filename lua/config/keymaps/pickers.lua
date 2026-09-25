@@ -19,4 +19,8 @@ lset("n", "<leader>rr", _4_, {desc = "Kitty: open runner (bottom)"})
 local function _5_()
   return require("workspace.kitty-send").open("vsplit")
 end
-return lset("n", "<leader>rR", _5_, {desc = "Kitty: open runner (right)"})
+lset("n", "<leader>rR", _5_, {desc = "Kitty: open runner (right)"})
+local function _6_()
+  return vim.cmd("Yazi")
+end
+return lset("n", "<leader>ff", _6_, {desc = "Yazi at current file"})

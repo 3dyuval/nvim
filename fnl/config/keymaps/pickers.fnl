@@ -20,3 +20,7 @@
       (fn [] ((. (require :workspace.kitty-send) :open) :vsplit))
       {:desc "Kitty: open runner (right)"})
 
+(lset :n :<leader>ff
+      (fn [] (vim.cmd "Yazi"))
+      {:desc "Yazi at current file"})
+
