@@ -1,5 +1,10 @@
 (local lset vim.keymap.set)
 
+(lset :n :<leader>rk (. (require :utils.editor) :reload_keymaps) {:desc "Reload keymaps"})
+
+(lset :n :<leader>as "ScratchIssues <CR>"
+      {:desc "Scratch: All Issues"})
+
 (lset :n :<leader>?
       (fn [] ((. (require :which-key) :show) {:global false}))
       {:desc "Which-key: this buffer's keymaps"})
@@ -34,52 +39,3 @@
 (lset [:n :x] :<leader>cf
       (fn [] ((. (require :conform) :format) {:lsp_format :fallback}))
       {:desc "Format"})
-
-(lset :n :<leader>qs
-      (fn [] ((. (require :workspace.session) :open)))
-      {:desc "Session picker"})
-
-(lset :n :<leader>tt
-      (fn [] (vim.api.nvim_feedkeys ":terminal " :t false))
-      {:desc "Terminal prefill"})
-
-(lset [:n :x] :<leader>rs
-      (fn [] ((. (require :workspace.kitty-send) :send)))
-      {:desc "Kitty: send line/selection"})
-
-(lset :n :<leader>rr
-      (fn [] ((. (require :workspace.kitty-send) :open) :hsplit))
-      {:desc "Kitty: open runner (bottom)"})
-
-(lset :n :<leader>rR
-      (fn [] ((. (require :workspace.kitty-send) :open) :vsplit))
-      {:desc "Kitty: open runner (right)"})
-
-(lset :n :<leader>rg
-      (fn []
-        (let [grug-far (require :grug-far)
-              entry (grug-far.get_last_history_entry)]
-          (grug-far.open {:prefills entry})))
-      {:desc "Find and replace - last search (GrugFar)"})
-
-(lset :n :<leader>rG
-      (fn []
-        ((. (require :grug-far) :open)
-         {:prefills {:paths (vim.fn.expand :%)}}))
-      {:desc "Find and replace - current file (GrugFar)"})
-
-(lset :n :<leader>rt
-      (fn [] ((. (require :workspace.grug-history) :pick)))
-      {:desc "Find and replace - history picker (GrugFar)"})
-
-(lset :v :<leader>rg
-      (fn []
-        ((. (require :grug-far) :with_visual_selection)
-         {:visualSelectionUsage :prefill-search}))
-      {:desc "Find and replace - selection as search (GrugFar)"})
-
-(lset :v :<leader>rG
-      (fn []
-        ((. (require :grug-far) :with_visual_selection)
-         {:visualSelectionUsage :operate-within-range}))
-      {:desc "Find and replace - within selection (GrugFar)"})

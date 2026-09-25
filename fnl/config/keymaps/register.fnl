@@ -1,3 +1,4 @@
+
 ;; Shared keymap registration function
 ;; Usage: (register prefix tree-table)
 ;;   prefix: string like "<leader>t" or "<C-r>"
@@ -7,6 +8,7 @@
 ;;     - a nested table                  -> recursed into
 ;;   The special key :group holds a which-key label for the prefix and is
 ;;   skipped during binding.
+
 
 (fn register [prefix node]
   (each [key val (pairs node)]

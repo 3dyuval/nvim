@@ -244,7 +244,9 @@ return {
             keys = {
               ["<Esc>"] = {"focus_list", mode = {"i"}},
               ["<Bs>"] = false,
-              ["<C-l>"] = {"toggle_layout", mode = {"i", "n"}}
+              ["<C-l>"] = {"toggle_layout", mode = {"i", "n"}},
+              ["<S-Up>"] = {"preview_scroll_up", mode = {"i", "n"}},
+              ["<S-Down>"] = {"preview_scroll_down", mode = {"i", "n"}}
             }
           },
           list = {
@@ -254,7 +256,9 @@ return {
               ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
               ["<C-a>"] = false, -- Disable select all - it's distracting
               ["y"] = "copy", -- Universal copy action (context-aware)
-              ["<C-l>"] = "toggle_layout" -- Toggle layout globally
+              ["<C-l>"] = "toggle_layout", -- Toggle layout globally
+              ["<S-Up>"] = "preview_scroll_up",
+              ["<S-Down>"] = "preview_scroll_down"
             }
           }
         },

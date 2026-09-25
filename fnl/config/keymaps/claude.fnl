@@ -13,4 +13,4 @@
     :a {:cmd ":ClaudeCodeDiffAccept<CR>"  :desc "Accept diff"}
     :d {:cmd ":ClaudeCodeDiffDeny<CR>"    :desc "Deny diff"}}})
 
-(register "" tree)
+; (register "" tree)
