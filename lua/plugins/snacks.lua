@@ -190,7 +190,6 @@ return {
         animate = {}
       },
       dashboard = {
-        -- Shown on empty startup (possession autoload is off). Also on <leader>qS.
         enabled = true,
         preset = {
           keys = {
@@ -199,15 +198,6 @@ return {
             {icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')"},
             {icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')"},
             {icon = " ", key = "c", desc = "Config", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})"},
-            {
-              icon = "󰁯 ",
-              key = "s",
-              desc = "Restore Session (cwd)",
-              action = function()
-                local name = require("possession.paths").cwd_session_name()
-                require("possession.session").load(name, {skip_autosave = true})
-              end
-            },
             {icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil},
             {icon = " ", key = "q", desc = "Quit", action = ":qa"}
           }
