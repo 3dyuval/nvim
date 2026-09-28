@@ -3,7 +3,20 @@
  :dependencies ["nvim-tree/nvim-web-devicons"]
  :cmd ["DiffviewOpen" "DiffviewFileHistory" "DiffviewDiffFiles" "DiffviewDiffDirs"]
  :opts (fn []
-         (let [actions (require :diffview.actions)]
+         (let [actions (require :diffview.actions)
+               ;; run fn in the diff main window; from a panel (winfixbuf)
+               ;; focus the main win first so hunk/conflict nav targets the diff.
+               in-diff-window (fn [f]
+                                (fn []
+                                  (when vim.wo.winfixbuf
+                                    (let [view ((. (require :diffview.lib) :get_current_view))]
+                                      (when (and view view.cur_layout)
+                                        (let [main (view.cur_layout:get_main_win)]
+                                          (when (and main main.id (vim.api.nvim_win_is_valid main.id))
+                                            (vim.api.nvim_set_current_win main.id))))))
+                                  (f)))
+               next-hunk (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.next_conflict) (vim.cmd "normal! ]c")))
+               prev-hunk (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.prev_conflict) (vim.cmd "normal! [c")))]
            {:enhanced_diff_hl true
             :use_icons true
             :show_help_hints true
@@ -44,8 +57,8 @@
                ;; hunk level operations
                ["n" :dp "<Cmd>diffput<CR>" {:desc "Put hunk to other (OURS)"}]
                ;; navigation (HAEI)
-               ["n" :<C-A> (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.next_conflict) (vim.cmd "normal! ]c"))) {:desc "Next conflict or hunk"}]
-               ["n" :<C-E> (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.prev_conflict) (vim.cmd "normal! [c"))) {:desc "Prev conflict or hunk"}]
+               ["n" :<C-A> next-hunk {:desc "Next conflict or hunk"}]
+               ["n" :<C-E> prev-hunk {:desc "Prev conflict or hunk"}]
                ;; common actions
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "<leader>." actions.cycle_layout {:desc "Cycle layout"}]
@@ -59,6 +72,8 @@
               :file_panel
               [["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
                ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
+               ["n" "<C-A>" (in-diff-window next-hunk) {:desc "Next conflict or hunk"}]
+               ["n" "<C-E>" (in-diff-window prev-hunk) {:desc "Prev conflict or hunk"}]
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "dr"    actions.restore_entry                    {:desc "Restore file"}]
                ["n" "dl"    (fn [] (actions.toggle_stage_entry))     {:desc "Stage file"}]
@@ -70,6 +85,8 @@
               :file_history_panel
               [["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
                ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
+               ["n" "<C-A>" (in-diff-window next-hunk) {:desc "Next conflict or hunk"}]
+               ["n" "<C-E>" (in-diff-window prev-hunk) {:desc "Prev conflict or hunk"}]
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "<cr>"   actions.select_entry      {:desc "Open diff"}]
                ["n" "o"      actions.select_entry      {:desc "Open diff"}]

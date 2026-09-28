@@ -41,4 +41,6 @@ local function _6_()
     return gs.nav_hunk("prev", {target = "all"})
   end
 end
-return lset("n", "<C-Up>", _6_, {desc = "Prev git hunk"})
+lset("n", "<C-Up>", _6_, {desc = "Prev git hunk"})
+lset("n", "<C-S-A>", "<C-e>", {desc = "Scroll line down"})
+return lset("n", "<C-S-E>", "<C-y>", {desc = "Scroll line up"})

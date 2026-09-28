@@ -54,4 +54,9 @@
             (gs.nav_hunk "prev" {:target "all"})))
       {:desc "Prev git hunk"})
 
+;; Scroll one line (HAEI vertical: a=down, e=up). Explicit so <C-S-A/E>
+;; don't fall through to native scroll on an unmapped key.
+(lset :n :<C-S-A> "<C-e>" {:desc "Scroll line down"})
+(lset :n :<C-S-E> "<C-y>" {:desc "Scroll line up"})
+
 
