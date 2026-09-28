@@ -10,10 +10,10 @@
       {:desc "Surround visual selection (newlines)"})
 
 ((. (require :which-key) :add)
- [["ys" :group "Add surround"]
-  ["yS" :group "Add surround (newlines)"]
-  ["ds" :group "Delete surround"]
-  ["cs" :group "Change surround"]
-  ["cS" :group "Change surround (newlines)"]
-  ["s" :mode :x :group "Surround"]
-  ["gS" :mode :x :group "Surround (newlines)"]])
+ [["ys" {:group "Add surround"}]
+  ["yS" {:group "Add surround (newlines)"}]
+  ["ds" {:group "Delete surround"}]
+  ["cs" {:group "Change surround"}]
+  ["cS" {:group "Change surround (newlines)"}]
+  ["s" {:mode :x :group "Surround"}]
+  ["gS" {:mode :x :group "Surround (newlines)"}]])
