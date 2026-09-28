@@ -5,5 +5,5 @@
  :cmd ["ScratchToggle" "ScratchIssues" "ScratchTask"]
  :keys [{1 "<leader>Sc" 2 "<cmd>ScratchToggle<cr>" :desc "Scratch: toggle note"}
         {1 "<leader>Si" 2 "<cmd>ScratchIssues<cr>" :desc "Scratch: issues"}
-        {1 "<leader>St" 2 "<cmd>ScratchTask<cr>" :desc "Scratch: new task"}]
+        {1 "<leader>st" 2 "<cmd>ScratchTask<cr>" :desc "Scratch: new task"}]
  :opts {}}
