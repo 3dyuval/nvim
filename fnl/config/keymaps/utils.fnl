@@ -2,7 +2,7 @@
 
 (lset :n :<leader>rk (. (require :utils.editor) :reload_keymaps) {:desc "Reload keymaps"})
 
-(lset :n :<leader>as "ScratchIssues <CR>"
+(lset :n :<leader>st ":ScratchIssues <CR>"
       {:desc "Scratch: All Issues"})
 
 (lset :n :<leader>?

@@ -1,7 +1,7 @@
 -- [nfnl] fnl/config/keymaps/utils.fnl
 local lset = vim.keymap.set
 lset("n", "<leader>rk", require("utils.editor").reload_keymaps, {desc = "Reload keymaps"})
-lset("n", "<leader>as", "ScratchIssues <CR>", {desc = "Scratch: All Issues"})
+lset("n", "<leader>st", ":ScratchIssues <CR>", {desc = "Scratch: All Issues"})
 local function _1_()
   return require("which-key").show({global = false})
 end
