@@ -1,9 +1,5 @@
 (local lset vim.keymap.set)
 
-(lset :n :<leader>qs
-      (fn [] ((. (require :workspace.session) :open)))
-      {:desc "Session picker"})
-
 (lset :n :<leader>tt
       (fn [] (vim.api.nvim_feedkeys ":terminal " :t false))
       {:desc "Terminal prefill"})
