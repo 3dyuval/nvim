@@ -5,7 +5,7 @@ return {
   },
   {
     "folke/persistence.nvim",
-    enabled = false, -- No session manager (possession.nvim removed; sessions were the swap-file source)
+    enabled = true, -- Session manager; dashboard "S" restores last session
   },
   {
     "LazyVim/LazyVim",
