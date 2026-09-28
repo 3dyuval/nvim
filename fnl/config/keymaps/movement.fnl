@@ -35,14 +35,19 @@
 ;; (lset :n :<C-PageDown> (fn [] ((. (require :workspace.buffer-nav) :next)))
 ;;       {:desc "Next buffer (kitty tab at edge)"})
 
+;; Change nav (hunk within file), global. Context-aware: native ]c/[c when
+;; vim.wo.diff is set (diffview / conflicts), gitsigns nav_hunk otherwise.
+;; On <C-Up/Down> rather than the g-prefix — arrows carry vertical
+;; change-stepping across all buffers. (Overrides LazyVim's default
+;; <C-Up/Down> = resize; must load after it.)
 (local gs (require :gitsigns))
-(lset :n :<C-S-A>
+(lset :n :<C-Down>
       (fn []
         (if vim.wo.diff
             (vim.cmd.normal {1 "]c" :bang true})
             (gs.nav_hunk "next" {:target "all"})))
       {:desc "Next git hunk"})
-(lset :n :<C-S-E>
+(lset :n :<C-Up>
       (fn []
         (if vim.wo.diff
             (vim.cmd.normal {1 "[c" :bang true})

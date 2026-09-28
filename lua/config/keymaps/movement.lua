@@ -33,7 +33,7 @@ local function _4_()
     return gs.nav_hunk("next", {target = "all"})
   end
 end
-lset("n", "<C-S-A>", _4_, {desc = "Next git hunk"})
+lset("n", "<C-Down>", _4_, {desc = "Next git hunk"})
 local function _6_()
   if vim.wo.diff then
     return vim.cmd.normal({"[c", bang = true})
@@ -41,4 +41,4 @@ local function _6_()
     return gs.nav_hunk("prev", {target = "all"})
   end
 end
-return lset("n", "<C-S-E>", _6_, {desc = "Prev git hunk"})
+return lset("n", "<C-Up>", _6_, {desc = "Prev git hunk"})

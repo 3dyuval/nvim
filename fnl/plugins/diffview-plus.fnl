@@ -27,41 +27,38 @@
             :keymaps
              {:disable_defaults true
               :view
-              [["n" "dr"
+              ;; conflict resolve — action, not motion: single-window diff1_plain
+              ;; has no left/right geometry, so down/up = choose theirs/ours.
+              [["n" "<C-M-S-Down>"
                 (fn []
                   (if (~= (vim.fn.search "^<<<<<<< " :nw) 0)
                     (actions.conflict_choose :theirs)
                     (vim.cmd "diffget")))
-                {:desc "Get from right (THEIRS)"}]
-               ["n" "dl"
+                {:desc "Take THEIRS (get)"}]
+               ["n" "<C-M-S-Up>"
                 (fn []
                   (if (~= (vim.fn.search "^<<<<<<< " :nw) 0)
                     (actions.conflict_choose :ours)
-                    (vim.cmd "diffget")))
-                {:desc "Get from left (OURS)"}]
-               ;; diff get (all hunks)
-               ["n" "Dr" "<Cmd>%diffget<CR>" {:desc "Get all from right (THEIRS)"}]
-               ["n" "Dl" "<Cmd>diffget<CR>" {:desc "Get all from left (OURS)"}]
+                    (vim.cmd "diffput")))
+                {:desc "Take OURS (put)"}]
                ;; hunk level operations
-               ["n" "dp" "<Cmd>diffput<CR>" {:desc "Put hunk to other (OURS)"}]
+               ["n" :dp "<Cmd>diffput<CR>" {:desc "Put hunk to other (OURS)"}]
                ;; navigation (HAEI)
-               ["n" "ga" (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.next_conflict) (vim.cmd "normal! ]c"))) {:desc "Next conflict or hunk"}]
-               ["n" "ge" (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.prev_conflict) (vim.cmd "normal! [c"))) {:desc "Prev conflict or hunk"}]
+               ["n" :<C-A> (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.next_conflict) (vim.cmd "normal! ]c"))) {:desc "Next conflict or hunk"}]
+               ["n" :<C-E> (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.prev_conflict) (vim.cmd "normal! [c"))) {:desc "Prev conflict or hunk"}]
                ;; common actions
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "<leader>." actions.cycle_layout {:desc "Cycle layout"}]
                ["n" "q"        actions.close         {:desc "Close diffview"}]
                ["n" "gf"       actions.goto_file_edit {:desc "Go to file"}]
                ["n" "<C-s>"    actions.stage_all      {:desc "Stage all"}]
-               ["n" "<C-PageDown>" actions.select_next_entry {:desc "Next file"}]
-               ["n" "<C-PageUp>"   actions.select_prev_entry {:desc "Previous file"}]
                ["n" "?"        (actions.help :view)   {:desc "Help"}]]
               :diff1_inline
-            [["n" "ga" actions.next_inline_hunk {:desc "Next inline hunk"}]
-              ["n" "ge" actions.prev_inline_hunk {:desc "Prev inline hunk"}]]
+             [["n" "<C-A>" actions.next_inline_hunk {:desc "Next inline hunk"}]
+              ["n" "<C-E>" actions.prev_inline_hunk {:desc "Prev inline hunk"}]]
               :file_panel
-              [["n" "<C-PageDown>" actions.select_next_entry {:desc "Next file"}]
-               ["n" "<C-PageUp>"   actions.select_prev_entry {:desc "Previous file"}]
+              [["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
+               ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "dr"    actions.restore_entry                    {:desc "Restore file"}]
                ["n" "dl"    (fn [] (actions.toggle_stage_entry))     {:desc "Stage file"}]
@@ -71,9 +68,9 @@
                ["n" "q"     "<Cmd>DiffviewClose<CR>"                 {:desc "Close diffview"}]
                ["n" "?"     (actions.help :file_panel)               {:desc "Help"}]]
               :file_history_panel
-              [["n" "<C-PageDown>" actions.select_next_entry {:desc "Next file"}]
+              [["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
+               ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
-               ["n" "<C-PageUp>"   actions.select_prev_entry {:desc "Previous file"}]
                ["n" "<cr>"   actions.select_entry      {:desc "Open diff"}]
                ["n" "o"      actions.select_entry      {:desc "Open diff"}]
                ["n" "q"      "<Cmd>DiffviewClose<CR>"  {:desc "Close diffview"}]
