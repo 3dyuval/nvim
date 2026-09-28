@@ -5,7 +5,7 @@ return {
   },
   {
     "folke/persistence.nvim",
-    enabled = false, -- Disable LazyVim session manager; we use possession.nvim
+    enabled = false, -- No session manager (possession.nvim removed; sessions were the swap-file source)
   },
   {
     "LazyVim/LazyVim",
