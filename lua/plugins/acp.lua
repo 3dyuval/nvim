@@ -2,24 +2,22 @@ return {
   "3dyuval/acp.nvim",
   dev = false,
   enabled = true,
-  dependencies = {"nvim-lua/plenary.nvim", "paulburgess1357/nvim-mcp"},
+  dependencies = { "nvim-lua/plenary.nvim", "paulburgess1357/nvim-mcp" },
   config = function()
-    require("acp").config(
-      {
-        agents = {
-          opencode = {
-            cmd = {"opencode", "acp"},
-            mcp = {"nvim"}
-          }
+    require("acp").config({
+      agents = {
+        opencode = {
+          cmd = { "opencode", "acp" },
+          mcp = { "nvim" },
         },
-        default_agent = "opencode",
-        mcp = {
-          nvim = {
-            cmd = {"uvx", "nvim-mcp"},
-            env = {NVIM_SOCKET_PATH = vim.v.servername}
-          }
-        }
-      }
-    )
-  end
+      },
+      default_agent = "opencode",
+      mcp = {
+        nvim = {
+          cmd = { "uvx", "nvim-mcp" },
+          env = { NVIM_SOCKET_PATH = vim.v.servername },
+        },
+      },
+    })
+  end,
 }

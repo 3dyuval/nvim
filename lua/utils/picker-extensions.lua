@@ -2597,7 +2597,8 @@ M.toggle_layout = function(picker)
   explorer_layout = new_layout
   vim.g.explorer_layout = new_layout
 
-  local layout = Snacks.picker.config.layout({ layout = { preset = new_layout, preview = preview_for_layout(new_layout) } })
+  local layout =
+    Snacks.picker.config.layout({ layout = { preset = new_layout, preview = preview_for_layout(new_layout) } })
   picker:set_layout(layout)
   picker.opts.preview = preview_for_layout(new_layout)
   picker.opts.auto_close = new_layout == "default"

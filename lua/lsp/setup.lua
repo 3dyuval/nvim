@@ -9,7 +9,7 @@ do
   end
 end
 vim.lsp.config("*", {capabilities = capabilities, root_markers = {".git"}})
-vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "expert", "cssls", "jsonls", "kcl_lsp", "shuck", "fennel_ls"})
+vim.lsp.enable({"lua_ls", "rust_analyzer", "vtsls", "vue_ls", "expert", "cssls", "jsonls", "kcl_lsp", "shuck", "fennel_ls", "clangd"})
 vim.lsp.config("lua_ls", {settings = {Lua = {runtime = {version = "LuaJIT"}, diagnostics = {globals = {"vim"}}, workspace = {checkThirdParty = false}, telemetry = {enable = false}}}})
 vim.lsp.config("rust_analyzer", {settings = {["rust-analyzer"] = {cargo = {allFeatures = true, loadOutDirsFromCheck = true, buildScripts = {enable = true}}, checkOnSave = {command = "clippy"}, procMacro = {enable = true}}}})
 local vue_plugin_location = (vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/language-server")
@@ -50,6 +50,7 @@ vim.lsp.config("shuck", {cmd = {"shuck", "server", "--config", (vim.fn.stdpath("
 vim.lsp.config("cssls", {filetypes = {"css", "scss", "less"}, settings = {css = {validate = true}, scss = {validate = true}, less = {validate = true}}})
 vim.lsp.config("jsonls", {settings = {json = {schemas = require("schemastore").json.schemas(), validate = {enable = true}}}})
 vim.lsp.config("kcl_lsp", {cmd = {vim.fn.expand("~/.local/bin/kcl-language-server"), "server", "-s"}, filetypes = {"kcl"}, root_markers = {".git"}, single_file_support = true})
+vim.lsp.config("clangd", {cmd = {"clangd", ("--query-driver=" .. vim.fn.expand("~/.platformio/packages/toolchain-*/bin/*-gcc") .. ",/usr/bin/*")}, filetypes = {"c", "cpp", "objc", "objcpp", "cuda"}, root_markers = {"platformio.ini", "compile_commands.json", ".clangd"}})
 local lsp_nudges = {["<leader>ca"] = "gra  (code action)", gD = "grt  (go to definition)", gR = "grr  (references)"}
 for lhs, target in pairs(lsp_nudges) do
   local function _9_()

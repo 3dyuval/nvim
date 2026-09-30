@@ -25,7 +25,8 @@
                   :jsonls
                   :kcl_lsp
                   :shuck
-                  :fennel_ls])
+                  :fennel_ls
+                  :clangd])
 
 (vim.lsp.config :lua_ls
                 {:settings {:Lua {:runtime {:version :LuaJIT}
@@ -183,6 +184,27 @@
                           :filetypes [:kcl]
                           :root_markers [:.git]
                           :single_file_support true})
+
+;; PlatformIO (embedded C/C++). platformio.ini is the project root: rooting on it
+;; anchors clangd at the PlatformIO project even inside a monorepo where .git
+;; lives higher up. clangd reads compile_commands.json — regenerate it after
+;; adding libs/sources with `pio run -t compiledb`. --query-driver whitelists the
+;; PlatformIO-bundled toolchains (~/.platformio/packages/toolchain-*/bin/*-gcc)
+;; so clangd can extract their system includes + target arch; without it those
+;; are dropped and every framework header shows as unresolved. GCC-only flags
+;; clangd rejects are stripped via a project-root .clangd (Remove:), not here.
+(vim.lsp.config :clangd
+                {:cmd ["clangd"
+                       (.. "--query-driver="
+                           (vim.fn.expand "~/.platformio/packages/toolchain-*/bin/*-gcc")
+                           ",/usr/bin/*")]
+                 :filetypes [:c :cpp :objc :objcpp :cuda]
+                 ;; No :.git fallback on purpose: clangd should attach ONLY inside
+                 ;; PlatformIO projects (or where a compile db / .clangd already
+                 ;; exists), never for stray .cpp files in an unrelated git repo.
+                 :root_markers [:platformio.ini
+                                :compile_commands.json
+                                :.clangd]})
 
 ;; --- LSP keymap migration → Neovim 0.11 native gr* defaults ---
 ;; Old custom keys now noop and notify the native replacement, to retrain

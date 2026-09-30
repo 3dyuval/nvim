@@ -17,15 +17,15 @@ return {
     lazy = false,
     ---@type snacks.Config
     opts = {
-      image = {enabled = true},
-      notifier = {top_down = false},
+      image = { enabled = true },
+      notifier = { top_down = false },
       gh = {
         keys = {
           comment = false, -- Disable "a" for "Add Comment" - conflicts with Graphite down
           close = false, -- Disable "c" for "Close" - conflicts with Graphite copy
           edit = false, -- Disable "i" for "Edit" - conflicts with Graphite right
-          reopen = false -- Disable "o" for "Reopen" - conflicts with vim open line
-        }
+          reopen = false, -- Disable "o" for "Reopen" - conflicts with vim open line
+        },
       },
       input = {
         enabled = true,
@@ -36,8 +36,8 @@ return {
           row = vim.o.lines - 3, -- Position near bottom like classic cmdline
           height = 1,
           width = vim.o.columns - 4,
-          border = "none"
-        }
+          border = "none",
+        },
       },
       indent = {
         enabled = function(buf)
@@ -60,22 +60,16 @@ return {
             return false
           end
 
-          local ok, buftype =
-            pcall(
-            function()
-              return vim.bo[bufnr].buftype
-            end
-          )
+          local ok, buftype = pcall(function()
+            return vim.bo[bufnr].buftype
+          end)
           if not ok or buftype ~= "" then
             return false
           end
 
-          local ok2, modifiable =
-            pcall(
-            function()
-              return vim.bo[bufnr].modifiable
-            end
-          )
+          local ok2, modifiable = pcall(function()
+            return vim.bo[bufnr].modifiable
+          end)
           if not ok2 or not modifiable then
             return false
           end
@@ -107,12 +101,9 @@ return {
               return false
             end
 
-            local ok2, modifiable =
-              pcall(
-              function()
-                return vim.bo[bufnr].modifiable
-              end
-            )
+            local ok2, modifiable = pcall(function()
+              return vim.bo[bufnr].modifiable
+            end)
             if not ok2 or not modifiable then
               return false
             end
@@ -128,8 +119,8 @@ return {
             end
 
             return true
-          end
-        }
+          end,
+        },
       },
       scope = {
         enabled = function(buf)
@@ -152,22 +143,16 @@ return {
             return false
           end
 
-          local ok, buftype =
-            pcall(
-            function()
-              return vim.bo[bufnr].buftype
-            end
-          )
+          local ok, buftype = pcall(function()
+            return vim.bo[bufnr].buftype
+          end)
           if not ok or buftype ~= "" then
             return false
           end
 
-          local ok2, modifiable =
-            pcall(
-            function()
-              return vim.bo[bufnr].modifiable
-            end
-          )
+          local ok2, modifiable = pcall(function()
+            return vim.bo[bufnr].modifiable
+          end)
           if not ok2 or not modifiable then
             return false
           end
@@ -183,90 +168,95 @@ return {
           end
 
           return true
-        end
+        end,
       },
       scroll = {
         enabled = false,
-        animate = {}
+        animate = {},
       },
       dashboard = {
         enabled = true,
         preset = {
           keys = {
-            {icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')"},
-            {icon = " ", key = "n", desc = "New File", action = ":ene | startinsert"},
-            {icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')"},
-            {icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')"},
-            {icon = " ", key = "c", desc = "Config", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})"},
-            {icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil},
-            {icon = " ", key = "q", desc = "Quit", action = ":qa"}
-          }
-        }
+            { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+            { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
+            { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+            { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+            {
+              icon = " ",
+              key = "c",
+              desc = "Config",
+              action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
+            },
+            { icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
+            { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+          },
+        },
       },
       picker = {
         enabled = true,
         hidden = true,
         ignored = false,
-        exclude = {"node_modules", "elixir_ls"},
+        exclude = { "node_modules", "elixir_ls" },
         layouts = require("utils.snacks-layouts"),
         -- Toggle indicators shown in title bar
         toggles = {
           follow = "f",
           hidden = "h",
           ignored = "i",
-          tree = "t"
+          tree = "t",
         },
         -- Global actions available in all pickers
         actions = {
           copy = {
             action = function(picker, item)
               require("utils.picker-extensions").actions.copy(picker, item)
-            end
+            end,
           },
           toggle_layout = {
             action = function(picker)
               require("utils.picker-extensions").actions.toggle_layout(picker)
-            end
-          }
+            end,
+          },
         },
         win = {
           input = {
             keys = {
-              ["<Esc>"] = {"focus_list", mode = {"i"}},
+              ["<Esc>"] = { "focus_list", mode = { "i" } },
               ["<Bs>"] = false,
-              ["<C-l>"] = {"toggle_layout", mode = {"i", "n"}},
-              ["<S-Up>"] = {"preview_scroll_up", mode = {"i", "n"}},
-              ["<S-Down>"] = {"preview_scroll_down", mode = {"i", "n"}}
-            }
+              ["<C-l>"] = { "toggle_layout", mode = { "i", "n" } },
+              ["<S-Up>"] = { "preview_scroll_up", mode = { "i", "n" } },
+              ["<S-Down>"] = { "preview_scroll_down", mode = { "i", "n" } },
+            },
           },
           list = {
             keys = {
-              ["<Esc>"] = {"close", mode = {"n"}},
+              ["<Esc>"] = { "close", mode = { "n" } },
               ["<C-p>"] = "toggle_preview", -- Toggle preview globally
               ["a"] = "list_down", -- Remap 'a' to down movement (HAEI layout)
               ["<C-a>"] = false, -- Disable select all - it's distracting
               ["y"] = "copy", -- Universal copy action (context-aware)
               ["<C-l>"] = "toggle_layout", -- Toggle layout globally
               ["<S-Up>"] = "preview_scroll_up",
-              ["<S-Down>"] = "preview_scroll_down"
-            }
-          }
+              ["<S-Down>"] = "preview_scroll_down",
+            },
+          },
         },
         sources = {
           todo_comments = {
-            exclude = {"node_modules"}
+            exclude = { "node_modules" },
           },
           explorer = {
-            exclude = {"node_modules", "elixir_ls"},
+            exclude = { "node_modules", "elixir_ls" },
             auto_close = true,
             hidden = true,
             ignored = false,
             git = {
-              enabled = true -- Enable git status display (enabled by default in 2.18.0+)
+              enabled = true, -- Enable git status display (enabled by default in 2.18.0+)
             },
             layout = {
               preset = "sidebar",
-              preview = false
+              preview = false,
             },
             -- Custom formatter that respects tree toggle (hides tree lines in flat mode)
             format = function(item, picker)
@@ -286,62 +276,60 @@ return {
                   local Tree = require("snacks.explorer.tree")
                   Tree:open(picker:dir())
                   picker.list:set_target()
-                  picker:find(
-                    {
-                      on_done = function()
-                        -- Move cursor into the expanded folder
-                        picker.list:move(1)
-                      end
-                    }
-                  )
-                end
+                  picker:find({
+                    on_done = function()
+                      -- Move cursor into the expanded folder
+                      picker.list:move(1)
+                    end,
+                  })
+                end,
               },
               open_multiple_buffers = {
                 action = function(picker)
                   require("utils.picker-extensions").actions.open_multiple_buffers(picker)
-                end
+                end,
               },
               copy_file_path = {
                 action = function(picker, item)
                   require("utils.picker-extensions").actions.copy_file_path(picker, item)
-                end
+                end,
               },
               search_in_directory = {
                 action = function(picker, item)
                   require("workspace.grep")["search-in-directory"](picker, item)
-                end
+                end,
               },
               diff = {
                 action = function(picker)
                   require("utils.picker-extensions").actions.diff_selected(picker)
-                end
+                end,
               },
               context_menu = {
                 action = function(picker, item)
                   require("utils.picker-extensions").actions.context_menu(picker, item)
-                end
+                end,
               },
               toggle_tree = {
                 action = function(picker)
                   require("utils.picker-extensions").actions.toggle_tree(picker)
-                end
+                end,
               },
               confirm_multi = {
                 action = function(picker, item, action)
                   require("utils.picker-extensions").actions.confirm_multi(picker, item, action)
-                end
+                end,
               },
               toggle_layout = {
                 action = function(picker)
                   require("utils.picker-extensions").actions.toggle_layout(picker)
-                end
-              }
+                end,
+              },
             },
             win = {
               input = {
                 keys = {
-                  ["<C-l>"] = {"toggle_layout", mode = {"i", "n"}}
-                }
+                  ["<C-l>"] = { "toggle_layout", mode = { "i", "n" } },
+                },
               },
               list = {
                 keys = {
@@ -372,10 +360,10 @@ return {
                   ["<C-CR>"] = "open_multiple_buffers", -- This references the action above,
                   ["f"] = "context_menu",
                   ["T"] = "toggle_tree",
-                  ["<C-l>"] = "toggle_layout"
-                }
-              }
-            }
+                  ["<C-l>"] = "toggle_layout",
+                },
+              },
+            },
           },
           files = {
             cmd = "fd",
@@ -384,36 +372,36 @@ return {
               context_menu = {
                 action = function(picker, item)
                   require("utils.picker-extensions").actions.context_menu(picker, item)
-                end
-              }
+                end,
+              },
             },
             win = {
               list = {
                 keys = {
-                  ["f"] = "context_menu"
-                }
-              }
-            }
+                  ["f"] = "context_menu",
+                },
+              },
+            },
           },
           grep = {
             cmd = "rg",
-            args = require("utils.files").build_rg_args()
+            args = require("utils.files").build_rg_args(),
           },
           buffers = {
             actions = {
               buffer_context_menu = {
                 action = function(picker, item)
                   require("utils.picker-extensions").actions.buffer_context_menu(picker, item)
-                end
-              }
+                end,
+              },
             },
             win = {
               list = {
                 keys = {
-                  ["f"] = "buffer_context_menu"
-                }
-              }
-            }
+                  ["f"] = "buffer_context_menu",
+                },
+              },
+            },
           },
           git_status = {
             focus = "list",
@@ -422,29 +410,29 @@ return {
               git_context_menu = {
                 action = function(picker, item)
                   require("utils.picker-extensions").actions.git_context_menu(picker, item)
-                end
+                end,
               },
               toggle_conflict_filter = {
                 action = function(picker)
                   require("utils.picker-extensions").actions.toggle_conflict_filter(picker)
-                end
+                end,
               },
               search_in_directory = {
                 action = function(picker, item)
                   require("workspace.grep")["search-in-directory"](picker, item)
-                end
-              }
+                end,
+              },
             },
             win = {
               list = {
                 keys = {
                   ["f"] = "git_context_menu",
-                  ["s"] = {"git_stage", mode = {"n", "i"}},
+                  ["s"] = { "git_stage", mode = { "n", "i" } },
                   ["<M-c>"] = "toggle_conflict_filter",
-                  ["<C-/>"] = "search_in_directory"
-                }
-              }
-            }
+                  ["<C-/>"] = "search_in_directory",
+                },
+              },
+            },
           },
           git_branches = {
             auto_close = false,
@@ -481,13 +469,13 @@ return {
                       vim.notify("No branch selected", vim.log.levels.WARN)
                     end
                     vim.notify("No branch selected", vim.log.levels.WARN)
-                  end
-                }
-              }
-            }
+                  end,
+                },
+              },
+            },
           },
           git_diff = {
-            focus = "list"
+            focus = "list",
           },
           git_log = {
             -- TODO <leader>gL showr a git log for commit for current buffer
@@ -497,86 +485,86 @@ return {
                 keys = {
                   ["p"] = function(picker, item)
                     require("utils.picker-extensions").actions.context_menu(picker, item)
-                  end
-                }
-              }
-            }
+                  end,
+                },
+              },
+            },
           },
           zoxide = {
             -- Configure zoxide picker
             follow = true,
             cmd = "zoxide",
-            args = {"query", "-l"},
+            args = { "query", "-l" },
             actions = {
               zoxide_cd = {
                 action = function(picker, item)
                   picker:close()
                   vim.cmd("cd " .. vim.fn.fnameescape(item.file or item.text))
                   vim.notify("Changed directory to: " .. (item.file or item.text))
-                end
+                end,
               },
               zoxide_explorer = {
                 action = function(picker, item)
                   picker:close()
-                  Snacks.picker.explorer({cwd = item.file or item.text})
-                end
-              }
+                  Snacks.picker.explorer({ cwd = item.file or item.text })
+                end,
+              },
             },
             win = {
               list = {
                 keys = {
                   ["<CR>"] = "zoxide_cd",
-                  ["e"] = "zoxide_explorer"
-                }
-              }
-            }
+                  ["e"] = "zoxide_explorer",
+                },
+              },
+            },
           },
           -- GitHub issue picker (sidebar layout)
           gh_issue = {
             layout = {
-              preset = "sidebar"
+              preset = "sidebar",
             },
-            focus = "list"
+            focus = "list",
           },
           -- GitHub PR picker (sidebar layout)
           gh_pr = {
             layout = {
-              preset = "sidebar"
+              preset = "sidebar",
             },
-            focus = "list"
+            focus = "list",
           },
           -- ════════════════════════════════════════════════════════════════
           -- SearXNG sources (registered by searxng.nvim plugin)
           -- ════════════════════════════════════════════════════════════════
           searxng = {
-            layout = {preset = "ivy"},
-            focus = "list"
+            layout = { preset = "ivy" },
+            focus = "list",
           },
           searxng_images = {},
           searxng_videos = {},
           searxng_news = {
-            layout = {preset = "ivy"},
-            focus = "list"
+            layout = { preset = "ivy" },
+            focus = "list",
           },
           searxng_autocomplete = {
-            layout = {preset = "vscode"},
-            open_browser = true
+            layout = { preset = "vscode" },
+            open_browser = true,
           },
           searxng_engines = {
-            layout = {preset = "select"}
+            layout = { preset = "select" },
           },
           searxng_categories = {
-            layout = {preset = "select"}
-          }
-        }
-      }
+            layout = { preset = "select" },
+          },
+        },
+      },
     },
     keys = {
       -- Disable LazyVim defaults that conflict with our explicit keymaps
-      {"<leader>n", false}, -- We define this explicitly in keymaps.lua for notes
-      {"<leader>ff", false}, -- Disable LazyVim Find Files - we use fff
-      {"<leader>e", false}, -- Disable LazyVim Explorer - we use <leader><leader>
-      {"<leader>fe", false}, -- Disable LazyVim Explorer (root dir)
+      { "<leader>n", false }, -- We define this explicitly in keymaps.lua for notes
+      { "<leader>ff", false }, -- Disable LazyVim Find Files - we use fff
+      { "<leader>e", false }, -- Disable LazyVim Explorer - we use <leader><leader>
+      { "<leader>fe", false }, -- Disable LazyVim Explorer (root dir)
       -- {
       --   "<leader>gC",
       --   function()
@@ -589,7 +577,7 @@ return {
         function()
           require("utils.picker-extensions").actions.git_conflicts_explorer()
         end,
-        desc = "Git Conflicts Explorer"
+        desc = "Git Conflicts Explorer",
       },
       {
         "<leader>se",
@@ -600,54 +588,46 @@ return {
             if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
               local file_path = vim.api.nvim_buf_get_name(buf)
               if file_path ~= "" then
-                table.insert(
-                  open_files,
-                  {
-                    file = file_path,
-                    text = vim.fn.fnamemodify(file_path, ":t"),
-                    icon = "󰈔",
-                    kind = "file"
-                  }
-                )
+                table.insert(open_files, {
+                  file = file_path,
+                  text = vim.fn.fnamemodify(file_path, ":t"),
+                  icon = "󰈔",
+                  kind = "file",
+                })
               end
             end
           end
 
           -- Create a picker with custom items but explorer behavior
-          Snacks.picker.pick(
-            "open_files",
-            {
-              items = open_files,
-              actions = Snacks.config.picker.sources.explorer.actions,
-              win = Snacks.config.picker.sources.explorer.win
-            }
-          )
+          Snacks.picker.pick("open_files", {
+            items = open_files,
+            actions = Snacks.config.picker.sources.explorer.actions,
+            win = Snacks.config.picker.sources.explorer.win,
+          })
         end,
-        desc = "Explorer (open files only)"
+        desc = "Explorer (open files only)",
       },
       {
         "<leader>z",
         function()
           Snacks.picker.zoxide()
         end,
-        desc = "Zoxide (smart directories)"
+        desc = "Zoxide (smart directories)",
       },
       {
         "<leader>qS",
         function()
           Snacks.dashboard.open()
         end,
-        desc = "Open dashboard"
-      }
+        desc = "Open dashboard",
+      },
     },
     config = function(_, opts)
       -- Only setup searxng if the plugin is available
-      pcall(
-        function()
-          require("searxng").setup()
-        end
-      )
+      pcall(function()
+        require("searxng").setup()
+      end)
       require("snacks").setup(opts)
-    end
-  }
+    end,
+  },
 }

@@ -3,9 +3,9 @@ local M = {}
 local kitten = (vim.fn.expand("~") .. "/.config/kitty/runner.py")
 local function run_kitten(args)
   local socket = (vim.env.KITTY_LISTEN_ON or "unix:@mykitty")
-  local cmd = vim.list_extend({"kitty", "@", "--to", socket, "kitten", kitten}, args)
+  local cmd = vim.list_extend({ "kitty", "@", "--to", socket, "kitten", kitten }, args)
   local function _1_(res)
-    if (res.code ~= 0) then
+    if res.code ~= 0 then
       local function _2_()
         return vim.notify(("kitty runner failed: " .. (res.stderr or "")), vim.log.levels.ERROR)
       end
@@ -14,7 +14,7 @@ local function run_kitten(args)
       return nil
     end
   end
-  return vim.system(cmd, {text = true}, _1_)
+  return vim.system(cmd, { text = true }, _1_)
 end
 local function selection_or_line()
   local mode = vim.api.nvim_get_mode().mode
@@ -25,13 +25,13 @@ local function selection_or_line()
   if mode:match("[vV\22]") then
     return vim.api.nvim_buf_get_lines(0, (vim.fn.getpos("'<")[2] - 1), vim.fn.getpos("'>")[2], false)
   else
-    return {vim.api.nvim_get_current_line()}
+    return { vim.api.nvim_get_current_line() }
   end
 end
 M.send = function(location)
-  return run_kitten(vim.list_extend({"send", (location or "hsplit"), "--"}, selection_or_line()))
+  return run_kitten(vim.list_extend({ "send", (location or "hsplit"), "--" }, selection_or_line()))
 end
 M.open = function(location)
-  return run_kitten({"open", (location or "hsplit")})
+  return run_kitten({ "open", (location or "hsplit") })
 end
 return M
