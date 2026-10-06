@@ -16,7 +16,11 @@
                                             (vim.api.nvim_set_current_win main.id))))))
                                   (f)))
                next-hunk (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.next_conflict) (vim.cmd "normal! ]c")))
-               prev-hunk (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.prev_conflict) (vim.cmd "normal! [c")))]
+               prev-hunk (fn [] (if (~= (vim.fn.search "^<<<<<<< " :nw) 0) (actions.prev_conflict) (vim.cmd "normal! [c")))
+               ;; <C-A>/<C-E> stay directional window-nav here too (SPEC: those
+               ;; keys are smart-splits down/up everywhere); hunks move to <C-Down>/<C-Up>.
+               win-down (fn [] ((. (require :smart-splits) :move_cursor_down)))
+               win-up   (fn [] ((. (require :smart-splits) :move_cursor_up)))]
            {:enhanced_diff_hl true
             :use_icons true
             :show_help_hints true
@@ -30,9 +34,10 @@
                    :merge_tool {:layout :diff1_plain
                                 :disable_diagnostics false
                                 :winbar_info true}
+                   ;; No global pin_local: <leader>gf = history without local,
+                   ;; <leader>gF = history with --base=LOCAL (working tree on right).
                    :file_history {:layout :diff2_horizontal
                                   :winbar_info true
-                                  :pin_local true
                                   :win_config {:position :bottom}}}
             :file_panel {:listing_style :tree
                          :tree_options {:flatten_dirs false
@@ -56,9 +61,14 @@
                 {:desc "Take OURS (put)"}]
                ;; hunk level operations
                ["n" :dp "<Cmd>diffput<CR>" {:desc "Put hunk to other (OURS)"}]
-               ;; navigation (HAEI)
-               ["n" :<C-A> next-hunk {:desc "Next conflict or hunk"}]
-               ["n" :<C-E> prev-hunk {:desc "Prev conflict or hunk"}]
+               ;; window nav (HAEI, smart-splits) + hunk nav on arrows
+               ["n" :<C-A> win-down {:desc "Window down"}]
+               ["n" :<C-E> win-up {:desc "Window up"}]
+               ["n" :<C-Down> next-hunk {:desc "Next conflict or hunk"}]
+               ["n" :<C-Up> prev-hunk {:desc "Prev conflict or hunk"}]
+               ;; entry navigation (match the panels)
+               ["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
+               ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
                ;; common actions
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "<leader>." actions.cycle_layout {:desc "Cycle layout"}]
@@ -67,13 +77,17 @@
                ["n" "<C-s>"    actions.stage_all      {:desc "Stage all"}]
                ["n" "?"        (actions.help :view)   {:desc "Help"}]]
               :diff1_inline
-             [["n" "<C-A>" actions.next_inline_hunk {:desc "Next inline hunk"}]
-              ["n" "<C-E>" actions.prev_inline_hunk {:desc "Prev inline hunk"}]]
+             [["n" "<C-A>" win-down {:desc "Window down"}]
+              ["n" "<C-E>" win-up {:desc "Window up"}]
+              ["n" "<C-Down>" actions.next_inline_hunk {:desc "Next inline hunk"}]
+              ["n" "<C-Up>" actions.prev_inline_hunk {:desc "Prev inline hunk"}]]
               :file_panel
               [["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
                ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
-               ["n" "<C-A>" (in-diff-window next-hunk) {:desc "Next conflict or hunk"}]
-               ["n" "<C-E>" (in-diff-window prev-hunk) {:desc "Prev conflict or hunk"}]
+               ["n" "<C-A>" win-down {:desc "Window down"}]
+               ["n" "<C-E>" win-up {:desc "Window up"}]
+               ["n" "<C-Down>" (in-diff-window next-hunk) {:desc "Next conflict or hunk"}]
+               ["n" "<C-Up>" (in-diff-window prev-hunk) {:desc "Prev conflict or hunk"}]
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "dr"    actions.restore_entry                    {:desc "Restore file"}]
                ["n" "dl"    (fn [] (actions.toggle_stage_entry))     {:desc "Stage file"}]
@@ -85,8 +99,10 @@
               :file_history_panel
               [["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
                ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
-               ["n" "<C-A>" (in-diff-window next-hunk) {:desc "Next conflict or hunk"}]
-               ["n" "<C-E>" (in-diff-window prev-hunk) {:desc "Prev conflict or hunk"}]
+               ["n" "<C-A>" win-down {:desc "Window down"}]
+               ["n" "<C-E>" win-up {:desc "Window up"}]
+               ["n" "<C-Down>" (in-diff-window next-hunk) {:desc "Next conflict or hunk"}]
+               ["n" "<C-Up>" (in-diff-window prev-hunk) {:desc "Prev conflict or hunk"}]
                ["n" "<S-Esc>" actions.toggle_files {:desc "Toggle files list panel"}]
                ["n" "<cr>"   actions.select_entry      {:desc "Open diff"}]
                ["n" "o"      actions.select_entry      {:desc "Open diff"}]

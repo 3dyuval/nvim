@@ -163,8 +163,10 @@ Load order (lua/config/keymaps.lua):
 X1: ga/ge are defined TWICE — scroll (keymaps.lua) then hunk-nav
     (movement.fnl, loaded later). Hunk-nav WINS globally.                  [HOLDS]
     → "scroll (Graphite)" descs are vestigial; PageUp/PageDown carry scroll.
-X2: Inside diffview, ga/ge are re-bound BUFFER-LOCAL (conflict/hunk aware)
-    and override the global hunk-nav there.                                [HOLDS]
+X2: Inside diffview, hunk/conflict nav is <C-Down>/<C-Up> (buffer-local,
+    conflict-aware). <C-A>/<C-E> stay directional window-nav (smart-splits
+    down/up) in every diffview context, consistent with their global
+    meaning; <S-A>/<S-E> = prev/next file entry.                           [HOLDS]
     (fnl/plugins/diffview-plus.fnl)
 X3: `x`/`X` are RETIRED → notify "use d"; `d` is the delete operator.
     Any "x = delete" claim elsewhere (skills/docs) is stale.              [HOLDS]
@@ -187,7 +189,7 @@ X7: undo reverted to native — u=undo, <C-r>=redo, U=undo-line. This frees z
 | `lua/config/keymaps.lua` | Base HAEI (`h/a/e/i`), operator retirement (`x`→notify), scroll `ga/ge` (later overridden), Page tiers; loads the fnl modules at the bottom |
 | `fnl/config/keymaps/movement.fnl` | Granularity layers: Treewalker (structural), folds, hunk nav `ga/ge` (overrides scroll), till `k/K` |
 | `lua/config/keymaps-old.lua` | Legacy word/WORD motions (`l/L/D`, `<M-h>/<M-o>`), open-line, replace, jumplist — loaded last |
-| `fnl/plugins/diffview-plus.fnl` | Buffer-local `ga/ge` (conflict/hunk aware) + `<S-Page>` file nav inside diffview |
+| `fnl/plugins/diffview-plus.fnl` | Buffer-local hunk/conflict nav on `<C-Down>/<C-Up>`; `<C-A>/<C-E>` = window nav, `<S-A>/<S-E>` = file-entry nav |
 | `fnl/config/keymaps/modes.fnl` | Require-order hub: pulls in movement/insert/search/etc. |
 
 ## Extending

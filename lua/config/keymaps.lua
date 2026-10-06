@@ -154,7 +154,7 @@ map(
       d = {cmd = "DiffviewOpen", desc = "Diff view open"},
       D = {cmd = "DiffviewOpen ", exec = false, desc = "Compare with branch"},
       f = {cmd = "DiffviewFileHistory", desc = "File history"},
-      F = {cmd = "DiffviewFileHistory %", exec = false, desc = "File history"},
+      F = {cmd = "DiffviewFileHistory % --base=LOCAL", exec = false, desc = "File history (working tree on right)"},
       s = {cmd = "DiffviewFileHistory -g --range=stash", desc = "Diff view stash"},
       x = {[mode] = {"n", "x"}, cmd = "Gitsigns reset_hunk", desc = "Reset Hunk"},
 
