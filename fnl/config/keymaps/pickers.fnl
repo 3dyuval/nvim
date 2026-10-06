@@ -16,6 +16,10 @@
       (fn [] ((. (require :workspace.kitty-send) :open) :vsplit))
       {:desc "Kitty: open runner (right)"})
 
+(lset :n :<leader>rp
+      (fn [] ((. (require :workspace.pkg-scripts) :pick)))
+      {:desc "Run package.json script -> quickfix"})
+
 (lset :n :<leader>ff
       (fn [] (vim.cmd "Yazi"))
       {:desc "Yazi at current file"})

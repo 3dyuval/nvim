@@ -17,6 +17,10 @@ local function _4_()
 end
 lset("n", "<leader>rR", _4_, {desc = "Kitty: open runner (right)"})
 local function _5_()
+  return require("workspace.pkg-scripts").pick()
+end
+lset("n", "<leader>rp", _5_, {desc = "Run package.json script -> quickfix"})
+local function _6_()
   return vim.cmd("Yazi")
 end
-return lset("n", "<leader>ff", _5_, {desc = "Yazi at current file"})
+return lset("n", "<leader>ff", _6_, {desc = "Yazi at current file"})
