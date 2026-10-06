@@ -1,22 +1,22 @@
-;; dial.nvim — enhanced <C-a>/<C-x> increment/decrement.
-;; Normal <C-a>/<C-x> and visual g<C-a>/g<C-x> are free (HAEI window-nav
-;; only claims terminal-mode <C-a>). Augends grouped as :default; add
-;; filetype-specific groups later if needed.
+;; dial.nvim — enhanced increment/decrement. <C-a>/<C-x> belong to smart-splits
+;; window-nav (HAEI), so dial uses ge/ga: e=up=increment, a=down=decrement.
+;; Augends grouped as :default; add filetype-specific groups later if needed.
+
+;; One lazy key spec: `lhs` in `mode` runs dial.manipulate(dir, dial-mode).
+(fn key [lhs mode dir dial-mode desc]
+  {1 lhs
+   2 (fn [] ((. (require :dial.map) :manipulate) dir dial-mode))
+   :mode mode :desc desc})
+
 {1 "monaqa/dial.nvim"
  :enabled true
  :keys
- [{1 "<C-a>"  2 (fn [] ((. (require :dial.map) :manipulate) "increment" "normal"))
-   :mode :n :desc "Increment"}
-  {1 "<C-x>"  2 (fn [] ((. (require :dial.map) :manipulate) "decrement" "normal"))
-   :mode :n :desc "Decrement"}
-  {1 "<C-a>"  2 (fn [] ((. (require :dial.map) :manipulate) "increment" "visual"))
-   :mode :v :desc "Increment"}
-  {1 "<C-x>"  2 (fn [] ((. (require :dial.map) :manipulate) "decrement" "visual"))
-   :mode :v :desc "Decrement"}
-  {1 "g<C-a>" 2 (fn [] ((. (require :dial.map) :manipulate) "increment" "gvisual"))
-   :mode :v :desc "Increment (sequence)"}
-  {1 "g<C-x>" 2 (fn [] ((. (require :dial.map) :manipulate) "decrement" "gvisual"))
-   :mode :v :desc "Decrement (sequence)"}]
+ [(key "ge"  :n "increment" "normal"  "Increment")
+  (key "ga"  :n "decrement" "normal"  "Decrement")
+  (key "ge"  :v "increment" "visual"  "Increment")
+  (key "ga"  :v "decrement" "visual"  "Decrement")
+  (key "gge" :v "increment" "gvisual" "Increment (sequence)")
+  (key "gga" :v "decrement" "gvisual" "Decrement (sequence)")]
  :config
  (fn []
    (let [augend (require :dial.augend)
