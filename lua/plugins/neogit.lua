@@ -1,7 +1,7 @@
 return {
   "NeogitOrg/neogit",
   dev = false,
-  cmd = {"Neogit", "NeogitResetState", "NeogitConflictResolve"},
+  cmd = { "Neogit", "NeogitResetState", "NeogitConflictResolve" },
   -- build = [[
   --     git remote add upstream https://github.com/3dyuval/neogit.git 2>/dev/null
   --     git fetch upstream
@@ -11,44 +11,33 @@ return {
     "nvim-lua/plenary.nvim",
     "dlyongemallo/diffview-plus.nvim",
     "folke/snacks.nvim",
-    "3dyuval/git-resolve-conflict.nvim"
+    "3dyuval/git-resolve-conflict.nvim",
   },
   config = function(_, opts)
     require("utils.neogit-commands").setup()
 
-    vim.api.nvim_create_autocmd(
-      "FileType",
-      {
-        pattern = "NeogitStatus",
-        callback = function(args)
-          vim.keymap.set(
-            "n",
-            "D",
-            function()
-              require("utils.neogit-commands").create_conflict_popup()
-            end,
-            {
-              buffer = args.buf,
-              desc = "File resolution popup",
-              nowait = true
-            }
-          )
-          -- Force disable 'm' key in Neogit
-          pcall(vim.keymap.del, "n", "m", {buffer = args.buf})
-        end
-      }
-    )
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "NeogitStatus",
+      callback = function(args)
+        vim.keymap.set("n", "D", function()
+          require("utils.neogit-commands").create_conflict_popup()
+        end, {
+          buffer = args.buf,
+          desc = "File resolution popup",
+          nowait = true,
+        })
+        -- Force disable 'm' key in Neogit
+        pcall(vim.keymap.del, "n", "m", { buffer = args.buf })
+      end,
+    })
 
     -- HAEI: z = undo in rebase editor
-    vim.api.nvim_create_autocmd(
-      "FileType",
-      {
-        pattern = "NeogitRebaseTodo",
-        callback = function(args)
-          vim.keymap.set("n", "z", "u", {buffer = args.buf, desc = "Undo"})
-        end
-      }
-    )
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "NeogitRebaseTodo",
+      callback = function(args)
+        vim.keymap.set("n", "z", "u", { buffer = args.buf, desc = "Undo" })
+      end,
+    })
 
     require("neogit").setup(opts)
   end,
@@ -60,22 +49,22 @@ return {
     auto_close_console = false,
     filewatcher = {
       enabled = true,
-      debounce_ms = 500 -- Increased from default 200ms for better performance
+      debounce_ms = 500, -- Increased from default 200ms for better performance
     },
     integrations = {
       diffview = true,
       telescope = false,
-      snacks = true
+      snacks = true,
     },
     merge_editor = {
-      kind = "auto"
+      kind = "auto",
     },
     commit_view = {
-      kind = "vsplit"
+      kind = "vsplit",
     },
     log_view = {
       kind = "tab",
-      use_diffview = true -- open commit under cursor in Diffview instead of builtin commit view
+      use_diffview = true, -- open commit under cursor in Diffview instead of builtin commit view
     },
     autoinstall = true,
     -- Set default popup configurations
@@ -94,28 +83,25 @@ return {
       end,
       NeogitCommitPopup = function(popup)
         -- Insert AI Commit into the "Create" column (first action group)
-        table.insert(
-          popup.state.actions[1],
-          {
-            keys = {"i"},
-            description = "AI Commit",
-            callback = function()
-              require("utils.ai_popup").create()
-            end
-          }
-        )
+        table.insert(popup.state.actions[1], {
+          keys = { "i" },
+          description = "AI Commit",
+          callback = function()
+            require("utils.ai_popup").create()
+          end,
+        })
       end,
       NeogitRebasePopup = function(popup)
         -- Add strategy options for conflict resolution (-Xtheirs, -Xours)
-        popup:switch("g", "Xtheirs", "Accept theirs on conflicts", {cli_prefix = "-"})
-        popup:switch("p", "Xours", "Accept ours on conflicts", {cli_prefix = "-"})
-      end
+        popup:switch("g", "Xtheirs", "Accept theirs on conflicts", { cli_prefix = "-" })
+        popup:switch("p", "Xours", "Accept ours on conflicts", { cli_prefix = "-" })
+      end,
     },
     mappings = {
       popup = {
         ["m"] = false,
         ["M"] = "MergePopup",
-        ["R"] = "RemotePopup" -- Remote popup (M is taken by MergePopup)
+        ["R"] = "RemotePopup", -- Remote popup (M is taken by MergePopup)
       },
       status = {
         ["m"] = false, -- disable merge to use your custom binding
@@ -133,7 +119,7 @@ return {
         end,
         ["D"] = function()
           require("utils.neogit-commands").create_conflict_popup()
-        end
+        end,
       },
       rebase_editor = {
         -- HAEI navigation with Alt
@@ -157,8 +143,8 @@ return {
         ["f"] = false,
         ["x"] = false,
         ["d"] = false,
-        ["b"] = false
-      }
-    }
-  }
+        ["b"] = false,
+      },
+    },
+  },
 }
