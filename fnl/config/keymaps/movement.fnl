@@ -54,6 +54,13 @@
             (gs.nav_hunk "prev" {:target "all"})))
       {:desc "Prev git hunk"})
 
+;; MCP virtual-text nav: step between nvim-mcp's add_virtual_text annotations
+;; (the 'mcp_virtual_text' extmark namespace). Distinct from ]d/[d diagnostics.
+(lset :n "]i" (fn [] ((. (require :workspace.mcp-virtual-text) :next)))
+      {:desc "Next MCP virtual text"})
+(lset :n "[i" (fn [] ((. (require :workspace.mcp-virtual-text) :prev)))
+      {:desc "Prev MCP virtual text"})
+
 ;; Scroll one line (HAEI vertical: a=down, e=up). Explicit so <C-S-A/E>
 ;; don't fall through to native scroll on an unmapped key.
 (lset :n :<C-S-A> "<C-e>" {:desc "Scroll line down"})

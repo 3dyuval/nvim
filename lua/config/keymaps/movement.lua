@@ -42,5 +42,13 @@ local function _6_()
   end
 end
 lset("n", "<C-Up>", _6_, {desc = "Prev git hunk"})
+local function _8_()
+  return require("workspace.mcp-virtual-text").next()
+end
+lset("n", "]i", _8_, {desc = "Next MCP virtual text"})
+local function _9_()
+  return require("workspace.mcp-virtual-text").prev()
+end
+lset("n", "[i", _9_, {desc = "Prev MCP virtual text"})
 lset("n", "<C-S-A>", "<C-e>", {desc = "Scroll line down"})
 return lset("n", "<C-S-E>", "<C-y>", {desc = "Scroll line up"})
