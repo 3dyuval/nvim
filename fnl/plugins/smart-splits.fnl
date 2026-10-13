@@ -5,8 +5,11 @@
 ;; the neighboring kitty split via its kitty integration. It never touches the WM.
 {1 "mrjones2014/smart-splits.nvim"
  :lazy false
+ :dependencies [{1 "smart-splits-nvim/backend-kitty"
+                 :module "smart-splits-backend-kitty"
+                 :opts {}}]
  :opts {:move {:at_edge "stop"}
-        :mux {:backend "kitty"}}
+        :mux {:backend "smart-splits-backend-kitty"}}
  :keys
  [;; navigation
   {1 "<C-h>" 2 (fn [] ((. (require :smart-splits) :move_cursor_left)))  :desc "Window left"}
