@@ -36,13 +36,31 @@ make check     # Code quality check
 make test      # Keymap conflict tests
 ```
 
+## Interacting with a Running Nvim (nvim-mcp first)
+
+To inspect or drive a **live** nvim instance, prefer the **nvim-mcp** tools
+over any binary/CLI path. Order of preference:
+
+1. **nvim-mcp (first choice)** — `connect` (pick the instance by index/cwd/pid),
+   then `get_state_brief` / `get_state`, `read_buf_range`, `get_*_diagnostics`,
+   `send_keys` / `send_command`, `add_virtual_text(s)` / `highlight_range`, etc.
+   Structured, read-only-by-default, no terminal scraping.
+2. **Binaries / CLI (fallback)** — only when nvim-mcp can't do it: headless
+   `nvim --headless ... +qa` for config-load checks, `nvim --server <sock>
+   --remote-send` / `--remote-expr`, or `scripts/kitty-nvim-debug.lua` to remote
+   control nvim via Kitty.
+
+When multiple instances are running, `connect` returns the list — choose by
+`cwd`/`file` rather than guessing the index.
+
 ## Testing
 
 See [references/testing.md](references/testing.md) for test patterns and debugging.
 
 Quick reference:
 - `make test` - Run Plenary tests
-- `scripts/kitty-nvim-debug.lua` - Remote control nvim via Kitty
+- nvim-mcp tools - Inspect/drive a running instance (preferred; see above)
+- `scripts/kitty-nvim-debug.lua` - Remote control nvim via Kitty (fallback)
 
 ## Keymap Pattern (keymap-utils)
 
