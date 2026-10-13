@@ -31,15 +31,12 @@
   :config (fn [_ opts]
             ((. (require :bento) :setup) opts)
             (let [api (require :bento.api)]
-              ;; `;` opens the menu and labels the last-accessed buffer
-              ;; (README pro-tip: same key = fast switch-to-last-buffer).
               (api.register_expand_key ";")
-              (api.register_last_buffer_key ";")
               (api.register_collapse_key :<Esc>)
-              (api.register_prev_page_key "[")
-              (api.register_next_page_key "]")
               (each [_ [name key hl] (ipairs menu-actions)]
                 (api.register_action name {:key key
                                            :action (. api.actions name)
                                            :hl hl}))
-              (api.set_default_action :open)))}]
+              (api.set_default_action :open))
+            (vim.api.nvim_clear_autocmds {:group :BentoRefresh
+                                          :event :CursorMoved}))}]
