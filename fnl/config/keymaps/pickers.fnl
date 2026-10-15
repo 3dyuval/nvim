@@ -20,7 +20,11 @@
       (fn [] ((. (require :workspace.pkg-scripts) :pick)))
       {:desc "Run package.json script -> quickfix"})
 
-(lset :n :<leader>ff
+(lset :n :<leader><leader>
       (fn [] (vim.cmd "Yazi"))
       {:desc "Yazi at current file"})
+
+(lset :n :<leader>fg
+      (fn [] (Snacks.picker.git_files))
+      {:desc "Find git files"})
 

@@ -2,7 +2,7 @@
 {1 "mikavilpas/yazi.nvim"
  :dependencies [{1 "nvim-lua/plenary.nvim" :lazy true}]
  :event :VeryLazy
- ;; <leader>ff lives in fnl/config/keymaps/pickers.fnl; keep these for lazy-loading.
+ ;; <leader><leader> lives in fnl/config/keymaps/pickers.fnl; keep these for lazy-loading.
  :keys [{1 :<leader>- 2 "<cmd>Yazi<cr>" :mode [:n :v] :desc "Yazi at current file"}
         {1 :<leader>cw 2 "<cmd>Yazi cwd<cr>" :desc "Yazi in working dir"}]
  :opts {;; Take over :edit <dir> so opening a directory launches yazi (replaces netrw).

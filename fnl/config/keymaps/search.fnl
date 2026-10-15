@@ -43,7 +43,7 @@
          {:layout {:preset :fullscreen} :focus :input}))
       {:desc "Explorer (fullscreen, focus input)"})
 
-(lset :n :<leader>fE
+(lset :n :<leader>fe
       (fn []
         ((. (require :utils.picker-extensions) :open_explorer)
          {:layout {:preset :sidebar} :focus :list :auto_close false}))
@@ -55,9 +55,9 @@
       {:desc "Buffers (fullscreen)"})
 
 (lset :n :<C-/>
-      (fn [] (Snacks.picker.grep))
-      {:desc "Grep (top level)"})
-
-(lset :n :<leader>/
       (fn [] ((. (require :workspace.grep) :grep-current-buffer-dir)))
       {:desc "Grep (current buffer's dir)"})
+
+(lset :n :<leader>/
+      (fn [] (Snacks.picker.grep))
+      {:desc "Grep (top level)"})

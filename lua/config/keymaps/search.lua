@@ -33,16 +33,16 @@ lset("n", "<leader>fo", _7_, {desc = "Explorer (fullscreen, focus input)"})
 local function _8_()
   return require("utils.picker-extensions").open_explorer({layout = {preset = "sidebar"}, focus = "list", auto_close = false})
 end
-lset("n", "<leader>fE", _8_, {desc = "Explorer (persistent, no auto-close)"})
+lset("n", "<leader>fe", _8_, {desc = "Explorer (persistent, no auto-close)"})
 local function _9_()
   return Snacks.picker.buffers({layout = {preset = "fullscreen"}})
 end
 lset("n", "<leader>fF", _9_, {desc = "Buffers (fullscreen)"})
 local function _10_()
-  return Snacks.picker.grep()
-end
-lset("n", "<C-/>", _10_, {desc = "Grep (top level)"})
-local function _11_()
   return require("workspace.grep")["grep-current-buffer-dir"]()
 end
-return lset("n", "<leader>/", _11_, {desc = "Grep (current buffer's dir)"})
+lset("n", "<C-/>", _10_, {desc = "Grep (current buffer's dir)"})
+local function _11_()
+  return Snacks.picker.grep()
+end
+return lset("n", "<leader>/", _11_, {desc = "Grep (top level)"})

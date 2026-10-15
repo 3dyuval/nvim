@@ -26,8 +26,8 @@
                   :wrap_lines false
                   :show_file_info true
                   :binary_file_threshold 1024}
-        ;; open is bound globally as <C-F> (utils.files.find_files) in
-        ;; lua/config/keymaps.lua [ctrl] block — not self-registered here.
+        ;; pickers are opened via fff-snacks (<leader>ff / <C-f>) in
+        ;; fnl/plugins/fff-snacks.fnl — not self-registered here.
         :keymaps {:close "<Esc>"
                   :select "<CR>"
                   :select_split "<C-s>"

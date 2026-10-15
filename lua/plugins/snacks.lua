@@ -354,9 +354,9 @@ return {
                   ["i"] = "explorer_expand", -- Expand directory (Graphite: i=right)
                   ["h"] = "explorer_close", -- Collapse directory (Graphite: h=left)
                   ["o"] = "explorer_open", -- Open with system app
-                  -- Git status navigation (Graphite layout: A=down/next, E=up/prev)
-                  ["A"] = "explorer_git_next", -- Next git status file
-                  ["E"] = "explorer_git_prev", -- Previous git status file
+                  -- Git status navigation
+                  ["<C-Down>"] = "explorer_git_next", -- Next git status file
+                  ["<C-Up>"] = "explorer_git_prev", -- Previous git status file
                   -- Conflict navigation (using error navigation as proxy for conflicts)
                   ["]]"] = "explorer_warn_next", -- Next conflict/error
                   ["[["] = "explorer_error_prev", -- Previous conflict/error

@@ -1,11 +1,6 @@
 -- File operations utilities
 local M = {}
 
--- Find files from git root using fff.nvim
-M.find_files = function()
-  require("fff").find_in_git_root()
-end
-
 M.save_and_stage_file = function()
   if vim.bo.buftype ~= "" then
     return
