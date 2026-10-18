@@ -1,3 +1,20 @@
+;; diffview-plus — keymaps (HAEI, consistent across every context):
+;;
+;;   key             action                      contexts
+;;   ──────────────  ──────────────────────────  ───────────────────────────────
+;;   <S-A> / <S-E>   next / prev file entry       view, file_panel, file_history
+;;   <C-S-A>/<C-S-E> next / prev commit entry     file_history
+;;   <C-A> / <C-E>   window down / up (smart-split)  all
+;;   <C-Down>/<C-Up> next / prev hunk or conflict    view, inline, both panels
+;;   <C-M-S-Down/Up> take THEIRS / OURS (conflict)   view
+;;   dp              put hunk to other (OURS)        view
+;;   <CR> / o        open diff for entry             file_panel, file_history
+;;   <S-Esc>         toggle files list panel         view, both panels
+;;   dr / dl         restore / stage file            file_panel
+;;   q               close diffview                  all
+;;
+;; SPEC.md X2: <C-A>/<C-E> stay directional window-nav here (their global
+;; meaning); entry-nav is <S-A>/<S-E>; hunk-nav moved to <C-Down>/<C-Up>.
 {1 "dlyongemallo/diffview-plus.nvim"
  :dev false
  :dependencies ["nvim-tree/nvim-web-devicons"]
@@ -99,6 +116,8 @@
               :file_history_panel
               [["n" "<S-A>" actions.select_next_entry {:desc "Next file"}]
                ["n" "<S-E>" actions.select_prev_entry {:desc "Previous file"}]
+               ["n" "<C-S-A>" actions.select_next_commit {:desc "Next commit"}]
+               ["n" "<C-S-E>" actions.select_prev_commit {:desc "Prev commit"}]
                ["n" "<C-A>" win-down {:desc "Window down"}]
                ["n" "<C-E>" win-up {:desc "Window up"}]
                ["n" "<C-Down>" (in-diff-window next-hunk) {:desc "Next conflict or hunk"}]
