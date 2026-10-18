@@ -583,8 +583,8 @@ local builtin_keymaps = {
     ["F"] = { desc = "Find character backward", action = "find char backward" },
     ["t"] = { desc = "Till character", action = "till char forward" },
     ["T"] = { desc = "Till character backward", action = "till char backward" },
-    [";"] = { desc = "Repeat find", action = "repeat last f/F/t/T" },
-    [","] = { desc = "Repeat find reverse", action = "repeat last f/F/t/T reverse" },
+    [","] = { desc = "Repeat find", action = "repeat last f/F/t/T" },
+    [";"] = { desc = "Repeat find reverse", action = "repeat last f/F/t/T reverse" },
   },
 
   -- Visual mode built-ins
