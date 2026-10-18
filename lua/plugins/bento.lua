@@ -3,7 +3,7 @@ local menu_actions = {{"open", "<CR>", "DiagnosticVirtualTextHint"}, {"delete", 
 local function _1_(_, opts)
   require("bento").setup(opts)
   local api = require("bento.api")
-  api.register_expand_key(";")
+  api.register_expand_key("\\")
   api.register_collapse_key("<Esc>")
   for _0, _2_ in ipairs(menu_actions) do
     local name = _2_[1]
