@@ -49,6 +49,21 @@ return {
   {
     "MagicDuck/grug-far.nvim",
     keys = {},
+    opts = {
+      -- After replace-all, roll the replacement into search and clear
+      -- replacement, so chained replaces don't need retyping (issue #604).
+      hooks = {
+        on_after_replace_all = function(inst)
+          local inputs = inst:get_status_info().inputs
+          if not inputs.replacement or inputs.replacement == "" then
+            return
+          end
+          inputs.search = inputs.replacement
+          inputs.replacement = ""
+          inst:update_input_values(inputs, true)
+        end,
+      },
+    },
     config = function(_, opts)
       require("grug-far").setup(opts)
       pcall(vim.keymap.del, { "n", "x" }, "<leader>sr")
