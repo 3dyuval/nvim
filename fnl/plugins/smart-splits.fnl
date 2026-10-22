@@ -5,7 +5,8 @@
 ;; the neighboring kitty split via its kitty integration. It never touches the WM.
 {1 "mrjones2014/smart-splits.nvim"
  :lazy false
- :dependencies [{1 "smart-splits-nvim/backend-kitty"
+ :dependencies [{1 "SangersJeroen/backend-kitty"
+                 :branch "abstract-socket-support"
                  :module "smart-splits-backend-kitty"
                  :opts {}}]
  :opts {:move {:at_edge "stop"}
