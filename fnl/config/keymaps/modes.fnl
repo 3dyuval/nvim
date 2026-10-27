@@ -7,5 +7,7 @@
 (require :config.keymaps.pickers)
 (require :config.keymaps.natives)
 (require :config.keymaps.search)
+(require :config.keymaps.database)
+(require :config.keymaps.minimap)
 (require :config.keymaps.utils)
 

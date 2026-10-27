@@ -7,7 +7,7 @@
 
 [{1 "akinsho/bufferline.nvim" :enabled false}
  {1 "3dyuval/bento.nvim"
-  :dev true
+  :dev false
   :enabled true
   :lazy false
   :opts {:ui {:mode "tabline" ; menu lives in the top bar (not a floating window)
