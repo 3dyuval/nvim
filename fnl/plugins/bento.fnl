@@ -10,8 +10,8 @@
   :dev true
   :enabled true
   :lazy false
-  :opts {:floating {:toggle_on_reexpand true ; re-pressing expand key closes the menu
-                    :minimal_menu "dashed"} ; always-on minimal menu (dashed)
+  :opts {:ui {:floating {:toggle_on_reexpand true ; re-pressing expand key closes the menu
+                         :minimal_menu "dashed"}} ; always-on minimal menu (dashed)
          :highlights {:current :Bold
                       :active :Normal
                       :inactive :Comment
