@@ -3,7 +3,7 @@ local menu_actions = {{"open", "<CR>", "DiagnosticVirtualTextHint"}, {"delete", 
 local function _1_(_, opts)
   require("bento").setup(opts)
   local api = require("bento.api")
-  api.register_expand_key("\\")
+  api.register_expand_key(";")
   api.register_collapse_key("<Esc>")
   for _0, _2_ in ipairs(menu_actions) do
     local name = _2_[1]
@@ -13,4 +13,4 @@ local function _1_(_, opts)
   end
   return api.set_default_action("open")
 end
-return {{"akinsho/bufferline.nvim", enabled = false}, {"serhez/bento.nvim", enabled = true, opts = {highlights = {current = "Bold", active = "Normal", inactive = "Comment", modified = "DiagnosticWarn", label_minimal = "Comment", window_bg = "Normal", separator = "Comment"}}, config = _1_, lazy = false}}
+return {{"akinsho/bufferline.nvim", enabled = false}, {"3dyuval/bento.nvim", dev = true, enabled = true, opts = {floating = {toggle_on_reexpand = true, minimal_menu = "dashed"}, highlights = {current = "Bold", active = "Normal", inactive = "Comment", modified = "DiagnosticWarn", label_minimal = "Comment", window_bg = "Normal", separator = "Comment"}}, config = _1_, lazy = false}}
