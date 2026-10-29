@@ -35,7 +35,7 @@ M.open_explorer = function(opts)
   end
 
   local config = vim.tbl_deep_extend("force", {
-    root = false,
+    root = true,
     layout = { preset = explorer_layout, preview = preview_for_layout(explorer_layout) },
     auto_close = is_floating_layout(explorer_layout),
     on_close = function(picker)
