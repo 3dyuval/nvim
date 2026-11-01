@@ -7,8 +7,9 @@
         {1 :<leader>cw 2 "<cmd>Yazi cwd<cr>" :desc "Yazi in working dir"}]
  :opts {;; Take over :edit <dir> so opening a directory launches yazi (replaces netrw).
         :open_for_directories true
-        ;; Keep nvim's cwd in sync with where you land in yazi.
-        :change_neovim_cwd_on_close true
+        ;; Don't move nvim's cwd when yazi closes — browsing into a subdir would
+        ;; otherwise drift cwd there and throw pickers off the git root.
+        :change_neovim_cwd_on_close false
         :floating_window_scaling_factor 0.9
         :keymaps {:show_help :<f1>}
         ;; Use snacks.nvim (already installed) for grep-from-yazi results.

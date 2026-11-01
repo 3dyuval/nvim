@@ -1,8 +1,6 @@
 -- [nfnl] fnl/plugins/fff-snacks.fnl
+local find_at_git_root
 local function _1_()
-  return require("fff-snacks").find_files()
-end
-local function _2_()
   local file = vim.api.nvim_buf_get_name(0)
   local buf_dir
   if (file ~= "") then
@@ -14,4 +12,5 @@ local function _2_()
   require("fff").change_indexing_directory(root)
   return require("fff-snacks").find_files({cwd = root})
 end
-return {"madmaxieee/fff-snacks.nvim", dependencies = {"dmtrKovalenko/fff.nvim", "folke/snacks.nvim"}, keys = {{"<leader>ff", _1_, desc = "Find files (cwd)"}, {"<C-f>", _2_, desc = "Find files (git root)"}}, opts = {find_files = {}, live_grep = {}}}
+find_at_git_root = _1_
+return {"madmaxieee/fff-snacks.nvim", dependencies = {"dmtrKovalenko/fff.nvim", "folke/snacks.nvim"}, keys = {{"<leader>ff", find_at_git_root, desc = "Find files (git root)"}, {"<C-f>", find_at_git_root, desc = "Find files (git root)"}}, opts = {find_files = {}, live_grep = {}}}

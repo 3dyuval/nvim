@@ -176,6 +176,15 @@ return {
       },
       dashboard = {
         enabled = true,
+        -- Explicit sections (default is header/keys/startup) so we can slot in
+        -- recent projects: lists git roots of recent files; selecting one cds
+        -- there and restores its session.
+        sections = {
+          { section = "header" },
+          { section = "keys", gap = 1, padding = 1 },
+          { icon = " ", title = "Projects", section = "projects", padding = 1, indent = 2 },
+          { section = "startup" },
+        },
         preset = {
           keys = {
             { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
