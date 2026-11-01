@@ -556,10 +556,6 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
-vim.keymap.set({ "n" }, "<C-;>", function()
-  vim.o.showtabline = vim.o.showtabline == 0 and 2 or 0
-end, { noremap = true, desc = "Toggle bento tabline" })
-
 vim.keymap.set({ "n", "i", "v" }, "<F1>", "<nop>", { desc = "Disabled" })
 
 vim.keymap.set({ "n", "o", "v" }, "r", "i", { desc = "O/V mode: inner (i)" })

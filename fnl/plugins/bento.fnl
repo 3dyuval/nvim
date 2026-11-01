@@ -10,7 +10,8 @@
   :dev true
   :enabled true
   :lazy false
-  :opts {:ui {:floating {:toggle_on_reexpand true ; re-pressing expand key closes the menu
+  :opts {:ui {:mode "tabline" ; menu lives in the top bar (not a floating window)
+              :floating {:toggle_on_reexpand true ; re-pressing expand key closes the menu
                          :minimal_menu "dashed"}} ; always-on minimal menu (dashed)
          :highlights {:current :Bold
                       :active :Normal
@@ -22,7 +23,7 @@
   :config (fn [_ opts]
             ((. (require :bento) :setup) opts)
             (let [api (require :bento.api)]
-              (api.register_expand_key ";")
+              (api.register_expand_key "<C-;>")
               (api.register_collapse_key :<Esc>)
               (each [_ [name key hl] (ipairs menu-actions)]
                 (api.register_action name {:key key
