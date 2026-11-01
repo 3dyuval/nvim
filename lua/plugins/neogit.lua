@@ -81,16 +81,17 @@ return {
           end
         end
       end,
-      NeogitCommitPopup = function(popup)
-        -- Insert AI Commit into the "Create" column (first action group)
-        table.insert(popup.state.actions[1], {
-          keys = { "i" },
-          description = "AI Commit",
-          callback = function()
-            require("utils.ai_popup").create()
-          end,
-        })
-      end,
+      -- AI Commit disabled while diagnosing neogit slowness.
+      -- NeogitCommitPopup = function(popup)
+      --   -- Insert AI Commit into the "Create" column (first action group)
+      --   table.insert(popup.state.actions[1], {
+      --     keys = { "i" },
+      --     description = "AI Commit",
+      --     callback = function()
+      --       require("utils.ai_popup").create()
+      --     end,
+      --   })
+      -- end,
       NeogitRebasePopup = function(popup)
         -- Add strategy options for conflict resolution (-Xtheirs, -Xours)
         popup:switch("g", "Xtheirs", "Accept theirs on conflicts", { cli_prefix = "-" })
@@ -114,9 +115,10 @@ return {
           vim.api.nvim_feedkeys(":Git", "t", false)
         end,
         ["C"] = "InitRepo", -- git init (I is taken by AI commit repeat)
-        ["I"] = function()
-          require("utils.ai_popup").repeat_last()
-        end,
+        -- AI Commit repeat disabled while diagnosing neogit slowness.
+        -- ["I"] = function()
+        --   require("utils.ai_popup").repeat_last()
+        -- end,
         ["D"] = function()
           require("utils.neogit-commands").create_conflict_popup()
         end,
