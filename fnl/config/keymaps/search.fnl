@@ -54,9 +54,14 @@
         (Snacks.picker.buffers {:layout {:preset :fullscreen}}))
       {:desc "Buffers (fullscreen)"})
 
+;; Resume the last picker (query, results, cursor) — Snacks "Resume".
+(lset :n :<C-/>
+      (fn [] (Snacks.picker.resume))
+      {:desc "Resume last picker"})
+
 ;; Open a `/` search prefilled with the last search term, cursor at the end,
 ;; so you can tweak it and hit <CR> (or just re-run). Typed, not executed.
-(lset :n :<C-/>
+(lset :n :<M-/>
       (fn []
         (let [last (vim.fn.getreg "/")]
           (vim.api.nvim_feedkeys (.. "/" last) :t false)))

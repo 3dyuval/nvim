@@ -39,11 +39,15 @@ local function _9_()
 end
 lset("n", "<leader>fF", _9_, {desc = "Buffers (fullscreen)"})
 local function _10_()
+  return Snacks.picker.resume()
+end
+lset("n", "<C-/>", _10_, {desc = "Resume last picker"})
+local function _11_()
   local last = vim.fn.getreg("/")
   return vim.api.nvim_feedkeys(("/" .. last), "t", false)
 end
-lset("n", "<C-/>", _10_, {desc = "Search prefilled with last term"})
-local function _11_()
+lset("n", "<M-/>", _11_, {desc = "Search prefilled with last term"})
+local function _12_()
   return Snacks.picker.grep()
 end
-return lset("n", "<leader>/", _11_, {desc = "Grep (top level)"})
+return lset("n", "<leader>/", _12_, {desc = "Grep (top level)"})
