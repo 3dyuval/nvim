@@ -199,7 +199,7 @@ map({
 })
 
 map({
-  ["<leader>sn"] = {
+  ["<leader>sp"] = {
     L = {
       function()
         local messages = require("noice.message.manager").get({}, { history = true, sort = true })
