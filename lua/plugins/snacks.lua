@@ -589,6 +589,23 @@ return {
         end,
         desc = "Search for Plugin Spec",
       },
+      {
+        "<leader>sn",
+        function()
+          Snacks.picker.search_history()
+        end,
+        desc = "Search History",
+      },
+      -- Put Search History on <leader>sw (was grep word), drop <leader>sW.
+      { "<leader>sW", false, mode = { "n", "x" } },
+      {
+        "<leader>sw",
+        function()
+          Snacks.picker.search_history()
+        end,
+        desc = "Search History",
+        mode = { "n", "x" },
+      },
       -- {
       --   "<leader>gC",
       --   function()
