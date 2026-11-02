@@ -21,9 +21,9 @@ local function _5_()
 end
 lset("n", "<leader>rp", _5_, {desc = "Run package.json script -> quickfix"})
 local function _6_()
-  return vim.cmd("Yazi")
+  return Snacks.picker.resume()
 end
-lset("n", "<leader><leader>", _6_, {desc = "Yazi at current file"})
+lset("n", "<leader><leader>", _6_, {desc = "Resume last picker"})
 local function _7_()
   return Snacks.picker.git_files()
 end

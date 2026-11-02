@@ -39,9 +39,9 @@ local function _9_()
 end
 lset("n", "<leader>fF", _9_, {desc = "Buffers (fullscreen)"})
 local function _10_()
-  return Snacks.picker.resume()
+  return vim.cmd("Yazi")
 end
-lset("n", "<C-/>", _10_, {desc = "Resume last picker"})
+lset("n", "<C-/>", _10_, {desc = "Yazi at current file"})
 local function _11_()
   local last = vim.fn.getreg("/")
   return vim.api.nvim_feedkeys(("/" .. last), "t", false)

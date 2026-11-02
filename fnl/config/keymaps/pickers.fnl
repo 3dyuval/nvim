@@ -21,8 +21,8 @@
       {:desc "Run package.json script -> quickfix"})
 
 (lset :n :<leader><leader>
-      (fn [] (vim.cmd "Yazi"))
-      {:desc "Yazi at current file"})
+      (fn [] (Snacks.picker.resume))
+      {:desc "Resume last picker"})
 
 (lset :n :<leader>fg
       (fn [] (Snacks.picker.git_files))
