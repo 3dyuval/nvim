@@ -596,14 +596,15 @@ return {
         end,
         desc = "Search History",
       },
-      -- Put Search History on <leader>sw (was grep word), drop <leader>sW.
+      -- Drop the cwd variant <leader>sW; keep <leader>sw as grep word under
+      -- cursor / visual selection (LazyVim default, restated here explicitly).
       { "<leader>sW", false, mode = { "n", "x" } },
       {
         "<leader>sw",
         function()
-          Snacks.picker.search_history()
+          Snacks.picker.grep_word()
         end,
-        desc = "Search History",
+        desc = "Visual selection or word",
         mode = { "n", "x" },
       },
       -- {
