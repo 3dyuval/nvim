@@ -39,9 +39,10 @@ local function _9_()
 end
 lset("n", "<leader>fF", _9_, {desc = "Buffers (fullscreen)"})
 local function _10_()
-  return require("workspace.grep")["grep-current-buffer-dir"]()
+  local last = vim.fn.getreg("/")
+  return vim.api.nvim_feedkeys(("/" .. last), "t", false)
 end
-lset("n", "<C-/>", _10_, {desc = "Grep (current buffer's dir)"})
+lset("n", "<C-/>", _10_, {desc = "Search prefilled with last term"})
 local function _11_()
   return Snacks.picker.grep()
 end

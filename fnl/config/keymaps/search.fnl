@@ -54,9 +54,13 @@
         (Snacks.picker.buffers {:layout {:preset :fullscreen}}))
       {:desc "Buffers (fullscreen)"})
 
+;; Open a `/` search prefilled with the last search term, cursor at the end,
+;; so you can tweak it and hit <CR> (or just re-run). Typed, not executed.
 (lset :n :<C-/>
-      (fn [] ((. (require :workspace.grep) :grep-current-buffer-dir)))
-      {:desc "Grep (current buffer's dir)"})
+      (fn []
+        (let [last (vim.fn.getreg "/")]
+          (vim.api.nvim_feedkeys (.. "/" last) :t false)))
+      {:desc "Search prefilled with last term"})
 
 (lset :n :<leader>/
       (fn [] (Snacks.picker.grep))
