@@ -24,3 +24,7 @@ nvim.log
 # Local machine-specific tooling
 .mcp.json
 secrets
+
+# Global git ignore excludes .claude; this nvim config tracks it on purpose.
+!.claude/
+!.claude/**

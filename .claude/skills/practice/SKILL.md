@@ -30,18 +30,39 @@ Two kinds of drill reference exist:
 1. **Markdown drills** (`surround-*.md`) — `---`-delimited sections, each with a
    header, keys-to-try, `^` cursor marker, and expected result inline. Self-contained.
 
-2. **Code drills** (dated `.vue`/`.ts`/… files) — a real, comment-free buffer to
-   operate on. Hints are NOT written into the file; they are applied as eol
-   **virtual text** per session (via nvim-mcp `add_virtual_texts`). The hint
-   mapping (line → keys) lives in the matching log, so it is recreatable.
+2. **Code drills** (dated `.vue`/`.ts`/… files) — a real buffer to operate on.
+   Deeper hints are applied as eol **virtual text** per session (via nvim-mcp
+   `add_virtual_texts`); the line → keys mapping lives in the matching log.
+
+Template:
+- Top comment is **frontmatter**: `drill`, `subject`, and `augment` (the last
+  only for a nuance not obvious from the sections — e.g. a layout gotcha). No
+  mental-model dump; if the section lines make it clear, leave it out.
+- Each section = **one** line comment `// Section N: <minimal english + keys>`,
+  then the code to operate on, then a few blank lines before the next.
 
 Workflow for a code drill:
 - Name the file `YYYY-MM-DD-<subject>.<ext>` under `references/`.
-- Keep it pure code — no instructional comments.
 - Create a matching log `logs/YYYY-MM-DD-<subject>.md` holding the concepts,
   config notes, a `Hints` table (`line | anchor | keys`), and a `Sessions` section.
-- On open: read the log's Hints table and call `add_virtual_texts` to render
-  each line's keys as eol virtual text with `color: "DiagnosticInfo"`.
+- On open: render the section hints (below). Deeper per-line hints that aren't
+  section comments can still come from the log's Hints table via `add_virtual_texts`.
+
+## Section hints
+
+`section-hints.lua` scans the current buffer for `Section <n>: <keys>` comments
+(any comment marker, language-agnostic) and renders each as eol virtual text.
+With `strip = true` it blanks the comment line and anchors the hint on the next
+code line — a comment-free drill buffer with the keys floating at eol.
+
+```
+:luafile .claude/skills/practice/section-hints.lua
+:lua PracticeHints.render()                    " hint at comment line, keep comment
+:lua PracticeHints.render({ strip = true })    " strip comment, hint on code line
+:lua PracticeHints.clear()                     " remove hints
+```
+
+Callable from nvim-mcp (`send_command`) or `nvim --server <sock> --remote-expr`.
 
 ## Keylog
 
