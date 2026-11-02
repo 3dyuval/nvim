@@ -581,6 +581,14 @@ return {
       { "<leader>ff", false }, -- Disable LazyVim Find Files - we use fff
       { "<leader>e", false }, -- Disable LazyVim Explorer - we use <leader><leader>
       { "<leader>fe", false }, -- Disable LazyVim Explorer (root dir)
+      { "<leader>sp", false }, -- Move "Search for Plugin Spec" to <leader>sL
+      {
+        "<leader>sL",
+        function()
+          Snacks.picker.lazy()
+        end,
+        desc = "Search for Plugin Spec",
+      },
       -- {
       --   "<leader>gC",
       --   function()
