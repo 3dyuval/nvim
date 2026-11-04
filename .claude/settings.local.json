@@ -31,7 +31,12 @@
       "Bash(sed -n '205,215p' lua/diffview/arg_parser.lua)",
       "Bash(sed -n '37,60p' lua/diffview/arg_parser.lua)",
       "Bash(nvim --headless \"+checkhealth diffview\" \"+w! /tmp/dvhealth.txt\" \"+qa!\")",
-      "Bash(sed 's/\\\\x1b\\\\[[0-9;]*m//g' /tmp/dvhealth.txt)"
+      "Bash(sed 's/\\\\x1b\\\\[[0-9;]*m//g' /tmp/dvhealth.txt)",
+      "mcp__neovim-mcp__read_buf_range",
+      "mcp__neovim-mcp__get_state_brief",
+      "mcp__neovim-mcp__send_keys",
+      "Bash(make migrate *)",
+      "Bash(make compile *)"
     ]
   },
   "enableAllProjectMcpServers": true,
