@@ -79,6 +79,11 @@ G2b: fold-walk — Alt+H/I fold AND walk the H/I axis in one press:
      raw cursor line), so it is stable wherever the cursor sits in the block.
      Native zo/zc + public Treewalker left/right — no plugin internals.
      <M-a>/<M-e> left unbound (sibling axis has no fold pairing).          [HOLDS]
+G2c: plain H/I SKIP closed folds — a closed fold is opaque. H/I do the
+     directional move, and if it lands inside a closed fold they step to the
+     next sibling (Treewalker down) to go PAST it rather than descend in.
+     If no unfolded sibling exists (all-folded dead end), the cursor is
+     restored to where it started. A/E are unaffected.                     [HOLDS]
 G3: fold layer is z-prefix + horizontal HAEI (depth axis, mirroring
     structural H/I): zh=close-one zi=open-one; capital = all (zH=zM close,
     zI=zR open). All NATIVE — ufo provides folds but its fold COMMANDS are

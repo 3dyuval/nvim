@@ -1,10 +1,34 @@
 (local lset vim.keymap.set)
 
-;; SPEC.md Layer 2 G2 — structural movement = capital HAEI (treewalk)
-(lset :n :H "<cmd>Treewalker Left<cr>"
-      {:desc "Treewalk out (parent)" :silent true})
-(lset :n :I "<cmd>Treewalker Right<cr>"
-      {:desc "Treewalk in (child)" :silent true})
+;; SPEC.md Layer 2 G2 — structural movement = capital HAEI (treewalk).
+;; H/I SKIP folded targets: a closed fold is opaque. Do the directional move
+;; (left/right); if it lands inside a closed fold, step over it to the NEXT
+;; SIBLING (down) — descending into a folded node is useless, so we walk past
+;; it instead. Repeat until the landing is unfolded or progress stops.
+(fn treewalk-skip-folded [dir]
+  (fn []
+    (let [tw (require :treewalker)
+          origin (vim.api.nvim_win_get_cursor 0)]
+      ((. tw dir))
+      ;; If we landed inside a closed fold, step to the next sibling (down)
+      ;; past it. Track the fold we're trying to escape: each `down` must land
+      ;; us in a DIFFERENT (or no) closed fold, else we're stuck — bail and
+      ;; restore the original position rather than wandering inside the fold.
+      (var guard 50)
+      (var stuck false)
+      (while (and (not stuck) (> guard 0)
+                  (not= (vim.fn.foldclosed (vim.fn.line ".")) -1))
+        (set guard (- guard 1))
+        (let [fold-start (vim.fn.foldclosed (vim.fn.line "."))]
+          (tw.down)
+          (when (= (vim.fn.foldclosed (vim.fn.line ".")) fold-start)
+            (set stuck true))))
+      (when (or stuck (= guard 0))
+        (vim.api.nvim_win_set_cursor 0 origin)))))
+(lset :n :H (treewalk-skip-folded :left)
+      {:desc "Treewalk out (skip folded)" :silent true})
+(lset :n :I (treewalk-skip-folded :right)
+      {:desc "Treewalk in (skip folded)" :silent true})
 ;; SPEC.md Layer 2 G2b — fold-walk: Alt+H/I fold AND walk together.
 ;;   <M-h> close the enclosing node's fold, then walk OUT (collapse-as-ascend).
 ;;   <M-i> open the enclosing node's fold, then walk IN  (expand-as-descend).
