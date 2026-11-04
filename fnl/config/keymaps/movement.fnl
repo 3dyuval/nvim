@@ -6,6 +6,23 @@
       {:desc "Treewalk out (parent)" :silent true})
 (lset :n :I "<cmd>Treewalker Right<cr>"
       {:desc "Treewalk in (child)" :silent true})
+;; SPEC.md Layer 2 G2+G3 (fold-walk) — Alt+H/I fold AND walk together:
+;;   <M-h> close the current fold (zc), then walk OUT to the parent.
+;;   <M-i> walk IN to the child, then open its fold (zo) so it unfolds.
+;; Collapse-as-you-ascend / expand-as-you-descend. pcall around the fold op so
+;; a line with no fold is a no-op rather than an error (E490).
+;; Frees <M-h> from move.nvim (fnl/plugins/move.fnl) and the old <M-h>=gE
+;; end-WORD motion (lua/config/keymaps.lua); <M-a>/<M-e> left unbound.
+(lset :n :<M-h>
+      (fn []
+        (pcall vim.cmd "normal! zc")
+        ((. (require :treewalker) :left)))
+      {:desc "Close fold + treewalk out" :silent true})
+(lset :n :<M-i>
+      (fn []
+        ((. (require :treewalker) :right))
+        (pcall vim.cmd "normal! zo"))
+      {:desc "Treewalk in + open fold" :silent true})
 (lset :n :E
       ;; SPEC.md Layer 2 G2a — prev sibling, else climb out (row-unchanged proxy)
       (fn []

@@ -539,7 +539,8 @@ vim.keymap.set({ "n", "o", "x" }, "D", "W", { desc = "WORD forward" })
 vim.keymap.set({ "n" }, "'", "gv", { desc = "Repeat last visual selection" })
 vim.keymap.set({ "n", "o", "x" }, "%", "%", { desc = "Jump to matching bracket" })
 
-vim.keymap.set({ "n", "o", "x" }, "<M-h>", "gE", { desc = "End of WORD back" })
+-- <M-h> (was gE = end of WORD back) reassigned to close-fold + treewalk-out
+-- (fnl/config/keymaps/movement.fnl). <M-o> keeps end-WORD-forward.
 vim.keymap.set({ "n", "o", "x" }, "<M-o>", "E", { desc = "End of WORD forward" })
 
 vim.api.nvim_create_autocmd("User", {
