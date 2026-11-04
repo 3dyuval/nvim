@@ -7,22 +7,51 @@
 (lset :n :I "<cmd>Treewalker Right<cr>"
       {:desc "Treewalk in (child)" :silent true})
 ;; SPEC.md Layer 2 G2+G3 (fold-walk) — Alt+H/I fold AND walk together:
-;;   <M-h> close the current fold (zc), then walk OUT to the parent.
-;;   <M-i> walk IN to the child, then open its fold (zo) so it unfolds.
-;; Collapse-as-you-ascend / expand-as-you-descend. pcall around the fold op so
-;; a line with no fold is a no-op rather than an error (E490).
+;;   <M-h> close the enclosing node's fold, then walk OUT to the parent
+;;         (collapse-as-you-ascend).
+;;   <M-i> open the enclosing node's fold to reveal children, then walk IN
+;;         (expand-as-you-descend).
+;; The fold always targets the START LINE of the enclosing treesitter node,
+;; NOT the raw cursor line — so it behaves the same whether the cursor sits on
+;; the block's brace/header or somewhere inside it (fixes off-by-a-level). We
+;; move the cursor to that line before folding; the fold op (zo/zc) and the
+;; subsequent treewalk then both anchor on the same node. pcall guards E490
+;; (no fold under the resolved line). Composes only native treesitter + the
+;; public Treewalker left/right — no plugin internals (per G2a).
 ;; Frees <M-h> from move.nvim (fnl/plugins/move.fnl) and the old <M-h>=gE
 ;; end-WORD motion (lua/config/keymaps.lua); <M-a>/<M-e> left unbound.
+(fn goto-enclosing-node-start []
+  ;; Climb to the nearest multi-line ancestor (the foldable block) and park the
+  ;; cursor on its first line. Returns false if there's no treesitter node.
+  (if (not (pcall vim.treesitter.get_parser 0))
+      false
+      (let [node (vim.treesitter.get_node)]
+        (if (not node)
+            false
+            (do
+              (var block nil)
+              (var iter node)
+              (while (and iter (not block))
+                (let [(sr _ er _) (iter:range)]
+                  (if (> er sr)
+                      (set block iter)
+                      (set iter (iter:parent)))))
+              (when block
+                (let [(sr sc) (block:range)]
+                  (vim.api.nvim_win_set_cursor 0 [(+ sr 1) sc])))
+              (not= block nil))))))
 (lset :n :<M-h>
       (fn []
-        (pcall vim.cmd "normal! zc")
+        (when (goto-enclosing-node-start)
+          (pcall vim.cmd "normal! zc"))
         ((. (require :treewalker) :left)))
-      {:desc "Close fold + treewalk out" :silent true})
+      {:desc "Close enclosing fold + treewalk out" :silent true})
 (lset :n :<M-i>
       (fn []
-        ((. (require :treewalker) :right))
-        (pcall vim.cmd "normal! zo"))
-      {:desc "Treewalk in + open fold" :silent true})
+        (when (goto-enclosing-node-start)
+          (pcall vim.cmd "normal! zo"))
+        ((. (require :treewalker) :right)))
+      {:desc "Open enclosing fold + treewalk in" :silent true})
 (lset :n :E
       ;; SPEC.md Layer 2 G2a — prev sibling, else climb out (row-unchanged proxy)
       (fn []
