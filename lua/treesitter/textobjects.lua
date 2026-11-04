@@ -1,5 +1,21 @@
 -- [nfnl] fnl/treesitter/textobjects.fnl
-local bindings = {["@function.outer"] = {["move-next"] = {"]f"}, ["move-prev"] = {"[f"}, ["move-end-next"] = {"]M"}, ["move-end-prev"] = {"[M"}, select = "tf", ["swap-next"] = "]F", ["swap-prev"] = "[F"}, ["@function.inner"] = {select = "rf"}, ["@parameter.inner"] = {["move-next"] = {"]p"}, ["move-prev"] = {"[p"}, ["swap-next"] = "]P", ["swap-prev"] = "[A"}, ["@fold"] = {["move-next"] = {"]u"}, ["move-prev"] = {"[u"}}, ["@tag.inner"] = {select = "rt"}, ["@tag.outer"] = {select = "tt"}, ["@jsx_self_closing_element"] = {select = "te"}}
+local bindings = {
+  ["@function.outer"] = {
+    ["move-next"] = { "]f" },
+    ["move-prev"] = { "[f" },
+    ["move-end-next"] = { "]M" },
+    ["move-end-prev"] = { "[M" },
+    select = "tf",
+    ["swap-next"] = "]F",
+    ["swap-prev"] = "[F",
+  },
+  ["@function.inner"] = { select = "rf" },
+  ["@parameter.inner"] = { ["move-next"] = { "]p" }, ["move-prev"] = { "[p" }, ["swap-next"] = "]P", ["swap-prev"] = "[A" },
+  ["@fold"] = { ["move-next"] = { "]u" }, ["move-prev"] = { "[u" } },
+  ["@tag.inner"] = { select = "rt" },
+  ["@tag.outer"] = { select = "tt" },
+  ["@jsx_self_closing_element"] = { select = "te" },
+}
 local function query_group(capture)
   if capture:match("fold") then
     return "folds"
@@ -9,14 +25,14 @@ local function query_group(capture)
 end
 local function expand_query(capture)
   if capture:match("%*$") then
-    return {capture:gsub("%*", "inner"), capture:gsub("%*", "outer")}
+    return { capture:gsub("%*", "inner"), capture:gsub("%*", "outer") }
   else
     return capture
   end
 end
 local function as_keys(v)
-  if (type(v) == "string") then
-    return {v}
+  if type(v) == "string" then
+    return { v }
   else
     return v
   end
@@ -29,7 +45,7 @@ local function map_select(keys, capture)
     local function _4_()
       return select.select_textobject(query, group)
     end
-    vim.keymap.set({"x", "o"}, k, _4_, {desc = ("Select " .. capture)})
+    vim.keymap.set({ "x", "o" }, k, _4_, { desc = ("Select " .. capture) })
   end
   return nil
 end
@@ -41,7 +57,7 @@ local function map_move(keys, capture, fname, desc)
     local function _5_()
       return move[fname](query, group)
     end
-    vim.keymap.set({"n", "x", "o"}, k, _5_, {desc = (desc .. " " .. capture)})
+    vim.keymap.set({ "n", "x", "o" }, k, _5_, { desc = (desc .. " " .. capture) })
   end
   return nil
 end
@@ -52,7 +68,7 @@ local function map_swap(keys, capture, fname, desc)
     local function _6_()
       return swap[fname](query)
     end
-    vim.keymap.set("n", k, _6_, {desc = (desc .. " " .. capture)})
+    vim.keymap.set("n", k, _6_, { desc = (desc .. " " .. capture) })
   end
   return nil
 end
@@ -104,4 +120,4 @@ local function setup()
   end
   return nil
 end
-return {setup = setup, ["hud-hints"] = hud_hints}
+return { setup = setup, ["hud-hints"] = hud_hints }

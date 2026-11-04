@@ -2,24 +2,24 @@
 do
   local ai_popup = require("utils.ai_popup")
   local function _1_(opts)
-    if ((opts.args == "--preview") or (opts.args == "-p")) then
+    if (opts.args == "--preview") or (opts.args == "-p") then
       return ai_popup.run_generate((vim.g.AiCommitLastSettings or {}))
-    elseif ((opts.args == "--repeat") or (opts.args == "-r")) then
+    elseif (opts.args == "--repeat") or (opts.args == "-r") then
       return ai_popup.repeat_last()
     else
       return ai_popup.create()
     end
   end
-  vim.api.nvim_create_user_command("AiCommit", _1_, {nargs = "?", desc = "AI commit popup"})
+  vim.api.nvim_create_user_command("AiCommit", _1_, { nargs = "?", desc = "AI commit popup" })
 end
 local function _3_(opts)
   return require("utils.buffers").create_buffer_bug((opts.args or "X"))
 end
-vim.api.nvim_create_user_command("BugTemplate", _3_, {nargs = "?"})
+vim.api.nvim_create_user_command("BugTemplate", _3_, { nargs = "?" })
 local function _4_(opts)
   return require("utils.buffers").create_buffer_bug_snippet((opts.args or "X"))
 end
-vim.api.nvim_create_user_command("BugSnippet", _4_, {nargs = "?"})
+vim.api.nvim_create_user_command("BugSnippet", _4_, { nargs = "?" })
 require("workspace.schemastore").setup()
 do
   local orig = vim.lsp.util.apply_workspace_edit
@@ -37,7 +37,7 @@ do
       local to_cleanup = {}
       local function process_uri(uri)
         local bufnr = vim.uri_to_bufnr(uri)
-        if (vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].modified) then
+        if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].modified then
           if pre_loaded[bufnr] then
             to_save[bufnr] = true
             return nil
@@ -57,7 +57,7 @@ do
       end
       if workspace_edit.documentChanges then
         for _, change in ipairs(workspace_edit.documentChanges) do
-          if (change.textDocument and change.textDocument.uri) then
+          if change.textDocument and change.textDocument.uri then
             process_uri(change.textDocument.uri)
           else
           end
@@ -77,7 +77,7 @@ do
           return vim.cmd("silent! noautocmd write")
         end
         vim.api.nvim_buf_call(bufnr, _14_)
-        vim.api.nvim_buf_delete(bufnr, {force = true})
+        vim.api.nvim_buf_delete(bufnr, { force = true })
       end
       vim.o.eventignore = saved_eventignore
       return vim.cmd("redraw")
@@ -87,10 +87,16 @@ do
   end
   vim.lsp.util.apply_workspace_edit = _5_
 end
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {command = "set filetype=ruby", pattern = {"Fastfile", "Appfile", "Matchfile", "Pluginfile"}})
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {command = "set filetype=elixir", pattern = {"*.ex", "*.exs"}})
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {command = "set filetype=heex", pattern = {"*.heex"}})
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {command = "set filetype=log", pattern = {"*.log"}})
+vim.api.nvim_create_autocmd(
+  { "BufRead", "BufNewFile" },
+  { command = "set filetype=ruby", pattern = { "Fastfile", "Appfile", "Matchfile", "Pluginfile" } }
+)
+vim.api.nvim_create_autocmd(
+  { "BufRead", "BufNewFile" },
+  { command = "set filetype=elixir", pattern = { "*.ex", "*.exs" } }
+)
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, { command = "set filetype=heex", pattern = { "*.heex" } })
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, { command = "set filetype=log", pattern = { "*.log" } })
 local function _15_()
   if string.match((vim.fn.getline(1) or ""), "^#!.*env zsh") then
     vim.bo.filetype = "zsh"
@@ -99,32 +105,32 @@ local function _15_()
     return nil
   end
 end
-vim.api.nvim_create_autocmd("BufReadPost", {callback = _15_})
+vim.api.nvim_create_autocmd("BufReadPost", { callback = _15_ })
 local function _17_(args)
-  local mark = vim.api.nvim_buf_get_mark(args.buf, "\"")
+  local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
   local lines = vim.api.nvim_buf_line_count(args.buf)
-  if ((mark[1] > 0) and (mark[1] <= lines)) then
+  if (mark[1] > 0) and (mark[1] <= lines) then
     local function _18_()
-      return vim.cmd("normal! g`\"zz")
+      return vim.cmd('normal! g`"zz')
     end
     return vim.api.nvim_buf_call(args.buf, _18_)
   else
     return nil
   end
 end
-vim.api.nvim_create_autocmd("BufReadPost", {callback = _17_})
+vim.api.nvim_create_autocmd("BufReadPost", { callback = _17_ })
 local function _20_(args)
   local bufnr = args.buf
   local script = (vim.fn.stdpath("config") .. "/scripts/commitlint.sh")
   local name = vim.api.nvim_buf_get_name(bufnr)
   local cwd
-  if (name and (name ~= "")) then
+  if name and (name ~= "") then
     cwd = vim.fs.dirname(name)
   else
     cwd = vim.fn.getcwd()
   end
   local function _22_(out)
-    if (vim.api.nvim_buf_is_valid(bufnr) and (out.code == 0)) then
+    if vim.api.nvim_buf_is_valid(bufnr) and (out.code == 0) then
       local ok, parsed = pcall(vim.json.decode, (out.stdout or "{}"))
       if ok then
         vim.b[bufnr]["commitlint_types"] = (parsed.types or {})
@@ -137,14 +143,20 @@ local function _20_(args)
       return nil
     end
   end
-  return vim.system({"bash", script}, {cwd = cwd, text = true}, vim.schedule_wrap(_22_))
+  return vim.system({ "bash", script }, { cwd = cwd, text = true }, vim.schedule_wrap(_22_))
 end
-vim.api.nvim_create_autocmd("FileType", {pattern = "gitcommit", callback = _20_})
+vim.api.nvim_create_autocmd("FileType", { pattern = "gitcommit", callback = _20_ })
 local function _25_(args)
   local bufnr = args.buf
   local function _26_()
     local ok, blink = pcall(require, "blink.cmp")
-    if (ok and vim.api.nvim_buf_is_valid(bufnr) and (vim.api.nvim_get_current_buf() == bufnr) and vim.startswith(vim.api.nvim_get_mode().mode, "i") and not blink.is_visible()) then
+    if
+      ok
+      and vim.api.nvim_buf_is_valid(bufnr)
+      and (vim.api.nvim_get_current_buf() == bufnr)
+      and vim.startswith(vim.api.nvim_get_mode().mode, "i")
+      and not blink.is_visible()
+    then
       return blink.show()
     else
       return nil
@@ -152,12 +164,12 @@ local function _25_(args)
   end
   return vim.defer_fn(_26_, 100)
 end
-vim.api.nvim_create_autocmd("FileType", {pattern = "gitcommit", callback = _25_})
+vim.api.nvim_create_autocmd("FileType", { pattern = "gitcommit", callback = _25_ })
 local function _28_()
-  if (vim.bo.filetype == "gitcommit") then
+  if vim.bo.filetype == "gitcommit" then
     local function _29_()
       local ok, blink = pcall(require, "blink.cmp")
-      if (ok and blink.snippet_active() and not blink.is_visible()) then
+      if ok and blink.snippet_active() and not blink.is_visible() then
         return blink.show()
       else
         return nil
@@ -168,54 +180,60 @@ local function _28_()
     return nil
   end
 end
-vim.api.nvim_create_autocmd("User", {pattern = "BlinkCmpAccept", callback = _28_})
+vim.api.nvim_create_autocmd("User", { pattern = "BlinkCmpAccept", callback = _28_ })
 local function _32_(args)
   local bufnr = args.buf
-  if (vim.fn.executable("commitlint") == 1) then
+  if vim.fn.executable("commitlint") == 1 then
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     local msg = table.concat(lines, "\n")
     local name = vim.api.nvim_buf_get_name(bufnr)
     local cwd
-    if (name and (name ~= "")) then
+    if name and (name ~= "") then
       cwd = vim.fs.dirname(name)
     else
       cwd = vim.fn.getcwd()
     end
     local function _34_(out)
-      if (out.code ~= 0) then
+      if out.code ~= 0 then
         local body
         do
           local s = ((out.stdout or "") .. (out.stderr or ""))
           body = vim.trim(s)
         end
         local _35_
-        if (body == "") then
+        if body == "" then
           _35_ = "commitlint: invalid commit message"
         else
           _35_ = body
         end
-        return vim.notify(_35_, vim.log.levels.ERROR, {title = "commitlint"})
+        return vim.notify(_35_, vim.log.levels.ERROR, { title = "commitlint" })
       else
         return nil
       end
     end
-    return vim.system({"commitlint"}, {stdin = msg, text = true, cwd = cwd}, vim.schedule_wrap(_34_))
+    return vim.system({ "commitlint" }, { stdin = msg, text = true, cwd = cwd }, vim.schedule_wrap(_34_))
   else
     return nil
   end
 end
-vim.api.nvim_create_autocmd("BufWritePost", {pattern = "gitcommit", callback = _32_})
+vim.api.nvim_create_autocmd("BufWritePost", { pattern = "gitcommit", callback = _32_ })
 local function _39_()
   vim.opt_local.wrap = true
   vim.opt_local.spell = false
   return nil
 end
-vim.api.nvim_create_autocmd("FileType", {pattern = {"text", "plaintex", "typst", "gitcommit", "markdown"}, callback = _39_})
+vim.api.nvim_create_autocmd(
+  "FileType",
+  { pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" }, callback = _39_ }
+)
 local function _40_()
   vim.opt_local.swapfile = false
   return nil
 end
-vim.api.nvim_create_autocmd("FileType", {pattern = {"snacks_win", "snacks_picker", "snacks_explorer"}, callback = _40_})
+vim.api.nvim_create_autocmd(
+  "FileType",
+  { pattern = { "snacks_win", "snacks_picker", "snacks_explorer" }, callback = _40_ }
+)
 local function _41_()
   vim.opt_local.swapfile = false
   vim.opt_local.undofile = false
@@ -223,10 +241,13 @@ local function _41_()
   vim.opt_local.writebackup = false
   return nil
 end
-vim.api.nvim_create_autocmd("BufReadPre", {pattern = {(vim.fn.expand("~") .. "/mnt/*"), (vim.fn.expand("~") .. "/.sshfs/*")}, callback = _41_})
+vim.api.nvim_create_autocmd(
+  "BufReadPre",
+  { pattern = { (vim.fn.expand("~") .. "/mnt/*"), (vim.fn.expand("~") .. "/.sshfs/*") }, callback = _41_ }
+)
 local function _42_()
   local function _43_()
-    if ((vim.wo.foldlevel < 99) and (vim.bo.filetype ~= "gitcommit")) then
+    if (vim.wo.foldlevel < 99) and (vim.bo.filetype ~= "gitcommit") then
       vim.wo.foldlevel = 99
       return nil
     else
@@ -235,14 +256,16 @@ local function _42_()
   end
   return vim.defer_fn(_43_, 100)
 end
-vim.api.nvim_create_autocmd({"BufWinEnter", "WinEnter", "TabEnter"}, {callback = _42_})
+vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter", "TabEnter" }, { callback = _42_ })
 local function _45_()
   if not vim.b.tailwind_checked then
     vim.b.tailwind_checked = true
     local found = false
-    for _, cfg in ipairs({"tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs"}) do
-      if found then break end
-      if (vim.fn.filereadable(cfg) == 1) then
+    for _, cfg in ipairs({ "tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs", "tailwind.config.mjs" }) do
+      if found then
+        break
+      end
+      if vim.fn.filereadable(cfg) == 1 then
         local function _46_()
           return vim.cmd("LspStart tailwindcss")
         end
@@ -256,29 +279,44 @@ local function _45_()
     return nil
   end
 end
-vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter"}, {pattern = {"*.ts", "*.tsx", "*.js", "*.jsx"}, callback = _45_})
+vim.api.nvim_create_autocmd(
+  { "BufEnter", "BufWinEnter" },
+  { pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" }, callback = _45_ }
+)
 local function _49_()
-  if (vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON) then
-    return vim.fn.system(string.format("kitten @ --to %s set-spacing --match id:%s padding=0", vim.env.KITTY_LISTEN_ON, vim.env.KITTY_WINDOW_ID))
+  if vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON then
+    return vim.fn.system(
+      string.format(
+        "kitten @ --to %s set-spacing --match id:%s padding=0",
+        vim.env.KITTY_LISTEN_ON,
+        vim.env.KITTY_WINDOW_ID
+      )
+    )
   else
     return nil
   end
 end
 vim.defer_fn(_49_, 100)
 local function _51_()
-  if (vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON) then
-    return vim.fn.system(string.format("kitten @ --to %s set-spacing --match id:%s padding=12", vim.env.KITTY_LISTEN_ON, vim.env.KITTY_WINDOW_ID))
+  if vim.env.KITTY_WINDOW_ID and vim.env.KITTY_LISTEN_ON then
+    return vim.fn.system(
+      string.format(
+        "kitten @ --to %s set-spacing --match id:%s padding=12",
+        vim.env.KITTY_LISTEN_ON,
+        vim.env.KITTY_WINDOW_ID
+      )
+    )
   else
     return nil
   end
 end
-vim.api.nvim_create_autocmd("VimLeavePre", {callback = _51_})
+vim.api.nvim_create_autocmd("VimLeavePre", { callback = _51_ })
 local function _53_()
   local buf = vim.api.nvim_get_current_buf()
   if vim.b[buf].claudecode_diff_tab_name then
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       local wbuf = vim.api.nvim_win_get_buf(win)
-      if ((vim.bo[wbuf].buftype == "terminal") and string.match(vim.api.nvim_buf_get_name(wbuf), "claude")) then
+      if (vim.bo[wbuf].buftype == "terminal") and string.match(vim.api.nvim_buf_get_name(wbuf), "claude") then
         pcall(vim.api.nvim_win_close, win, false)
         return
       else
@@ -289,12 +327,12 @@ local function _53_()
     return nil
   end
 end
-vim.api.nvim_create_autocmd("BufWinEnter", {callback = _53_})
+vim.api.nvim_create_autocmd("BufWinEnter", { callback = _53_ })
 local function _56_()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
     local name = vim.api.nvim_buf_get_name(buf)
-    if (name:match("claude") and (vim.bo[buf].buftype == "terminal")) then
+    if name:match("claude") and (vim.bo[buf].buftype == "terminal") then
       vim.api.nvim_set_current_win(win)
       vim.cmd("startinsert")
       return
@@ -303,6 +341,6 @@ local function _56_()
   end
   return nil
 end
-vim.api.nvim_create_autocmd("FocusGained", {callback = _56_})
+vim.api.nvim_create_autocmd("FocusGained", { callback = _56_ })
 vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 return vim.opt.shortmess:append("F")

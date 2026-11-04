@@ -5,12 +5,12 @@ local function listed()
   local i_27_ = 0
   for _, b in ipairs(vim.api.nvim_list_bufs()) do
     local val_28_
-    if (vim.bo[b].buflisted and vim.api.nvim_buf_is_loaded(b)) then
+    if vim.bo[b].buflisted and vim.api.nvim_buf_is_loaded(b) then
       val_28_ = b
     else
       val_28_ = nil
     end
-    if (nil ~= val_28_) then
+    if nil ~= val_28_ then
       i_27_ = (i_27_ + 1)
       tbl_26_[i_27_] = val_28_
     else
@@ -23,7 +23,7 @@ local function bento_visible_3f()
 end
 local function kitty_tab(action)
   local socket = (vim.env.KITTY_LISTEN_ON or "unix:@mykitty")
-  return vim.system({"kitty", "@", "--to", socket, "action", action}, {text = true})
+  return vim.system({ "kitty", "@", "--to", socket, "action", action }, { text = true })
 end
 local function at_edge_3f(cur, bufs, which)
   return (not bento_visible_3f() or (#bufs < 2) or (cur == bufs[which]) or not vim.tbl_contains(bufs, cur))

@@ -19,26 +19,26 @@ local function mark_rows()
 end
 local function jump(dir)
   local rows = mark_rows()
-  if (#rows > 0) then
+  if #rows > 0 then
     local cur = (vim.fn.line(".") - 1)
     local target = nil
-    if (dir == "next") then
+    if dir == "next" then
       for _, r in ipairs(rows) do
-        if ((r > cur) and (target == nil)) then
+        if (r > cur) and (target == nil) then
           target = r
         else
         end
       end
     else
       for _, r in ipairs(rows) do
-        if (r < cur) then
+        if r < cur then
           target = r
         else
         end
       end
     end
     if target then
-      return vim.api.nvim_win_set_cursor(0, {(target + 1), 0})
+      return vim.api.nvim_win_set_cursor(0, { (target + 1), 0 })
     else
       return nil
     end

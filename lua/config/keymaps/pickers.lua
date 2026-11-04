@@ -3,28 +3,28 @@ local lset = vim.keymap.set
 local function _1_()
   return vim.api.nvim_feedkeys(":terminal ", "t", false)
 end
-lset("n", "<leader>tt", _1_, {desc = "Terminal prefill"})
+lset("n", "<leader>tt", _1_, { desc = "Terminal prefill" })
 local function _2_()
   return require("workspace.kitty-send").send()
 end
-lset({"n", "x"}, "<leader>rs", _2_, {desc = "Kitty: send line/selection"})
+lset({ "n", "x" }, "<leader>rs", _2_, { desc = "Kitty: send line/selection" })
 local function _3_()
   return require("workspace.kitty-send").open("hsplit")
 end
-lset("n", "<leader>rr", _3_, {desc = "Kitty: open runner (bottom)"})
+lset("n", "<leader>rr", _3_, { desc = "Kitty: open runner (bottom)" })
 local function _4_()
   return require("workspace.kitty-send").open("vsplit")
 end
-lset("n", "<leader>rR", _4_, {desc = "Kitty: open runner (right)"})
+lset("n", "<leader>rR", _4_, { desc = "Kitty: open runner (right)" })
 local function _5_()
   return require("workspace.pkg-scripts").pick()
 end
-lset("n", "<leader>rp", _5_, {desc = "Run package.json script -> quickfix"})
+lset("n", "<leader>rp", _5_, { desc = "Run package.json script -> quickfix" })
 local function _6_()
   return Snacks.picker.resume()
 end
-lset("n", "<leader><leader>", _6_, {desc = "Resume last picker"})
+lset("n", "<leader><leader>", _6_, { desc = "Resume last picker" })
 local function _7_()
   return Snacks.picker.git_files()
 end
-return lset("n", "<leader>fg", _7_, {desc = "Find git files"})
+return lset("n", "<leader>fg", _7_, { desc = "Find git files" })
