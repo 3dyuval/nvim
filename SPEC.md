@@ -49,8 +49,9 @@ rung          keys                       meaning                         mode
 ────────────  ─────────────────────────  ──────────────────────────────  ──────
 char          h a e i                    ← ↓ ↑ →                          n o x
 word          l / L / D                  word-back / WORD-back / WORD-fwd n o x
-end-of-word   <M-h> / <M-o>              end WORD back / fwd              n o x
+end-of-word   <M-o>                      end WORD fwd                     n o x
 structural    H A E I                    treewalk ← ↓ ↑ → (out/sib/sib/in) n
+fold-walk     <M-h> / <M-i>              close+out / open+in (G2b)        n
 fold          zh zi / zH zI              fold close/open one / all        n
 change/hunk   ga / ge                    next / prev hunk (or ]c/[c)      n
 bracket       %                          matching bracket                n o x
@@ -63,7 +64,7 @@ G2: structural nav (Treewalker) is capital HAEI — H/A/E/I walk the SAME
     four directions as lowercase h/a/e/i: H=out(parent) I=in(child)
     E=prev-sibling A=next-sibling. Capital = "move by structure".         [HOLDS]
     (fnl/config/keymaps/movement.fnl) Frees native A (insert-end, on W/S)
-    and E (end-WORD, on <M-h>/<M-o>).
+    and E (end-WORD, on <M-o>; <M-h> end-WORD-back was dropped for G2b).
 G2a: structural nav CLIMBS rather than dead-ends. E = prev-sibling, or if
      there is none, move_out to the parent — so repeated E ascends the tree.
      Detected by move_up leaving the row unchanged (Treewalker moves by row,
@@ -71,13 +72,23 @@ G2a: structural nav CLIMBS rather than dead-ends. E = prev-sibling, or if
      no-ops once. Composes only the public move_up/move_out — no plugin
      internals. A is plain next-sibling (no climb) by choice; the axis is
      intentionally asymmetric.                                            [HOLDS]
+G2b: fold-walk — Alt+H/I fold AND walk the H/I axis in one press:
+     <M-h> closes the enclosing node's fold then walks OUT (collapse while
+     ascending); <M-i> opens it then walks IN (expand while descending). The
+     fold targets the START LINE of the enclosing treesitter node (not the
+     raw cursor line), so it is stable wherever the cursor sits in the block.
+     Native zo/zc + public Treewalker left/right — no plugin internals.
+     <M-a>/<M-e> left unbound (sibling axis has no fold pairing).          [HOLDS]
 G3: fold layer is z-prefix + horizontal HAEI (depth axis, mirroring
-    structural H/I): zh=close-one zi=open-one; capital = all (zH/zI, ufo).
+    structural H/I): zh=close-one zi=open-one; capital = all (zH=zM close,
+    zI=zR open). All NATIVE — ufo provides folds but its fold COMMANDS are
+    not bound, so z-commands and G2b fold-walk share one fold model.
     z is the native fold prefix — freed by reverting undo to native u.     [HOLDS]
 G4: change navigation is ga/ge and is context-aware: gitsigns nav_hunk in
     a normal buffer, native ]c/[c when vim.wo.diff is set                  [HOLDS]
 G5: key-form conventions — a new motion SHOULD reuse the matching form:
       capital H/A/E/I  = structural (treewalk) in that direction
+      Alt + h/i        = fold-walk (<M-h> close+out, <M-i> open+in)
       capital L/D      = WORD (larger word)
       z-prefix + h/i   = fold (zh/zi one, zH/zI all)
       g-prefix         = change-nav (ga/ge)                               [UNTESTED]

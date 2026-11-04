@@ -1,29 +1,48 @@
+-- [nfnl] fnl/plugins/ufo.fnl
+local function provider_selector(_bufnr, filetype, _buftype)
+  if (filetype == "typescript") or (filetype == "typescriptreact") then
+    return { "lsp", "indent" }
+  elseif filetype == "gitcommit" then
+    return { "indent" }
+  else
+    return { "treesitter", "indent" }
+  end
+end
+local function fold_virt_text_handler(virt_text, lnum, end_lnum, width, truncate)
+  local new_virt_text = {}
+  local suffix_fmt = string.format(" \243\176\129\130 %d ", (end_lnum - lnum))
+  local suf_width = vim.fn.strdisplaywidth(suffix_fmt)
+  local target_width = (width - suf_width)
+  local suffix = suffix_fmt
+  local cur_width = 0
+  for _, chunk in ipairs(virt_text) do
+    local chunk_text = chunk[1]
+    local chunk_width = vim.fn.strdisplaywidth(chunk_text)
+    if target_width > (cur_width + chunk_width) then
+      table.insert(new_virt_text, chunk)
+      cur_width = (cur_width + chunk_width)
+    else
+      local trimmed = truncate(chunk_text, (target_width - cur_width))
+      local hl_group = chunk[2]
+      local trimmed_width = vim.fn.strdisplaywidth(trimmed)
+      table.insert(new_virt_text, { trimmed, hl_group })
+      if (cur_width + trimmed_width) < target_width then
+        suffix = (suffix .. string.rep(" ", (target_width - cur_width - trimmed_width)))
+      else
+      end
+      break
+    end
+  end
+  table.insert(new_virt_text, { suffix, "MoreMsg" })
+  return new_virt_text
+end
 return {
   "kevinhwang91/nvim-ufo",
-  dependencies = {
-    "kevinhwang91/promise-async",
-  },
+  dependencies = { "kevinhwang91/promise-async" },
   event = "BufReadPost",
   opts = {
-    -- Use LSP + indent for folding (LSP handles imports auto-fold)
-    provider_selector = function(bufnr, filetype, buftype)
-      if filetype == "typescript" or filetype == "typescriptreact" then
-        return { "lsp", "indent" }
-      end
-      if filetype == "gitcommit" then
-        -- For git commit (both fugitive and neogit), use indent folding for diff hunks
-        -- Tree-sitter parser for gitcommit may not be available, so use indent as fallback
-        return { "indent" }
-      end
-      return { "treesitter", "indent" }
-    end,
-    -- Auto-fold imports when buffer opens
-    close_fold_kinds_for_ft = {
-      default = { "imports" },
-      typescript = { "imports" },
-      typescriptreact = { "imports" },
-    },
-    -- Disable automatic fold restoration
+    provider_selector = provider_selector,
+    close_fold_kinds_for_ft = { default = { "imports" }, typescript = { "imports" }, typescriptreact = { "imports" } },
     enable_get_fold_virt_text = true,
     preview = {
       mappings = {
@@ -37,42 +56,6 @@ return {
         close = "q",
       },
     },
-    -- Simple fold text with line count
-    fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
-      local newVirtText = {}
-      local suffix = (" 󰁂 %d "):format(endLnum - lnum)
-      local sufWidth = vim.fn.strdisplaywidth(suffix)
-      local targetWidth = width - sufWidth
-      local curWidth = 0
-      for _, chunk in ipairs(virtText) do
-        local chunkText = chunk[1]
-        local chunkWidth = vim.fn.strdisplaywidth(chunkText)
-        if targetWidth > curWidth + chunkWidth then
-          table.insert(newVirtText, chunk)
-        else
-          chunkText = truncate(chunkText, targetWidth - curWidth)
-          local hlGroup = chunk[2]
-          table.insert(newVirtText, { chunkText, hlGroup })
-          chunkWidth = vim.fn.strdisplaywidth(chunkText)
-          if curWidth + chunkWidth < targetWidth then
-            suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
-          end
-          break
-        end
-        curWidth = curWidth + chunkWidth
-      end
-      table.insert(newVirtText, { suffix, "MoreMsg" })
-      return newVirtText
-    end,
+    fold_virt_text_handler = fold_virt_text_handler,
   },
-  config = function(_, opts)
-    require("ufo").setup(opts)
-
-    -- Remap fold commands to use UFO's implementation
-    -- This prevents fold level from being changed by zR/zM
-    vim.keymap.set("n", "zR", require("ufo").openAllFolds, { desc = "Open all folds" })
-    vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds, { desc = "Open folds except kinds" })
-
-    -- Let treesitter handle all folding - removed manual import folding to avoid conflicts
-  end,
 }

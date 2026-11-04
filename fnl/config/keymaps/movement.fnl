@@ -1,25 +1,15 @@
 (local lset vim.keymap.set)
-(local ufo (require :ufo))
 
 ;; SPEC.md Layer 2 G2 — structural movement = capital HAEI (treewalk)
 (lset :n :H "<cmd>Treewalker Left<cr>"
       {:desc "Treewalk out (parent)" :silent true})
 (lset :n :I "<cmd>Treewalker Right<cr>"
       {:desc "Treewalk in (child)" :silent true})
-;; SPEC.md Layer 2 G2+G3 (fold-walk) — Alt+H/I fold AND walk together:
-;;   <M-h> close the enclosing node's fold, then walk OUT to the parent
-;;         (collapse-as-you-ascend).
-;;   <M-i> open the enclosing node's fold to reveal children, then walk IN
-;;         (expand-as-you-descend).
-;; The fold always targets the START LINE of the enclosing treesitter node,
-;; NOT the raw cursor line — so it behaves the same whether the cursor sits on
-;; the block's brace/header or somewhere inside it (fixes off-by-a-level). We
-;; move the cursor to that line before folding; the fold op (zo/zc) and the
-;; subsequent treewalk then both anchor on the same node. pcall guards E490
-;; (no fold under the resolved line). Composes only native treesitter + the
-;; public Treewalker left/right — no plugin internals (per G2a).
-;; Frees <M-h> from move.nvim (fnl/plugins/move.fnl) and the old <M-h>=gE
-;; end-WORD motion (lua/config/keymaps.lua); <M-a>/<M-e> left unbound.
+;; SPEC.md Layer 2 G2b — fold-walk: Alt+H/I fold AND walk together.
+;;   <M-h> close the enclosing node's fold, then walk OUT (collapse-as-ascend).
+;;   <M-i> open the enclosing node's fold, then walk IN  (expand-as-descend).
+;; Fold targets the START LINE of the enclosing treesitter node (not the raw
+;; cursor line), so it is stable wherever the cursor sits in the block.
 (fn goto-enclosing-node-start []
   ;; Climb to the nearest multi-line ancestor (the foldable block) and park the
   ;; cursor on its first line. Returns false if there's no treesitter node.
@@ -68,8 +58,8 @@
 ;; SPEC.md Layer 2 G3 — folds = z-prefix + horizontal HAEI
 (lset :n :zh :zc {:desc "Close fold (one)" :noremap true})
 (lset :n :zi :zo {:desc "Open fold (one)" :noremap true})
-(lset :n :zH ufo.closeAllFolds {:desc "Close all folds"})
-(lset :n :zI ufo.openAllFolds {:desc "Open all folds"})
+(lset :n :zH :zM {:desc "Close all folds" :noremap true})
+(lset :n :zI :zR {:desc "Open all folds" :noremap true})
 
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )

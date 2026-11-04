@@ -1,6 +1,5 @@
 -- [nfnl] fnl/config/keymaps/movement.fnl
 local lset = vim.keymap.set
-local ufo = require("ufo")
 lset("n", "H", "<cmd>Treewalker Left<cr>", { desc = "Treewalk out (parent)", silent = true })
 lset("n", "I", "<cmd>Treewalker Right<cr>", { desc = "Treewalk in (child)", silent = true })
 local function goto_enclosing_node_start()
@@ -64,8 +63,8 @@ lset("n", "E", _9_, { desc = "Treewalk prev sibling (else out)", silent = true }
 lset("n", "A", "<cmd>Treewalker Down<cr>", { desc = "Treewalk next sibling", silent = true })
 lset("n", "zh", "zc", { desc = "Close fold (one)", noremap = true })
 lset("n", "zi", "zo", { desc = "Open fold (one)", noremap = true })
-lset("n", "zH", ufo.closeAllFolds, { desc = "Close all folds" })
-lset("n", "zI", ufo.openAllFolds, { desc = "Open all folds" })
+lset("n", "zH", "zM", { desc = "Close all folds", noremap = true })
+lset("n", "zI", "zR", { desc = "Open all folds", noremap = true })
 lset({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 lset({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
 local gs = require("gitsigns")
