@@ -1,0 +1,11 @@
+{
+  "enabledMcpjsonServers": [
+    "peternagy1332-json-editor-mcp",
+    "deepwiki",
+    "tavily",
+    "context7",
+    "penpot",
+    "nvim-mcp",
+    "freecad"
+  ]
+}

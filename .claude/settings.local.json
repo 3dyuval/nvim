@@ -36,7 +36,10 @@
       "mcp__neovim-mcp__get_state_brief",
       "mcp__neovim-mcp__send_keys",
       "Bash(make migrate *)",
-      "Bash(make compile *)"
+      "Bash(make compile *)",
+      "Bash(git commit *)",
+      "Bash(git add *)",
+      "Bash(git restore *)"
     ]
   },
   "enableAllProjectMcpServers": true,
