@@ -43,12 +43,6 @@ vim.defer_fn(function()
     local reg = vim.fn.getcharstr()
     return "<C-r>=trim(getreg('" .. reg .. "'))<CR>"
   end, { expr = true, desc = "Paste trimmed from register" })
-  vim.keymap.set("c", "<Up>", function()
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "n", false)
-  end)
-  vim.keymap.set("c", "<Down>", function()
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-n>", true, false, true), "n", false)
-  end)
 end, 1000)
 
 map({
