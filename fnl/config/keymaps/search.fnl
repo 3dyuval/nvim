@@ -34,14 +34,14 @@
 (lset :n :<leader>of
       (fn []
         ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :fullscreen} :focus :list}))
-      {:desc "Explorer (fullscreen)"})
+         {:layout {:preset :sidebar} :focus :list}))
+      {:desc "Explorer (side panel)"})
 
 (lset :n :<leader>fo
       (fn []
         ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :fullscreen} :focus :input}))
-      {:desc "Explorer (fullscreen, focus input)"})
+         {:layout {:preset :default} :focus :input}))
+      {:desc "Explorer (float, focus input)"})
 
 (lset :n :<leader>fe
       (fn []

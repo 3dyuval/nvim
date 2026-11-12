@@ -34,10 +34,32 @@ M.open_explorer = function(opts)
     vim.g.explorer_layout = explorer_layout
   end
 
+  -- In the persistent sidebar, <Esc> should move focus to the editor on the
+  -- right instead of closing the panel. (Floating layouts keep the default
+  -- close-on-Esc behaviour.)
+  local function focus_editor(picker)
+    if picker.main and vim.api.nvim_win_is_valid(picker.main) then
+      vim.api.nvim_set_current_win(picker.main)
+    else
+      vim.cmd("wincmd l")
+    end
+  end
+  local win_override = nil
+  if not is_floating_layout(explorer_layout) then
+    win_override = {
+      input = { keys = { ["<Esc>"] = { "focus_editor", mode = { "n", "i" } } } },
+      list = { keys = { ["<Esc>"] = "focus_editor" } },
+    }
+  end
+
   local config = vim.tbl_deep_extend("force", {
     root = false,
     layout = { preset = explorer_layout, preview = preview_for_layout(explorer_layout) },
     auto_close = is_floating_layout(explorer_layout),
+    win = win_override,
+    actions = {
+      focus_editor = { action = focus_editor },
+    },
     on_close = function(picker)
       vim.g.explorer_was_open = false
       local item = picker:current()

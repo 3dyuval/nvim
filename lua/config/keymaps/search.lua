@@ -23,13 +23,13 @@ local function _5_()
 end
 lset("v", "<leader>rG", _5_, { desc = "Find and replace - within selection (GrugFar)" })
 local function _6_()
-  return require("utils.picker-extensions").open_explorer({ layout = { preset = "fullscreen" }, focus = "list" })
+  return require("utils.picker-extensions").open_explorer({ layout = { preset = "sidebar" }, focus = "list" })
 end
-lset("n", "<leader>of", _6_, { desc = "Explorer (fullscreen)" })
+lset("n", "<leader>of", _6_, { desc = "Explorer (side panel)" })
 local function _7_()
-  return require("utils.picker-extensions").open_explorer({ layout = { preset = "fullscreen" }, focus = "input" })
+  return require("utils.picker-extensions").open_explorer({ layout = { preset = "default" }, focus = "input" })
 end
-lset("n", "<leader>fo", _7_, { desc = "Explorer (fullscreen, focus input)" })
+lset("n", "<leader>fo", _7_, { desc = "Explorer (float, focus input)" })
 local function _8_()
   return require("utils.picker-extensions").open_explorer({
     layout = { preset = "sidebar" },
