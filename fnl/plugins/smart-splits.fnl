@@ -3,11 +3,9 @@
 ;; Kitty passes these keys through to nvim when focused (var:IS_NVIM unset in
 ;; ~/.config/kitty/passthrough.conf); at the split edge smart-splits hands off to
 ;; the neighboring kitty split via its kitty integration. It never touches the WM.
-{1 "mrjones2014/smart-splits.nvim"
+{1 "smart-splits-nvim/smart-splits.nvim"
  :lazy false
- :dependencies [{1 "SangersJeroen/backend-kitty"
-                 :branch "abstract-socket-support"
-                 :module "smart-splits-backend-kitty"
+ :dependencies [{1 "smart-splits-nvim/backend-kitty"
                  :opts {}}]
  :opts {:move {:at_edge "stop"}
         :mux {:backend "smart-splits-backend-kitty"}}
