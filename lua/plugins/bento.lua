@@ -13,4 +13,4 @@ local function _1_(_, opts)
   end
   return api.set_default_action("open")
 end
-return {{"akinsho/bufferline.nvim", enabled = false}, {"3dyuval/bento.nvim", enabled = true, opts = {ui = {mode = "tabline", floating = {toggle_on_reexpand = true, minimal_menu = "dashed"}}, highlights = {current = "Bold", active = "Normal", inactive = "Comment", modified = "DiagnosticWarn", label_minimal = "Comment", window_bg = "Normal", separator = "Comment"}}, config = _1_, dev = false, lazy = false}}
+return {{"akinsho/bufferline.nvim", enabled = false}, {"3dyuval/bento.nvim", dev = true, enabled = true, opts = {notify_level = "debug", ui = {mode = "tabline", floating = {toggle_on_reexpand = true, minimal_menu = "dashed"}}, highlights = {current = "Bold", active = "Normal", inactive = "Comment", modified = "DiagnosticWarn", label_minimal = "Comment", window_bg = "Normal", separator = "Comment"}}, config = _1_, lazy = false}}
