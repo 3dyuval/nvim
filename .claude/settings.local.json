@@ -39,7 +39,9 @@
       "Bash(make compile *)",
       "Bash(git commit *)",
       "Bash(git add *)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "WebSearch",
+      "mcp__nvim-mcp__get_state_brief"
     ]
   },
   "enableAllProjectMcpServers": true,
