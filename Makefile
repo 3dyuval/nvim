@@ -31,6 +31,7 @@ compile:
 		echo "-- [nfnl] $$f" > "$$lua_file"; \
 		fennel --compile "$$f" >> "$$lua_file" || exit 1; \
 	done
+	@if command -v stylua >/dev/null 2>&1; then stylua lua/; fi
 	@echo "✅ Compilation complete"
 
 # Migrate a hand-written Lua module to Fennel: remove the stale Lua target
