@@ -1,9 +1,5 @@
 (local lset vim.keymap.set)
 
-(lset :n :<leader>tt
-      (fn [] (vim.api.nvim_feedkeys ":terminal " :t false))
-      {:desc "Terminal prefill"})
-
 (lset [:n :x] :<leader>rs
       (fn [] ((. (require :workspace.kitty-send) :send)))
       {:desc "Kitty: send line/selection"})
