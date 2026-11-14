@@ -12,25 +12,12 @@
 (fn M.get_input [prompt]
   ((. (require :nvim-surround.config) :get_input) prompt))
 
-(fn M.get_selection [args]
-  (if args.motion
-      ((. (require :nvim-surround.config) :get_selection) {:motion args.motion})
-      args.query
-      (let [(ok ts-queries) (pcall require :nvim-treesitter-textobjects.queries)]
-        (if (not ok)
-            (do (vim.notify "nvim-treesitter-textobjects not available"
-                            vim.log.levels.WARN)
-                nil)
-            (let [bufnr (vim.api.nvim_get_current_buf)
-                  node (ts-queries.get_node_at_cursor bufnr args.query.capture)]
-              (if (not node)
-                  nil
-                  (let [(start-row start-col end-row end-col) (node:range)]
-                    {:left {:first_pos [(+ start-row 1) (+ start-col 1)]}
-                     :right {:last_pos [(+ end-row 1) end-col]}})))))))
-
+;; Use nvim-surround's native treesitter query selection (reads the language's
+;; `textobjects` query via vim.treesitter — no external textobjects module).
 (fn ts-find [capture]
-  {:find (fn [] (M.get_selection {:query {:capture capture}}))})
+  {:find (fn []
+           ((. (require :nvim-surround.config) :get_selection)
+            {:query {:capture capture :type :textobjects}}))})
 
 ;; Mirror a delimiter string into its closing form, e.g. "<'{" -> "}'>".
 (local mirror-pairs
@@ -74,18 +61,6 @@
    "*" {:add ["**" "**"]}
    "_" {:add ["_" "_"]}
    "~" {:add ["~" "~"]}
-   "`" {:add (fn []
-               (let [lang (M.get_input "Language: ")]
-                 (vim.schedule
-                   (fn []
-                     (let [row (. (vim.api.nvim_win_get_cursor 0) 1)]
-                       (vim.api.nvim_win_set_cursor 0 [(+ row 1) 0])
-                       (vim.cmd "startinsert"))))
-                 [["```" ""] ["" "```"]]))
-        :find (fn [] (M.get_selection {:motion "a`"}))
-        :delete (fn []
-                  ((. (require :nvim-surround.config) :get_selections)
-                   {:char "`" :pattern "^(```.-\n)().*(```\n?)()$"}))}
    "tf" (ts-find "@function.outer")
    "rf" (ts-find "@function.inner")
    "tc" (ts-find "@class.outer")

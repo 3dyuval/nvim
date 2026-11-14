@@ -8,35 +8,11 @@ disable_surround = { _1_ }
 M.get_input = function(prompt)
   return require("nvim-surround.config").get_input(prompt)
 end
-M.get_selection = function(args)
-  if args.motion then
-    return require("nvim-surround.config").get_selection({ motion = args.motion })
-  elseif args.query then
-    local ok, ts_queries = pcall(require, "nvim-treesitter-textobjects.queries")
-    if not ok then
-      vim.notify("nvim-treesitter-textobjects not available", vim.log.levels.WARN)
-      return nil
-    else
-      local bufnr = vim.api.nvim_get_current_buf()
-      local node = ts_queries.get_node_at_cursor(bufnr, args.query.capture)
-      if not node then
-        return nil
-      else
-        local start_row, start_col, end_row, end_col = node:range()
-        return { left = { first_pos = { (start_row + 1), (start_col + 1) } }, right = {
-          last_pos = { (end_row + 1), end_col },
-        } }
-      end
-    end
-  else
-    return nil
-  end
-end
 local function ts_find(capture)
-  local function _5_()
-    return M.get_selection({ query = { capture = capture } })
+  local function _2_()
+    return require("nvim-surround.config").get_selection({ query = { capture = capture, type = "textobjects" } })
   end
-  return { find = _5_ }
+  return { find = _2_ }
 end
 local mirror_pairs =
   { ["("] = ")", [")"] = "(", ["["] = "]", ["]"] = "[", ["{"] = "}", ["}"] = "{", ["<"] = ">", [">"] = "<" }
@@ -62,30 +38,14 @@ local function custom_delimiter()
     return nil
   end
 end
-local function _8_()
+local function _5_()
   vim.g.nvim_surround_no_visual_mappings = true
   return nil
 end
-local function _9_()
-  local lang = M.get_input("Language: ")
-  local function _10_()
-    local row = vim.api.nvim_win_get_cursor(0)[1]
-    vim.api.nvim_win_set_cursor(0, { (row + 1), 0 })
-    return vim.cmd("startinsert")
-  end
-  vim.schedule(_10_)
-  return { { "```", "" }, { "", "```" } }
-end
-local function _11_()
-  return M.get_selection({ motion = "a`" })
-end
-local function _12_()
-  return require("nvim-surround.config").get_selections({ char = "`", pattern = "^(```.-\n)().*(```\n?)()$" })
-end
-local function _13_(_, opts)
+local function _6_(_, opts)
   do
     local buffer = require("nvim-surround.buffer")
-    local function _14_(motion)
+    local function _7_(motion)
       local curpos = buffer.get_curpos()
       local visual_marks = { buffer.get_mark("<"), buffer.get_mark(">") }
       buffer.del_marks({ "[", "]" })
@@ -97,10 +57,10 @@ local function _13_(_, opts)
       buffer.set_mark("<", visual_marks[1])
       return buffer.set_mark(">", visual_marks[2])
     end
-    buffer.set_operator_marks = _14_
+    buffer.set_operator_marks = _7_
   end
   require("nvim-surround").setup(opts)
-  local function _15_()
+  local function _8_()
     local should_disable = false
     for _0, cond in ipairs(disable_surround) do
       if should_disable then
@@ -123,13 +83,13 @@ local function _13_(_, opts)
       return nil
     end
   end
-  return vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, { pattern = "*", callback = _15_ })
+  return vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, { pattern = "*", callback = _8_ })
 end
 return {
   "kylechui/nvim-surround",
   event = "VeryLazy",
   dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
-  init = _8_,
+  init = _5_,
   opts = {
     surrounds = {
       ["("] = { add = { "(", ")" } },
@@ -143,7 +103,6 @@ return {
       ["*"] = { add = { "**", "**" } },
       _ = { add = { "_", "_" } },
       ["~"] = { add = { "~", "~" } },
-      ["`"] = { add = _9_, find = _11_, delete = _12_ },
       tf = ts_find("@function.outer"),
       rf = ts_find("@function.inner"),
       tc = ts_find("@class.outer"),
@@ -160,5 +119,5 @@ return {
     },
     aliases = { b = { "(", "[", "{", "<" } },
   },
-  config = _13_,
+  config = _6_,
 }

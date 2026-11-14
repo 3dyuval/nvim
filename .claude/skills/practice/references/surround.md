@@ -4,54 +4,44 @@ Work through each section. Cursor position is noted with `^`.
 
 ---
 
-## Add surround: normal mode (ysiw)
+## Add surround: normal mode (ysrw)
 
-Keys to try: `ysiw(` `ysiw)` `ysiw[` `ysiw]` `ysiw{` `ysiw}` `ysiw"` `ysiw'`
+- [ ] TODO: cursor on word, `ysrw(` → (should wrap in tight parens)
+- [ ] TODO: cursor on word, `ysrw)` → (should wrap in spaced parens)
+- [ ] TODO: cursor on word, `ysrw[` `ysrw{` `ysrw"` `ysrw'` → (should wrap in the given delimiter)
 
 ```
 hello world
 ^
 ```
-
-Expected after `ysiw(`: `(hello) world`
 
 ---
 
 ## Add surround: current line (yss)
 
-Keys to try: `yss(` `yss"` `yss[`
+- [ ] TODO: cursor on line, `yss(` `yss"` `yss[` → (should wrap the whole line)
 
 ```
 hello world
 ^
 ```
-
-Expected after `yss(`: `(hello world)`
 
 ---
 
 ## Add surround: with newlines (yS)
 
-Keys to try: `ysiw(` with `yS` variant → `ysiw(` becomes multiline
+- [ ] TODO: cursor on word, `ySrw(` → (should wrap the word on its own lines)
 
 ```
 hello world
 ^
-```
-
-Expected after `ySiw(`:
-```
-(
-hello
-)
- world
 ```
 
 ---
 
 ## Delete surround (ds)
 
-Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'`
+- [ ] TODO: cursor inside, `ds(` `ds[` `ds{` `ds"` `ds'` → (should remove the surrounding pair)
 
 ```
 (hello) world
@@ -68,7 +58,8 @@ Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'`
 
 ## Change surround (cs)
 
-Keys to try: `cs([` `cs("` `cs[{` — and for your task: `` cs`' `` (backtick to single-quote)
+- [ ] TODO: cursor inside, `cs([` → (should change parens to brackets)
+- [ ] TODO: cursor inside, `cs("` `cs[{` `` cs`' `` → (should change the first delimiter to the second)
 
 ```
 (hello) world
@@ -81,9 +72,9 @@ Keys to try: `cs([` `cs("` `cs[{` — and for your task: `` cs`' `` (backtick to
 
 ---
 
-## Visual surround (v to select, S to surround)
+## Visual surround (v to select, s to surround)
 
-Keys to try: `viwS(` `viwS"` `viwS[` `viwS{` `viwSb` (alias)
+- [ ] TODO: `vrw` then `s(` `s"` `s[` `s{` `sb` → (should wrap the selection)
 
 ```
 hello world
@@ -94,32 +85,29 @@ hello world
 
 ## Visual line surround (VgS)
 
-Keys to try: `VgS(` `VgS[`
+- [ ] TODO: `V` then `gS(` `gS[` → (should wrap the line on its own lines)
 
 ```
 hello world
 ^
 ```
 
-Expected after `VgS(`:
-```
-(
-hello world
-)
-```
-
 ---
 
-## Aliases (b B a q)
+## Aliases (b B a q r s)
 
-| Alias | Expands to |
-|-------|------------|
-| `b`   | `)` parentheses |
-| `B`   | `}` braces |
-| `a`   | `>` angle brackets |
-| `q`   | any quote `"` `'` `` ` `` |
+| Alias | Matches | Add |
+|-------|---------|-----|
+| `b`   | any bracket `( [ { <` | tight `()` |
+| `B`   | `{ }` | spaced `{ }` |
+| `a`   | `< >` | `<>` |
+| `q`   | any quote `" ' ` ` | — (delete/change only) |
+| `r`   | `[ ]` | `[]` |
+| `s`   | any of `} ] ) > " ' ` ` | — (delete/change only) |
 
-Keys to try: `ysiwb` `ysiwB` `ysiwa` — delete with `dsb` `dsB` `dsa`
+- [ ] TODO: cursor on word, `ysrwb` → (should add tight parens)
+- [ ] TODO: cursor on word, `ysrwB` → (should add spaced braces)
+- [ ] TODO: cursor inside any bracket, `dsb` `csb{` → (should delete / change it)
 
 ```
 hello world
@@ -130,7 +118,8 @@ hello world
 
 ## Markdown: bold (*) italic (_) strikethrough (~)
 
-Keys to try: `ysiw*` `ysiw_` `ysiw~`
+- [ ] TODO: cursor on word, `ysrw*` `ysrw_` `ysrw~` → (should wrap in bold / italic / strikethrough)
+- [ ] TODO: cursor inside, `ds*` `ds_` `ds~` → (should remove the markup)
 
 ```
 hello world
@@ -141,33 +130,23 @@ deleted text
 ^
 ```
 
-Expected: `**hello** world` / `_important_ note` / `~deleted~ text`
-
-Delete: `ds*` (twice for bold) `ds_` `ds~`
-
 ---
 
-## Code fence (`)
+## Inline code (`)
 
-Keys to try: `ysiw`` ` (prompts for language)
+- [ ] TODO: cursor on word, `` ysrw` `` → (should wrap the word in inline code)
+- [ ] TODO: cursor inside, `` ds` `` → (should remove the backticks)
 
 ```
 const x = 1
 ^
 ```
 
-Expected (entering `js` at prompt):
-````
-```js
-const x = 1
-```
-````
-
 ---
 
 ## Custom delimiter (i)
 
-Keys to try: `ysiw i` (prompts for input)
+- [ ] TODO: cursor on word, `ysrwi` → (should prompt for input, then wrap)
 
 - Enter `<div>` or `div` → wraps with `<div>...</div>`
 - Enter `("` → wraps with `("...")`
@@ -183,10 +162,12 @@ some text
 
 ## Treesitter surrounds
 
-Set filetype first: `vim.bo.filetype = "typescript"` or open a `.ts` file.
+Set filetype first: `:set ft=typescript` or open a `.ts` file.
 
 ### function outer (`tf`) / inner (`rf`)
-Cursor inside the function. `ysitf(` wraps entire function+signature. `ysirf(` wraps body only.
+
+- [ ] TODO: cursor inside fn, `ystf(` → (should wrap the whole function)
+- [ ] TODO: cursor inside fn, `ysrf(` → (should wrap the body only)
 
 ```typescript
 function greet(name: string) {
@@ -195,7 +176,9 @@ function greet(name: string) {
 ```
 
 ### parameter (`tp` / `rp`)
-Cursor on a param. `ysitp(` wraps `name: string` with parens. `ysirp"` wraps just `string`.
+
+- [ ] TODO: cursor on param, `ystp(` → (should wrap the whole parameter)
+- [ ] TODO: cursor on param, `ysrp"` → (should wrap the param name only)
 
 ```typescript
 function add(a: number, b: number): number {
@@ -204,7 +187,9 @@ function add(a: number, b: number): number {
 ```
 
 ### loop (`tl` / `rl`)
-Cursor inside loop. `ysitl(` wraps entire for block.
+
+- [ ] TODO: cursor inside loop, `ystl(` → (should wrap the whole loop)
+- [ ] TODO: cursor inside loop, `ysrl(` → (should wrap the loop body only)
 
 ```typescript
 for (const item of items) {
@@ -213,7 +198,9 @@ for (const item of items) {
 ```
 
 ### scope (`ts` / `rs`)
-Cursor inside block. `ysits{` wraps the nearest scope.
+
+- [ ] TODO: cursor inside block, `ysts{` → (should wrap the nearest scope)
+- [ ] TODO: cursor inside block, `ysrs"` → (should wrap the inner scope content)
 
 ```typescript
 if (condition) {
@@ -223,7 +210,9 @@ if (condition) {
 ```
 
 ### tag outer (`tt`) / inner (`rt`) — needs HTML/TSX filetype
-Cursor on tag content. `ysitt(` wraps entire `<div>...</div>`. `ysirt"` wraps inner content.
+
+- [ ] TODO: cursor on tag content, `ystt(` → (should wrap the entire tag)
+- [ ] TODO: cursor on tag content, `ysrt"` → (should wrap the inner content only)
 
 ```tsx
 <div className="container">
@@ -232,7 +221,9 @@ Cursor on tag content. `ysitt(` wraps entire `<div>...</div>`. `ysirt"` wraps in
 ```
 
 ### class outer (`tc`) / inner (`rc`)
-Cursor inside class. `ysitc(` wraps entire class declaration.
+
+- [ ] TODO: cursor inside class, `ystc(` → (should wrap the entire class)
+- [ ] TODO: cursor inside class, `ysrc"` → (should wrap the class body)
 
 ```typescript
 class Animal {
@@ -260,11 +251,11 @@ Used with operators: `y` (yank), `d` (delete), `c` (change), `v` (visual select)
 | `r"` / `t"` | inner/around double quotes |
 | `r'` / `t'` | inner/around single quotes |
 | `r<` / `t<` | inner/around angle brackets |
-| `r`` ` / `t`` ` | inner/around backtick quotes |
+| `` r` `` / `` t` `` | inner/around backtick quotes |
 | `rb` / `tb` | inner/around block `()` |
 | `rB` / `tB` | inner/around Block `{}` |
 
-Keys to try: `yrw` `ytw` `dr(` `dt(` `vr"` `vt"`
+- [ ] TODO: `yrw` `ytw` `dr(` `dt(` `vr"` `vt"` → (should operate on the inner/around object)
 
 ```
 function foo(hello, world) {
@@ -286,4 +277,4 @@ function foo(hello, world) {
 | `rt` | inner tag |
 | `rs` | inner scope |
 
-Open a real source file and use `vtf` or `vrf` to select.
+- [ ] TODO: open a source file, `vtf` / `vrf` → (should select the function / its body)
