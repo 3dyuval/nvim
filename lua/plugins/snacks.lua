@@ -381,6 +381,26 @@ return {
               },
             },
           },
+          -- Named float variant of the explorer so it shows up in the
+          -- picker-of-pickers (<leader><leader>). Reuses the explorer finder
+          -- with a floating layout focused on the input, matching <leader>fo.
+          explorer_float = {
+            finder = "explorer",
+            sort = { fields = { "sort" } },
+            supports_live = true,
+            tree = true,
+            watch = true,
+            diagnostics = true,
+            git_status = true,
+            follow_file = true,
+            auto_close = true,
+            focus = "input",
+            jump = { close = false },
+            layout = { preset = "default", preview = true },
+            config = function(opts)
+              return require("snacks.picker.source.explorer").setup(opts)
+            end,
+          },
           files = {
             cmd = "fd",
             args = require("utils.files").build_fd_args(),

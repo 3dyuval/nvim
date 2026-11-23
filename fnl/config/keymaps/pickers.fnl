@@ -17,8 +17,8 @@
       {:desc "Run package.json script -> quickfix"})
 
 (lset :n :<leader><leader>
-      (fn [] (Snacks.picker.resume))
-      {:desc "Resume last picker"})
+      (fn [] (Snacks.picker.pickers))
+      {:desc "Pickers (picker of pickers)"})
 
 (lset :n :<leader>fg
       (fn [] (Snacks.picker.git_files))

@@ -17,9 +17,9 @@ local function _4_()
 end
 lset("n", "<leader>rp", _4_, { desc = "Run package.json script -> quickfix" })
 local function _5_()
-  return Snacks.picker.resume()
+  return Snacks.picker.pickers()
 end
-lset("n", "<leader><leader>", _5_, { desc = "Resume last picker" })
+lset("n", "<leader><leader>", _5_, { desc = "Pickers (picker of pickers)" })
 local function _6_()
   return Snacks.picker.git_files()
 end
