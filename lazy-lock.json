@@ -30,7 +30,6 @@
   "diffview-plus.nvim": { "branch": "main", "commit": "fae72d6c981075dce2e0f946f002382ce0cb44e1" },
   "dropbar.nvim": { "branch": "master", "commit": "75df03973f3a06a85300bc8ca1f9f68e935cb78e" },
   "everforest": { "branch": "master", "commit": "85a86eb62409e3ec88713bff3d1b9d7374e112e4" },
-  "fff-snacks.nvim": { "branch": "main", "commit": "f3a69c69654dc2530a5ab7c1581fa6bdadaf46db" },
   "fff.nvim": { "branch": "main", "commit": "28321da22836b0e11da81e30f40f7a043b8f8fb4" },
   "file-history.nvim": { "branch": "master", "commit": "acbda86ebe1e71d5c1a9ac649c491a27df44a8f4" },
   "flatdeep.nvim": { "branch": "main", "commit": "fa98e8944ecd72a81d01257216398b3523680b65" },
