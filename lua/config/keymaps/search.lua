@@ -23,35 +23,19 @@ local function _5_()
 end
 lset("v", "<leader>rG", _5_, { desc = "Find and replace - within selection (GrugFar)" })
 local function _6_()
-  return require("utils.picker-extensions").open_explorer({ layout = { preset = "sidebar" }, focus = "list" })
-end
-lset("n", "<leader>of", _6_, { desc = "Explorer (side panel)" })
-local function _7_()
-  return require("utils.picker-extensions").open_explorer({ layout = { preset = "default" }, focus = "input" })
-end
-lset("n", "<leader>fo", _7_, { desc = "Explorer (float, focus input)" })
-local function _8_()
-  return require("utils.picker-extensions").open_explorer({
-    layout = { preset = "sidebar" },
-    focus = "list",
-    auto_close = false,
-  })
-end
-lset("n", "<leader>fe", _8_, { desc = "Explorer (persistent, no auto-close)" })
-local function _9_()
   return Snacks.picker.buffers({ layout = { preset = "fullscreen" } })
 end
-lset("n", "<leader>fF", _9_, { desc = "Buffers (fullscreen)" })
-local function _10_()
+lset("n", "<leader>fF", _6_, { desc = "Buffers (fullscreen)" })
+local function _7_()
   return vim.cmd("Yazi")
 end
-lset("n", "<C-/>", _10_, { desc = "Yazi at current file" })
-local function _11_()
+lset("n", "<C-/>", _7_, { desc = "Yazi at current file" })
+local function _8_()
   local last = vim.fn.getreg("/")
   return vim.api.nvim_feedkeys(("/" .. last), "t", false)
 end
-lset("n", "<M-/>", _11_, { desc = "Search prefilled with last term" })
-local function _12_()
+lset("n", "<M-/>", _8_, { desc = "Search prefilled with last term" })
+local function _9_()
   return Snacks.picker.grep()
 end
-return lset("n", "<leader>/", _12_, { desc = "Grep (top level)" })
+return lset("n", "<leader>/", _9_, { desc = "Grep (top level)" })

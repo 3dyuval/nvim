@@ -31,23 +31,25 @@
 
 ;; pickers
 
-(lset :n :<leader>of
-      (fn []
-        ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :sidebar} :focus :list}))
-      {:desc "Explorer (side panel)"})
-
-(lset :n :<leader>fo
-      (fn []
-        ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :default} :focus :input}))
-      {:desc "Explorer (float, focus input)"})
-
-(lset :n :<leader>fe
-      (fn []
-        ((. (require :utils.picker-extensions) :open_explorer)
-         {:layout {:preset :sidebar} :focus :list :auto_close false}))
-      {:desc "Explorer (persistent, no auto-close)"})
+;; snacks explorer keymaps disabled on the no-snacks-picker branch — using oil
+;; (<leader>o- / <leader>oo) for file management instead.
+;; (lset :n :<leader>of
+;;       (fn []
+;;         ((. (require :utils.picker-extensions) :open_explorer)
+;;          {:layout {:preset :sidebar} :focus :list}))
+;;       {:desc "Explorer (side panel)"})
+;;
+;; (lset :n :<leader>fo
+;;       (fn []
+;;         ((. (require :utils.picker-extensions) :open_explorer)
+;;          {:layout {:preset :default} :focus :input}))
+;;       {:desc "Explorer (float, focus input)"})
+;;
+;; (lset :n :<leader>fe
+;;       (fn []
+;;         ((. (require :utils.picker-extensions) :open_explorer)
+;;          {:layout {:preset :sidebar} :focus :list :auto_close false}))
+;;       {:desc "Explorer (persistent, no auto-close)"})
 
 (lset :n :<leader>fF
       (fn []
