@@ -21,7 +21,7 @@ end
 local function scan_back_3f(bufnr, row, cmd)
   local floor = math.max(0, (row - 20))
   local function loop(i)
-    if (i < floor) then
+    if i < floor then
       return false
     else
       local prev = (vim.api.nvim_buf_get_lines(bufnr, i, (i + 1), false)[1] or "")
@@ -40,7 +40,11 @@ local function in_command(ctx, cmd)
   local bufnr = vim.api.nvim_get_current_buf()
   local row = (ctx.cursor[1] - 1)
   local col = ctx.cursor[2]
-  local ok, node = pcall(vim.treesitter.get_node, {bufnr = bufnr, pos = {row, col}})
-  return ((ok and node_matches_3f(node, cmd, bufnr) and true) or has_command_3f(ctx.line, cmd) or scan_back_3f(bufnr, row, cmd))
+  local ok, node = pcall(vim.treesitter.get_node, { bufnr = bufnr, pos = { row, col } })
+  return (
+    (ok and node_matches_3f(node, cmd, bufnr) and true)
+    or has_command_3f(ctx.line, cmd)
+    or scan_back_3f(bufnr, row, cmd)
+  )
 end
-return {in_command = in_command}
+return { in_command = in_command }

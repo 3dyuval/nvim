@@ -30,7 +30,15 @@ return {
     enabled = true,
 
     ft = text_filetypes,
-    opts = {},
+    opts = {
+      -- Move emphasis surround off ds/cs so nvim-surround's ds/cs win in
+      -- markdown (ds( etc. was being shadowed). Kept on the g-surround
+      -- namespace alongside gs/gss.
+      mappings = {
+        inline_surround_delete = "gsd",
+        inline_surround_change = "gsc",
+      },
+    },
     keys = {
       { "<leader>pf", "<cmd>MDTaskToggle<cr>", ft = text_filetypes, desc = "Toggle task checkbox" },
       {
@@ -39,9 +47,6 @@ return {
         ft = text_filetypes,
         desc = "Add list item below",
       },
-      { "<leader>t", "]]", ft = text_filetypes, desc = "Next heading" },
-      { "<leader>tl", "gliw", mode = "n", ft = text_filetypes, desc = "Add link to word" },
-      { "<leader>tl", "gl", mode = "v", ft = text_filetypes, desc = "Add link (visual)" },
     },
   },
   {

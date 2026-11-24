@@ -41,6 +41,11 @@ Template:
 - Each section = **one** line comment `// Section N: <minimal english + keys>`,
   then the code to operate on, then a few blank lines before the next.
 
+TODO-bullet format (all drill files): actionable bullets read
+`- [ ] TODO: <cursor + keys> → (should <plain outcome>)`. State intent only —
+plain-English outcome, no concrete before/after example, nothing after the
+`(should …)` phrase. The user verifies the real result themselves.
+
 Workflow for a code drill:
 - Name the file `YYYY-MM-DD-<subject>.<ext>` under `references/`.
 - Create a matching log `logs/YYYY-MM-DD-<subject>.md` holding the concepts,

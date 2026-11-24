@@ -7,52 +7,43 @@ Work through each section. Cursor position is noted with `^`.
 ## Add surround: normal mode (ysrw)
 
 In this layout i->l and r->i, so inner-word is `rw` (not `iw`).
-Keys to try: `ysrw(` `ysrw)` `ysrw[` `ysrw]` `ysrw{` `ysrw}` `ysrw"` `ysrw'`
+
+- [ ] TODO: cursor on word, `ysrw(` → (should wrap the word in tight parens)
+- [ ] TODO: cursor on word, `ysrw)` → (should wrap the word in spaced parens)
+- [ ] TODO: cursor on word, `ysrw[` `ysrw{` `ysrw"` `ysrw'` → (should wrap in the given delimiter)
 
 ```
 hello world
 ^
 ```
-
-Expected after `ysrw(`: `(hello) world`
 
 ---
 
 ## Add surround: current line (yss)
 
-Keys to try: `yss(` `yss"` `yss[`
+- [ ] TODO: cursor on line, `yss(` `yss"` `yss[` → (should wrap the whole line)
 
 ```
 hello world
 ^
 ```
-
-Expected after `yss(`: `(hello world)`
 
 ---
 
 ## Add surround: with newlines (yS)
 
-Keys to try: `ySrw(`
+- [ ] TODO: cursor on word, `ySrw(` → (should wrap the word on its own lines)
 
 ```
 hello world
 ^
-```
-
-Expected after `ySrw(`:
-```
-(
-hello
-)
- world
 ```
 
 ---
 
 ## Delete surround (ds)
 
-Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'`
+- [ ] TODO: cursor inside, `ds(` `ds[` `ds{` `ds"` `ds'` → (should remove the surrounding pair)
 
 ```
 (hello) world
@@ -69,7 +60,8 @@ Keys to try: `ds(` `ds[` `ds{` `ds"` `ds'`
 
 ## Change surround (cs)
 
-Keys to try: `cs([` `cs("` `cs[{` `` cs`' ``
+- [ ] TODO: cursor inside, `cs([` → (should change parens to brackets)
+- [ ] TODO: cursor inside, `cs("` `cs[{` `` cs`' `` → (should change the first delimiter to the second)
 
 ```
 (hello) world
@@ -85,7 +77,8 @@ Keys to try: `cs([` `cs("` `cs[{` `` cs`' ``
 ## Visual surround (v to select, s to surround)
 
 Select inner-word with `vrw` (r=inner), then `s` triggers surround.
-Keys to try: `vrws(` `vrws"` `vrws[` `vrws{` `vrwsb`
+
+- [ ] TODO: `vrw` then `s(` `s"` `s[` `s{` `sb` → (should wrap the selection in the given delimiter)
 
 ```
 hello world
@@ -96,31 +89,30 @@ hello world
 
 ## Visual line surround (VgS)
 
-Keys to try: `VgS(` `VgS[`
+- [ ] TODO: `V` then `gS(` `gS[` → (should wrap the line on its own lines)
 
 ```
 hello world
 ^
 ```
 
-Expected after `VgS(`:
-```
-(
-hello world
-)
-```
-
 ---
 
-## Alias: b (any bracket)
+## Aliases (b B a q r s)
 
-Only one alias is configured (b/B/a/q were removed as confusing):
+| Alias | Matches | Add |
+|-------|---------|-----|
+| `b`   | any bracket `( [ { <` | tight `()` |
+| `B`   | `{ }` | spaced `{ }` |
+| `a`   | `< >` | `<>` |
+| `q`   | any quote `" ' ` ` | — (delete/change only) |
+| `r`   | `[ ]` | `[]` |
+| `s`   | any of `} ] ) > " ' ` ` | — (delete/change only) |
 
-| Alias | Expands to |
-|-------|------------|
-| `b`   | any bracket `( [ { <` — adds tight `(hello)` |
-
-Keys to try: `ysrwb` (add tight parens) — `dsb` / `csb{` match any bracket
+- [ ] TODO: cursor on word, `ysrwb` → (should add tight parens)
+- [ ] TODO: cursor on word, `ysrwB` → (should add spaced braces)
+- [ ] TODO: cursor inside any bracket, `dsb` → (should delete it)
+- [ ] TODO: cursor inside any bracket, `csb{` → (should change it to braces)
 
 ```
 hello world
@@ -131,7 +123,8 @@ hello world
 
 ## Markdown: bold (*) italic (_) strikethrough (~)
 
-Keys to try: `ysrw*` `ysrw_` `ysrw~`
+- [ ] TODO: cursor on word, `ysrw*` `ysrw_` `ysrw~` → (should wrap in bold / italic / strikethrough)
+- [ ] TODO: cursor inside, `ds*` `ds_` `ds~` → (should remove the markup)
 
 ```
 hello world
@@ -142,15 +135,11 @@ deleted text
 ^
 ```
 
-Expected: `**hello** world` / `_important_ note` / `~deleted~ text`
-
-Delete: `ds*` (twice for bold) `ds_` `ds~`
-
 ---
 
 ## Custom delimiter (i)
 
-Keys to try: `ysrwi` (prompts for input)
+- [ ] TODO: cursor on word, `ysrwi` → (should prompt for input, then wrap)
 
 - Enter `<div>` or `div` → wraps with `<div>...</div>`
 - Enter `("` → wraps with `("...")`

@@ -15,17 +15,12 @@ This config uses a custom keyboard layout. **Never use standard hjkl or ia in ke
 - `E` = up (replaces `k`)
 - `I` = right (replaces `l`)
 
-### Text Objects
+### Text Objects (o/x/v modes)
 - `R` = inner (replaces `i`) - "inneR"
 - `T` = around (replaces `a`) - "exTernal"
 
-### Operations
-- `X` = delete (replaces `d`)
-- `W` = change (replaces `c`)
-- `C` = yank/copy (replaces `y`)
-- `V` = paste (replaces `p`)
-- `N` = visual mode (replaces `v`)
-- `Z` = undo (replaces `u`)
+Verify any binding against the running instance (`verbose nmap <key>` via
+nvim-mcp) before relying on it — the layout has changed over time.
 
 ## Code Quality Commands
 

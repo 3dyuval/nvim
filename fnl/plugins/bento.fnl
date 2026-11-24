@@ -6,12 +6,11 @@
    [:lock   "*"   :DiagnosticVirtualTextWarn]])
 
 [{1 "akinsho/bufferline.nvim" :enabled false}
- {1 "3dyuval/bento.nvim"
+ {1 "3dyuval/bento.nvim" :enabled true
   :dev true
-  :enabled true
   :lazy false
   :opts {:notify_level "debug"
-         :ui {:mode "tabline" ; menu lives in the top bar (not a floating window)
+         :ui {:mode "floating" ; floating window menu (not tabline)
               :floating {:toggle_on_reexpand true ; re-pressing expand key closes the menu
                          :minimal_menu "dashed"}} ; always-on minimal menu (dashed)
          :highlights {:current :Bold

@@ -13,8 +13,8 @@
           (register-checkmate bufnr lhs tail)))))
 
 (local tree
-  {:<leader>t {:r "create"
-               :n "toggle"
+  {:<leader>t {:t "create"
+               :<CR> "toggle"
                :y "check"
                :x "uncheck"
                :c "archive"
@@ -26,7 +26,23 @@
                "[" "metadata jump_previous"
                :v "metadata select_value"}})
 
+;; Link maps from markdown.nvim (gl/gliw), moved out of the lazy keys spec.
+(fn register-links [bufnr]
+  (vim.keymap.set :n :<leader>tl :gliw
+                  {:buffer bufnr :desc "Add link to word"})
+  (vim.keymap.set :v :<leader>tl :gl
+                  {:buffer bufnr :desc "Add link (visual)"}))
+
+(local group (vim.api.nvim_create_augroup :checkmate_keymaps {:clear true}))
+
+;; Checkmate commands only make sense in markdown.
 (vim.api.nvim_create_autocmd :FileType
   {:pattern :markdown
-   :group (vim.api.nvim_create_augroup :checkmate_keymaps {:clear true})
+   :group group
    :callback (fn [ev] (register-checkmate ev.buf "" tree))})
+
+;; markdown.nvim link maps span the wider text filetypes the plugin loads on.
+(vim.api.nvim_create_autocmd :FileType
+  {:pattern [:markdown :text :feature :gitcommit]
+   :group group
+   :callback (fn [ev] (register-links ev.buf))})

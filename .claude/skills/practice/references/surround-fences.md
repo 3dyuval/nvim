@@ -6,7 +6,7 @@ Set filetype: `:set ft=markdown`
 
 ## Wrap word in inline code (`)
 
-Keys: `` ysiw` ``
+- [ ] TODO: cursor on word, `` ysrw` `` → (should wrap the word in inline code)
 
 ```
 hello world
@@ -19,7 +19,7 @@ const x = 1
 
 ## Wrap line in inline code (yss`)
 
-Keys: `` yss` ``
+- [ ] TODO: cursor on line, `` yss` `` → (should wrap the whole line in inline code)
 
 ```
 npm install something
@@ -28,66 +28,31 @@ npm install something
 
 ---
 
-## Wrap word in code fence with language prompt (`)
+## Delete inline code (ds`)
 
-Keys: `` ysiw` `` then enter language at prompt (e.g. `js`, `ts`, `lua`)
+- [ ] TODO: cursor inside, `` ds` `` → (should remove the inline code backticks)
 
-```
-const x = 1
-^
-```
-
-Expected after entering `js`:
 ````
-```js
-const x
-```
+`const x = 1`
+ ^
 ````
 
 ---
 
-## Wrap paragraph in code fence (ysp`)
+## Change inline code to quotes (cs`")
 
-Keys: `` ysp` `` then enter language
-
-```
-function greet() {
-  return "hello"
-}
-^
-```
-
----
-
-## Delete code fence (ds`)
-
-Keys: `` ds` ``
-
-````
-```ts
-const x = 1
-```
-^
-````
-
----
-
-## Change code fence to quotes (cs`")
-
-Keys: `` cs`" ``
+- [ ] TODO: cursor inside, `` cs`" `` → (should change the backticks to double quotes)
 
 ````
 `inline code`
  ^
 ````
 
-Expected: `"inline code"`
-
 ---
 
-## Visual: wrap selection in fence (vs`)
+## Visual: wrap selection in inline code (vs`)
 
-Keys: `` viwS` `` or `` VgS` `` for line
+- [ ] TODO: select word with `vrw`, then `` s` `` → (should wrap the selection in inline code)
 
 ```
 hello world
