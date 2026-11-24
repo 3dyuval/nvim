@@ -46,7 +46,9 @@
       "Bash(luac -p lua/bento/ui.lua)",
       "Bash(nvim --headless --clean --cmd 'set rtp+=__TRACKED_VAR__' -c 'lua local ok,e=pcall\\(require,'\\\\''bento.ui'\\\\''\\); io.stderr:write\\(ok and '\\\\''LOAD OK\\\\n'\\\\'' or \\('\\\\''LOAD ERR: '\\\\''..tostring\\(e\\)..'\\\\''\\\\n'\\\\''\\)\\)' -c qa!)",
       "WebSearch",
-      "mcp__nvim-mcp__get_state_brief"
+      "mcp__nvim-mcp__get_state_brief",
+      "Bash(git merge *)",
+      "Bash(git stash *)"
     ]
   },
   "enableAllProjectMcpServers": true,
