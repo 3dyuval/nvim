@@ -9,7 +9,8 @@
  {1 "3dyuval/bento.nvim" :enabled true
   :dev true
   :lazy false
-  :opts {:ui {:mode "floating" ; floating window menu (not tabline)
+  :opts {:notify_level "debug"
+         :ui {:mode "floating" ; floating window menu (not tabline)
               :floating {:toggle_on_reexpand true ; re-pressing expand key closes the menu
                          :minimal_menu "dashed"}} ; always-on minimal menu (dashed)
          :highlights {:current :Bold

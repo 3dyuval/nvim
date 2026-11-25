@@ -91,6 +91,8 @@ lset("n", "zH", "zM", { desc = "Close all folds", noremap = true })
 lset("n", "zI", "zR", { desc = "Open all folds", noremap = true })
 lset({ "n", "o", "x" }, "k", "t", { desc = "Till before" })
 lset({ "n", "o", "x" }, "K", "T", { desc = "Till before backward" })
+lset("n", "<C-k>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+lset("n", "<C-y>", "<cmd>bnext<cr>", { desc = "Next buffer" })
 local gs = require("gitsigns")
 local function _15_()
   if vim.wo.diff then

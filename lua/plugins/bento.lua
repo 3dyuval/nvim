@@ -26,6 +26,7 @@ return {
     enabled = true,
     dev = true,
     opts = {
+      notify_level = "debug",
       ui = { mode = "floating", floating = { toggle_on_reexpand = true, minimal_menu = "dashed" } },
       highlights = {
         current = "Bold",

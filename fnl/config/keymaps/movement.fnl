@@ -88,12 +88,9 @@
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
 
-;; SPEC.md Layer 4 P2 — buffer paging; hands off to kitty tab at the edge
-;; DISABLED: <C-PageUp/Down> tab/buffer cycling commented out per request.
-;; (lset :n :<C-PageUp> (fn [] ((. (require :workspace.buffer-nav) :prev)))
-;;       {:desc "Prev buffer (kitty tab at edge)"})
-;; (lset :n :<C-PageDown> (fn [] ((. (require :workspace.buffer-nav) :next)))
-;;       {:desc "Next buffer (kitty tab at edge)"})
+;; Buffer paging (wraps at ends)
+(lset :n :<C-k> "<cmd>bprevious<cr>" {:desc "Previous buffer"})
+(lset :n :<C-y> "<cmd>bnext<cr>" {:desc "Next buffer"})
 
 ;; Change nav (hunk within file), global. Context-aware: native ]c/[c when
 ;; vim.wo.diff is set (diffview / conflicts), gitsigns nav_hunk otherwise.
