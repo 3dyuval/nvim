@@ -2,7 +2,33 @@
 local function _1_()
   return require("fff.download").download_or_build_binary()
 end
-local function _2_(_, opts)
+local function _2_()
+  local file = vim.api.nvim_buf_get_name(0)
+  local buf_dir
+  if file ~= "" then
+    buf_dir = vim.fn.fnamemodify(file, ":p:h")
+  else
+    buf_dir = vim.fn.getcwd()
+  end
+  local root = (vim.fs.root(buf_dir, ".git") or buf_dir)
+  local fff = require("fff")
+  fff.change_indexing_directory(root)
+  return fff.find_files()
+end
+local function _4_()
+  local file = vim.api.nvim_buf_get_name(0)
+  local buf_dir
+  if file ~= "" then
+    buf_dir = vim.fn.fnamemodify(file, ":p:h")
+  else
+    buf_dir = vim.fn.getcwd()
+  end
+  local root = (vim.fs.root(buf_dir, ".git") or buf_dir)
+  local fff = require("fff")
+  fff.change_indexing_directory(root)
+  return fff.find_files()
+end
+local function _6_(_, opts)
   return require("fff").setup(opts)
 end
 return {
@@ -10,6 +36,7 @@ return {
   enabled = true,
   version = "v0.9.6",
   build = _1_,
+  keys = { { "<leader>ff", _2_, desc = "Find files (git root)" }, { "<C-f>", _4_, desc = "Find files (git root)" } },
   opts = {
     version = "v0.9.6",
     base_path = vim.fn.getcwd(),
@@ -17,6 +44,7 @@ return {
     max_threads = 6,
     prompt = "FFF ",
     title = "Find Files",
+    ui_enabled = true,
     layout = { width = 0.8, height = 0.8, preview_size = 0.5, prompt_position = "bottom" },
     preview = {
       enabled = true,
@@ -45,7 +73,6 @@ return {
     respect_gitignore = true,
     follow_symlinks = false,
     show_hidden = false,
-    ui_enabled = false,
   },
-  config = _2_,
+  config = _6_,
 }

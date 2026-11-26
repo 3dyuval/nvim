@@ -8,13 +8,38 @@
  :build (fn []
           ;; downloads a prebuilt binary matching the version, or falls back to cargo build
           ((. (require :fff.download) :download_or_build_binary)))
+ ;; Native fff picker UI (snacks-free). Reindex at the buffer's git root, then
+ ;; open fff's own floating picker. Replaces the old fff-snacks bridge.
+ :keys [{1 :<leader>ff
+         2 (fn []
+             (let [file (vim.api.nvim_buf_get_name 0)
+                   buf-dir (if (not= file "")
+                               (vim.fn.fnamemodify file ":p:h")
+                               (vim.fn.getcwd))
+                   root (or (vim.fs.root buf-dir ".git") buf-dir)
+                   fff (require :fff)]
+               (fff.change_indexing_directory root)
+               (fff.find_files)))
+         :desc "Find files (git root)"}
+        {1 "<C-f>"
+         2 (fn []
+             (let [file (vim.api.nvim_buf_get_name 0)
+                   buf-dir (if (not= file "")
+                               (vim.fn.fnamemodify file ":p:h")
+                               (vim.fn.getcwd))
+                   root (or (vim.fs.root buf-dir ".git") buf-dir)
+                   fff (require :fff)]
+               (fff.change_indexing_directory root)
+               (fff.find_files)))
+         :desc "Find files (git root)"}]
  :opts {:version "v0.9.6"
         :base_path (vim.fn.getcwd)
         :max_results 100
         :max_threads 6
         :prompt "FFF "
         :title "Find Files"
-        :ui_enabled false
+        ;; Native fff picker UI (was false when fff-snacks drove the UI).
+        :ui_enabled true
         :layout {:width 0.8
                  :height 0.8
                  :preview_size 0.5
@@ -26,8 +51,7 @@
                   :wrap_lines false
                   :show_file_info true
                   :binary_file_threshold 1024}
-        ;; pickers are opened via fff-snacks (<leader>ff / <C-f>) in
-        ;; fnl/plugins/fff-snacks.fnl — not self-registered here.
+        ;; In-picker keymaps for fff's native UI.
         :keymaps {:close "<Esc>"
                   :select "<CR>"
                   :select_split "<C-s>"
