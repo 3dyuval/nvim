@@ -16,7 +16,7 @@
          :locked_first false
          :map_last_accessed false
          :ui {:mode "floating" ; "floating" | "tabline"
-              :floating {:position "middle-right"
+              :floating {:position "middle-left"
                          :offset_x 0
                          :offset_y 0
                          :dash_char "─"

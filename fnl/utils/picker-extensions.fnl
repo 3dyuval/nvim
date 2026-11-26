@@ -498,6 +498,11 @@
                            (.. "󰈔 " (vim.fn.fnamemodify item.file ":t") " (Directory)")
                            (.. "󰈙 " (vim.fn.fnamemodify item.file ":t")))
             options [] acts []]
+        (table.insert options "󰏇 Open in oil")
+        (table.insert acts (fn []
+                             (let [dir (if item.dir item.file (vim.fn.fnamemodify item.file ":h"))]
+                               (picker:close)
+                               ((. (require :oil) :open_float) dir))))
         (table.insert options "󰑕 Rename")
         (table.insert acts (fn [] (confirm-rename picker item)))
         (table.insert options "󰆴 Delete")
