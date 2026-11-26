@@ -10,7 +10,8 @@ return {
             branch_actions_menu = function(picker)
               -- Use the centralized picker-extensions for branch actions
               local picker_extensions = require("utils.picker-extensions")
-              picker_extensions.show_context_menu(picker)
+              local item = picker_extensions.get_current_item(picker)
+              picker_extensions.context_menu(picker, item)
             end,
           },
           win = {

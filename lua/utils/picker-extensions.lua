@@ -1,2773 +1,1511 @@
+-- [nfnl] fnl/utils/picker-extensions.fnl
 local M = {}
-
--- Simple state for layout persistence (survives across picker instances within session)
-local explorer_layout = vim.g.explorer_layout or "sidebar"
-
--- Floating layouts (as opposed to the persistent sidebar) show a preview and
--- auto-close on selection.
-local function is_floating_layout(preset)
-  return preset == "default" or preset == "fullscreen"
+local explorer_layout = (vim.g.explorer_layout or "sidebar")
+local function floating_layout_3f(preset)
+  return ((preset == "default") or (preset == "fullscreen"))
 end
 local function preview_for_layout(preset)
-  return is_floating_layout(preset)
+  return floating_layout_3f(preset)
 end
-local _s_explorer_path = nil -- lazy-loaded signal for last focused path
-local function get_path_signal()
-  if not _s_explorer_path then
+local _path_signal = nil
+local function path_signal()
+  if not _path_signal then
     local ok, t = pcall(require, "u.tracker")
     if ok then
-      _s_explorer_path = t.create_signal(nil)
+      _path_signal = t.create_signal(nil)
+    else
+    end
+  else
+  end
+  return _path_signal
+end
+local function validate_picker(picker)
+  if picker and (type(picker) == "table") then
+    return true
+  else
+    vim.notify("Invalid picker object", vim.log.levels.ERROR)
+    return false
+  end
+end
+local function safe_call(picker, method, ...)
+  if not validate_picker(picker) then
+    return nil, "Invalid picker"
+  elseif type(picker[method]) == "function" then
+    local args = { ... }
+    local ok, res
+    local function _4_()
+      return picker[method](picker, table.unpack(args))
+    end
+    ok, res = pcall(_4_)
+    if ok then
+      return res, nil
+    else
+      return nil, res
+    end
+  else
+    return nil, ("Method " .. method .. " not available")
+  end
+end
+local function picker_items(picker)
+  local sel, _ = safe_call(picker, "selected")
+  if sel and (#sel > 0) then
+    return sel
+  else
+    local cur, _0 = safe_call(picker, "current")
+    if cur then
+      return { cur }
+    elseif
+      picker.list
+      and picker.list.selected
+      and (type(picker.list.selected) == "table")
+      and (#picker.list.selected > 0)
+    then
+      return picker.list.selected
+    else
+      return {}
     end
   end
-  return _s_explorer_path
 end
-
---- Open explorer with shortmess handling and persisted layout
----@param opts table|nil Optional config to merge with defaults
 M.open_explorer = function(opts)
   local old_shortmess = vim.o.shortmess
-  vim.o.shortmess = vim.o.shortmess .. "A"
-
-  -- Sync module state if caller provides explicit layout
+  vim.o.shortmess = (vim.o.shortmess .. "A")
   if opts and opts.layout and opts.layout.preset then
     explorer_layout = opts.layout.preset
     vim.g.explorer_layout = explorer_layout
+  else
   end
-
-  -- In the persistent sidebar, <Esc> should move focus to the editor on the
-  -- right instead of closing the panel. (Floating layouts keep the default
-  -- close-on-Esc behaviour.)
-  local function focus_editor(picker)
+  local focus_editor
+  local function _10_(picker)
     if picker.main and vim.api.nvim_win_is_valid(picker.main) then
-      vim.api.nvim_set_current_win(picker.main)
+      return vim.api.nvim_set_current_win(picker.main)
     else
-      vim.cmd("wincmd l")
+      return vim.cmd("wincmd l")
     end
   end
-  local win_override = nil
-  if not is_floating_layout(explorer_layout) then
+  focus_editor = _10_
+  local win_override
+  if not floating_layout_3f(explorer_layout) then
     win_override = {
       input = { keys = { ["<Esc>"] = { "focus_editor", mode = { "n", "i" } } } },
       list = { keys = { ["<Esc>"] = "focus_editor" } },
     }
+  else
+    win_override = nil
   end
-
-  local config = vim.tbl_deep_extend("force", {
-    root = false,
-    layout = { preset = explorer_layout, preview = preview_for_layout(explorer_layout) },
-    auto_close = is_floating_layout(explorer_layout),
-    win = win_override,
-    actions = {
-      focus_editor = { action = focus_editor },
-    },
-    on_close = function(picker)
-      vim.g.explorer_was_open = false
-      local item = picker:current()
-      if item and (item.file or item.dir) then
-        local s = get_path_signal()
-        if s then
-          s:set(item.file or item.dir)
-        end
+  local config
+  local function _13_(picker)
+    vim.g.explorer_was_open = false
+    local item = picker:current()
+    if item and (item.file or item.dir) then
+      local s = path_signal()
+      if s then
+        return s:set((item.file or item.dir))
+      else
+        return nil
       end
-    end,
-    on_show = function(picker)
-      vim.g.explorer_was_open = true
-      if is_floating_layout(explorer_layout) then
-        return
-      end
-      local s = get_path_signal()
-      local path = s and s:get()
-      if not path then
-        return
-      end
-      picker:find({
-        on_done = function()
+    else
+      return nil
+    end
+  end
+  local function _16_(picker)
+    vim.g.explorer_was_open = true
+    if not floating_layout_3f(explorer_layout) then
+      local s = path_signal()
+      local path = (s and s:get())
+      if path then
+        local function _17_()
+          local found = false
           for i, item in ipairs(picker.list.items) do
-            if item and (item.file == path or item.dir == path) then
-              picker.list:view(i)
+            if found then
               break
             end
+            if item and ((item.file == path) or (item.dir == path)) then
+              picker.list:view(i)
+              found = true
+            else
+            end
           end
-        end,
-      })
-    end,
-  }, opts or {})
-
+          return nil
+        end
+        return picker:find({ on_done = _17_ })
+      else
+        return nil
+      end
+    else
+      return nil
+    end
+  end
+  config = vim.tbl_deep_extend(
+    "force",
+    {
+      layout = { preset = explorer_layout, preview = preview_for_layout(explorer_layout) },
+      auto_close = floating_layout_3f(explorer_layout),
+      win = win_override,
+      actions = { focus_editor = { action = focus_editor } },
+      on_close = _13_,
+      on_show = _16_,
+      root = false,
+    },
+    (opts or {})
+  )
   Snacks.picker.explorer(config)
-
   vim.o.shortmess = old_shortmess
+  return nil
 end
-
--- Validate picker instance
-local function validate_picker(picker)
-  if not picker or type(picker) ~= "table" then
-    vim.notify("Invalid picker object", vim.log.levels.ERROR)
-    return false
-  end
-  return true
-end
-
--- Safe picker method call with error handling
-local function safe_picker_call(picker, method, ...)
-  if not validate_picker(picker) then
-    return nil, "Invalid picker"
-  end
-
-  if type(picker[method]) ~= "function" then
-    return nil, "Method " .. method .. " not available"
-  end
-
-  -- Use colon notation for picker methods (they expect self as first argument)
-  local success, result = pcall(function(...)
-    return picker[method](picker, ...)
-  end, ...)
-
-  if success then
-    return result, nil
-  else
-    return nil, result
-  end
-end
-
--- Get current focused item from picker (follows folke's architecture)
 M.get_current_item = function(picker)
   if not validate_picker(picker) then
     return nil, "Invalid picker"
-  end
-
-  -- Use folke's standard method: picker:current()
-  if type(picker.current) == "function" then
-    local success, item = pcall(picker.current, picker)
-    if success and item then
-      return item, nil
+  else
+    if type(picker.current) == "function" then
+      local ok, item = pcall(picker.current, picker)
+      if ok and item then
+        return item, nil
+      else
+      end
+    else
     end
-  end
-
-  -- Fallback to list:current() if picker:current() fails
-  if picker.list and type(picker.list.current) == "function" then
-    local success, item = pcall(picker.list.current, picker.list)
-    if success and item then
-      return item, nil
+    if picker.list and (type(picker.list.current) == "function") then
+      local ok, item = pcall(picker.list.current, picker.list)
+      if ok and item then
+        return item, nil
+      else
+      end
+    else
     end
+    return nil, "No current item found"
   end
-
-  return nil, "No current item found"
 end
-
--- Extract branch name from picker item (follows folke's git.lua patterns)
 M.get_branch_name = function(item)
   if not item then
     return nil
-  end
-
-  -- If item has a branch field (folke's standard), use it
-  if type(item) == "table" and item.branch then
+  elseif (type(item) == "table") and item.branch then
     return item.branch
-  end
-
-  -- If item has text field, try to parse it using folke's patterns
-  if type(item) == "table" and item.text then
-    local commit_pat = ("[a-z0-9]"):rep(7)
-    local patterns = {
-      -- e.g. "* (HEAD detached at f65a2c8) f65a2c8 chore(build): auto-generate docs"
-      "^(.)%s(%b())%s+(" .. commit_pat .. ")%s*(.*)$",
-      -- e.g. "  main                       d2b2b7b [origin/main: behind 276] chore(build): auto-generate docs"
-      "^(.)%s(%S+)%s+(" .. commit_pat .. ")%s*(.*)$",
-    }
-
+  elseif (type(item) == "table") and item.text then
+    local commit_pat = string.rep("[a-z0-9]", 7)
+    local patterns =
+      { ("^(.)%s(%b())%s+(" .. commit_pat .. ")%s*(.*)$"), ("^(.)%s(%S+)%s+(" .. commit_pat .. ")%s*(.*)$") }
+    local result = nil
     for p, pattern in ipairs(patterns) do
-      local status, branch, _commit, _msg = item.text:match(pattern)
-      if status and branch then
-        local detached = p == 1
-        if not detached then
-          return branch
-        end
+      if result then
+        break
+      end
+      local status, branch = item.text:match(pattern)
+      if status and branch and not (p == 1) then
+        result = branch
+      else
       end
     end
-
-    -- Fallback: simple cleanup for basic branch names
-    local cleaned = item.text:gsub("^%s*%*?%s*", ""):gsub("%s+$", "")
-    -- Handle remotes/ prefix properly
-    if cleaned:match("^remotes/") then
-      cleaned = cleaned:gsub("^remotes/", "")
+    if result then
+      return result
+    else
+      local cleaned = item.text:gsub("^%s*%*?%s*", ""):gsub("%s+$", "")
+      local cleaned0
+      if cleaned:match("^remotes/") then
+        cleaned0 = cleaned:gsub("^remotes/", "")
+      else
+        cleaned0 = cleaned
+      end
+      local branch_only = cleaned0:match("^(%S+)")
+      if branch_only and not (branch_only == "") then
+        return branch_only
+      else
+        return nil
+      end
     end
-    -- Extract just the branch name (before any whitespace/commit info)
-    local branch_only = cleaned:match("^(%S+)")
-    if branch_only and branch_only ~= "" then
-      return branch_only
+  elseif type(item) == "string" then
+    local cleaned = item:gsub("^%s*%*?%s*", ""):gsub("%s+$", ""):gsub("^remotes/", "")
+    if not (cleaned == "") then
+      return cleaned
+    else
+      return nil
     end
-  end
-
-  -- Handle string items (simple branch names)
-  if type(item) == "string" then
-    local cleaned = item:gsub("^%s*%*?%s*", ""):gsub("%s+$", "")
-    cleaned = cleaned:gsub("^remotes/", "")
-    return cleaned ~= "" and cleaned or nil
-  end
-
-  return nil
-end
-
--- ============================================================================
--- PICKER ACTIONS
--- ============================================================================
-
--- Reusable format action function
-local function format_action(picker, item_or_items)
-  -- Handle both single item and multiple items
-  local items
-  if type(item_or_items) == "table" and item_or_items[1] then
-    -- Multiple items array
-    items = item_or_items
   else
-    -- Single item or selected items
-    local selected = safe_picker_call(picker, "selected") or {}
-    if #selected > 0 then
-      items = selected
-    else
-      items = { item_or_items }
-    end
-  end
-
-  -- Collect all files to format
-  local files_to_format = {}
-  for _, selected_item in ipairs(items) do
-    if selected_item.dir or vim.fn.isdirectory(selected_item.file) == 1 then
-      -- Directory: find all supported files recursively
-      local find_cmd = string.format(
-        "find %s -type f \\( -name '*.js' -o -name '*.jsx' -o -name '*.ts' -o -name '*.tsx' -o -name '*.json' -o -name '*.lua' -o -name '*.html' -o -name '*.vue' -o -name '*.css' -o -name '*.scss' \\)",
-        vim.fn.shellescape(selected_item.file)
-      )
-      local dir_files = vim.fn.systemlist(find_cmd)
-      for _, file in ipairs(dir_files) do
-        if vim.fn.filereadable(file) == 1 then
-          table.insert(files_to_format, file)
-        end
-      end
-    else
-      -- Single file: add if readable
-      if vim.fn.filereadable(selected_item.file) == 1 then
-        table.insert(files_to_format, selected_item.file)
-      end
-    end
-  end
-
-  -- Format all collected files
-  if #files_to_format > 0 then
-    for _, file in ipairs(files_to_format) do
-      -- Use conform directly since it now handles import organization
-      local conform = require("conform")
-      local ok, bufnr = pcall(vim.fn.bufnr, file, true)
-      if ok and bufnr > 0 then
-        pcall(vim.fn.bufload, bufnr)
-        pcall(conform.format, { bufnr = bufnr, timeout_ms = 5000 })
-      end
-    end
-
-    -- Refresh picker if possible
-    if picker.refresh then
-      picker:refresh()
-    end
+    return nil
   end
 end
-
--- Explorer: Open multiple buffers action
 M.open_multiple_buffers = function(picker)
-  if not validate_picker(picker) then
-    return
-  end
-
-  local sel, err = safe_picker_call(picker, "selected")
-  if err then
-    vim.notify("Could not get selected items: " .. err, vim.log.levels.WARN)
-    return
-  end
-
-  sel = sel or {}
-  if #sel == 0 then
-    vim.notify("No files selected", vim.log.levels.WARN)
-    return
-  end
-
-  picker:close()
-
-  for _, item in ipairs(sel) do
-    if item and item.file then
-      vim.cmd("edit " .. vim.fn.fnameescape(item.file))
+  if validate_picker(picker) then
+    local sel, err = safe_call(picker, "selected")
+    if err then
+      return vim.notify(("Could not get selected items: " .. err), vim.log.levels.WARN)
+    else
+      local sel0 = (sel or {})
+      if #sel0 == 0 then
+        return vim.notify("No files selected", vim.log.levels.WARN)
+      else
+        picker:close()
+        for _, item in ipairs(sel0) do
+          if item and item.file then
+            vim.cmd(("edit " .. vim.fn.fnameescape(item.file)))
+          else
+          end
+        end
+        return vim.notify(string.format("Opened %d file(s)", #sel0))
+      end
     end
+  else
+    return nil
   end
-
-  vim.notify(string.format("Opened %d file(s)", #sel))
 end
-
--- Explorer: Copy file path with options
+M.search_in_directory = function(picker, item)
+  if not item then
+    return vim.notify("No item provided", vim.log.levels.WARN)
+  else
+    return Snacks.picker.grep({
+      cwd = vim.fn.fnamemodify(item.file, ":p:h"),
+      cmd = "rg",
+      args = {
+        "-g",
+        "!.git",
+        "-g",
+        "!node_modules",
+        "-g",
+        "!dist",
+        "-g",
+        "!build",
+        "-g",
+        "!coverage",
+        "-g",
+        "!.DS_Store",
+        "-g",
+        "!.docusaurus",
+        "-g",
+        "!.dart_tool",
+      },
+      show_empty = true,
+      hidden = true,
+      ignored = true,
+      supports_live = true,
+      follow = false,
+    })
+  end
+end
+M.diff_selected = function(picker)
+  if validate_picker(picker) then
+    picker:close()
+    local sel, err = safe_call(picker, "selected")
+    if err then
+      return vim.notify(("Could not get selected items: " .. err), vim.log.levels.WARN)
+    else
+      local sel0 = (sel or {})
+      if #sel0 >= 2 then
+        Snacks.notify.info(sel0[1].file)
+        vim.cmd(("tabnew " .. sel0[1].file))
+        vim.cmd(("vert diffs " .. sel0[2].file))
+        return Snacks.notify.info(("Diffing " .. sel0[1].file .. " against " .. sel0[2].file))
+      else
+        return Snacks.notify.info("Select two entries for the diff")
+      end
+    end
+  else
+    return nil
+  end
+end
+M.handle_directory_expansion = function(picker)
+  if validate_picker(picker) then
+    local item, err = safe_call(picker, "current")
+    if err then
+      return vim.notify(("Could not get current item: " .. err), vim.log.levels.WARN)
+    else
+      if item and item.dir then
+        return picker:confirm()
+      else
+        return nil
+      end
+    end
+  else
+    return nil
+  end
+end
 M.copy_file_path = function(picker, item)
-  -- Get selected items or fall back to single item
-  local selected, err = safe_picker_call(picker, "selected")
+  local sel, err = safe_call(picker, "selected")
   local items
-  if not err and selected and #selected > 0 then
-    items = selected
+  if not err and sel and (#sel > 0) then
+    items = sel
   elseif item then
     items = { item }
   else
-    vim.notify("No item provided", vim.log.levels.WARN)
-    return
+    items = nil
   end
-
-  local is_multi = #items > 1
-
-  -- Create ordered list with icons and values
-  local copy_options
-
-  if is_multi then
-    -- Multiple files: concatenate with newlines
-    local paths_cwd = {}
-    local paths_home = {}
-    local filenames = {}
-    local paths_abs = {}
-    local all_contents = {}
-
-    for _, itm in ipairs(items) do
-      table.insert(paths_cwd, vim.fn.fnamemodify(itm.file, ":."))
-      table.insert(paths_home, vim.fn.fnamemodify(itm.file, ":~"))
-      table.insert(filenames, vim.fn.fnamemodify(itm.file, ":t"))
-      table.insert(paths_abs, itm.file)
-    end
-
-    copy_options = {
-      { key = "cwd", icon = "󰉋", value = table.concat(paths_cwd, "\n") },
-      { key = "tree", icon = "", value = "tree_structure", items = items },
-      { key = "home", icon = "󰋜", value = table.concat(paths_home, "\n") },
-      { key = "content", icon = "󰈙", value = "file_content_multi", items = items },
-      { key = "name", icon = "󰈔", value = table.concat(filenames, "\n") },
-      { key = "path", icon = "󰆏", value = table.concat(paths_abs, "\n") },
-      { key = "claude", icon = "", value = "claude_add", items = items },
-    }
+  if not items then
+    return vim.notify("No item provided", vim.log.levels.WARN)
   else
-    -- Single file: keep existing behavior
-    copy_options = {
-      { key = "tree", icon = "", value = "tree_structure", items = items },
-      { key = "cwd", icon = "󰉋", value = vim.fn.fnamemodify(items[1].file, ":.") },
-      { key = "home", icon = "󰋜", value = vim.fn.fnamemodify(items[1].file, ":~") },
-      { key = "content", icon = "󰈙", value = "file_content", items = items },
-      { key = "name", icon = "󰈔", value = vim.fn.fnamemodify(items[1].file, ":t") },
-      { key = "path", icon = "󰆏", value = items[1].file },
-      { key = "basename", icon = "󰈙", value = vim.fn.fnamemodify(items[1].file, ":t:r") },
-      { key = "extension", icon = "󰈙", value = vim.fn.fnamemodify(items[1].file, ":t:e") },
-      { key = "uri", icon = "󰌷", value = vim.uri_from_fname(items[1].file) },
-      { key = "claude", icon = "", value = "claude_add", items = items },
-    }
-  end
-
-  -- Filter out empty values and create menu options
-  local menu_options = {}
-  local option_map = {}
-
-  for i, option in ipairs(copy_options) do
-    if option.value and option.value ~= "" then
-      local display_text = string.format("%s %s: %s", option.icon, option.key, option.value)
-      table.insert(menu_options, display_text)
-      option_map[#menu_options] = option
-    end
-  end
-
-  if #menu_options == 0 then
-    vim.notify("No values to copy", vim.log.levels.WARN)
-    return
-  end
-
-  vim.ui.select(menu_options, {
-    prompt = "Choose to copy to clipboard:",
-    format_item = function(list_item)
-      return list_item
-    end,
-  }, function(choice, idx)
-    if choice and idx and option_map[idx] then
-      local selected_option = option_map[idx]
-      local result = selected_option.value
-
-      if selected_option.key == "content" then
-        local all_contents = {}
-        local total_lines = 0
-        local file_count = 0
-
-        for _, itm in ipairs(selected_option.items) do
-          -- Check if it's a directory
-          if itm.dir or vim.fn.isdirectory(itm.file) == 1 then
-            -- Get top-level files in directory (non-recursive)
-            local dir_files = vim.fn.readdir(itm.file, function(name)
-              local path = itm.file .. "/" .. name
-              return vim.fn.filereadable(path) == 1
-            end)
-
-            for _, fname in ipairs(dir_files) do
-              local fpath = itm.file .. "/" .. fname
-              local content = vim.fn.readfile(fpath)
-              total_lines = total_lines + #content
-              file_count = file_count + 1
-
-              -- Add file path and separator
-              local rel_path = vim.fn.fnamemodify(fpath, ":.")
-              table.insert(all_contents, rel_path)
-              table.insert(all_contents, "--- " .. rel_path .. " ---")
-              table.insert(all_contents, table.concat(content, "\n"))
-            end
-          else
-            -- Regular file
-            if vim.fn.filereadable(itm.file) == 0 then
-              vim.notify("File not readable: " .. itm.file, vim.log.levels.ERROR)
-              return
-            end
-            local content = vim.fn.readfile(itm.file)
-            total_lines = total_lines + #content
-            file_count = file_count + 1
-
-            if is_multi then
-              -- Add file path and separator for multiple files
-              local rel_path = vim.fn.fnamemodify(itm.file, ":.")
-              table.insert(all_contents, rel_path)
-              table.insert(all_contents, "--- " .. rel_path .. " ---")
-              table.insert(all_contents, table.concat(content, "\n"))
-            else
-              -- Single file: add path before content
-              local rel_path = vim.fn.fnamemodify(itm.file, ":.")
-              table.insert(all_contents, rel_path)
-              table.insert(all_contents, table.concat(content, "\n"))
-            end
-          end
-        end
-
-        if file_count == 0 then
-          vim.notify("No files to copy", vim.log.levels.WARN)
-          return
-        end
-
-        local content_str = table.concat(all_contents, "\n")
-        vim.fn.setreg("+", content_str)
-
-        Snacks.notify.info(string.format("Copied %d file(s) to clipboard (%d lines)", file_count, total_lines))
-      elseif selected_option.key == "tree" then
-        -- Generate tree structure using tree command
-        local items_count = #selected_option.items
-
-        -- Check if single directory
-        local single_dir = items_count == 1
-          and (selected_option.items[1].dir or vim.fn.isdirectory(selected_option.items[1].file) == 1)
-
-        local tree_output
-        if single_dir then
-          -- Single directory: run tree on that directory
-          local dir_path = selected_option.items[1].file
-          local tree_cmd = string.format("tree %s", vim.fn.shellescape(dir_path))
-          tree_output = vim.fn.system(tree_cmd)
-
-          if vim.v.shell_error ~= 0 then
-            vim.notify("Failed to run tree command", vim.log.levels.ERROR)
-            return
-          end
-        else
-          -- Multiple files or mixed: show only selected files in tree structure
-          local file_paths = {}
-          for _, itm in ipairs(selected_option.items) do
-            if not (itm.dir or vim.fn.isdirectory(itm.file) == 1) then
-              table.insert(file_paths, vim.fn.fnamemodify(itm.file, ":."))
-            end
-          end
-
-          if #file_paths == 0 then
-            vim.notify("No files to show in tree", vim.log.levels.WARN)
-            return
-          end
-
-          -- Build tree structure from file paths
-          local tree = {}
-          for _, fpath in ipairs(file_paths) do
-            local parts = vim.split(fpath, "/", { plain = true })
-            local current = tree
-
-            for i, part in ipairs(parts) do
-              if not current[part] then
-                current[part] = {}
-              end
-              current = current[part]
-            end
-          end
-
-          -- Render tree structure
-          local function render_tree(node, prefix, is_last)
-            local lines = {}
-            local keys = vim.tbl_keys(node)
-            table.sort(keys)
-
-            for idx, key in ipairs(keys) do
-              local is_last_item = idx == #keys
-              local connector = is_last_item and "└── " or "├── "
-              local child_prefix = is_last_item and "    " or "│   "
-
-              -- Check if this is a leaf (file) or branch (directory)
-              local is_leaf = vim.tbl_isempty(node[key])
-              local suffix = is_leaf and "" or "/"
-
-              table.insert(lines, prefix .. connector .. key .. suffix)
-
-              if not is_leaf then
-                local child_lines = render_tree(node[key], prefix .. child_prefix, is_last_item)
-                for _, line in ipairs(child_lines) do
-                  table.insert(lines, line)
-                end
-              end
-            end
-
-            return lines
-          end
-
-          local tree_lines = { "." }
-          local rendered = render_tree(tree, "", false)
-          for _, line in ipairs(rendered) do
-            table.insert(tree_lines, line)
-          end
-
-          tree_output = table.concat(tree_lines, "\n")
-        end
-
-        vim.fn.setreg("+", tree_output)
-        Snacks.notify.info("Tree structure copied to clipboard")
-      elseif selected_option.key == "claude" then
-        local claudecode = require("claudecode")
-        local count = 0
-        for _, itm in ipairs(selected_option.items) do
-          if itm.file and itm.file ~= "" then
-            claudecode.send_at_mention(itm.file, nil, nil, "snacks_picker")
-            count = count + 1
-          end
-        end
-        Snacks.notify.info(string.format("Added %d file(s) to Claude", count))
-      else
-        vim.fn.setreg("+", result)
-        Snacks.notify.info("Yanked `" .. result .. "`")
-      end
-    end
-  end)
-end
-
--- Explorer: Search in directory
-M.search_in_directory = function(picker, item)
-  if not item then
-    vim.notify("No item provided", vim.log.levels.WARN)
-    return
-  end
-
-  local dir = vim.fn.fnamemodify(item.file, ":p:h")
-  Snacks.picker.grep({
-    cwd = dir,
-    cmd = "rg",
-    args = {
-      "-g",
-      "!.git",
-      "-g",
-      "!node_modules",
-      "-g",
-      "!dist",
-      "-g",
-      "!build",
-      "-g",
-      "!coverage",
-      "-g",
-      "!.DS_Store",
-      "-g",
-      "!.docusaurus",
-      "-g",
-      "!.dart_tool",
-    },
-    show_empty = true,
-    hidden = true,
-    ignored = true,
-    follow = false,
-    supports_live = true,
-  })
-end
-
--- Explorer: Diff two selected files
-M.diff_selected = function(picker)
-  if not validate_picker(picker) then
-    return
-  end
-
-  picker:close()
-  local sel, err = safe_picker_call(picker, "selected")
-  if err then
-    vim.notify("Could not get selected items: " .. err, vim.log.levels.WARN)
-    return
-  end
-
-  sel = sel or {}
-  if #sel >= 2 then
-    Snacks.notify.info(sel[1].file)
-    vim.cmd("tabnew " .. sel[1].file)
-    vim.cmd("vert diffs " .. sel[2].file)
-    Snacks.notify.info("Diffing " .. sel[1].file .. " against " .. sel[2].file)
-  else
-    Snacks.notify.info("Select two entries for the diff")
-  end
-end
-
--- Directory expansion handler
-M.handle_directory_expansion = function(picker)
-  if not validate_picker(picker) then
-    return
-  end
-
-  local item, err = safe_picker_call(picker, "current")
-  if err then
-    vim.notify("Could not get current item: " .. err, vim.log.levels.WARN)
-    return
-  end
-
-  if item and item.dir then
-    -- For directories, use the default confirm behavior
-    picker:confirm()
-  end
-  -- For files, do nothing
-end
-
--- ============================================================================
--- CONTEXT MENU SYSTEM
--- ============================================================================
-
--- Format files using conform.nvim
-local function format_files_action(picker, items)
-  local conform = require("conform")
-  local processed = 0
-  local errors = 0
-
-  -- Handle single item vs multiple items
-  if type(items.file) == "string" then
-    items = { items }
-  end
-
-  for _, item in ipairs(items) do
-    if not item.dir and vim.fn.filereadable(item.file) == 1 then
-      local success, err = pcall(function()
-        local bufnr = vim.fn.bufnr(item.file, true)
-        vim.fn.bufload(bufnr)
-
-        vim.bo[bufnr].modifiable = true
-        vim.bo[bufnr].readonly = false
-
-        -- Use conform directly since it now handles import organization
-        conform.format({ bufnr = bufnr, timeout_ms = 5000 })
-        processed = processed + 1
-
-        if vim.bo[bufnr].modified then
-          vim.api.nvim_buf_call(bufnr, function()
-            vim.cmd("silent! write")
-          end)
-        end
-      end)
-
-      if not success then
-        errors = errors + 1
-        vim.notify(
-          "Error formatting " .. vim.fn.fnamemodify(item.file, ":t") .. ": " .. (err or "unknown error"),
-          vim.log.levels.WARN
-        )
-      end
-    end
-  end
-
-  if processed > 0 then
-    vim.notify(string.format("Formatted %d files%s", processed, errors > 0 and " (" .. errors .. " errors)" or ""))
-  else
-    vim.notify("No files formatted", vim.log.levels.WARN)
-  end
-end
-
--- Context detection system
-local contexts = {
-  sidebar_explorer = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      -- Detect sidebar explorer by minimal action set
-      local has_minimal_explorer = picker.opts
-        and picker.opts.actions
-        and (picker.opts.actions.explorer_add and picker.opts.actions.list_down)
-
-      if has_minimal_explorer then
-        local action_count = 0
-        for _ in pairs(picker.opts.actions) do
-          action_count = action_count + 1
-        end
-
-        -- Sidebar explorers have very few actions (< 10)
-        -- Your popup explorer has 50+ actions
-        return action_count < 10
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      vim.notify("Sidebar explorer detected - context menu not yet supported", vim.log.levels.INFO)
-      return {}
-    end,
-  },
-
-  explorer = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      -- Check if the picker has explorer-specific actions (most reliable method)
-      local has_explorer_actions = picker.opts
-        and picker.opts.actions
-        and (
-          picker.opts.actions.explorer_add
-          or picker.opts.actions.explorer_del
-          or picker.opts.actions.explorer_open
-          or picker.opts.actions.explorer_rename
-          or picker.opts.actions.explorer_close
-          or picker.opts.actions.explorer_up
-          or picker.opts.actions.explorer_focus
-        )
-
-      -- Exclude sidebar explorers (they have minimal actions and different structure)
-      if has_explorer_actions then
-        local action_count = 0
-        for _ in pairs(picker.opts.actions) do
-          action_count = action_count + 1
-        end
-        -- Sidebar explorers typically have very few actions (< 5)
-        -- Popup explorers have many actions (> 10)
-        if action_count < 5 then
-          return false -- This is likely a sidebar explorer
-        end
-
-        -- This IS an explorer picker - return true regardless of item properties
-        return true
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      local items = {}
-
-      if not validate_picker(picker) then
-        return items
-      end
-
-      local selected, err = safe_picker_call(picker, "selected")
-      if not err and selected and #selected > 0 then
-        items = selected
-      end
-
-      if #items == 0 then
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current then
-          items = { current }
-        end
-      end
-
-      if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
-      then
-        items = picker.list.selected
-      end
-
-      return items
-    end,
-  },
-
-  git_status = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      -- Check source first (if available) - this is the most reliable
-      local source = picker.opts and picker.opts.source
-      if source == "git_status" then
-        return true
-      end
-
-      -- Only fallback to item checking if we're NOT in an explorer
-      -- (explorer items can have status but aren't git status items)
-      local has_explorer_actions = picker.opts
-        and picker.opts.actions
-        and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del or picker.opts.actions.explorer_open)
-
-      if not has_explorer_actions then
-        -- Fallback: check if current item has git status properties
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current and current.status and current.file and not current.dir then
-          -- Check if status looks like git status (M, A, D, ??, etc.)
-          if current.status:match("^[MADRCU?!]") then
-            return true
-          end
-        end
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      local items = {}
-
-      if not validate_picker(picker) then
-        return items
-      end
-
-      local selected, err = safe_picker_call(picker, "selected")
-      if not err and selected and #selected > 0 then
-        items = selected
-      end
-
-      if #items == 0 then
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current then
-          items = { current }
-        end
-      end
-
-      if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
-      then
-        items = picker.list.selected
-      end
-
-      return items
-    end,
-  },
-
-  files = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      -- Check source first (if available)
-      local source = picker.opts and picker.opts.source
-      if source == "files" or source == "git_files" then
-        return true
-      end
-
-      -- Fallback: check if it has file-specific characteristics but NOT explorer actions
-      local has_explorer_actions = picker.opts
-        and picker.opts.actions
-        and (picker.opts.actions.explorer_add or picker.opts.actions.explorer_del)
-
-      -- If no explorer actions and has file-like items, assume it's a files picker
-      if not has_explorer_actions then
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current and current.file and not current.dir then
-          return true
-        end
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      local items = {}
-
-      if not validate_picker(picker) then
-        return items
-      end
-
-      local selected, err = safe_picker_call(picker, "selected")
-      if not err and selected and #selected > 0 then
-        items = selected
-      end
-
-      if #items == 0 then
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current then
-          items = { current }
-        end
-      end
-
-      if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
-      then
-        items = picker.list.selected
-      end
-
-      return items
-    end,
-  },
-
-  buffers = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      -- Check source first (if available)
-      local source = picker.opts and picker.opts.source
-      if source == "buffers" then
-        return true
-      end
-
-      -- Fallback: check if current item has bufnr
-      local current, err = safe_picker_call(picker, "current")
-      if not err and current and current.bufnr then
-        return true
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      local items = {}
-
-      if not validate_picker(picker) then
-        return items
-      end
-
-      local selected, err = safe_picker_call(picker, "selected")
-      if not err and selected and #selected > 0 then
-        items = selected
-      end
-
-      if #items == 0 then
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current then
-          items = { current }
-        end
-      end
-
-      if
-        #items == 0
-        and picker.list
-        and picker.list.selected
-        and type(picker.list.selected) == "table"
-        and #picker.list.selected > 0
-      then
-        items = picker.list.selected
-      end
-
-      return items
-    end,
-  },
-
-  lsp_symbols = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      local source = picker.opts and picker.opts.source
-      if source == "lsp_symbols" or source == "lsp_workspace_symbols" then
-        return true
-      end
-
-      -- Check if current item has symbol-like properties
-      local current, err = safe_picker_call(picker, "current")
-      if not err and current then
-        if current.kind or current.symbol or current.lnum then
-          return true
-        end
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      local items = {}
-      local selected, err = safe_picker_call(picker, "selected")
-      if not err and selected and #selected > 0 then
-        items = selected
-      end
-      if #items == 0 then
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current then
-          items = { current }
-        end
-      end
-      return items
-    end,
-  },
-
-  grep = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      local source = picker.opts and picker.opts.source
-      if source == "grep" or source == "grep_word" or source == "grep_buffers" then
-        return true
-      end
-
-      -- Check if current item has grep-like properties (line content)
-      local current, err = safe_picker_call(picker, "current")
-      if not err and current then
-        if current.line and current.file and current.pos then
-          return true
-        end
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      local items = {}
-      local selected, err = safe_picker_call(picker, "selected")
-      if not err and selected and #selected > 0 then
-        items = selected
-      end
-      if #items == 0 then
-        local current, err = safe_picker_call(picker, "current")
-        if not err and current then
-          items = { current }
-        end
-      end
-      return items
-    end,
-  },
-
-  git_branches = {
-    detect = function(picker)
-      if not validate_picker(picker) then
-        return false
-      end
-
-      -- Check source first (most reliable method, follows folke's pattern)
-      local source = picker.opts and picker.opts.source
-      if source == "git_branches" then
-        return true
-      end
-
-      -- Check if picker has git branch-specific properties
-      local current, err = M.get_current_item(picker)
-      if not err and current then
-        -- Check for folke's git branch item structure
-        if type(current) == "table" then
-          -- Look for git branch specific fields (from folke's git.lua)
-          if current.branch or current.commit or current.current ~= nil or current.detached ~= nil then
-            return true
-          end
-
-          -- Check if text field matches git branch patterns
-          if current.text then
-            local commit_pat = ("[a-z0-9]"):rep(7)
-            local patterns = {
-              "^(.)%s(%b())%s+(" .. commit_pat .. ")%s*(.*)$",
-              "^(.)%s(%S+)%s+(" .. commit_pat .. ")%s*(.*)$",
-            }
-            for _, pattern in ipairs(patterns) do
-              if current.text:match(pattern) then
-                return true
-              end
-            end
-          end
-        end
-      end
-
-      return false
-    end,
-    get_items = function(picker)
-      local items = {}
-
-      if not validate_picker(picker) then
-        return items
-      end
-
-      -- Try to get selected items first
-      local selected, err = safe_picker_call(picker, "selected")
-      if not err and selected and #selected > 0 then
-        items = selected
-      end
-
-      -- Fallback to current item
-      if #items == 0 then
-        local current, err = M.get_current_item(picker)
-        if not err and current then
-          items = { current }
-        end
-      end
-
-      return items
-    end,
-  },
-}
-
--- Menu actions for different contexts
-local actions = {
-  -- Single file actions
-  single_file = {
-    {
-      key = "o",
-      desc = "Open file",
-      action = function(picker, item)
-        picker:close()
-        vim.cmd("edit " .. vim.fn.fnameescape(item.file))
-      end,
-    },
-    {
-      key = "f",
-      desc = "󰉋 Format file",
-      action = function(picker, item)
-        local formatter = require("utils.formatter")
-        if item.dir then
-          -- Format directory recursively
-          formatter.format_batch({ item.file }, {
-            verbose = true,
-            on_complete = function(status)
-              if picker.refresh then
-                picker:refresh()
-              end
-            end,
-          })
-        else
-          -- Format single file
-          formatter.format_file(item.file, {
-            verbose = true,
-            on_complete = function(status)
-              if picker.refresh then
-                picker:refresh()
-              end
-            end,
-          })
-        end
-      end,
-    },
-    {
-      key = "s",
-      desc = "Split open",
-      action = function(picker, item)
-        picker:close()
-        vim.cmd("split " .. vim.fn.fnameescape(item.file))
-      end,
-    },
-    {
-      key = "v",
-      desc = "Vertical split",
-      action = function(picker, item)
-        picker:close()
-        vim.cmd("vsplit " .. vim.fn.fnameescape(item.file))
-      end,
-    },
-    {
-      key = "t",
-      desc = "Open in new tab",
-      action = function(picker, item)
-        picker:close()
-        vim.cmd("tabnew " .. vim.fn.fnameescape(item.file))
-      end,
-    },
-    {
-      key = "r",
-      desc = "Rename file",
-      action = function(picker, item)
-        local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(item.file, ":t"))
-        if new_name and new_name ~= "" then
-          local new_path = vim.fn.fnamemodify(item.file, ":h") .. "/" .. new_name
-          Snacks.rename.rename_file({
-            from = item.file,
-            to = new_path,
-            on_rename = function(to, from, ok)
-              if ok then
-                vim.notify("Renamed to " .. new_name)
-                if picker.refresh then
-                  picker:refresh()
-                end
-              end
-            end,
-          })
-        end
-      end,
-    },
-    {
-      key = "d",
-      desc = "Delete file",
-      action = function(picker, item)
-        local confirm = vim.fn.confirm("Delete " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 1)
-        if confirm == 1 then
-          local ok, err = os.remove(item.file)
-          if ok then
-            vim.notify("Deleted " .. vim.fn.fnamemodify(item.file, ":t"))
-            if picker.refresh then
-              picker:refresh()
-            end
-          else
-            vim.notify("Failed to delete: " .. (err or "unknown error"), vim.log.levels.ERROR)
-          end
-        end
-      end,
-    },
-    {
-      key = "c",
-      desc = "Copy path",
-      action = function(picker, item)
-        vim.fn.setreg("+", item.file)
-        vim.notify("Copied path: " .. item.file)
-      end,
-    },
-    {
-      key = "C",
-      desc = "Copy filename",
-      action = function(picker, item)
-        local filename = vim.fn.fnamemodify(item.file, ":t")
-        vim.fn.setreg("+", filename)
-        vim.notify("Copied filename: " .. filename)
-      end,
-    },
-    {
-      key = "f",
-      desc = "Format files",
-      action = format_action,
-    },
-    {
-      key = "f",
-      desc = "Format files",
-      action = format_files_action,
-    },
-  },
-
-  -- Single directory actions
-  single_dir = {
-    {
-      key = "o",
-      desc = "Open directory",
-      action = function(picker, item)
-        picker:close()
-        Snacks.picker.files({ cwd = item.file })
-      end,
-    },
-    {
-      key = "e",
-      desc = "Explore directory",
-      action = function(picker, item)
-        picker:close()
-        Snacks.picker.explorer({ cwd = item.file })
-      end,
-    },
-    {
-      key = "t",
-      desc = "Open in terminal",
-      action = function(picker, item)
-        picker:close()
-        Snacks.terminal({ cwd = item.file })
-      end,
-    },
-    {
-      key = "r",
-      desc = "Rename directory",
-      action = function(picker, item)
-        local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(item.file, ":t"))
-        if new_name and new_name ~= "" then
-          local new_path = vim.fn.fnamemodify(item.file, ":h") .. "/" .. new_name
-          Snacks.rename.rename_file({
-            from = item.file,
-            to = new_path,
-            on_rename = function(to, from, ok)
-              if ok then
-                vim.notify("Renamed to " .. new_name)
-                if picker.refresh then
-                  picker:refresh()
-                end
-              end
-            end,
-          })
-        end
-      end,
-    },
-    {
-      key = "d",
-      desc = "Delete directory",
-      action = function(picker, item)
-        local confirm =
-          vim.fn.confirm("Delete directory " .. vim.fn.fnamemodify(item.file, ":t") .. "?", "&Yes\n&No", 2)
-        if confirm == 1 then
-          vim.fn.delete(item.file, "rf")
-          vim.notify("Deleted directory " .. vim.fn.fnamemodify(item.file, ":t"))
-          if picker.refresh then
-            picker:refresh()
-          end
-        end
-      end,
-    },
-    {
-      key = "c",
-      desc = "Copy path",
-      action = function(picker, item)
-        vim.fn.setreg("+", item.file)
-        vim.notify("Copied path: " .. item.file)
-      end,
-    },
-    {
-      key = "f",
-      desc = "Format files in directory",
-      action = format_action,
-    },
-    {
-      key = "n",
-      desc = "New file in directory",
-      action = function(picker, item)
-        local filename = vim.fn.input("New file name: ")
-        if filename and filename ~= "" then
-          local filepath = item.file .. "/" .. filename
-          vim.cmd("edit " .. vim.fn.fnameescape(filepath))
-          picker:close()
-        end
-      end,
-    },
-    {
-      key = "N",
-      desc = "New directory",
-      action = function(picker, item)
-        local dirname = vim.fn.input("New directory name: ")
-        if dirname and dirname ~= "" then
-          local dirpath = item.file .. "/" .. dirname
-          vim.fn.mkdir(dirpath, "p")
-          vim.notify("Created directory: " .. dirname)
-          if picker.refresh then
-            picker:refresh()
-          end
-        end
-      end,
-    },
-    {
-      key = "f",
-      desc = "󰈔 Format directory",
-      action = function(picker, item)
-        local formatter = require("utils.formatter")
-        formatter.format_batch({ item.file }, {
-          verbose = true,
-          on_complete = function(status)
-            if picker.refresh then
-              picker:refresh()
-            end
-          end,
-        })
-      end,
-    },
-    {
-      key = "C",
-      desc = "Add to Claude Code",
-      action = M.claude_add_tree,
-    },
-  },
-
-  -- Multiple files/directories actions
-  multiple_items = {
-    {
-      key = "d",
-      desc = "Delete selected items",
-      action = function(picker, items)
-        local count = #items
-        local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 1)
-        if confirm == 1 then
-          local deleted = 0
-          for _, item in ipairs(items) do
-            if item.dir then
-              vim.fn.delete(item.file, "rf")
-            else
-              os.remove(item.file)
-            end
-            deleted = deleted + 1
-          end
-          vim.notify("Deleted " .. deleted .. " items")
-          if picker.refresh then
-            picker:refresh()
-          end
-        end
-      end,
-    },
-    {
-      key = "c",
-      desc = "Copy paths",
-      action = function(picker, items)
-        local paths = {}
-        for _, item in ipairs(items) do
-          table.insert(paths, item.file)
-        end
-        vim.fn.setreg("+", table.concat(paths, "\n"))
-        vim.notify("Copied " .. #paths .. " paths")
-      end,
-    },
-    {
-      key = "o",
-      desc = "Open all files",
-      action = function(picker, items)
-        picker:close()
-        for _, item in ipairs(items) do
-          if not item.dir then
-            vim.cmd("edit " .. vim.fn.fnameescape(item.file))
-          end
-        end
-      end,
-    },
-    {
-      key = "f",
-      desc = "Format selected files",
-      action = format_action,
-    },
-    {
-      key = "f",
-      desc = "Format files",
-      action = format_files_action,
-    },
-    {
-      key = "f",
-      desc = "󰉋 Format selected items",
-      action = function(picker, items)
-        local formatter = require("utils.formatter")
-        local paths = {}
-        for _, item in ipairs(items) do
-          if item.file then
-            table.insert(paths, item.file)
-          end
-        end
-
-        if #paths > 0 then
-          formatter.format_batch(paths, {
-            verbose = true,
-            on_complete = function(status)
-              if picker.refresh then
-                picker:refresh()
-              end
-            end,
-          })
-        end
-      end,
-    },
-    {
-      key = "m",
-      desc = "󰪹 Move selected items",
-      action = function(picker, items)
-        -- Get the directory of the first item as starting point for input
-        local first_dir = vim.fn.fnamemodify(items[1].file, ":h")
-        local dest_dir = vim.fn.input("Move to directory: ", first_dir .. "/", "dir")
-
-        if not dest_dir or dest_dir == "" then
-          return
-        end
-
-        local moved = 0
-        local failed = 0
-
-        for _, item in ipairs(items) do
-          local filename = vim.fn.fnamemodify(item.file, ":t")
-          local new_path = dest_dir .. "/" .. filename
-
-          -- Use Snacks.rename for LSP-aware file moving (pcall to suppress LSP warnings)
-          pcall(Snacks.rename.rename_file, {
-            from = item.file,
-            to = new_path,
-            on_rename = function(to, from, ok)
-              if ok then
-                moved = moved + 1
-              else
-                failed = failed + 1
-              end
-
-              -- Notify and refresh after all items processed
-              if moved + failed == #items then
-                if failed > 0 then
-                  vim.notify(string.format("Moved %d items, %d failed", moved, failed), vim.log.levels.WARN)
-                else
-                  vim.notify(string.format("Moved %d items to %s", moved, dest_dir))
-                end
-                if picker.refresh then
-                  picker:refresh()
-                end
-              end
-            end,
-          })
-        end
-      end,
-    },
-  },
-
-  -- Basic git actions (use Snacks built-ins when possible)
-  git_actions = {
-    {
-      key = "s",
-      desc = "Stage/Unstage files",
-      action = function(picker, items)
-        -- Use Snacks built-in git_stage action
-        require("snacks").picker.actions.git_stage(picker)
-      end,
-    },
-  },
-
-  -- Git status specific actions (using Snacks built-ins)
-  git_status_actions = {
-    {
-      key = "p",
-      desc = "Run Save Patterns",
-      action = function(picker, items)
-        format_files_action(picker, items)
-        if picker.refresh then
-          picker:refresh()
-        end
-      end,
-    },
-    {
-      key = "d",
-      desc = "Show diff",
-      action = function(picker, item)
-        -- Don't close picker, open diff in split
-        vim.cmd("split")
-        vim.cmd("Gvdiffsplit " .. vim.fn.fnameescape(item.file))
-      end,
-    },
-  },
-
-  -- Buffer-specific actions
-  buffer_actions = {
-    {
-      key = "d",
-      desc = "Delete Buffer",
-      action = function(picker, items)
-        for _, item in ipairs(items) do
-          if item.bufnr then
-            vim.api.nvim_buf_delete(item.bufnr, { force = false })
-          end
-        end
-        vim.notify("Deleted " .. #items .. " buffers")
-        if picker.refresh then
-          picker:refresh()
-        end
-      end,
-    },
-    {
-      key = "w",
-      desc = "Wipe Buffer (Force)",
-      action = function(picker, items)
-        for _, item in ipairs(items) do
-          if item.bufnr then
-            vim.api.nvim_buf_delete(item.bufnr, { force = true })
-          end
-        end
-        vim.notify("Wiped " .. #items .. " buffers")
-        if picker.refresh then
-          picker:refresh()
-        end
-      end,
-    },
-    {
-      key = "s",
-      desc = "Save Buffer",
-      action = function(picker, items)
-        local saved = 0
-        for _, item in ipairs(items) do
-          if item.bufnr and vim.api.nvim_buf_is_loaded(item.bufnr) then
-            local success, _err = pcall(function()
-              vim.api.nvim_buf_call(item.bufnr, function()
-                vim.cmd("write")
-              end)
-            end)
-            if success then
-              saved = saved + 1
-            end
-          end
-        end
-        vim.notify("Saved " .. saved .. "/" .. #items .. " buffers")
-      end,
-    },
-    {
-      key = "p",
-      desc = "Run Save Patterns",
-      action = function(picker, items)
-        -- Convert buffer items to file items for the reusable function
-        local file_items = {}
-        for _, item in ipairs(items) do
-          if item.bufnr and vim.api.nvim_buf_is_loaded(item.bufnr) then
-            local filepath = vim.api.nvim_buf_get_name(item.bufnr)
-            if filepath and filepath ~= "" then
-              table.insert(file_items, { file = filepath, dir = false })
-            end
-          end
-        end
-
-        if #file_items > 0 then
-          format_files_action(picker, file_items)
-        else
-          vim.notify("No valid files found in selected buffers", vim.log.levels.WARN)
-        end
-      end,
-    },
-  },
-
-  -- Git branch-specific actions (using Snacks built-ins)
-  git_branch_actions = {
-    {
-      key = "c",
-      desc = "Checkout branch",
-      action = function(picker, item)
-        -- Use Snacks built-in git_checkout action
-        require("snacks").picker.actions.git_checkout(picker, item)
-      end,
-    },
-    {
-      key = "d",
-      desc = "Delete branch",
-      action = function(picker, item)
-        -- Use Snacks built-in git_branch_del action
-        require("snacks").picker.actions.git_branch_del(picker, item)
-      end,
-    },
-    {
-      key = "n",
-      desc = "Create new branch",
-      action = function(picker, item)
-        -- Use Snacks built-in git_branch_add action
-        require("snacks").picker.actions.git_branch_add(picker)
-      end,
-    },
-    -- Keep some custom actions that don't have direct Snacks equivalents
-    {
-      key = "l",
-      desc = "Show log",
-      action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        Snacks.picker.git_log({ branch = branch })
-      end,
-    },
-    {
-      key = "v",
-      desc = "View diff vs current branch",
-      action = function(picker, item)
-        local branch = M.get_branch_name(item)
-        if not branch then
-          vim.notify("No branch selected", vim.log.levels.WARN)
-          return
-        end
-        vim.cmd("DiffviewOpen HEAD.." .. branch)
-      end,
-    },
-  },
-}
-
--- Detect picker context
-local function detect_context(picker)
-  if not validate_picker(picker) then
-    return "unknown", nil
-  end
-
-  -- Check contexts in specific order (most specific first)
-  local context_order = {
-    "sidebar_explorer",
-    "explorer",
-    "git_branches",
-    "git_status",
-    "lsp_symbols",
-    "grep",
-    "buffers",
-    "files",
-  }
-
-  for _, context_name in ipairs(context_order) do
-    local context = contexts[context_name]
-    if context and context.detect(picker) then
-      return context_name, context
-    end
-  end
-
-  -- Fallback: try to detect based on current item structure
-  local current, err = safe_picker_call(picker, "current")
-  if not err and current then
-    -- If current item has bufnr, it's likely a buffer picker
-    if current.bufnr then
-      return "buffers", contexts.buffers
-    end
-
-    -- If current item has file property, it's likely a file-based picker
-    if current.file then
-      return "files", contexts.files
-    end
-  end
-
-  return "unknown", nil
-end
-
--- Get context-appropriate actions (follows folke's action pattern)
-local function get_actions(picker)
-  local context_name, context = detect_context(picker)
-
-  if not context then
-    return {}, {}
-  end
-
-  local items = context.get_items(picker)
-
-  if #items == 0 then
-    return {}, {}
-  end
-
-  local action_list = {}
-
-  -- Context-specific actions (prioritize git contexts like folke does)
-  if context_name == "git_branches" then
-    vim.list_extend(action_list, actions.git_branch_actions)
-  elseif context_name == "git_status" then
-    vim.list_extend(action_list, actions.git_status_actions)
-    -- Add built-in git stage action
-    table.insert(action_list, {
-      key = "s",
-      desc = "Stage/Unstage files",
-      action = function(picker, items)
-        require("snacks").picker.actions.git_stage(picker)
-      end,
-    })
-  elseif context_name == "buffers" then
-    vim.list_extend(action_list, actions.buffer_actions)
-  elseif context_name == "explorer" or context_name == "files" then
-    if #items == 1 then
-      local item = items[1]
-      if item.dir then
-        vim.list_extend(action_list, actions.single_dir)
-      else
-        vim.list_extend(action_list, actions.single_file)
-      end
-    else
-      vim.list_extend(action_list, actions.multiple_items)
-    end
-
-    -- Add git actions if in git repo (for file-based pickers)
-    if vim.fn.isdirectory(".git") == 1 or vim.fn.finddir(".git", ".;") ~= "" then
-      vim.list_extend(action_list, actions.git_actions)
-    end
-  end
-
-  -- Dynamically update descriptions based on selection state
-  local selected_items = {}
-  local current_item = nil
-
-  -- Check if we have selected items
-  local selected, err = safe_picker_call(picker, "selected")
-  if not err and selected and #selected > 0 then
-    selected_items = selected
-  end
-
-  -- Get current item
-  local current, current_err = safe_picker_call(picker, "current")
-  if not current_err and current then
-    current_item = current
-  end
-
-  -- Update format action descriptions with icons
-  for _, action in ipairs(action_list) do
-    if action.key == "f" then
-      if #selected_items > 0 then
-        if #selected_items == 1 then
-          local item = selected_items[1]
-          if item.dir then
-            action.desc = "󰈔 Format selected directory (recursive)"
-          else
-            -- Get file icon if possible
-            local icon = "󰈙" -- default file icon
-            if item.file then
-              local ok, devicons = pcall(require, "nvim-web-devicons")
-              if ok then
-                local file_icon = devicons.get_icon(vim.fn.fnamemodify(item.file, ":t"))
-                if file_icon then
-                  icon = file_icon
-                end
-              end
-            end
-            action.desc = icon .. " Format selected file"
-          end
-        else
-          action.desc = "󰈔 Format selected items (" .. #selected_items .. ")"
-        end
-      else
-        -- No selection, use hovered item
-        if current_item then
-          if current_item.dir then
-            action.desc = "󰈔 Format hovered directory (recursive)"
-          else
-            -- Get file icon if possible
-            local icon = "󰈙" -- default file icon
-            if current_item.file then
-              local ok, devicons = pcall(require, "nvim-web-devicons")
-              if ok then
-                local file_icon = devicons.get_icon(vim.fn.fnamemodify(current_item.file, ":t"))
-                if file_icon then
-                  icon = file_icon
-                end
-              end
-            end
-            action.desc = icon .. " Format hovered file"
-          end
-        else
-          action.desc = "󰈙 Format item"
-        end
-      end
-    end
-  end
-
-  return action_list, items
-end
-
--- Context menu action that shows a vim.ui.select menu
-M.context_menu = function(picker, item)
-  local formatter = require("utils.formatter")
-
-  -- Determine what we're working with
-  local menu_title
-  local target_items = { item }
-
-  if item then
-    if item.dir then
-      menu_title = "󰈔 " .. vim.fn.fnamemodify(item.file, ":t") .. " (Directory)"
-    else
-      menu_title = "󰈙 " .. vim.fn.fnamemodify(item.file, ":t")
-    end
-  else
-    vim.notify("No item available", vim.log.levels.WARN)
-    return
-  end
-
-  -- Create menu options
-  local options = {}
-  local actions = {}
-
-  -- Format action
-  table.insert(options, "󰉋 Format")
-  table.insert(actions, function()
-    -- Use the unified format action that works with any scenario
-    format_action(picker, item)
-  end)
-
-  -- Rename action (uses Snacks.rename for LSP import updates)
-  table.insert(options, "󰑕 Rename")
-  table.insert(actions, function()
-    if #target_items == 1 then
-      local target_item = target_items[1]
-      local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(target_item.file, ":t"))
-      if new_name and new_name ~= "" then
-        local new_path = vim.fn.fnamemodify(target_item.file, ":h") .. "/" .. new_name
-        Snacks.rename.rename_file({
-          from = target_item.file,
-          to = new_path,
-          on_rename = function(to, from, ok)
-            if ok then
-              vim.notify("Renamed to " .. new_name)
-              if picker.refresh then
-                picker:refresh()
-              end
-            end
-          end,
-        })
-      end
-    end
-  end)
-
-  -- Delete action
-  table.insert(options, "󰆴 Delete")
-  table.insert(actions, function()
-    local count = #target_items
-    local confirm = vim.fn.confirm("Delete " .. count .. " items?", "&Yes\n&No", 1)
-    if confirm == 1 then
-      for _, target_item in ipairs(target_items) do
-        if target_item.dir then
-          vim.fn.delete(target_item.file, "rf")
-        else
-          os.remove(target_item.file)
-        end
-      end
-      vim.notify("Deleted " .. count .. " items")
-      if picker.refresh then
-        picker:refresh()
-      end
-    end
-  end)
-
-  -- Add to Claude context
-  local selected = picker:selected()
-  local claude_label = #selected > 1 and (" Add " .. #selected .. " files to Claude") or " Add to Claude"
-  table.insert(options, claude_label)
-  table.insert(actions, function()
-    M.claude_add_tree(picker, item)
-  end)
-
-  -- Show the menu
-  vim.ui.select(options, {
-    prompt = menu_title .. " - Choose action:",
-    format_item = function(item)
-      return item
-    end,
-  }, function(choice, idx)
-    if choice and idx and actions[idx] then
-      actions[idx]()
-    end
-  end)
-end
-
--- Git-specific context menu for git_status picker
-M.git_context_menu = function(picker, item)
-  local formatter = require("utils.formatter")
-
-  if not item then
-    vim.notify("No item available", vim.log.levels.WARN)
-    return
-  end
-
-  local target_items = { item }
-  local menu_title = "󰈙 " .. vim.fn.fnamemodify(item.file, ":t") .. " (Git)"
-
-  -- Create menu options
-  local options = {}
-  local actions = {}
-
-  -- Conflict filter toggle action
-  local is_conflict_filter_active = picker._conflict_filter_active or false
-  local conflict_toggle_text = is_conflict_filter_active and "󰍉 Show All Files" or "󰍉 Show Only Conflicts"
-  table.insert(options, conflict_toggle_text)
-  table.insert(actions, function()
-    -- Use the proper toggle function
-    M.toggle_conflict_filter(picker)
-  end)
-
-  -- Format action
-  table.insert(options, "󰉋 Format")
-  table.insert(actions, function()
-    local paths = {}
-    for _, target_item in ipairs(target_items) do
-      if target_item.file then
-        table.insert(paths, target_item.file)
-      end
-    end
-
-    if #paths > 0 then
-      formatter.format_file(paths[1], {
-        verbose = true,
-        on_complete = function(status)
-          if picker.refresh then
-            picker:refresh()
-          end
-        end,
-      })
-    end
-  end)
-
-  -- Stage/unstage action
-  table.insert(options, "󰊢 Stage/Unstage")
-  table.insert(actions, function()
-    for _, target_item in ipairs(target_items) do
-      local file = target_item.file
-      if
-        target_item.status
-        and (target_item.status:match("^M") or target_item.status:match("^A") or target_item.status:match("^D"))
-      then
-        -- File is staged, unstage it
-        vim.system({ "git", "restore", "--staged", file })
-      else
-        -- File is unstaged, stage it
-        vim.system({ "git", "add", file })
-      end
-    end
-    vim.notify("Toggled stage status for " .. #target_items .. " files")
-    if picker.refresh then
-      picker:refresh()
-    end
-  end)
-
-  -- Copy path action
-  table.insert(options, "󰆏 Copy Path")
-  table.insert(actions, function()
-    local paths = {}
-    for _, target_item in ipairs(target_items) do
-      table.insert(paths, target_item.file)
-    end
-    vim.fn.setreg("+", table.concat(paths, "\n"))
-    vim.notify("Copied " .. #paths .. " paths")
-  end)
-
-  -- Show the menu
-  vim.ui.select(options, {
-    prompt = menu_title .. " - Choose action:",
-    format_item = function(item)
-      return item
-    end,
-  }, function(choice, idx)
-    if choice and idx and actions[idx] then
-      actions[idx]()
-    end
-  end)
-end
-
--- Buffer-specific context menu for buffer picker
-M.buffer_context_menu = function(picker, item)
-  local formatter = require("utils.formatter")
-
-  if not item then
-    vim.notify("No item available", vim.log.levels.WARN)
-    return
-  end
-
-  local target_items = { item }
-  local menu_title = "󰈙 " .. (item.name or vim.fn.fnamemodify(vim.api.nvim_buf_get_name(item.bufnr or 0), ":t"))
-
-  -- Create menu options
-  local options = {}
-  local actions = {}
-
-  -- Format action
-  table.insert(options, "󰉋 Format")
-  table.insert(actions, function()
-    local paths = {}
-    for _, target_item in ipairs(target_items) do
-      if target_item.bufnr and vim.api.nvim_buf_is_loaded(target_item.bufnr) then
-        local filepath = vim.api.nvim_buf_get_name(target_item.bufnr)
-        if filepath and filepath ~= "" then
-          table.insert(paths, filepath)
-        end
-      end
-    end
-
-    if #paths > 0 then
-      formatter.format_file(paths[1], {
-        verbose = true,
-        on_complete = function(status)
-          if picker.refresh then
-            picker:refresh()
-          end
-        end,
-      })
-    end
-  end)
-
-  -- Copy path action
-  table.insert(options, "󰆏 Copy Path")
-  table.insert(actions, function()
-    local paths = {}
-    for _, target_item in ipairs(target_items) do
-      if target_item.bufnr and vim.api.nvim_buf_is_loaded(target_item.bufnr) then
-        local filepath = vim.api.nvim_buf_get_name(target_item.bufnr)
-        if filepath and filepath ~= "" then
-          table.insert(paths, filepath)
-        end
-      end
-    end
-    vim.fn.setreg("+", table.concat(paths, "\n"))
-    vim.notify("Copied " .. #paths .. " paths")
-  end)
-
-  -- Delete buffer action
-  table.insert(options, "󰖭 Delete Buffer")
-  table.insert(actions, function()
-    for _, target_item in ipairs(target_items) do
-      if target_item.bufnr then
-        vim.api.nvim_buf_delete(target_item.bufnr, { force = false })
-      end
-    end
-    vim.notify("Deleted " .. #target_items .. " buffers")
-    if picker.refresh then
-      picker:refresh()
-    end
-  end)
-
-  -- Save buffer action
-  table.insert(options, "󰆓 Save Buffer")
-  table.insert(actions, function()
-    local saved = 0
-    for _, target_item in ipairs(target_items) do
-      if target_item.bufnr and vim.api.nvim_buf_is_loaded(target_item.bufnr) then
-        local success, _err = pcall(function()
-          vim.api.nvim_buf_call(target_item.bufnr, function()
-            vim.cmd("write")
-          end)
-        end)
-        if success then
-          saved = saved + 1
-        end
-      end
-    end
-    vim.notify("Saved " .. saved .. "/" .. #target_items .. " buffers")
-  end)
-
-  -- Show the menu
-  vim.ui.select(options, {
-    prompt = menu_title .. " - Choose action:",
-    format_item = function(item)
-      return item
-    end,
-  }, function(choice, idx)
-    if choice and idx and actions[idx] then
-      actions[idx]()
-    end
-  end)
-end
-
--- Git conflicts filter function - filters items to show only conflicted files
-M.filter_conflicts = function(item, ctx)
-  -- Debug: print the item structure to understand what fields are available
-  if vim.g.debug_git_conflicts then
-    print("Git item debug:")
-    print("  status:", vim.inspect(item.status))
-    print("  git_status:", vim.inspect(item.git_status))
-    print("  text:", vim.inspect(item.text))
-    print("  full item:", vim.inspect(item))
-  end
-
-  -- Try different possible fields for git status
-  local status = item.status or item.git_status
-  if status and (status:match("UU") or status:match("AA") or status:match("DD")) then
-    return item
-  end
-  return false -- Filter out non-conflicted files (use false, not nil)
-end
-
--- Git conflicts picker - dedicated picker for conflicted files only
-M.git_conflicts = function()
-  Snacks.picker.git_status({
-    transform = M.filter_conflicts,
-    auto_close = false,
-    layout = "sidebar",
-    win = {
-      title = "Git Conflicts",
-      list = {
-        keys = {
-          ["f"] = "git_context_menu",
-          ["s"] = { "git_stage", mode = { "n", "i" } },
-        },
-      },
-    },
-    actions = {
-      git_context_menu = {
-        action = function(picker, item)
-          require("utils.picker-extensions").actions.git_context_menu(picker, item)
-        end,
-      },
-    },
-  })
-end
-
--- Git status: Toggle conflict filter
-M.toggle_conflict_filter = function(picker)
-  -- Toggle the conflict filter state
-  picker._conflict_filter_active = not picker._conflict_filter_active
-
-  if picker._conflict_filter_active then
-    vim.notify("Showing only conflicted files", vim.log.levels.INFO)
-    -- Store original filter search
-    picker._original_filter_search = picker.filter.search
-    -- Set filter to match conflict patterns
-    picker.filter.search = "UU|AA|DD"
-    picker.filter.opts = vim.tbl_extend("force", picker.filter.opts or {}, {
-      -- Make sure we're searching in the status field
-      fields = { "status" },
-    })
-  else
-    vim.notify("Showing all git status files", vim.log.levels.INFO)
-    -- Restore original filter
-    picker.filter.search = picker._original_filter_search or ""
-    picker.filter.opts.fields = nil
-  end
-
-  -- Update the filter
-  picker:update_filter()
-end
-
--- ============================================================================
--- PUBLIC API
--- ============================================================================
-
--- Explorer: Duplicate file/folder
-M.duplicate_file = function(picker, item)
-  if not item then
-    vim.notify("No item provided", vim.log.levels.WARN)
-    return
-  end
-
-  local source = item.file
-  local source_name = vim.fn.fnamemodify(source, ":t")
-  local source_dir = vim.fn.fnamemodify(source, ":h")
-  local source_ext = vim.fn.fnamemodify(source, ":e")
-  local source_base = vim.fn.fnamemodify(source, ":t:r")
-
-  -- Generate default duplicate name
-  local default_name
-  if item.dir then
-    default_name = source_name .. "_copy"
-  else
-    if source_ext ~= "" then
-      default_name = source_base .. "_copy." .. source_ext
-    else
-      default_name = source_name .. "_copy"
-    end
-  end
-
-  local new_name = vim.fn.input("Duplicate as: ", default_name)
-  if new_name and new_name ~= "" then
-    local target = source_dir .. "/" .. new_name
-
-    -- Check if target already exists
-    if vim.fn.filereadable(target) == 1 or vim.fn.isdirectory(target) == 1 then
-      vim.notify("Target already exists: " .. new_name, vim.log.levels.ERROR)
-      return
-    end
-
-    if item.dir then
-      -- Duplicate directory
-      local cmd = { "cp", "-r", source, target }
-      local result = vim.fn.system(cmd)
-      if vim.v.shell_error == 0 then
-        vim.notify("Duplicated directory: " .. new_name)
-        if picker.refresh then
-          picker:refresh()
-        end
-      else
-        vim.notify("Failed to duplicate directory: " .. (result or "unknown error"), vim.log.levels.ERROR)
-      end
-    else
-      -- Duplicate file
-      local cmd = { "cp", source, target }
-      local result = vim.fn.system(cmd)
-      if vim.v.shell_error == 0 then
-        vim.notify("Duplicated file: " .. new_name)
-        if picker.refresh then
-          picker:refresh()
-        end
-      else
-        vim.notify("Failed to duplicate file: " .. (result or "unknown error"), vim.log.levels.ERROR)
-      end
-    end
-  end
-end
-
--- ============================================================================
--- REFERENCES PICKER ACTIONS
--- ============================================================================
-
--- Copy LSP references to clipboard with format options
--- Works with items that have: file, pos = {line, col}
-M.copy_references = function(picker)
-  local selected = picker:selected()
-  local items = (selected and #selected > 0) and selected or picker:items()
-
-  if not items or #items == 0 then
-    vim.notify("No references to copy", vim.log.levels.WARN)
-    return
-  end
-
-  -- Build copy options
-  local full_refs = {}
-  local short_refs = {}
-  local paths_only = {}
-  local seen_paths = {}
-
-  for _, item in ipairs(items) do
-    local rel_path = vim.fn.fnamemodify(item.file, ":~:.")
-    if item.pos then
-      table.insert(full_refs, string.format("%s:%d:%d", rel_path, item.pos[1], item.pos[2]))
-      table.insert(short_refs, string.format("%s:%d", rel_path, item.pos[1]))
-    else
-      table.insert(full_refs, rel_path)
-      table.insert(short_refs, rel_path)
-    end
-    if not seen_paths[item.file] then
-      seen_paths[item.file] = true
-      table.insert(paths_only, rel_path)
-    end
-  end
-
-  local copy_options = {
-    { key = "full", icon = "󰆏", desc = "file:line:col", value = table.concat(full_refs, "\n") },
-    { key = "short", icon = "󰉋", desc = "file:line", value = table.concat(short_refs, "\n") },
-    { key = "paths", icon = "󰈔", desc = "unique paths", value = table.concat(paths_only, "\n") },
-  }
-
-  local menu_options = {}
-  for i, opt in ipairs(copy_options) do
-    menu_options[i] = string.format("%s %s (%s)", opt.icon, opt.key, opt.desc)
-  end
-
-  vim.ui.select(menu_options, {
-    prompt = "Copy references:",
-  }, function(_, idx)
-    if idx and copy_options[idx] then
-      vim.fn.setreg("+", copy_options[idx].value)
-      vim.notify(string.format("Copied %d references (%s)", #items, copy_options[idx].key), vim.log.levels.INFO)
-    end
-  end)
-end
-
--- ============================================================================
--- GENERALIZED COPY ACTION
--- ============================================================================
-
--- Build symbol path by traversing parent chain
-local function get_symbol_path(item)
-  local parts = {}
-  local current = item
-  while current do
-    if current.text or current.name then
-      table.insert(parts, 1, current.text or current.name)
-    end
-    current = current.parent
-  end
-  return table.concat(parts, ".")
-end
-
--- Get copy options based on context
-local function get_copy_options(ctx, picker, items)
-  local options = {}
-  local is_multi = #items > 1
-
-  if ctx == "explorer" or ctx == "files" then
-    -- File/directory copy options
+    local is_multi = (#items > 1)
+    local copy_options
     if is_multi then
       local paths_cwd = {}
       local paths_home = {}
       local filenames = {}
       local paths_abs = {}
-
+      for _, itm in ipairs(items) do
+        table.insert(paths_cwd, vim.fn.fnamemodify(itm.file, ":."))
+        table.insert(paths_home, vim.fn.fnamemodify(itm.file, ":~"))
+        table.insert(filenames, vim.fn.fnamemodify(itm.file, ":t"))
+        table.insert(paths_abs, itm.file)
+      end
+      copy_options = {
+        { key = "cwd", icon = "\243\176\137\139", value = table.concat(paths_cwd, "\n") },
+        { key = "tree", icon = "", value = "tree_structure", items = items },
+        { key = "home", icon = "\243\176\139\156", value = table.concat(paths_home, "\n") },
+        { key = "content", icon = "\243\176\136\153", value = "file_content_multi", items = items },
+        { key = "name", icon = "\243\176\136\148", value = table.concat(filenames, "\n") },
+        { key = "path", icon = "\243\176\134\143", value = table.concat(paths_abs, "\n") },
+        { key = "claude", icon = "", value = "claude_add", items = items },
+      }
+    else
+      local f = items[1].file
+      copy_options = {
+        { key = "tree", icon = "", value = "tree_structure", items = items },
+        { key = "cwd", icon = "\243\176\137\139", value = vim.fn.fnamemodify(f, ":.") },
+        { key = "home", icon = "\243\176\139\156", value = vim.fn.fnamemodify(f, ":~") },
+        { key = "content", icon = "\243\176\136\153", value = "file_content", items = items },
+        { key = "name", icon = "\243\176\136\148", value = vim.fn.fnamemodify(f, ":t") },
+        { key = "path", icon = "\243\176\134\143", value = f },
+        { key = "basename", icon = "\243\176\136\153", value = vim.fn.fnamemodify(f, ":t:r") },
+        { key = "extension", icon = "\243\176\136\153", value = vim.fn.fnamemodify(f, ":t:e") },
+        { key = "uri", icon = "\243\176\140\183", value = vim.uri_from_fname(f) },
+        { key = "claude", icon = "", value = "claude_add", items = items },
+      }
+    end
+    local menu_options = {}
+    local option_map = {}
+    for _, option in ipairs(copy_options) do
+      if option.value and not (option.value == "") then
+        table.insert(menu_options, string.format("%s %s: %s", option.icon, option.key, option.value))
+        option_map[#menu_options] = option
+      else
+      end
+    end
+    if #menu_options == 0 then
+      return vim.notify("No values to copy", vim.log.levels.WARN)
+    else
+      local function _46_(list_item)
+        return list_item
+      end
+      local function _47_(choice, idx)
+        if choice and idx and option_map[idx] then
+          local opt = option_map[idx]
+          return M._copy_path_apply(picker, opt, is_multi)
+        else
+          return nil
+        end
+      end
+      return vim.ui.select(menu_options, { prompt = "Choose to copy to clipboard:", format_item = _46_ }, _47_)
+    end
+  end
+end
+M._copy_path_apply = function(picker, opt, is_multi)
+  local result = opt.value
+  if opt.key == "content" then
+    local all_contents = {}
+    local total_lines = 0
+    local file_count = 0
+    local aborted = false
+    for _, itm in ipairs(opt.items) do
+      if aborted then
+        break
+      end
+      if itm.dir or (vim.fn.isdirectory(itm.file) == 1) then
+        local dir_files
+        local function _51_(name)
+          return (vim.fn.filereadable((itm.file .. "/" .. name)) == 1)
+        end
+        dir_files = vim.fn.readdir(itm.file, _51_)
+        for _0, fname in ipairs(dir_files) do
+          local fpath = (itm.file .. "/" .. fname)
+          local content = vim.fn.readfile(fpath)
+          local rel_path = vim.fn.fnamemodify(fpath, ":.")
+          total_lines = (total_lines + #content)
+          file_count = (file_count + 1)
+          table.insert(all_contents, rel_path)
+          table.insert(all_contents, ("--- " .. rel_path .. " ---"))
+          table.insert(all_contents, table.concat(content, "\n"))
+        end
+      else
+        if vim.fn.filereadable(itm.file) == 0 then
+          vim.notify(("File not readable: " .. itm.file), vim.log.levels.ERROR)
+          aborted = true
+        else
+          local content = vim.fn.readfile(itm.file)
+          local rel_path = vim.fn.fnamemodify(itm.file, ":.")
+          total_lines = (total_lines + #content)
+          file_count = (file_count + 1)
+          if is_multi then
+            table.insert(all_contents, rel_path)
+            table.insert(all_contents, ("--- " .. rel_path .. " ---"))
+            table.insert(all_contents, table.concat(content, "\n"))
+          else
+            table.insert(all_contents, rel_path)
+            table.insert(all_contents, table.concat(content, "\n"))
+          end
+        end
+      end
+    end
+    if not aborted then
+      if file_count == 0 then
+        return vim.notify("No files to copy", vim.log.levels.WARN)
+      else
+        vim.fn.setreg("+", table.concat(all_contents, "\n"))
+        return Snacks.notify.info(string.format("Copied %d file(s) to clipboard (%d lines)", file_count, total_lines))
+      end
+    else
+      return nil
+    end
+  elseif opt.key == "tree" then
+    return M._copy_tree(opt)
+  elseif opt.key == "claude" then
+    local claudecode = require("claudecode")
+    local count = 0
+    for _, itm in ipairs(opt.items) do
+      if itm.file and not (itm.file == "") then
+        claudecode.send_at_mention(itm.file, nil, nil, "snacks_picker")
+        count = (count + 1)
+      else
+      end
+    end
+    return Snacks.notify.info(string.format("Added %d file(s) to Claude", count))
+  else
+    vim.fn.setreg("+", result)
+    return Snacks.notify.info(("Yanked `" .. result .. "`"))
+  end
+end
+M._copy_tree = function(opt)
+  local items = opt.items
+  local items_count = #items
+  local single_dir = ((items_count == 1) and (items[1].dir or (vim.fn.isdirectory(items[1].file) == 1)))
+  if single_dir then
+    local tree_output = vim.fn.system(("tree " .. vim.fn.shellescape(items[1].file)))
+    if not (vim.v.shell_error == 0) then
+      return vim.notify("Failed to run tree command", vim.log.levels.ERROR)
+    else
+      vim.fn.setreg("+", tree_output)
+      return Snacks.notify.info("Tree structure copied to clipboard")
+    end
+  else
+    local file_paths = {}
+    for _, itm in ipairs(items) do
+      if not (itm.dir or (vim.fn.isdirectory(itm.file) == 1)) then
+        table.insert(file_paths, vim.fn.fnamemodify(itm.file, ":."))
+      else
+      end
+    end
+    if #file_paths == 0 then
+      return vim.notify("No files to show in tree", vim.log.levels.WARN)
+    else
+      local tree = {}
+      for _, fpath in ipairs(file_paths) do
+        local current = tree
+        for _0, part in ipairs(vim.split(fpath, "/", { plain = true })) do
+          if not current[part] then
+            current[part] = {}
+          else
+          end
+          current = current[part]
+        end
+      end
+      local function render_tree(node, prefix)
+        local lines = {}
+        local keys = vim.tbl_keys(node)
+        table.sort(keys)
+        for idx, key in ipairs(keys) do
+          local is_last = (idx == #keys)
+          local connector
+          if is_last then
+            connector = "\226\148\148\226\148\128\226\148\128 "
+          else
+            connector = "\226\148\156\226\148\128\226\148\128 "
+          end
+          local child_prefix
+          if is_last then
+            child_prefix = "    "
+          else
+            child_prefix = "\226\148\130   "
+          end
+          local is_leaf = vim.tbl_isempty(node[key])
+          local suffix
+          if is_leaf then
+            suffix = ""
+          else
+            suffix = "/"
+          end
+          table.insert(lines, (prefix .. connector .. key .. suffix))
+          if not is_leaf then
+            for _, line in ipairs(render_tree(node[key], (prefix .. child_prefix))) do
+              table.insert(lines, line)
+            end
+          else
+          end
+        end
+        return lines
+      end
+      local tree_lines = { "." }
+      for _, line in ipairs(render_tree(tree, "")) do
+        table.insert(tree_lines, line)
+      end
+      vim.fn.setreg("+", table.concat(tree_lines, "\n"))
+      return Snacks.notify.info("Tree structure copied to clipboard")
+    end
+  end
+end
+local function action_count(picker)
+  local n = 0
+  if picker.opts and picker.opts.actions then
+    for _, _0 in pairs(picker.opts.actions) do
+      n = (n + 1)
+    end
+  else
+  end
+  return n
+end
+local function has_explorer_actions_3f(picker, ...)
+  local and_69_ = picker.opts and picker.opts.actions
+  if and_69_ then
+    local names = { ... }
+    local found = false
+    for _, name in ipairs(names) do
+      if found then
+        break
+      end
+      if picker.opts.actions[name] then
+        found = true
+      else
+      end
+    end
+    and_69_ = found
+  end
+  return and_69_
+end
+local contexts
+local function _72_(picker)
+  return (
+    validate_picker(picker)
+    and picker.opts
+    and picker.opts.actions
+    and picker.opts.actions.explorer_add
+    and picker.opts.actions.list_down
+    and (action_count(picker) < 10)
+  )
+end
+local function _73_(picker)
+  return (
+    validate_picker(picker)
+    and has_explorer_actions_3f(
+      picker,
+      "explorer_add",
+      "explorer_del",
+      "explorer_open",
+      "explorer_rename",
+      "explorer_close",
+      "explorer_up",
+      "explorer_focus"
+    )
+    and (action_count(picker) >= 5)
+  )
+end
+local function _74_(picker)
+  if not validate_picker(picker) then
+    return false
+  elseif (picker.opts and picker.opts.source) == "git_status" then
+    return true
+  elseif not has_explorer_actions_3f(picker, "explorer_add", "explorer_del", "explorer_open") then
+    local cur, err = safe_call(picker, "current")
+    return (not err and cur and cur.status and cur.file and not cur.dir and cur.status:match("^[MADRCU?!]") and true)
+  else
+    return false
+  end
+end
+local function _76_(picker)
+  if not validate_picker(picker) then
+    return false
+  else
+    local source = (picker.opts and picker.opts.source)
+    if (source == "files") or (source == "git_files") then
+      return true
+    elseif not has_explorer_actions_3f(picker, "explorer_add", "explorer_del") then
+      local cur, err = safe_call(picker, "current")
+      return (not err and cur and cur.file and not cur.dir and true)
+    else
+      return false
+    end
+  end
+end
+local function _79_(picker)
+  if not validate_picker(picker) then
+    return false
+  elseif (picker.opts and picker.opts.source) == "buffers" then
+    return true
+  else
+    local cur, err = safe_call(picker, "current")
+    return (not err and cur and cur.bufnr and true)
+  end
+end
+local function _81_(picker)
+  if not validate_picker(picker) then
+    return false
+  else
+    local source = (picker.opts and picker.opts.source)
+    if (source == "lsp_symbols") or (source == "lsp_workspace_symbols") then
+      return true
+    else
+      local cur, err = safe_call(picker, "current")
+      return (not err and cur and (cur.kind or cur.symbol or cur.lnum) and true)
+    end
+  end
+end
+local function _84_(picker)
+  if not validate_picker(picker) then
+    return false
+  else
+    local source = (picker.opts and picker.opts.source)
+    if (source == "grep") or (source == "grep_word") or (source == "grep_buffers") then
+      return true
+    else
+      local cur, err = safe_call(picker, "current")
+      return (not err and cur and cur.line and cur.file and cur.pos and true)
+    end
+  end
+end
+local function _87_(picker)
+  if not validate_picker(picker) then
+    return false
+  elseif (picker.opts and picker.opts.source) == "git_branches" then
+    return true
+  else
+    local cur, err = M.get_current_item(picker)
+    if err or not cur or not (type(cur) == "table") then
+      return false
+    elseif cur.branch or cur.commit or not (cur.current == nil) or not (cur.detached == nil) then
+      return true
+    elseif cur.text then
+      local commit_pat = string.rep("[a-z0-9]", 7)
+      local patterns =
+        { ("^(.)%s(%b())%s+(" .. commit_pat .. ")%s*(.*)$"), ("^(.)%s(%S+)%s+(" .. commit_pat .. ")%s*(.*)$") }
+      local matched = false
+      for _, pattern in ipairs(patterns) do
+        if matched then
+          break
+        end
+        if cur.text:match(pattern) then
+          matched = true
+        else
+        end
+      end
+      return matched
+    else
+      return false
+    end
+  end
+end
+contexts = {
+  sidebar_explorer = { detect = _72_ },
+  explorer = { detect = _73_ },
+  git_status = { detect = _74_ },
+  files = { detect = _76_ },
+  buffers = { detect = _79_ },
+  lsp_symbols = { detect = _81_ },
+  grep = { detect = _84_ },
+  git_branches = { detect = _87_ },
+}
+local context_order =
+  { "sidebar_explorer", "explorer", "git_branches", "git_status", "lsp_symbols", "grep", "buffers", "files" }
+local function detect_context(picker)
+  if not validate_picker(picker) then
+    return "unknown", nil
+  else
+    local found_name = "unknown"
+    local found_ctx = nil
+    for _, name in ipairs(context_order) do
+      if found_ctx then
+        break
+      end
+      local ctx = contexts[name]
+      if ctx and ctx.detect(picker) then
+        found_name = name
+        found_ctx = ctx
+      else
+      end
+    end
+    if found_ctx then
+      return found_name, found_ctx
+    else
+      local cur, err = safe_call(picker, "current")
+      if not err and cur and cur.bufnr then
+        return "buffers", contexts.buffers
+      elseif not err and cur and cur.file then
+        return "files", contexts.files
+      else
+        return "unknown", nil
+      end
+    end
+  end
+end
+local function confirm_rename(picker, item)
+  local new_name = vim.fn.input("Rename to: ", vim.fn.fnamemodify(item.file, ":t"))
+  if new_name and not (new_name == "") then
+    local new_path = (vim.fn.fnamemodify(item.file, ":h") .. "/" .. new_name)
+    local function _95_(to, from, ok)
+      if ok then
+        vim.notify(("Renamed to " .. new_name))
+        if picker.refresh then
+          return picker:refresh()
+        else
+          return nil
+        end
+      else
+        return nil
+      end
+    end
+    return Snacks.rename.rename_file({ from = item.file, to = new_path, on_rename = _95_ })
+  else
+    return nil
+  end
+end
+M.context_menu = function(picker, item)
+  if not item then
+    return vim.notify("No item available", vim.log.levels.WARN)
+  else
+    local menu_title
+    if item.dir then
+      menu_title = ("\243\176\136\148 " .. vim.fn.fnamemodify(item.file, ":t") .. " (Directory)")
+    else
+      menu_title = ("\243\176\136\153 " .. vim.fn.fnamemodify(item.file, ":t"))
+    end
+    local options = {}
+    local acts = {}
+    table.insert(options, "\243\176\145\149 Rename")
+    local function _100_()
+      return confirm_rename(picker, item)
+    end
+    table.insert(acts, _100_)
+    table.insert(options, "\243\176\134\180 Delete")
+    local function _101_()
+      if vim.fn.confirm("Delete 1 items?", "&Yes\n&No", 1) == 1 then
+        if item.dir then
+          vim.fn.delete(item.file, "rf")
+        else
+          os.remove(item.file)
+        end
+        vim.notify("Deleted 1 items")
+        if picker.refresh then
+          return picker:refresh()
+        else
+          return nil
+        end
+      else
+        return nil
+      end
+    end
+    table.insert(acts, _101_)
+    do
+      local selected = picker:selected()
+      local claude_label
+      if #selected > 1 then
+        claude_label = (" Add " .. #selected .. " files to Claude")
+      else
+        claude_label = " Add to Claude"
+      end
+      table.insert(options, claude_label)
+      local function _106_()
+        return M.claude_add_tree(picker, item)
+      end
+      table.insert(acts, _106_)
+    end
+    local function _107_(i)
+      return i
+    end
+    local function _108_(choice, idx)
+      if choice and idx and acts[idx] then
+        return acts[idx]()
+      else
+        return nil
+      end
+    end
+    return vim.ui.select(options, { prompt = (menu_title .. " - Choose action:"), format_item = _107_ }, _108_)
+  end
+end
+M.git_context_menu = function(picker, item)
+  if not item then
+    return vim.notify("No item available", vim.log.levels.WARN)
+  else
+    local menu_title = ("\243\176\136\153 " .. vim.fn.fnamemodify(item.file, ":t") .. " (Git)")
+    local options = {}
+    local acts = {}
+    table.insert(options, "\243\176\138\162 Stage/Unstage")
+    local function _111_()
+      do
+        local file = item.file
+        if item.status and (item.status:match("^M") or item.status:match("^A") or item.status:match("^D")) then
+          vim.system({ "git", "restore", "--staged", file })
+        else
+          vim.system({ "git", "add", file })
+        end
+      end
+      vim.notify("Toggled stage status for 1 files")
+      if picker.refresh then
+        return picker:refresh()
+      else
+        return nil
+      end
+    end
+    table.insert(acts, _111_)
+    table.insert(options, "\243\176\134\143 Copy Path")
+    local function _114_()
+      vim.fn.setreg("+", item.file)
+      return vim.notify("Copied 1 paths")
+    end
+    table.insert(acts, _114_)
+    local function _115_(i)
+      return i
+    end
+    local function _116_(choice, idx)
+      if choice and idx and acts[idx] then
+        return acts[idx]()
+      else
+        return nil
+      end
+    end
+    return vim.ui.select(options, { prompt = (menu_title .. " - Choose action:"), format_item = _115_ }, _116_)
+  end
+end
+M.buffer_context_menu = function(picker, item)
+  if not item then
+    return vim.notify("No item available", vim.log.levels.WARN)
+  else
+    local menu_title = (
+      "\243\176\136\153 " .. (item.name or vim.fn.fnamemodify(vim.api.nvim_buf_get_name((item.bufnr or 0)), ":t"))
+    )
+    local buf_path
+    local function _119_()
+      if item.bufnr and vim.api.nvim_buf_is_loaded(item.bufnr) then
+        local fp = vim.api.nvim_buf_get_name(item.bufnr)
+        if fp and not (fp == "") then
+          return fp
+        else
+          return nil
+        end
+      else
+        return nil
+      end
+    end
+    buf_path = _119_
+    local options = {}
+    local acts = {}
+    table.insert(options, "\243\176\134\143 Copy Path")
+    local function _122_()
+      local fp = buf_path()
+      vim.fn.setreg("+", (fp or ""))
+      return vim.notify("Copied 1 paths")
+    end
+    table.insert(acts, _122_)
+    table.insert(options, "\243\176\150\173 Delete Buffer")
+    local function _123_()
+      if item.bufnr then
+        vim.api.nvim_buf_delete(item.bufnr, { force = false })
+      else
+      end
+      vim.notify("Deleted 1 buffers")
+      if picker.refresh then
+        return picker:refresh()
+      else
+        return nil
+      end
+    end
+    table.insert(acts, _123_)
+    table.insert(options, "\243\176\134\147 Save Buffer")
+    local function _126_()
+      if item.bufnr and vim.api.nvim_buf_is_loaded(item.bufnr) then
+        local function _127_()
+          local function _128_()
+            return vim.cmd("write")
+          end
+          return vim.api.nvim_buf_call(item.bufnr, _128_)
+        end
+        pcall(_127_)
+      else
+      end
+      return vim.notify("Saved buffer")
+    end
+    table.insert(acts, _126_)
+    local function _130_(i)
+      return i
+    end
+    local function _131_(choice, idx)
+      if choice and idx and acts[idx] then
+        return acts[idx]()
+      else
+        return nil
+      end
+    end
+    return vim.ui.select(options, { prompt = (menu_title .. " - Choose action:"), format_item = _130_ }, _131_)
+  end
+end
+M.duplicate_file = function(picker, item)
+  if not item then
+    return vim.notify("No item provided", vim.log.levels.WARN)
+  else
+    local source = item.file
+    local source_name = vim.fn.fnamemodify(source, ":t")
+    local source_dir = vim.fn.fnamemodify(source, ":h")
+    local source_ext = vim.fn.fnamemodify(source, ":e")
+    local source_base = vim.fn.fnamemodify(source, ":t:r")
+    local default_name
+    if item.dir then
+      default_name = (source_name .. "_copy")
+    elseif not (source_ext == "") then
+      default_name = (source_base .. "_copy." .. source_ext)
+    else
+      default_name = (source_name .. "_copy")
+    end
+    local new_name = vim.fn.input("Duplicate as: ", default_name)
+    if new_name and not (new_name == "") then
+      local target = (source_dir .. "/" .. new_name)
+      if (vim.fn.filereadable(target) == 1) or (vim.fn.isdirectory(target) == 1) then
+        return vim.notify(("Target already exists: " .. new_name), vim.log.levels.ERROR)
+      else
+        local cmd
+        if item.dir then
+          cmd = { "cp", "-r", source, target }
+        else
+          cmd = { "cp", source, target }
+        end
+        local result = vim.fn.system(cmd)
+        local label
+        if item.dir then
+          label = "directory"
+        else
+          label = "file"
+        end
+        if vim.v.shell_error == 0 then
+          vim.notify(("Duplicated " .. label .. ": " .. new_name))
+          if picker.refresh then
+            return picker:refresh()
+          else
+            return nil
+          end
+        else
+          return vim.notify(
+            ("Failed to duplicate " .. label .. ": " .. (result or "unknown error")),
+            vim.log.levels.ERROR
+          )
+        end
+      end
+    else
+      return nil
+    end
+  end
+end
+M.copy_references = function(picker)
+  local selected = picker:selected()
+  local items
+  if selected and (#selected > 0) then
+    items = selected
+  else
+    items = picker:items()
+  end
+  if not items or (#items == 0) then
+    return vim.notify("No references to copy", vim.log.levels.WARN)
+  else
+    local full_refs = {}
+    local short_refs = {}
+    local paths_only = {}
+    local seen_paths = {}
+    for _, item in ipairs(items) do
+      local rel_path = vim.fn.fnamemodify(item.file, ":~:.")
+      if item.pos then
+        table.insert(full_refs, string.format("%s:%d:%d", rel_path, item.pos[1], item.pos[2]))
+        table.insert(short_refs, string.format("%s:%d", rel_path, item.pos[1]))
+      else
+        table.insert(full_refs, rel_path)
+        table.insert(short_refs, rel_path)
+      end
+      if not seen_paths[item.file] then
+        seen_paths[item.file] = true
+        table.insert(paths_only, rel_path)
+      else
+      end
+    end
+    local copy_options = {
+      { key = "full", icon = "\243\176\134\143", desc = "file:line:col", value = table.concat(full_refs, "\n") },
+      { key = "short", icon = "\243\176\137\139", desc = "file:line", value = table.concat(short_refs, "\n") },
+      { key = "paths", icon = "\243\176\136\148", desc = "unique paths", value = table.concat(paths_only, "\n") },
+    }
+    local menu_options = {}
+    for i, opt in ipairs(copy_options) do
+      menu_options[i] = string.format("%s %s (%s)", opt.icon, opt.key, opt.desc)
+    end
+    local function _145_(_, idx)
+      if idx and copy_options[idx] then
+        vim.fn.setreg("+", copy_options[idx].value)
+        return vim.notify(
+          string.format("Copied %d references (%s)", #items, copy_options[idx].key),
+          vim.log.levels.INFO
+        )
+      else
+        return nil
+      end
+    end
+    return vim.ui.select(menu_options, { prompt = "Copy references:" }, _145_)
+  end
+end
+local function get_symbol_path(item)
+  local parts = {}
+  local current = item
+  while current do
+    if current.text or current.name then
+      table.insert(parts, 1, (current.text or current.name))
+    else
+    end
+    current = current.parent
+  end
+  return table.concat(parts, ".")
+end
+local function get_copy_options(ctx, _picker, items)
+  local is_multi = (#items > 1)
+  if (ctx == "explorer") or (ctx == "files") then
+    if is_multi then
+      local paths_cwd = {}
+      local paths_home = {}
+      local filenames = {}
+      local paths_abs = {}
       for _, item in ipairs(items) do
         table.insert(paths_cwd, vim.fn.fnamemodify(item.file, ":."))
         table.insert(paths_home, vim.fn.fnamemodify(item.file, ":~"))
         table.insert(filenames, vim.fn.fnamemodify(item.file, ":t"))
         table.insert(paths_abs, item.file)
       end
-
-      options = {
-        { label = "Relative paths", value = table.concat(paths_cwd, "\n"), icon = "󰉋" },
-        { label = "From home", value = table.concat(paths_home, "\n"), icon = "󰋜" },
-        { label = "Filenames", value = table.concat(filenames, "\n"), icon = "󰈔" },
-        { label = "Absolute paths", value = table.concat(paths_abs, "\n"), icon = "󰆏" },
+      return {
+        { label = "Relative paths", value = table.concat(paths_cwd, "\n"), icon = "\243\176\137\139" },
+        { label = "From home", value = table.concat(paths_home, "\n"), icon = "\243\176\139\156" },
+        { label = "Filenames", value = table.concat(filenames, "\n"), icon = "\243\176\136\148" },
+        { label = "Absolute paths", value = table.concat(paths_abs, "\n"), icon = "\243\176\134\143" },
       }
     else
-      local item = items[1]
-      options = {
-        { label = "Relative path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" },
-        { label = "From home", value = vim.fn.fnamemodify(item.file, ":~"), icon = "󰋜" },
-        { label = "Filename", value = vim.fn.fnamemodify(item.file, ":t"), icon = "󰈔" },
-        { label = "Absolute path", value = item.file, icon = "󰆏" },
-        { label = "Basename", value = vim.fn.fnamemodify(item.file, ":t:r"), icon = "󰈙" },
-        { label = "Extension", value = vim.fn.fnamemodify(item.file, ":e"), icon = "󰈙" },
+      local f = items[1].file
+      return {
+        { label = "Relative path", value = vim.fn.fnamemodify(f, ":."), icon = "\243\176\137\139" },
+        { label = "From home", value = vim.fn.fnamemodify(f, ":~"), icon = "\243\176\139\156" },
+        { label = "Filename", value = vim.fn.fnamemodify(f, ":t"), icon = "\243\176\136\148" },
+        { label = "Absolute path", value = f, icon = "\243\176\134\143" },
+        { label = "Basename", value = vim.fn.fnamemodify(f, ":t:r"), icon = "\243\176\136\153" },
+        { label = "Extension", value = vim.fn.fnamemodify(f, ":e"), icon = "\243\176\136\153" },
       }
     end
   elseif ctx == "lsp_symbols" then
-    -- LSP symbol copy options
     if is_multi then
       local names = {}
       local locations = {}
       for _, item in ipairs(items) do
-        local name = item.text or item.name or ""
-        table.insert(names, name)
+        table.insert(names, (item.text or item.name or ""))
         if item.file and item.pos then
           table.insert(locations, string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]))
+        else
         end
       end
-      options = {
-        { label = "Symbol names", value = table.concat(names, "\n"), icon = "󰊕" },
-        { label = "File:line locations", value = table.concat(locations, "\n"), icon = "󰆏" },
+      return {
+        { label = "Symbol names", value = table.concat(names, "\n"), icon = "\243\176\138\149" },
+        { label = "File:line locations", value = table.concat(locations, "\n"), icon = "\243\176\134\143" },
       }
     else
       local item = items[1]
-      local name = item.text or item.name or ""
+      local name = (item.text or item.name or "")
       local symbol_path = get_symbol_path(item)
-      options = {
-        { label = "Symbol name", value = name, icon = "󰊕" },
-      }
-      if symbol_path ~= name and symbol_path ~= "" then
-        table.insert(options, { label = "Symbol path", value = symbol_path, icon = "󰙅" })
+      local options = { { label = "Symbol name", value = name, icon = "\243\176\138\149" } }
+      if not (symbol_path == name) and not (symbol_path == "") then
+        table.insert(options, { label = "Symbol path", value = symbol_path, icon = "\243\176\153\133" })
+      else
       end
       if item.file and item.pos then
-        table.insert(options, {
-          label = "File:line",
-          value = string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]),
-          icon = "󰆏",
-        })
-        table.insert(options, {
-          label = "File:symbol",
-          value = string.format("%s:%s", vim.fn.fnamemodify(item.file, ":."), name),
-          icon = "󰈔",
-        })
+        table.insert(
+          options,
+          {
+            label = "File:line",
+            value = string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]),
+            icon = "\243\176\134\143",
+          }
+        )
+        table.insert(
+          options,
+          {
+            label = "File:symbol",
+            value = string.format("%s:%s", vim.fn.fnamemodify(item.file, ":."), name),
+            icon = "\243\176\136\148",
+          }
+        )
+      else
       end
+      return options
     end
   elseif ctx == "grep" then
-    -- Grep result copy options
     if is_multi then
       local locations = {}
       local lines = {}
       local paths = {}
       local seen_paths = {}
-
       for _, item in ipairs(items) do
         if item.file and item.pos then
           table.insert(locations, string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]))
+        else
         end
         if item.line then
           table.insert(lines, item.line)
         elseif item.text then
           table.insert(lines, item.text)
+        else
         end
         if item.file and not seen_paths[item.file] then
           seen_paths[item.file] = true
           table.insert(paths, vim.fn.fnamemodify(item.file, ":."))
+        else
         end
       end
-
-      options = {
-        { label = "File:line locations", value = table.concat(locations, "\n"), icon = "󰆏" },
-        { label = "Matched lines", value = table.concat(lines, "\n"), icon = "󰈙" },
-        { label = "Unique paths", value = table.concat(paths, "\n"), icon = "󰉋" },
+      return {
+        { label = "File:line locations", value = table.concat(locations, "\n"), icon = "\243\176\134\143" },
+        { label = "Matched lines", value = table.concat(lines, "\n"), icon = "\243\176\136\153" },
+        { label = "Unique paths", value = table.concat(paths, "\n"), icon = "\243\176\137\139" },
       }
     else
       local item = items[1]
-      options = {}
+      local options = {}
       if item.file and item.pos then
-        table.insert(options, {
-          label = "File:line",
-          value = string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]),
-          icon = "󰆏",
-        })
+        table.insert(
+          options,
+          {
+            label = "File:line",
+            value = string.format("%s:%d", vim.fn.fnamemodify(item.file, ":."), item.pos[1]),
+            icon = "\243\176\134\143",
+          }
+        )
+      else
       end
       if item.line then
-        table.insert(options, { label = "Matched line", value = item.line, icon = "󰈙" })
+        table.insert(options, { label = "Matched line", value = item.line, icon = "\243\176\136\153" })
       elseif item.text then
-        table.insert(options, { label = "Matched text", value = item.text, icon = "󰈙" })
+        table.insert(options, { label = "Matched text", value = item.text, icon = "\243\176\136\153" })
+      else
       end
       if item.file then
-        table.insert(options, { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" })
+        table.insert(
+          options,
+          { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "\243\176\137\139" }
+        )
+      else
       end
+      return options
     end
   elseif ctx == "git_branches" then
-    -- Git branch copy options
     if is_multi then
       local names = {}
       for _, item in ipairs(items) do
         local branch = M.get_branch_name(item)
         if branch then
           table.insert(names, branch)
+        else
         end
       end
-      options = {
-        { label = "Branch names", value = table.concat(names, "\n"), icon = "" },
-      }
+      return { { label = "Branch names", value = table.concat(names, "\n"), icon = "" } }
     else
-      local item = items[1]
-      local branch = M.get_branch_name(item)
+      local branch = M.get_branch_name(items[1])
       if branch then
-        options = {
-          { label = "Branch name", value = branch, icon = "" },
-        }
-        -- Add remote format if it looks like a remote branch
+        local options = { { label = "Branch name", value = branch, icon = "" } }
         if branch:match("/") then
           local remote, name = branch:match("^([^/]+)/(.+)$")
           if remote and name then
-            table.insert(options, { label = "Remote branch", value = branch, icon = "󰊢" })
+            table.insert(options, { label = "Remote branch", value = branch, icon = "\243\176\138\162" })
             table.insert(options, { label = "Branch only", value = name, icon = "" })
+          else
           end
+        else
         end
+        return options
+      else
+        return {}
       end
     end
   elseif ctx == "git_status" then
-    -- Git status file copy options
     if is_multi then
       local paths = {}
       for _, item in ipairs(items) do
         table.insert(paths, vim.fn.fnamemodify(item.file, ":."))
       end
-      options = {
-        { label = "File paths", value = table.concat(paths, "\n"), icon = "󰉋" },
-      }
+      return { { label = "File paths", value = table.concat(paths, "\n"), icon = "\243\176\137\139" } }
     else
       local item = items[1]
-      options = {
-        { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" },
-      }
+      local options =
+        { { label = "File path", value = vim.fn.fnamemodify(item.file, ":."), icon = "\243\176\137\139" } }
       if item.status then
-        table.insert(options, { label = "Status", value = item.status, icon = "󰊢" })
+        table.insert(options, { label = "Status", value = item.status, icon = "\243\176\138\162" })
+      else
       end
+      return options
     end
   elseif ctx == "buffers" then
-    -- Buffer copy options
     if is_multi then
       local paths = {}
       local names = {}
       for _, item in ipairs(items) do
-        local bufname = item.file or (item.bufnr and vim.api.nvim_buf_get_name(item.bufnr)) or ""
-        if bufname ~= "" then
+        local bufname = (item.file or (item.bufnr and vim.api.nvim_buf_get_name(item.bufnr)) or "")
+        if not (bufname == "") then
           table.insert(paths, vim.fn.fnamemodify(bufname, ":."))
           table.insert(names, vim.fn.fnamemodify(bufname, ":t"))
+        else
         end
       end
-      options = {
-        { label = "File paths", value = table.concat(paths, "\n"), icon = "󰉋" },
-        { label = "Buffer names", value = table.concat(names, "\n"), icon = "󰈔" },
+      return {
+        { label = "File paths", value = table.concat(paths, "\n"), icon = "\243\176\137\139" },
+        { label = "Buffer names", value = table.concat(names, "\n"), icon = "\243\176\136\148" },
       }
     else
       local item = items[1]
-      local bufname = item.file or (item.bufnr and vim.api.nvim_buf_get_name(item.bufnr)) or ""
-      if bufname ~= "" then
-        options = {
-          { label = "File path", value = vim.fn.fnamemodify(bufname, ":."), icon = "󰉋" },
-          { label = "Buffer name", value = vim.fn.fnamemodify(bufname, ":t"), icon = "󰈔" },
-          { label = "Absolute path", value = bufname, icon = "󰆏" },
+      local bufname = (item.file or (item.bufnr and vim.api.nvim_buf_get_name(item.bufnr)) or "")
+      if not (bufname == "") then
+        return {
+          { label = "File path", value = vim.fn.fnamemodify(bufname, ":."), icon = "\243\176\137\139" },
+          { label = "Buffer name", value = vim.fn.fnamemodify(bufname, ":t"), icon = "\243\176\136\148" },
+          { label = "Absolute path", value = bufname, icon = "\243\176\134\143" },
         }
+      else
+        return {}
       end
     end
   else
-    -- Default/unknown context - use whatever properties are available
     if is_multi then
       local texts = {}
       local files = {}
+      local options = {}
       for _, item in ipairs(items) do
         if item.text then
           table.insert(texts, item.text)
+        else
         end
         if item.file then
           table.insert(files, vim.fn.fnamemodify(item.file, ":."))
+        else
         end
       end
       if #texts > 0 then
-        table.insert(options, { label = "Text", value = table.concat(texts, "\n"), icon = "󰈙" })
+        table.insert(options, { label = "Text", value = table.concat(texts, "\n"), icon = "\243\176\136\153" })
+      else
       end
       if #files > 0 then
-        table.insert(options, { label = "Files", value = table.concat(files, "\n"), icon = "󰉋" })
+        table.insert(options, { label = "Files", value = table.concat(files, "\n"), icon = "\243\176\137\139" })
+      else
       end
+      return options
     else
       local item = items[1]
+      local options = {}
       if item.text then
-        table.insert(options, { label = "Text", value = item.text, icon = "󰈙" })
+        table.insert(options, { label = "Text", value = item.text, icon = "\243\176\136\153" })
+      else
       end
       if item.file then
-        table.insert(options, { label = "File", value = vim.fn.fnamemodify(item.file, ":."), icon = "󰉋" })
+        table.insert(
+          options,
+          { label = "File", value = vim.fn.fnamemodify(item.file, ":."), icon = "\243\176\137\139" }
+        )
+      else
       end
+      return options
     end
   end
-
-  return options
 end
-
--- Generalized copy action for all picker types
 M.copy = function(picker, item)
-  -- Detect context
-  local ctx, context = detect_context(picker)
-
-  -- Get items (selected or current)
-  local items = {}
-  if context and context.get_items then
-    items = context.get_items(picker)
-  elseif item then
-    items = { item }
-  else
-    local selected, err = safe_picker_call(picker, "selected")
-    if not err and selected and #selected > 0 then
-      items = selected
+  local ctx, _context = detect_context(picker)
+  local items
+  do
+    local its = picker_items(picker)
+    if #its > 0 then
+      items = its
     else
-      local current, err = safe_picker_call(picker, "current")
-      if not err and current then
-        items = { current }
+      if item then
+        items = { item }
+      else
+        items = {}
       end
     end
   end
-
   if #items == 0 then
-    vim.notify("No items to copy", vim.log.levels.WARN)
-    return
-  end
-
-  -- Get context-appropriate copy options
-  local options = get_copy_options(ctx, picker, items)
-
-  if #options == 0 then
-    vim.notify("No copy options available", vim.log.levels.WARN)
-    return
-  end
-
-  -- Build menu
-  local menu_items = {}
-  for i, opt in ipairs(options) do
-    local preview = opt.value
-    if #preview > 40 then
-      preview = preview:sub(1, 37) .. "..."
+    return vim.notify("No items to copy", vim.log.levels.WARN)
+  else
+    local options = get_copy_options(ctx, picker, items)
+    if #options == 0 then
+      return vim.notify("No copy options available", vim.log.levels.WARN)
+    else
+      local menu_items = {}
+      for i, opt in ipairs(options) do
+        local preview = opt.value
+        if #preview > 40 then
+          preview = (preview:sub(1, 37) .. "...")
+        else
+        end
+        preview = preview:gsub("\n", " \226\134\181 ")
+        menu_items[i] = string.format("%s %s: %s", (opt.icon or "\243\176\134\143"), opt.label, preview)
+      end
+      local function _182_(_, idx)
+        if idx and options[idx] then
+          vim.fn.setreg("+", options[idx].value)
+          local count_info
+          if #items > 1 then
+            count_info = string.format(" (%d items)", #items)
+          else
+            count_info = ""
+          end
+          return Snacks.notify.info(("Copied: " .. options[idx].label .. count_info))
+        else
+          return nil
+        end
+      end
+      return vim.ui.select(menu_items, { prompt = string.format("Copy (%s):", ctx) }, _182_)
     end
-    preview = preview:gsub("\n", " ↵ ")
-    menu_items[i] = string.format("%s %s: %s", opt.icon or "󰆏", opt.label, preview)
   end
-
-  vim.ui.select(menu_items, {
-    prompt = string.format("Copy (%s):", ctx),
-  }, function(_, idx)
-    if idx and options[idx] then
-      vim.fn.setreg("+", options[idx].value)
-      local count_info = #items > 1 and string.format(" (%d items)", #items) or ""
-      Snacks.notify.info("Copied: " .. options[idx].label .. count_info)
-    end
-  end)
 end
-
--- Get persisted explorer layout
 M.get_explorer_layout = function()
   return explorer_layout
 end
-
--- Toggle explorer layout between sidebar and default (float)
 M.toggle_layout = function(picker)
-  local new_layout = explorer_layout == "sidebar" and "default" or "sidebar"
+  local new_layout
+  if explorer_layout == "sidebar" then
+    new_layout = "default"
+  else
+    new_layout = "sidebar"
+  end
   explorer_layout = new_layout
   vim.g.explorer_layout = new_layout
-
   local layout =
     Snacks.picker.config.layout({ layout = { preset = new_layout, preview = preview_for_layout(new_layout) } })
   picker:set_layout(layout)
   picker.opts.preview = preview_for_layout(new_layout)
-  picker.opts.auto_close = new_layout == "default"
+  picker.opts.auto_close = (new_layout == "default")
+  return nil
 end
-
--- Toggle tree/flat view for explorer
--- Updates opts.tree and expands all directories when switching to flat mode
 M.toggle_tree = function(picker)
-  if not picker or not picker.opts then
-    return
-  end
-
-  local new_tree = not picker.opts.tree
-  picker.opts.tree = new_tree
-  picker._tree_mode = new_tree
-
-  -- Update formatter to match tree state
-  picker.opts.formatters = picker.opts.formatters or {}
-  picker.opts.formatters.file = picker.opts.formatters.file or {}
-  picker.opts.formatters.file.filename_only = new_tree
-
-  -- Expand all directories recursively when switching to flat mode
-  if not new_tree then
-    local ok, Tree = pcall(require, "snacks.explorer.tree")
-    if ok then
-      local root = Tree:find(picker:cwd())
-      if root then
-        Tree:walk(root, function(node)
-          if node.dir then
-            node.open = true
-            Tree:expand(node)
+  if picker and picker.opts then
+    local new_tree = not picker.opts.tree
+    picker.opts.tree = new_tree
+    picker._tree_mode = new_tree
+    picker.opts.formatters = (picker.opts.formatters or {})
+    picker.opts.formatters.file = (picker.opts.formatters.file or {})
+    picker.opts.formatters.file.filename_only = new_tree
+    if not new_tree then
+      local ok, Tree = pcall(require, "snacks.explorer.tree")
+      if ok then
+        local root = Tree:find(picker:cwd())
+        if root then
+          local function _188_(node)
+            if node.dir then
+              node.open = true
+              return Tree:expand(node)
+            else
+              return nil
+            end
           end
-        end, { all = true })
+          Tree:walk(root, _188_, { all = true })
+        else
+        end
+      else
       end
+    else
     end
+    picker.list:set_target()
+    return picker:find()
+  else
+    return nil
   end
-
-  picker.list:set_target()
-  picker:find()
 end
-
--- Custom file formatter that respects tree mode toggle
--- Use this in explorer config: format = require("utils.picker-extensions").format_file_tree_aware
 M.format_file_tree_aware = function(item, picker)
-  -- If tree mode is off, temporarily hide parent to prevent tree rendering
   local original_parent = item.parent
   if picker._tree_mode == false then
     item.parent = nil
+  else
   end
-
-  -- Call the default file formatter
   local ret = Snacks.picker.format.file(item, picker)
-
-  -- Restore parent
   item.parent = original_parent
-
   return ret
 end
-
--- Confirm action with multi-select warning
--- Shows confirmation dialog when multiple files are selected
--- For directories: uses default explorer toggle behavior
 M.confirm_multi = function(picker, item, action)
-  -- For directories, use default explorer confirm (toggle open/close)
   if item and item.dir then
     local Tree = require("snacks.explorer.tree")
     Tree:toggle(item.file)
-    require("snacks.explorer.actions").update(picker, { refresh = true })
-    return
-  end
-
-  -- For files, check multi-select
-  local selected = picker:selected()
-  if #selected > 1 then
-    local files = {}
-    for i, sel in ipairs(selected) do
-      if i <= 5 then
-        table.insert(files, "  " .. (sel.file and vim.fn.fnamemodify(sel.file, ":t") or sel.text))
-      end
-    end
-    if #selected > 5 then
-      table.insert(files, "  ... and " .. (#selected - 5) .. " more")
-    end
-    local msg = "Open " .. #selected .. " files?\n" .. table.concat(files, "\n")
-    vim.ui.select({ "Yes", "No" }, { prompt = msg }, function(choice)
-      if choice == "Yes" then
-        Snacks.picker.actions.confirm(picker, item, action or {})
-      end
-    end)
+    return require("snacks.explorer.actions").update(picker, { refresh = true })
   else
-    -- Check if the main window (not picker) has winfixbuf (e.g. leetcode)
-    local main_win = picker.main
-    local has_winfixbuf = main_win and vim.api.nvim_win_is_valid(main_win) and vim.wo[main_win].winfixbuf
-
-    if has_winfixbuf then
-      picker:close()
-      if item and item.file then
-        vim.cmd("split " .. vim.fn.fnameescape(item.file))
+    local selected = picker:selected()
+    if #selected > 1 then
+      local files = {}
+      for i, sel in ipairs(selected) do
+        if i <= 5 then
+          local _195_
+          if sel.file then
+            _195_ = vim.fn.fnamemodify(sel.file, ":t")
+          else
+            _195_ = sel.text
+          end
+          table.insert(files, ("  " .. _195_))
+        else
+        end
       end
-    elseif explorer_layout == "default" then
-      local file = item and item.file
-      picker:close()
-      if file then
-        vim.cmd("edit " .. vim.fn.fnameescape(file))
+      if #selected > 5 then
+        table.insert(files, ("  ... and " .. (#selected - 5) .. " more"))
+      else
       end
+      local msg = ("Open " .. #selected .. " files?\n" .. table.concat(files, "\n"))
+      local function _199_(choice)
+        if choice == "Yes" then
+          return Snacks.picker.actions.confirm(picker, item, (action or {}))
+        else
+          return nil
+        end
+      end
+      return vim.ui.select({ "Yes", "No" }, { prompt = msg }, _199_)
     else
-      Snacks.picker.actions.confirm(picker, item, action or {})
+      local main_win = picker.main
+      local has_winfixbuf = (main_win and vim.api.nvim_win_is_valid(main_win) and vim.wo[main_win].winfixbuf)
+      if has_winfixbuf then
+        picker:close()
+        if item and item.file then
+          return vim.cmd(("split " .. vim.fn.fnameescape(item.file)))
+        else
+          return nil
+        end
+      elseif explorer_layout == "default" then
+        local file = (item and item.file)
+        picker:close()
+        if file then
+          return vim.cmd(("edit " .. vim.fn.fnameescape(file)))
+        else
+          return nil
+        end
+      else
+        return Snacks.picker.actions.confirm(picker, item, (action or {}))
+      end
     end
   end
 end
-
-M.claude_add_tree = function(picker, item)
+M.claude_add_tree = function(picker, _item)
   local claudecode = require("claudecode")
   for _, selected in ipairs(picker:selected({ fallback = true })) do
     local path = Snacks.picker.util.path(selected)
     if path then
       claudecode.send_at_mention(path, nil, nil, "snacks_picker")
+    else
     end
   end
+  return nil
 end
-
--- Export all picker action functions for use in snacks.lua
 M.actions = {
   open_multiple_buffers = M.open_multiple_buffers,
   copy_file_path = M.copy_file_path,
-  copy = M.copy, -- Generalized copy action for all picker types
+  copy = M.copy,
   copy_references = M.copy_references,
   search_in_directory = M.search_in_directory,
   diff_selected = M.diff_selected,
   handle_directory_expansion = M.handle_directory_expansion,
-  format_action = format_action,
-  toggle_conflict_filter = M.toggle_conflict_filter,
-  git_conflicts = M.git_conflicts,
-  git_conflicts_explorer = M.git_conflicts_explorer,
-  filter_conflicts = M.filter_conflicts,
-  filter_conflicts_explorer = M.filter_conflicts_explorer,
   duplicate_file = M.duplicate_file,
   claude_add_tree = M.claude_add_tree,
-  -- Context menu actions (which-key based)
   context_menu = M.context_menu,
   git_context_menu = M.git_context_menu,
   buffer_context_menu = M.buffer_context_menu,
-  -- Toggle actions (persist = survives across picker instances)
   toggle_tree = M.toggle_tree,
   toggle_layout = M.toggle_layout,
-  -- Confirm with multi-select warning
   confirm_multi = M.confirm_multi,
 }
-
 return M

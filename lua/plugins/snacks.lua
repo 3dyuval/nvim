@@ -5,11 +5,6 @@ local open_explorer = function(opts)
   require("utils.picker-extensions").open_explorer(opts)
 end
 
--- Delegate to comprehensive format action from picker-extensions
-local function format_current_item(picker, item)
-  require("utils.picker-extensions").actions.format_action(picker, item)
-end
-
 return {
   {
     "folke/snacks.nvim",
@@ -448,11 +443,6 @@ return {
                   require("utils.picker-extensions").actions.git_context_menu(picker, item)
                 end,
               },
-              toggle_conflict_filter = {
-                action = function(picker)
-                  require("utils.picker-extensions").actions.toggle_conflict_filter(picker)
-                end,
-              },
               search_in_directory = {
                 action = function(picker, item)
                   require("workspace.grep")["search-in-directory"](picker, item)
@@ -464,7 +454,6 @@ return {
                 keys = {
                   ["f"] = "git_context_menu",
                   ["s"] = { "git_stage", mode = { "n", "i" } },
-                  ["<M-c>"] = "toggle_conflict_filter",
                   ["<C-/>"] = "search_in_directory",
                 },
               },
@@ -626,20 +615,6 @@ return {
         end,
         desc = "Visual selection or word",
         mode = { "n", "x" },
-      },
-      -- {
-      --   "<leader>gC",
-      --   function()
-      --     require("utils.picker-extensions").actions.git_conflicts()
-      --   end,
-      --   desc = "Git Conflicts",
-      -- },
-      {
-        "<leader>gC",
-        function()
-          require("utils.picker-extensions").actions.git_conflicts_explorer()
-        end,
-        desc = "Git Conflicts Explorer",
       },
       {
         "<leader>se",
