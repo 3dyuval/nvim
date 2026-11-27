@@ -12,5 +12,6 @@
 (require :config.keymaps.toggles)
 (require :config.keymaps.code)
 (require :config.keymaps.yank)
+(require :config.keymaps.inspect)
 (require :config.keymaps.utils)
 
