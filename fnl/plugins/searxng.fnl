@@ -5,7 +5,7 @@
 ;; base_url. mapping {} disables its keymaps (they collide with Kitty's
 ;; <leader>rs / <leader>rR) — use the picker instead.
 {1 "3dyuval/searxng.nvim"
- :dir "~/proj/searxng.nvim"
+ :enabled false
  :dependencies ["folke/snacks.nvim"]
  :event "VeryLazy"
  :opts {:mapping {:prompt false
