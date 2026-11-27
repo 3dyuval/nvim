@@ -70,26 +70,5 @@ return {
     -- Jump to symbol on enter
     jump = { scroll = "middle", border = "single" },
   },
-  keys = {
-    {
-      "<leader>aa",
-      function()
-        require("aerial").toggle()
-        -- always open expanded (all tree nodes open)
-        require("aerial").tree_open_all()
-      end,
-      desc = "Aerial (Outline, expanded)",
-    },
-    {
-      "<leader>ah",
-      function()
-        require("aerial").toggle()
-        -- always open collapsed (all tree nodes closed)
-        require("aerial").tree_close_all()
-      end,
-      desc = "Aerial (Outline, collapsed)",
-    },
-    { "<leader>af", "<Cmd>AerialFocus<CR>", desc = "Aerial (Focus)" },
-    { "<leader>ac", "<Cmd>AerialClose<CR>", desc = "Aerial (Close)" },
-  },
+  -- keymaps: <leader>i{a,h,f,c} in config/keymaps/inspect.fnl
 }
