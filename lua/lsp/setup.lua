@@ -203,14 +203,6 @@ local function goto_definition_first()
 end
 vim.keymap.set("n", "grt", goto_definition_first, { desc = "Go to definition (first)" })
 vim.keymap.set("n", "grT", vim.lsp.buf.definition, { desc = "Go to definition (list)" })
-local function _12_()
-  if vim.bo.filetype == "vue" then
-    return require("lsp.vue-symbols").pick("bottom")
-  else
-    return require("snacks").picker.lsp_symbols({ layout = "bottom" })
-  end
-end
-vim.keymap.set("n", "grs", _12_, { desc = "Symbols" })
 vim.diagnostic.config({
   underline = true,
   severity_sort = true,
@@ -225,7 +217,7 @@ vim.diagnostic.config({
   },
   update_in_insert = false,
 })
-local function _14_(ev)
+local function _12_(ev)
   local client = vim.lsp.get_client_by_id(ev.data.client_id)
   local buf = ev.buf
   if
@@ -239,9 +231,9 @@ local function _14_(ev)
     return nil
   end
 end
-vim.api.nvim_create_autocmd("LspAttach", { callback = _14_ })
-local function _16_()
+vim.api.nvim_create_autocmd("LspAttach", { callback = _12_ })
+local function _14_()
   return require("utils.files").smart_references()
 end
-vim.keymap.set("n", "<leader>cx", _16_, { desc = "Smart References" })
+vim.keymap.set("n", "<leader>cx", _14_, { desc = "Smart References" })
 return vim.keymap.set("n", "<leader>cL", "<cmd>LspInfo<cr>", { desc = "LSP Info" })

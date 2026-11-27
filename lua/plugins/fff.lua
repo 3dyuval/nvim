@@ -11,9 +11,8 @@ local function _2_()
     buf_dir = vim.fn.getcwd()
   end
   local root = (vim.fs.root(buf_dir, ".git") or buf_dir)
-  local fff = require("fff")
-  fff.change_indexing_directory(root)
-  return fff.find_files()
+  require("fff").change_indexing_directory(root)
+  return require("fff-snacks").find_files({ cwd = root, layout = "bottom" })
 end
 local function _4_()
   local file = vim.api.nvim_buf_get_name(0)
@@ -24,9 +23,8 @@ local function _4_()
     buf_dir = vim.fn.getcwd()
   end
   local root = (vim.fs.root(buf_dir, ".git") or buf_dir)
-  local fff = require("fff")
-  fff.change_indexing_directory(root)
-  return fff.find_files()
+  require("fff").change_indexing_directory(root)
+  return require("fff-snacks").find_files({ cwd = root, layout = "bottom" })
 end
 local function _6_(_, opts)
   return require("fff").setup(opts)
@@ -35,6 +33,7 @@ return {
   "dmtrKovalenko/fff.nvim",
   enabled = true,
   version = "v0.9.6",
+  dependencies = { "madmaxieee/fff-snacks.nvim" },
   build = _1_,
   keys = { { "<leader>ff", _2_, desc = "Find files (git root)" }, { "<C-f>", _4_, desc = "Find files (git root)" } },
   opts = {
@@ -44,7 +43,6 @@ return {
     max_threads = 6,
     prompt = "FFF ",
     title = "Find Files",
-    ui_enabled = true,
     layout = { width = 0.8, height = 0.8, preview_size = 0.5, prompt_position = "bottom" },
     preview = {
       enabled = true,
@@ -73,6 +71,7 @@ return {
     respect_gitignore = true,
     follow_symlinks = false,
     show_hidden = false,
+    ui_enabled = false,
   },
   config = _6_,
 }

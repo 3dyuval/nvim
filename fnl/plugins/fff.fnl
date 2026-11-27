@@ -5,21 +5,22 @@
 {1 "dmtrKovalenko/fff.nvim"
  :enabled true
  :version "v0.9.6"
+ :dependencies ["madmaxieee/fff-snacks.nvim"]
  :build (fn []
           ;; downloads a prebuilt binary matching the version, or falls back to cargo build
           ((. (require :fff.download) :download_or_build_binary)))
- ;; Native fff picker UI (snacks-free). Reindex at the buffer's git root, then
- ;; open fff's own floating picker. Replaces the old fff-snacks bridge.
+ ;; fff indexes the Rust core from base_path (fixed at setup), so reindex at the
+ ;; buffer's git root first, then render results in a snacks picker (bottom layout,
+ ;; matching grs). fff-snacks bridges fff's matcher into Snacks.picker.
  :keys [{1 :<leader>ff
          2 (fn []
              (let [file (vim.api.nvim_buf_get_name 0)
                    buf-dir (if (not= file "")
                                (vim.fn.fnamemodify file ":p:h")
                                (vim.fn.getcwd))
-                   root (or (vim.fs.root buf-dir ".git") buf-dir)
-                   fff (require :fff)]
-               (fff.change_indexing_directory root)
-               (fff.find_files)))
+                   root (or (vim.fs.root buf-dir ".git") buf-dir)]
+               ((. (require :fff) :change_indexing_directory) root)
+               ((. (require :fff-snacks) :find_files) {:cwd root :layout :bottom})))
          :desc "Find files (git root)"}
         {1 "<C-f>"
          2 (fn []
@@ -27,10 +28,9 @@
                    buf-dir (if (not= file "")
                                (vim.fn.fnamemodify file ":p:h")
                                (vim.fn.getcwd))
-                   root (or (vim.fs.root buf-dir ".git") buf-dir)
-                   fff (require :fff)]
-               (fff.change_indexing_directory root)
-               (fff.find_files)))
+                   root (or (vim.fs.root buf-dir ".git") buf-dir)]
+               ((. (require :fff) :change_indexing_directory) root)
+               ((. (require :fff-snacks) :find_files) {:cwd root :layout :bottom})))
          :desc "Find files (git root)"}]
  :opts {:version "v0.9.6"
         :base_path (vim.fn.getcwd)
@@ -38,8 +38,8 @@
         :max_threads 6
         :prompt "FFF "
         :title "Find Files"
-        ;; Native fff picker UI (was false when fff-snacks drove the UI).
-        :ui_enabled true
+        ;; fff-snacks drives the UI (Snacks.picker), so fff's own UI stays off.
+        :ui_enabled false
         :layout {:width 0.8
                  :height 0.8
                  :preview_size 0.5

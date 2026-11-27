@@ -210,6 +210,10 @@ return {
         ignored = false,
         exclude = { "node_modules", "elixir_ls" },
         layouts = require("utils.snacks-layouts"),
+        -- Default layout for pickers that don't set their own (covers the
+        -- <leader>s* search family). Sources below that declare `layout`
+        -- (explorer, gh_issue/gh_pr sidebar, ivy/vscode/select) keep theirs.
+        layout = { preset = "bottom" },
         -- Toggle indicators shown in title bar
         toggles = {
           follow = "f",
