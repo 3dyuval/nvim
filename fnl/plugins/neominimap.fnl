@@ -1,7 +1,6 @@
 {1 "Isrothy/neominimap.nvim"
  :version "v3.*.*"
  :lazy false
- :keys [{1 :<leader>uM 2 "<cmd>Neominimap Toggle<cr>" :desc "Toggle minimap"}]
  :init (fn []
          (set vim.opt.wrap false)
          (set vim.opt.sidescrolloff 36)

@@ -9,5 +9,6 @@
 (require :config.keymaps.search)
 (require :config.keymaps.database)
 (require :config.keymaps.minimap)
+(require :config.keymaps.toggles)
 (require :config.keymaps.utils)
 

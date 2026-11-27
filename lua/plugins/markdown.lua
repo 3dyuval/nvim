@@ -66,7 +66,7 @@ return {
       },
     },
     keys = {
-      { "<leader>um", ":RenderMarkdown toggle<cr>", ft = text_filetypes, desc = "Toggle render markdown" },
+      { "<leader>uM", ":RenderMarkdown toggle<cr>", ft = text_filetypes, desc = "Toggle render markdown" },
     },
   },
 }

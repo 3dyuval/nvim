@@ -9,10 +9,4 @@ local function _1_()
   }
   return nil
 end
-return {
-  "Isrothy/neominimap.nvim",
-  version = "v3.*.*",
-  keys = { { "<leader>uM", "<cmd>Neominimap Toggle<cr>", desc = "Toggle minimap" } },
-  init = _1_,
-  lazy = false,
-}
+return { "Isrothy/neominimap.nvim", version = "v3.*.*", init = _1_, lazy = false }

@@ -138,16 +138,7 @@ map({
     },
   },
 
-  ["<leader>u"] = {
-    g = {
-      g = { "<leader>uG", desc = "Toggle Git Signs" },
-      l = { cmd = "Gitsigns toggle_linehl", desc = "Toggle line highlights" },
-      n = { cmd = "Gitsigns toggle_numhl", desc = "Toggle number highlights" },
-      w = { cmd = "Gitsigns toggle_word_diff", desc = "Toggle word diff" },
-      b = { cmd = "Gitsigns toggle_current_line_blame", desc = "Toggle current line blame" },
-    },
-    l = { require("lensline").toggle_view, desc = "Toggle lensline" },
-  },
+  -- <leader>u* toggles migrated to fnl/config/keymaps/toggles.fnl
   ["]s"] = { "]s", desc = "Next misspelled word" },
   ["[s"] = { "[s", desc = "Prev misspelled word" },
   ["]H"] = {
@@ -189,30 +180,6 @@ map({
     w = { cmd = "OpenFileInRepo", desc = "Open file in web browser" },
     l = { clipboard.copy_file_path_with_line, desc = "Copy file path to clipboard" },
     L = { cmd = "YankLineUrl +", desc = "Copy file URL with line to clipboard" },
-  },
-})
-
-map({
-  ["<leader>sp"] = {
-    L = {
-      function()
-        local messages = require("noice.message.manager").get({}, { history = true, sort = true })
-        local last = messages[#messages]
-        if last then
-          vim.fn.setreg("+", last:content())
-          vim.notify("Copied to clipboard")
-        end
-      end,
-      desc = "Copied last notification to clipboard",
-    },
-    a = {
-      cmd = "NoiceAll",
-      desc = "Show all notifications",
-    },
-    l = {
-      cmd = "NoiceLast",
-      desc = "Show last notification",
-    },
   },
 })
 
