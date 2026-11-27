@@ -10,5 +10,6 @@
 (require :config.keymaps.database)
 (require :config.keymaps.minimap)
 (require :config.keymaps.toggles)
+(require :config.keymaps.code)
 (require :config.keymaps.utils)
 

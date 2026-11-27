@@ -1,6 +1,5 @@
 local clipboard = require("utils.clipboard")
 local code = require("utils.code")
-local editor = require("utils.editor")
 local files = require("utils.files")
 local git = require("utils.git")
 local helpers = require("utils.helpers")
@@ -190,19 +189,7 @@ map({
   },
 })
 
-map({
-  ["<leader>c"] = {
-    o = { code.organize_imports, desc = "Organize + Remove Unused Imports" },
-    O = { code.organize_imports_and_fix, desc = "Organize Imports + Fix All Diagnostics" },
-    I = { code.add_missing_imports, desc = "Add missing imports" },
-    u = { code.remove_unused_imports, desc = "Remove unused imports" },
-    F = { code.fix_all, desc = "Fix all diagnostics" },
-    V = { code.select_ts_version, desc = "Select TS workspace version" },
-    t = { editor.typescript_check, desc = "TypeScript check (tsc)" },
-    g = { editor.typescript_check_go, desc = "TypeScript check (tsgo)" },
-    C = { ":Claude<CR>", desc = "Claude replace" },
-  },
-})
+-- <leader>c* code actions migrated to fnl/config/keymaps/code.fnl
 
 map({
   ["<leader>sr"] = {
