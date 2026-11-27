@@ -35,7 +35,7 @@ return {
   version = "v0.9.6",
   dependencies = { "madmaxieee/fff-snacks.nvim" },
   build = _1_,
-  keys = { { "<leader>ff", _2_, desc = "Find files (git root)" }, { "<C-f>", _4_, desc = "Find files (git root)" } },
+  keys = { { "<leader>sf", _2_, desc = "Find files (git root)" }, { "<C-f>", _4_, desc = "Find files (git root)" } },
   opts = {
     version = "v0.9.6",
     base_path = vim.fn.getcwd(),

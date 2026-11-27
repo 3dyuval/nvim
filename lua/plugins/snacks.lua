@@ -591,7 +591,7 @@ return {
     keys = {
       -- Disable LazyVim defaults that conflict with our explicit keymaps
       { "<leader>n", false }, -- We define this explicitly in keymaps.lua for notes
-      { "<leader>ff", false }, -- Disable LazyVim Find Files - we use fff
+      { "<leader>ff", false }, -- Disable LazyVim Find Files - we use fff on <leader>sf
       { "<leader>e", false }, -- Disable LazyVim Explorer - we use <leader><leader>
       { "<leader>fe", false }, -- Disable LazyVim Explorer (root dir)
       { "<leader>un", false }, -- <leader>un is now a group (toggles.fnl); dismiss is <leader>unn

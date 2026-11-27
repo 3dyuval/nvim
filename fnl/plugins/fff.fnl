@@ -12,7 +12,7 @@
  ;; fff indexes the Rust core from base_path (fixed at setup), so reindex at the
  ;; buffer's git root first, then render results in a snacks picker (bottom layout,
  ;; matching grs). fff-snacks bridges fff's matcher into Snacks.picker.
- :keys [{1 :<leader>ff
+ :keys [{1 :<leader>sf
          2 (fn []
              (let [file (vim.api.nvim_buf_get_name 0)
                    buf-dir (if (not= file "")
