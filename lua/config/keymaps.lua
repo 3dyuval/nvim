@@ -1,4 +1,3 @@
-local clipboard = require("utils.clipboard")
 local code = require("utils.code")
 local files = require("utils.files")
 local git = require("utils.git")
@@ -154,42 +153,10 @@ map({
   },
 })
 
-map({
-  ["<leader>p"] = {
-    [mode] = { "n", "v" },
-    c = { clipboard.copy_file_path, desc = "Copy file path (relative to cwd)" },
-    p = { clipboard.copy_file_path_from_home, desc = "Copy file path (from home)" },
-    n = { clipboard.copy_file_name, desc = "Copy file name" },
-    a = {
-      clipboard.copy_file_path_claude_style,
-      desc = 'Copy file w "@" prefix',
-    },
-    g = {
-      function()
-        local path =
-          vim.fn.system("git ls-files --full-name " .. vim.fn.shellescape(vim.fn.expand("%:p"))):gsub("\n", "")
-        vim.fn.setreg("+", path)
-        vim.notify("Copied: " .. path, vim.log.levels.INFO)
-      end,
-      desc = "Copy file path (relative to git)",
-    },
-    o = { clipboard.copy_code_path, desc = "Copy object path" },
-    O = { clipboard.copy_code_path_with_types, desc = "Copy object path (with types)" },
-    s = { clipboard.copy_path_from_src, desc = "Copy path from src (@/...)" },
-    w = { cmd = "OpenFileInRepo", desc = "Open file in web browser" },
-    l = { clipboard.copy_file_path_with_line, desc = "Copy file path to clipboard" },
-    L = { cmd = "YankLineUrl +", desc = "Copy file URL with line to clipboard" },
-  },
-})
-
-map({
-  g = {
-    D = { code.go_to_source_definition, desc = "Go to source definition" },
-    R = { code.file_references, desc = "File references" },
-  },
-})
+-- <leader>y* clipboard/path-copy (was <leader>p) migrated to fnl/config/keymaps/yank.fnl
 
 -- <leader>c* code actions migrated to fnl/config/keymaps/code.fnl
+-- (gD/gR dropped — deprecated to native grt/grr in lsp/setup.fnl)
 
 map({
   ["<leader>sr"] = {
