@@ -1,4 +1,3 @@
-;; <leader>c* code actions (migrated out of the retired lua/config/keymaps.lua).
 (local {: register} (require :config.keymaps.register))
 (local code (require :utils.code))
 (local editor (require :utils.editor))

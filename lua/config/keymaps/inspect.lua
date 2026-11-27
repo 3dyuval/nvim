@@ -23,7 +23,7 @@ local function _5_()
   return vim.api.nvim_input("I")
 end
 return register(
-  "<leader>i",
+  "<leader>a",
   {
     group = "Inspect",
     o = { cmd = _4_, desc = "Textobject HUD" },

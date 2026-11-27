@@ -206,7 +206,12 @@ X7: undo reverted to native — u=undo, <C-r>=redo, U=undo-line. This frees z
 | `fnl/config/keymaps/movement.fnl` | Granularity layers: Treewalker (structural), folds, hunk nav `ga/ge` (overrides scroll), till `k/K` |
 | `lua/config/keymaps-old.lua` | Legacy word/WORD motions (`l/L/D`, `<M-h>/<M-o>`), open-line, replace, jumplist — loaded last |
 | `fnl/plugins/diffview-plus.fnl` | Buffer-local hunk/conflict nav on `<C-Down>/<C-Up>`; `<C-A>/<C-E>` = window nav, `<S-A>/<S-E>` = file-entry nav |
-| `fnl/config/keymaps/modes.fnl` | Require-order hub: pulls in movement/insert/search/etc. |
+| `fnl/config/keymaps/modes.fnl` | Require-order hub: pulls in movement/insert/search/code/yank/toggles/inspect/etc. |
+| `fnl/config/keymaps/register.fnl` | Group-tree binder + `very-lazy`/`del-very-lazy` helpers to win over LazyVim's VeryLazy keys |
+| `fnl/config/keymaps/code.fnl` | `<leader>c*` code actions (organize/fix imports, TS checks, Claude) |
+| `fnl/config/keymaps/yank.fnl` | `<leader>y*` clipboard / path-copy (n+v) |
+| `fnl/config/keymaps/toggles.fnl` | `<leader>u*` toggles: gitsigns, lensline, minimap, notifications |
+| `fnl/config/keymaps/inspect.fnl` | `<leader>i*` inspection: textobject HUD, Inspect Pos/Tree, aerial outline |
 
 ## Extending
 

@@ -1,4 +1,3 @@
-;; <leader>i* inspection (ip/it were LazyVim's ui/uI).
 (local {: register : del-very-lazy} (require :config.keymaps.register))
 
 (del-very-lazy :n [:<leader>ui :<leader>uI])
@@ -9,7 +8,7 @@
       (aerial.toggle)
       (if expand? (aerial.tree_open_all) (aerial.tree_close_all)))))
 
-(register "<leader>i"
+(register "<leader>a"
   {:group "Inspect"
    :o {:cmd (fn [] ((. (require :textobject-hud) :open))) :desc "Textobject HUD"}
    :p {:cmd vim.show_pos                                  :desc "Inspect Pos"}

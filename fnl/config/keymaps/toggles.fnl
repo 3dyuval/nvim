@@ -1,4 +1,3 @@
-;; <leader>u* toggles (migrated out of the retired lua/config/keymaps.lua).
 (local {: register} (require :config.keymaps.register))
 (local lset vim.keymap.set)
 

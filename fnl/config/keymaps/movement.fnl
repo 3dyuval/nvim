@@ -1,19 +1,16 @@
 (local lset vim.keymap.set)
 
 ;; SPEC.md Layer 2 G2 — structural movement = capital HAEI (treewalk).
-;; H/I SKIP folded targets: a closed fold is opaque. Do the directional move
-;; (left/right); if it lands inside a closed fold, step over it to the NEXT
-;; SIBLING (down) — descending into a folded node is useless, so we walk past
-;; it instead. Repeat until the landing is unfolded or progress stops.
+;; H/I skip folded targets: closed fold = opaque.
+;; dir (left/right); if in a closed fold,
+;; then next sibling (down); repeat till unfolded or stuck.
 (fn treewalk-skip-folded [dir]
   (fn []
     (let [tw (require :treewalker)
           origin (vim.api.nvim_win_get_cursor 0)]
       ((. tw dir))
-      ;; If we landed inside a closed fold, step to the next sibling (down)
-      ;; past it. Track the fold we're trying to escape: each `down` must land
-      ;; us in a DIFFERENT (or no) closed fold, else we're stuck — bail and
-      ;; restore the original position rather than wandering inside the fold.
+      ;; if `down` in the same fold (no progress),
+      ;; then stuck — restore origin.
       (var guard 50)
       (var stuck false)
       (while (and (not stuck) (> guard 0)
@@ -29,14 +26,13 @@
       {:desc "Treewalk out (skip folded)" :silent true})
 (lset :n :I (treewalk-skip-folded :right)
       {:desc "Treewalk in (skip folded)" :silent true})
-;; SPEC.md Layer 2 G2b — fold-walk: Alt+H/I fold AND walk together.
-;;   <M-h> close the enclosing node's fold, then walk OUT (collapse-as-ascend).
-;;   <M-i> open the enclosing node's fold, then walk IN  (expand-as-descend).
-;; Fold targets the START LINE of the enclosing treesitter node (not the raw
-;; cursor line), so it is stable wherever the cursor sits in the block.
+;; SPEC.md Layer 2 G2b — fold-walk: Alt+H/I fold + walk together.
+;;   <M-h> close enclosing fold, then out.
+;;   <M-i> open enclosing fold, then in.
+;; fold on enclosing node's START LINE, not cursor line — stable in block.
 (fn goto-enclosing-node-start []
-  ;; Climb to the nearest multi-line ancestor (the foldable block) and park the
-  ;; cursor on its first line. Returns false if there's no treesitter node.
+  ;; cursor to first line of nearest multi-line ancestor (foldable block).
+  ;; if no treesitter node, then false.
   (if (not (pcall vim.treesitter.get_parser 0))
       false
       (let [node (vim.treesitter.get_node)]
@@ -67,7 +63,7 @@
         ((. (require :treewalker) :right)))
       {:desc "Open enclosing fold + treewalk in" :silent true})
 (lset :n :E
-      ;; SPEC.md Layer 2 G2a — prev sibling, else climb out (row-unchanged proxy)
+      ;; SPEC.md Layer 2 G2a — prev sibling; if row unchanged, then out.
       (fn []
         (when (pcall vim.treesitter.get_parser 0)
           (let [tw (require :treewalker)
@@ -79,7 +75,7 @@
 (lset :n :A "<cmd>Treewalker Down<cr>"
       {:desc "Treewalk next sibling" :silent true})
 
-;; SPEC.md Layer 2 G3 — folds = z-prefix + horizontal HAEI
+;; SPEC.md Layer 2 G3 — folds = z-prefix + horizontal HAEI.
 (lset :n :zh :zc {:desc "Close fold (one)" :noremap true})
 (lset :n :zi :zo {:desc "Open fold (one)" :noremap true})
 (lset :n :zH :zM {:desc "Close all folds" :noremap true})
@@ -88,15 +84,13 @@
 (lset [ :n :o :x ] "k" :t {:desc "Till before"} )
 (lset [ :n :o :x ] "K" :T {:desc "Till before backward"} )
 
-;; Buffer paging (wraps at ends)
+;; buffer paging, wraps at ends.
 (lset :n :<C-k> "<cmd>bprevious<cr>" {:desc "Previous buffer"})
 (lset :n :<C-y> "<cmd>bnext<cr>" {:desc "Next buffer"})
 
-;; Change nav (hunk within file), global. Context-aware: native ]c/[c when
-;; vim.wo.diff is set (diffview / conflicts), gitsigns nav_hunk otherwise.
-;; On <C-Up/Down> rather than the g-prefix — arrows carry vertical
-;; change-stepping across all buffers. (Overrides LazyVim's default
-;; <C-Up/Down> = resize; must load after it.)
+;; change nav (hunk in file), global.
+;; if vim.wo.diff (diffview/conflicts), then native ]c/[c; else gitsigns nav_hunk.
+;; on <C-Up/Down>, not g-prefix. overrides LazyVim resize — load after it.
 (local gs (require :gitsigns))
 (lset :n :<C-Down>
       (fn []
@@ -111,15 +105,16 @@
             (gs.nav_hunk "prev" {:target "all"})))
       {:desc "Prev git hunk"})
 
-;; MCP virtual-text nav: step between nvim-mcp's add_virtual_text annotations
-;; (the 'mcp_virtual_text' extmark namespace). Distinct from ]d/[d diagnostics.
+;; MCP virtual-text nav.
+;; targets nvim-mcp 'mcp_virtual_text' extmark ns.
+;; not ]d/[d diagnostics.
 (lset :n "]i" (fn [] ((. (require :workspace.mcp-virtual-text) :next)))
       {:desc "Next MCP virtual text"})
 (lset :n "[i" (fn [] ((. (require :workspace.mcp-virtual-text) :prev)))
       {:desc "Prev MCP virtual text"})
 
-;; Scroll one line (HAEI vertical: a=down, e=up). Explicit so <C-S-A/E>
-;; don't fall through to native scroll on an unmapped key.
+;; scroll one line (HAEI vertical: a=down, e=up).
+;; explicit, else <C-S-A/E> fall through to native scroll on unmapped key.
 (lset :n :<C-S-A> "<C-e>" {:desc "Scroll line down"})
 (lset :n :<C-S-E> "<C-y>" {:desc "Scroll line up"})
 

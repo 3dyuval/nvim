@@ -22,9 +22,6 @@
         {:desc (.. "Window " (string.gsub dir "move_cursor_" ""))}))
 
 (fn goto-nearest-terminal [insert?]
-  ;; Focus a window already showing a term:// buffer; else open the
-  ;; most-recently-used term:// buffer in the current window; else create
-  ;; one in a split below. With insert? true, enter terminal insert mode.
   (var focused false)
   (each [_ win (ipairs (vim.api.nvim_tabpage_list_wins 0)) :until focused]
     (let [buf (vim.api.nvim_win_get_buf win)

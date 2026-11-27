@@ -1,5 +1,3 @@
-;; <leader>y* clipboard / path-copy (migrated from <leader>p in the retired
-;; lua/config/keymaps.lua).
 (local lset vim.keymap.set)
 (local clipboard (require :utils.clipboard))
 (local mode [:n :v])

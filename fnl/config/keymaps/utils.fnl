@@ -33,9 +33,8 @@
 (lset :n :P (fn [] ((. (require :hover) :open)))
                    {:desc "Hover"})
 
-;; Override LazyVim's <leader>cf: it delegates to conform.format with no
-;; lsp_format, so filetypes without a conform formatter (e.g. json -> jsonls)
-;; report "No formatter available". Call conform directly with the LSP fallback.
+;; LazyVim's <leader>cf omits lsp_format, so filetypes with only an LSP formatter
+;; (e.g. json) report "No formatter available"; force the LSP fallback.
 (lset [:n :x] :<leader>cf
       (fn [] ((. (require :conform) :format) {:lsp_format :fallback}))
       {:desc "Format"})

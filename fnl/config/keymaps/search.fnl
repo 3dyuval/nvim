@@ -29,28 +29,6 @@
          {:visualSelectionUsage :operate-within-range}))
       {:desc "Find and replace - within selection (GrugFar)"})
 
-;; pickers
-
-;; snacks explorer keymaps disabled on the no-snacks-picker branch — using oil
-;; (<leader>o- / <leader>oo) for file management instead.
-;; (lset :n :<leader>of
-;;       (fn []
-;;         ((. (require :utils.picker-extensions) :open_explorer)
-;;          {:layout {:preset :sidebar} :focus :list}))
-;;       {:desc "Explorer (side panel)"})
-;;
-;; (lset :n :<leader>fo
-;;       (fn []
-;;         ((. (require :utils.picker-extensions) :open_explorer)
-;;          {:layout {:preset :default} :focus :input}))
-;;       {:desc "Explorer (float, focus input)"})
-;;
-;; (lset :n :<leader>fe
-;;       (fn []
-;;         ((. (require :utils.picker-extensions) :open_explorer)
-;;          {:layout {:preset :sidebar} :focus :list :auto_close false}))
-;;       {:desc "Explorer (persistent, no auto-close)"})
-
 (lset :n :<leader>fF
       (fn []
         (Snacks.picker.buffers {:layout {:preset :fullscreen}}))
@@ -60,8 +38,6 @@
       (fn [] (vim.cmd "Yazi"))
       {:desc "Yazi at current file"})
 
-;; Open a `/` search prefilled with the last search term, cursor at the end,
-;; so you can tweak it and hit <CR> (or just re-run). Typed, not executed.
 (lset :n :<M-/>
       (fn []
         (let [last (vim.fn.getreg "/")]

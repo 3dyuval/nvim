@@ -1,7 +1,5 @@
-;; Surround keymaps (nvim-surround v4). v4 auto-binds ys/ds/cs from the
-;; plugin's plugin/ dir; the plugin spec disables the default visual `S`/`gS`
-;; (nvim_surround_no_visual_mappings), so the visual trigger is owned here:
-;; native v/V enter visual, select, then `s` surrounds.
+;; nvim-surround v4 auto-binds ys/ds/cs itself; only the visual triggers are
+;; owned here (spec sets nvim_surround_no_visual_mappings).
 (local lset vim.keymap.set)
 
 (lset :x :s "<Plug>(nvim-surround-visual)"
